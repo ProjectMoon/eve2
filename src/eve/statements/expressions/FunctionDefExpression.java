@@ -5,29 +5,48 @@ import java.util.List;
 
 import eve.core.EveFunction;
 import eve.core.EveObject;
+import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 import eve.statements.PopScopeStatement;
 import eve.statements.PushScopeStatement;
 
-public class FunctionDefExpression extends ExpressionStatement implements EveStatement {
+public class FunctionDefExpression extends ExpressionStatement implements EveStatement, ConstructionScope {
+	private List<String> parameters = new ArrayList<String>();
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	
 	public FunctionDefExpression() {}
 	
 	public FunctionDefExpression(List<EveStatement> statements) {
-		this.statements = statements;
+		this.setStatements(statements);
 	}
 	
 	public void addStatement(EveStatement statement) {
-		this.statements.add(statement);
+		this.getStatements().add(statement);
 	}
 	
+	public void setStatements(List<EveStatement> statements) {
+		this.statements = statements;
+	}
+
+	public List<EveStatement> getStatements() {
+		return statements;
+	}
+
+	public void setParameters(List<String> parameters) {
+		this.parameters = parameters;
+	}
+
+	public List<String> getParameters() {
+		return parameters;
+	}
+
 	@Override
 	public EveObject execute() {
 		EveFunction func = new EveFunction();
 		EveObject eo = new EveObject();
-		func.addStatements(statements);
+		func.addStatements(getStatements());
+		func.setParameters(this.parameters);
 		eo.setFunctionValue(func);
 		return eo;
 	}
@@ -35,7 +54,7 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	@Override
 	public String toString() {
 		String res = "FunctionDefStatement { ";
-		for (EveStatement statement : statements) {
+		for (EveStatement statement : getStatements()) {
 			res += statement.toString() + ";";
 		}
 		res += "}";

@@ -27,13 +27,13 @@ options {
 @members {
 	//Parameter management.	
 	private StringBuilder currentParameters = new StringBuilder();
-	private List<String> getParams() {
+	private List<String> getFunctionParams() {
 		List<String> params = Arrays.asList(currentParameters.toString().trim().split(" "));
 		currentParameters = new StringBuilder();
 		return params;
 	}
 	
-	private void pushParam(String param) {
+	private void pushFunctionParam(String param) {
 		currentParameters.append(param).append(" ");
 	}
 	
@@ -62,6 +62,7 @@ topdown
 	:	enterFunction
 	|	beginParameters
 	|	assignFunctionDown
+	|	createPrototypeDown
 	|	codeStatement
 	;
 
@@ -69,13 +70,14 @@ bottomup
 	:	exitFunction
 	|	endParameters
 	|	assignFunctionUp
+	|	createPrototypeUp
 	;
 	
 //Function declarations (not invocations)
 assignFunctionDown
 	:	^('=' INIT_FUNCTION IDENT .*) {
 		//Create new FunctionExpression.
-		currentFuncExpr = new FunctionDefExpression();
+		ScopeManager.pushConstructionScope(new FunctionDefExpression());
 		//Push on to current function stack.
 		//implement later.
 		System.out.println("Creating new function expression for " + $IDENT.text);
@@ -85,10 +87,12 @@ assignFunctionDown
 assignFunctionUp
 	:	^('=' INIT_FUNCTION IDENT .*) {
 		//Create new Assignment statement.
-		AssignmentStatement as = new InitVariableStatement($IDENT.text, currentFuncExpr);
-		currentFuncExpr = null; //clear for reuse.
-		//pop current function expression and use for assignment.
-		ExecutionTree.addStatement(as);
+		//This MUST be a function def, otherwise there's a serious problem.
+		FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
+		AssignmentStatement as = new InitVariableStatement($IDENT.text, expr);
+
+		//we are now back on global (or proto).		
+		ScopeManager.getCurrentConstructionScope().addStatement(as);
 		System.out.println("Assigning " + $IDENT.text + " function to current scope.");
 	}
 	;
@@ -96,26 +100,22 @@ assignFunctionUp
 enterFunction
 	:	^(FUNCTION_BODY .*) {
 			//Peek at current function and set scope to it.
-			System.out.println("Setting scope to current function.");
-			inFunction = true;
+			//Can ignore this, because we scope push at assignFunctionDown 
 		}
 	;
 	
 exitFunction
 	:	(FUNCTION_BODY .*) {
 			//pop scope stack.
-			System.out.println("Popping function scope.");
-			
-			//we know we are in a function (that we will shortly be leaving)
-			inFunction = false;
+			//Can ignore this because we pop scope at assignFunctionUp
 		}
 	;
 	
 beginParameters
-	:	(FUNCTION_PARAMETERS type=. (s=IDENT { pushParam($s.text); })* ) {
-			System.out.println("Adding parameters " + getParams() + " to current function def.");
-			//Gather parameters
-			//Add to current function def.
+	:	(FUNCTION_PARAMETERS type=. (s=IDENT { pushFunctionParam($s.text); })* ) {	
+			//This MUST be a function definition, otherwise we have issues.
+			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
+			expr.setParameters(getFunctionParams());
 		}
 	;
 	
@@ -125,9 +125,30 @@ endParameters
 		}
 	;
 
+//Prototype creation (not cloning)
+createPrototypeDown 
+	:	^(INIT_PROTO IDENT .*) {
+			//Current construction scope is now in a prototype.
+			ScopeManager.pushConstructionScope(new CreateProtoStatement($IDENT.text));
+			System.out.println("init prototype " + $IDENT.text);
+		}
+	;
+	
+createPrototypeUp
+	:	^(INIT_PROTO IDENT .*) {
+			//ConstructionScope MUST be CreateProtoStatement, or we have issues.
+			CreateProtoStatement createProto = (CreateProtoStatement)ScopeManager.popConstructionScope();
+			
+			//This should be global construction scope.
+			ScopeManager.getCurrentConstructionScope().addStatement(createProto);
+			System.out.println("creating create proto statement for " + $IDENT.text);
+		}
+	;
+
 //Code Statements: can occur anywhere (global, in proto, or in function)
 codeStatement
 	:	printStatement
+	|	returnStatement
 	|	initVariableStatement
 	|	updateVariableStatement
 	|	invokeFunctionStatement
@@ -136,13 +157,15 @@ codeStatement
 printStatement
 	:	^('print' e=expression) {
 			PrintStatement ps = new PrintStatement(e);
-			if (inFunction) {
-				currentFuncExpr.addStatement(ps);
-			}
-			else {
-				ExecutionTree.addStatement(ps);
-			}
+			ScopeManager.getCurrentConstructionScope().addStatement(ps);
 			System.out.println("print statement");
+		}
+	;
+	
+returnStatement
+	:	^('return' e=expression) {
+			ReturnStatement ret = new ReturnStatement(e);
+			ScopeManager.getCurrentConstructionScope().addStatement(ret);	
 		}
 	;
 	
@@ -150,12 +173,7 @@ initVariableStatement
 	:	^(INIT_VARIABLE IDENT e=expression) {
 			System.out.println("Initialize " + $IDENT.text + " to " + e);
 			AssignmentStatement as = new InitVariableStatement($IDENT.text, e);
-			if (inFunction) {
-				currentFuncExpr.addStatement(as);
-			}
-			else {
-				ExecutionTree.addStatement(as);
-			}
+			ScopeManager.getCurrentConstructionScope().addStatement(as);
 		}
 	;
 
@@ -163,20 +181,16 @@ updateVariableStatement
 	:	^(UPDATE_VARIABLE IDENT e=expression) {
 			System.out.println("Update variable " + $IDENT.text + " to " + e);
 			AssignmentStatement as = new UpdateVariableStatement($IDENT.text, e);
-			if (inFunction) {
-				currentFuncExpr.addStatement(as);
-			}
-			else {
-				ExecutionTree.addStatement(as);
-			}
+			ScopeManager.getCurrentConstructionScope().addStatement(as);
 		}
 	;
 	
 invokeFunctionStatement
 	:	^(INVOKE_FUNCTION_STMT IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
-			//System.out.println("invoke function " + $IDENT.text);
-			
-			//$result = new FunctionInvokeExpression($IDENT.text, getFunctionInvocationParams());
+			List<ExpressionStatement> params = getFunctionInvocationParams();
+			System.out.println("invoking function " + $IDENT.text + " as expression with params " + params);
+			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text, params);
+			ScopeManager.getCurrentConstructionScope().addStatement(expr);
 		}
 	;
 	

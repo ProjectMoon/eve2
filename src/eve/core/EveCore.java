@@ -12,6 +12,7 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 import eve.core.EveLexer;
 import eve.core.EveParser;
 import eve.core.EveParser.program_return;
+import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
@@ -26,7 +27,7 @@ public class EveCore {
 		ScopeManager.setGlobalScope(createGlobal());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 		
-		CharStream stream = new ANTLRStringStream("def y = (a) {}; x(y(z(3)), 2, 3);");
+		CharStream stream = new ANTLRStringStream("proto X { var x = 5; } print(X);");
 		EveLexer lexer = new EveLexer(stream);
 		TokenStream tokenStream = new CommonTokenStream(lexer);
 		EveParser parser = new EveParser(tokenStream);
@@ -47,10 +48,20 @@ public class EveCore {
 		
 		System.out.println("global fields: " + ScopeManager.getGlobalScope().getFields());
 		*/
+		//global is root construction scope.
+		ScopeManager.pushConstructionScope(new Script());
 		ASTParser tp = new ASTParser(nodeStream);
 		tp.downup(main.tree);
-		//ExecutionTree.testExecute();
-		//ExecutionTree.execute();
+		
+		//we should be back to global scope after construction phase.
+		ConstructionScope cs = ScopeManager.popConstructionScope();
+		if ((cs instanceof Script)) {
+			Script script = (Script)cs;
+			script.execute();
+		}
+		else {
+			throw new EveError("Did not receive global scope from construction phase.");
+		}
 		
 		//In EveInterpreter.g, we want to construct EveStatements and store them according to scope.
 		//EveStatements are then all executed later, in sequence.

@@ -15,6 +15,7 @@ tokens {
 	FUNCTION_BODY;
 	INVOKE_FUNCTION_STMT;
 	INVOKE_FUNCTION_EXPR;
+	INIT_PROTO;
 }
 
 @header {
@@ -40,9 +41,14 @@ statement
 	
 codeStatement //Statements that can appear pretty much anywhere.
 	:	printStatement
+	|	returnStatement
 	|	assignmentStatement
 	|	initVariableStatement
 	|	functionInvocationStatement
+	;
+	
+returnStatement
+	:	'return'^ expression ';'!
 	;
 	
 printStatement
@@ -67,11 +73,11 @@ initVariable
 	;
 	
 protoStatement
-	: 'proto'^ IDENT '{'! protoBlock* '}'!
+	: 'proto' IDENT '{' protoBlock '}' -> ^(INIT_PROTO IDENT protoBlock)
 	;
 	
 protoBlock
-	:	codeStatement
+	:	codeStatement*
 	;
 	
 functionInvocationStatement

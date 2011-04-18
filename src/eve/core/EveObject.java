@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import eve.interpreter.Interpreter;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 import eve.statements.ReturnStatement;
@@ -208,25 +209,12 @@ public class EveObject {
 				this.putTempField(func.getParameters().get(c), actualParameters.get(c));
 			}
 		}
-				
+		
+		//switch to function scope and run.
 		ScopeManager.pushScope(this);
-		
-		EveObject retval = null;
-		boolean returned = false;
-		for (EveStatement statement : func.getStatements()) {
-			retval = statement.execute();
-			if (statement instanceof ReturnStatement) {
-				returned = true;
-				break;
-			}
-		}
-		
+		EveObject retval = Interpreter.executeStatements(func.getStatements());
 		ScopeManager.popScope();
-		if (returned) {
-			return retval;
-		}
-		else {
-			return null;
-		}
+
+		return retval;
 	}
 }

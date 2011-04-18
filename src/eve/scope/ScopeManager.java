@@ -9,6 +9,9 @@ public class ScopeManager {
 	private static EveObject globalScope;
 	private static Stack<EveObject> scopeStack = new Stack<EveObject>();
 	
+	//construction only
+	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
+	
 	public static EveObject getCurrentScope() {
 		return scopeStack.peek();
 	}
@@ -17,9 +20,10 @@ public class ScopeManager {
 		scopeStack.push(eo);
 	}
 	
-	public static void popScope() {
+	public static EveObject popScope() {
 		EveObject prevScope = scopeStack.pop();
 		prevScope.deleteTempFields();
+		return prevScope;
 	}
 	
 	public static EveObject getVariable(String name) {
@@ -40,5 +44,17 @@ public class ScopeManager {
 	
 	public static void setGlobalScope(EveObject scope) {
 		globalScope = scope;
+	}
+	
+	public static void pushConstructionScope(ConstructionScope cs) {
+		constructionScopeStack.push(cs);
+	}
+	
+	public static ConstructionScope getCurrentConstructionScope() {
+		return constructionScopeStack.peek();
+	}
+	
+	public static ConstructionScope popConstructionScope() {
+		return constructionScopeStack.pop();
 	}
 }

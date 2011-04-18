@@ -11,7 +11,7 @@ import eve.statements.expressions.ExpressionStatement;
 public class EveFunction {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	private String name;
-	private List<String> parameters;
+	private List<String> parameters = new ArrayList<String>();
 
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
@@ -43,5 +43,9 @@ public class EveFunction {
 
 	public List<String> getParameters() {
 		return parameters;
-	}	
+	}
+	
+	public void addParameter(String param) {
+		parameters.add(param);
+	}
 }
