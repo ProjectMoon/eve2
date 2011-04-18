@@ -13,6 +13,8 @@ tokens {
 	INIT_FUNCTION;
 	FUNCTION_PARAMETERS;
 	FUNCTION_BODY;
+	INVOKE_FUNCTION_STMT;
+	INVOKE_FUNCTION_EXPR;
 }
 
 @header {
@@ -40,6 +42,7 @@ codeStatement //Statements that can appear pretty much anywhere.
 	:	printStatement
 	|	assignmentStatement
 	|	initVariableStatement
+	|	functionInvocationStatement
 	;
 	
 printStatement
@@ -70,12 +73,15 @@ protoStatement
 protoBlock
 	:	codeStatement
 	;
-
-//Function related stuff
-actualParameters
-	:	expression (',' expression)*
+	
+functionInvocationStatement
+	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_STMT IDENT functionInvocationParameters)
 	;
 
+//Function related stuff
+functionInvocationParameters
+	:	expression (',' expression)* -> (expression)* //apparently this somehow rewrites the entire thing to "p1 p2 p3 ..."
+	;
 	
 function 
 	:	parameters
@@ -98,8 +104,12 @@ parametersStartToken
 	:	'(' -> FUNCTION_PARAMETERS
 	;
 
-parameter returns [String param]
-	:	IDENT { $param = $IDENT.text; }
+parameter
+	:	IDENT
+	;
+
+functionInvocationExpression
+	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
 	;
 
 //Expressions
@@ -108,7 +118,7 @@ term
 	|	'('! expression ')'!
 	|	INTEGER
 	|	STRING_LITERAL
-	|	IDENT '(' actualParameters ')'
+	|	functionInvocationExpression
 	;
 	
 boolNegation

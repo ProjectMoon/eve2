@@ -18,7 +18,8 @@ public class ScopeManager {
 	}
 	
 	public static void popScope() {
-		scopeStack.pop();
+		EveObject prevScope = scopeStack.pop();
+		prevScope.deleteTempFields();
 	}
 	
 	public static EveObject getVariable(String name) {

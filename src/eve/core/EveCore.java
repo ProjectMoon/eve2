@@ -26,7 +26,7 @@ public class EveCore {
 		ScopeManager.setGlobalScope(createGlobal());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 		
-		CharStream stream = new ANTLRStringStream("def y = (a) {}; var x = 4; print(x + 1); x = 10; print(x); print(y);");
+		CharStream stream = new ANTLRStringStream("def y = (a) {}; x(y(z(3)), 2, 3);");
 		EveLexer lexer = new EveLexer(stream);
 		TokenStream tokenStream = new CommonTokenStream(lexer);
 		EveParser parser = new EveParser(tokenStream);
@@ -49,8 +49,8 @@ public class EveCore {
 		*/
 		ASTParser tp = new ASTParser(nodeStream);
 		tp.downup(main.tree);
-		ExecutionTree.testExecute();
-		ExecutionTree.execute();
+		//ExecutionTree.testExecute();
+		//ExecutionTree.execute();
 		
 		//In EveInterpreter.g, we want to construct EveStatements and store them according to scope.
 		//EveStatements are then all executed later, in sequence.

@@ -10,12 +10,12 @@ import eve.statements.EveStatement;
 import eve.statements.PopScopeStatement;
 import eve.statements.PushScopeStatement;
 
-public class FunctionExpression extends ExpressionStatement implements EveStatement {
+public class FunctionDefExpression extends ExpressionStatement implements EveStatement {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	
-	public FunctionExpression() {}
+	public FunctionDefExpression() {}
 	
-	public FunctionExpression(List<EveStatement> statements) {
+	public FunctionDefExpression(List<EveStatement> statements) {
 		this.statements = statements;
 	}
 	
@@ -27,12 +27,7 @@ public class FunctionExpression extends ExpressionStatement implements EveStatem
 	public EveObject execute() {
 		EveFunction func = new EveFunction();
 		EveObject eo = new EveObject();
-		
-		//We must switch to function scope before execution!
-		func.addStatement(new PushScopeStatement(eo));
 		func.addStatements(statements);
-		func.addStatement(new PopScopeStatement());
-		
 		eo.setFunctionValue(func);
 		return eo;
 	}

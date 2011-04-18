@@ -1,4 +1,4 @@
-// $ANTLR 3.3 Nov 30, 2010 12:50:56 /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g 2011-04-18 12:26:08
+// $ANTLR 3.3 Nov 30, 2010 12:50:56 /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g 2011-04-18 16:59:34
 
 	package eve.core;
 	import java.util.List;
@@ -12,8 +12,6 @@ import java.util.ArrayList;
 
 public class EveLexer extends Lexer {
     public static final int EOF=-1;
-    public static final int T__19=19;
-    public static final int T__20=20;
     public static final int T__21=21;
     public static final int T__22=22;
     public static final int T__23=23;
@@ -36,21 +34,25 @@ public class EveLexer extends Lexer {
     public static final int T__40=40;
     public static final int T__41=41;
     public static final int T__42=42;
+    public static final int T__43=43;
+    public static final int T__44=44;
     public static final int NEGATION=4;
     public static final int INIT_VARIABLE=5;
     public static final int UPDATE_VARIABLE=6;
     public static final int INIT_FUNCTION=7;
     public static final int FUNCTION_PARAMETERS=8;
     public static final int FUNCTION_BODY=9;
-    public static final int IDENT=10;
-    public static final int INTEGER=11;
-    public static final int STRING_LITERAL=12;
-    public static final int MULTILINE_COMMENT=13;
-    public static final int CHAR_LITERAL=14;
-    public static final int LETTER=15;
-    public static final int DIGIT=16;
-    public static final int WS=17;
-    public static final int COMMENT=18;
+    public static final int INVOKE_FUNCTION_STMT=10;
+    public static final int INVOKE_FUNCTION_EXPR=11;
+    public static final int IDENT=12;
+    public static final int INTEGER=13;
+    public static final int STRING_LITERAL=14;
+    public static final int MULTILINE_COMMENT=15;
+    public static final int CHAR_LITERAL=16;
+    public static final int LETTER=17;
+    public static final int DIGIT=18;
+    public static final int WS=19;
+    public static final int COMMENT=20;
 
     // delegates
     // delegators
@@ -65,56 +67,16 @@ public class EveLexer extends Lexer {
     }
     public String getGrammarFileName() { return "/home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g"; }
 
-    // $ANTLR start "T__19"
-    public final void mT__19() throws RecognitionException {
+    // $ANTLR start "T__21"
+    public final void mT__21() throws RecognitionException {
         try {
-            int _type = T__19;
+            int _type = T__21;
             int _channel = DEFAULT_TOKEN_CHANNEL;
             // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:13:7: ( 'print' )
             // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:13:9: 'print'
             {
             match("print"); 
 
-
-            }
-
-            state.type = _type;
-            state.channel = _channel;
-        }
-        finally {
-        }
-    }
-    // $ANTLR end "T__19"
-
-    // $ANTLR start "T__20"
-    public final void mT__20() throws RecognitionException {
-        try {
-            int _type = T__20;
-            int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:14:7: ( '(' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:14:9: '('
-            {
-            match('('); 
-
-            }
-
-            state.type = _type;
-            state.channel = _channel;
-        }
-        finally {
-        }
-    }
-    // $ANTLR end "T__20"
-
-    // $ANTLR start "T__21"
-    public final void mT__21() throws RecognitionException {
-        try {
-            int _type = T__21;
-            int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:15:7: ( ')' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:15:9: ')'
-            {
-            match(')'); 
 
             }
 
@@ -131,10 +93,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__22;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:16:7: ( ';' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:16:9: ';'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:14:7: ( '(' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:14:9: '('
             {
-            match(';'); 
+            match('('); 
 
             }
 
@@ -151,10 +113,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__23;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:17:7: ( '=' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:17:9: '='
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:15:7: ( ')' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:15:9: ')'
             {
-            match('='); 
+            match(')'); 
 
             }
 
@@ -171,11 +133,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__24;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:18:7: ( 'def' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:18:9: 'def'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:16:7: ( ';' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:16:9: ';'
             {
-            match("def"); 
-
+            match(';'); 
 
             }
 
@@ -192,11 +153,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__25;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:19:7: ( 'var' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:19:9: 'var'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:17:7: ( '=' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:17:9: '='
             {
-            match("var"); 
-
+            match('='); 
 
             }
 
@@ -213,10 +173,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__26;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:20:7: ( 'proto' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:20:9: 'proto'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:18:7: ( 'def' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:18:9: 'def'
             {
-            match("proto"); 
+            match("def"); 
 
 
             }
@@ -234,10 +194,11 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__27;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:21:7: ( '{' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:21:9: '{'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:19:7: ( 'var' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:19:9: 'var'
             {
-            match('{'); 
+            match("var"); 
+
 
             }
 
@@ -254,10 +215,11 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__28;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:22:7: ( '}' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:22:9: '}'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:20:7: ( 'proto' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:20:9: 'proto'
             {
-            match('}'); 
+            match("proto"); 
+
 
             }
 
@@ -274,10 +236,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__29;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:23:7: ( ',' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:23:9: ','
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:21:7: ( '{' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:21:9: '{'
             {
-            match(','); 
+            match('{'); 
 
             }
 
@@ -294,11 +256,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__30;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:24:7: ( 'not' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:24:9: 'not'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:22:7: ( '}' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:22:9: '}'
             {
-            match("not"); 
-
+            match('}'); 
 
             }
 
@@ -315,10 +276,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__31;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:25:7: ( '+' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:25:9: '+'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:23:7: ( ',' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:23:9: ','
             {
-            match('+'); 
+            match(','); 
 
             }
 
@@ -335,10 +296,11 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__32;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:26:7: ( '-' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:26:9: '-'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:24:7: ( 'not' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:24:9: 'not'
             {
-            match('-'); 
+            match("not"); 
+
 
             }
 
@@ -355,10 +317,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__33;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:27:7: ( '*' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:27:9: '*'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:25:7: ( '+' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:25:9: '+'
             {
-            match('*'); 
+            match('+'); 
 
             }
 
@@ -375,10 +337,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__34;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:28:7: ( '/' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:28:9: '/'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:26:7: ( '-' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:26:9: '-'
             {
-            match('/'); 
+            match('-'); 
 
             }
 
@@ -395,10 +357,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__35;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:29:7: ( '%' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:29:9: '%'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:27:7: ( '*' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:27:9: '*'
             {
-            match('%'); 
+            match('*'); 
 
             }
 
@@ -415,11 +377,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__36;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:30:7: ( '/=' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:30:9: '/='
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:28:7: ( '/' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:28:9: '/'
             {
-            match("/="); 
-
+            match('/'); 
 
             }
 
@@ -436,10 +397,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__37;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:31:7: ( '<' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:31:9: '<'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:29:7: ( '%' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:29:9: '%'
             {
-            match('<'); 
+            match('%'); 
 
             }
 
@@ -456,10 +417,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__38;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:32:7: ( '<=' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:32:9: '<='
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:30:7: ( '/=' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:30:9: '/='
             {
-            match("<="); 
+            match("/="); 
 
 
             }
@@ -477,11 +438,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__39;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:33:7: ( '>=' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:33:9: '>='
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:31:7: ( '<' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:31:9: '<'
             {
-            match(">="); 
-
+            match('<'); 
 
             }
 
@@ -498,10 +458,11 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__40;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:34:7: ( '>' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:34:9: '>'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:32:7: ( '<=' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:32:9: '<='
             {
-            match('>'); 
+            match("<="); 
+
 
             }
 
@@ -518,10 +479,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__41;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:35:7: ( 'and' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:35:9: 'and'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:33:7: ( '>=' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:33:9: '>='
             {
-            match("and"); 
+            match(">="); 
 
 
             }
@@ -539,6 +500,47 @@ public class EveLexer extends Lexer {
         try {
             int _type = T__42;
             int _channel = DEFAULT_TOKEN_CHANNEL;
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:34:7: ( '>' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:34:9: '>'
+            {
+            match('>'); 
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        }
+    }
+    // $ANTLR end "T__42"
+
+    // $ANTLR start "T__43"
+    public final void mT__43() throws RecognitionException {
+        try {
+            int _type = T__43;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:35:7: ( 'and' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:35:9: 'and'
+            {
+            match("and"); 
+
+
+            }
+
+            state.type = _type;
+            state.channel = _channel;
+        }
+        finally {
+        }
+    }
+    // $ANTLR end "T__43"
+
+    // $ANTLR start "T__44"
+    public final void mT__44() throws RecognitionException {
+        try {
+            int _type = T__44;
+            int _channel = DEFAULT_TOKEN_CHANNEL;
             // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:36:7: ( 'or' )
             // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:36:9: 'or'
             {
@@ -553,19 +555,19 @@ public class EveLexer extends Lexer {
         finally {
         }
     }
-    // $ANTLR end "T__42"
+    // $ANTLR end "T__44"
 
     // $ANTLR start "MULTILINE_COMMENT"
     public final void mMULTILINE_COMMENT() throws RecognitionException {
         try {
             int _type = MULTILINE_COMMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:144:19: ( '/*' ( . )* '*/' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:144:21: '/*' ( . )* '*/'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:154:19: ( '/*' ( . )* '*/' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:154:21: '/*' ( . )* '*/'
             {
             match("/*"); 
 
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:144:26: ( . )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:154:26: ( . )*
             loop1:
             do {
                 int alt1=2;
@@ -590,7 +592,7 @@ public class EveLexer extends Lexer {
 
                 switch (alt1) {
             	case 1 :
-            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:144:26: .
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:154:26: .
             	    {
             	    matchAny(); 
 
@@ -623,12 +625,12 @@ public class EveLexer extends Lexer {
             int _channel = DEFAULT_TOKEN_CHANNEL;
             int c;
 
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:147:2: ( '\"' ( '\"' '\"' | c=~ ( '\"' | '\\r' | '\\n' ) )* '\"' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:147:4: '\"' ( '\"' '\"' | c=~ ( '\"' | '\\r' | '\\n' ) )* '\"'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:157:2: ( '\"' ( '\"' '\"' | c=~ ( '\"' | '\\r' | '\\n' ) )* '\"' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:157:4: '\"' ( '\"' '\"' | c=~ ( '\"' | '\\r' | '\\n' ) )* '\"'
             {
             match('\"'); 
              StringBuilder b = new StringBuilder(); 
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:149:3: ( '\"' '\"' | c=~ ( '\"' | '\\r' | '\\n' ) )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:159:3: ( '\"' '\"' | c=~ ( '\"' | '\\r' | '\\n' ) )*
             loop2:
             do {
                 int alt2=3;
@@ -650,7 +652,7 @@ public class EveLexer extends Lexer {
 
                 switch (alt2) {
             	case 1 :
-            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:149:5: '\"' '\"'
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:159:5: '\"' '\"'
             	    {
             	    match('\"'); 
             	    match('\"'); 
@@ -659,7 +661,7 @@ public class EveLexer extends Lexer {
             	    }
             	    break;
             	case 2 :
-            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:150:5: c=~ ( '\"' | '\\r' | '\\n' )
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:160:5: c=~ ( '\"' | '\\r' | '\\n' )
             	    {
             	    c= input.LA(1);
             	    if ( (input.LA(1)>='\u0000' && input.LA(1)<='\t')||(input.LA(1)>='\u000B' && input.LA(1)<='\f')||(input.LA(1)>='\u000E' && input.LA(1)<='!')||(input.LA(1)>='#' && input.LA(1)<='\uFFFF') ) {
@@ -699,8 +701,8 @@ public class EveLexer extends Lexer {
         try {
             int _type = CHAR_LITERAL;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:157:2: ( '\\'' . '\\'' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:157:4: '\\'' . '\\''
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:167:2: ( '\\'' . '\\'' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:167:4: '\\'' . '\\''
             {
             match('\''); 
             matchAny(); 
@@ -720,8 +722,8 @@ public class EveLexer extends Lexer {
     // $ANTLR start "LETTER"
     public final void mLETTER() throws RecognitionException {
         try {
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:160:17: ( ( 'a' .. 'z' | 'A' .. 'Z' ) )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:160:19: ( 'a' .. 'z' | 'A' .. 'Z' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:170:17: ( ( 'a' .. 'z' | 'A' .. 'Z' ) )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:170:19: ( 'a' .. 'z' | 'A' .. 'Z' )
             {
             if ( (input.LA(1)>='A' && input.LA(1)<='Z')||(input.LA(1)>='a' && input.LA(1)<='z') ) {
                 input.consume();
@@ -744,8 +746,8 @@ public class EveLexer extends Lexer {
     // $ANTLR start "DIGIT"
     public final void mDIGIT() throws RecognitionException {
         try {
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:161:16: ( '0' .. '9' )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:161:18: '0' .. '9'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:171:16: ( '0' .. '9' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:171:18: '0' .. '9'
             {
             matchRange('0','9'); 
 
@@ -762,10 +764,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = INTEGER;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:162:9: ( ( DIGIT )+ )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:162:11: ( DIGIT )+
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:172:9: ( ( DIGIT )+ )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:172:11: ( DIGIT )+
             {
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:162:11: ( DIGIT )+
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:172:11: ( DIGIT )+
             int cnt3=0;
             loop3:
             do {
@@ -779,7 +781,7 @@ public class EveLexer extends Lexer {
 
                 switch (alt3) {
             	case 1 :
-            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:162:11: DIGIT
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:172:11: DIGIT
             	    {
             	    mDIGIT(); 
 
@@ -811,11 +813,11 @@ public class EveLexer extends Lexer {
         try {
             int _type = IDENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:163:7: ( LETTER ( LETTER | DIGIT )* )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:163:9: LETTER ( LETTER | DIGIT )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:173:7: ( LETTER ( LETTER | DIGIT )* )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:173:9: LETTER ( LETTER | DIGIT )*
             {
             mLETTER(); 
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:163:16: ( LETTER | DIGIT )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:173:16: ( LETTER | DIGIT )*
             loop4:
             do {
                 int alt4=2;
@@ -864,10 +866,10 @@ public class EveLexer extends Lexer {
         try {
             int _type = WS;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:164:4: ( ( ' ' | '\\t' | '\\n' | '\\r' | '\\f' )+ )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:164:6: ( ' ' | '\\t' | '\\n' | '\\r' | '\\f' )+
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:174:4: ( ( ' ' | '\\t' | '\\n' | '\\r' | '\\f' )+ )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:174:6: ( ' ' | '\\t' | '\\n' | '\\r' | '\\f' )+
             {
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:164:6: ( ' ' | '\\t' | '\\n' | '\\r' | '\\f' )+
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:174:6: ( ' ' | '\\t' | '\\n' | '\\r' | '\\f' )+
             int cnt5=0;
             loop5:
             do {
@@ -922,12 +924,12 @@ public class EveLexer extends Lexer {
         try {
             int _type = COMMENT;
             int _channel = DEFAULT_TOKEN_CHANNEL;
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:165:9: ( '//' ( . )* ( '\\n' | '\\r' ) )
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:165:11: '//' ( . )* ( '\\n' | '\\r' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:175:9: ( '//' ( . )* ( '\\n' | '\\r' ) )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:175:11: '//' ( . )* ( '\\n' | '\\r' )
             {
             match("//"); 
 
-            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:165:16: ( . )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:175:16: ( . )*
             loop6:
             do {
                 int alt6=2;
@@ -943,7 +945,7 @@ public class EveLexer extends Lexer {
 
                 switch (alt6) {
             	case 1 :
-            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:165:16: .
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:175:16: .
             	    {
             	    matchAny(); 
 
@@ -977,175 +979,175 @@ public class EveLexer extends Lexer {
     // $ANTLR end "COMMENT"
 
     public void mTokens() throws RecognitionException {
-        // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:8: ( T__19 | T__20 | T__21 | T__22 | T__23 | T__24 | T__25 | T__26 | T__27 | T__28 | T__29 | T__30 | T__31 | T__32 | T__33 | T__34 | T__35 | T__36 | T__37 | T__38 | T__39 | T__40 | T__41 | T__42 | MULTILINE_COMMENT | STRING_LITERAL | CHAR_LITERAL | INTEGER | IDENT | WS | COMMENT )
+        // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:8: ( T__21 | T__22 | T__23 | T__24 | T__25 | T__26 | T__27 | T__28 | T__29 | T__30 | T__31 | T__32 | T__33 | T__34 | T__35 | T__36 | T__37 | T__38 | T__39 | T__40 | T__41 | T__42 | T__43 | T__44 | MULTILINE_COMMENT | STRING_LITERAL | CHAR_LITERAL | INTEGER | IDENT | WS | COMMENT )
         int alt7=31;
         alt7 = dfa7.predict(input);
         switch (alt7) {
             case 1 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:10: T__19
-                {
-                mT__19(); 
-
-                }
-                break;
-            case 2 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:16: T__20
-                {
-                mT__20(); 
-
-                }
-                break;
-            case 3 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:22: T__21
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:10: T__21
                 {
                 mT__21(); 
 
                 }
                 break;
-            case 4 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:28: T__22
+            case 2 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:16: T__22
                 {
                 mT__22(); 
 
                 }
                 break;
-            case 5 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:34: T__23
+            case 3 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:22: T__23
                 {
                 mT__23(); 
 
                 }
                 break;
-            case 6 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:40: T__24
+            case 4 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:28: T__24
                 {
                 mT__24(); 
 
                 }
                 break;
-            case 7 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:46: T__25
+            case 5 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:34: T__25
                 {
                 mT__25(); 
 
                 }
                 break;
-            case 8 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:52: T__26
+            case 6 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:40: T__26
                 {
                 mT__26(); 
 
                 }
                 break;
-            case 9 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:58: T__27
+            case 7 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:46: T__27
                 {
                 mT__27(); 
 
                 }
                 break;
-            case 10 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:64: T__28
+            case 8 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:52: T__28
                 {
                 mT__28(); 
 
                 }
                 break;
-            case 11 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:70: T__29
+            case 9 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:58: T__29
                 {
                 mT__29(); 
 
                 }
                 break;
-            case 12 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:76: T__30
+            case 10 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:64: T__30
                 {
                 mT__30(); 
 
                 }
                 break;
-            case 13 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:82: T__31
+            case 11 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:70: T__31
                 {
                 mT__31(); 
 
                 }
                 break;
-            case 14 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:88: T__32
+            case 12 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:76: T__32
                 {
                 mT__32(); 
 
                 }
                 break;
-            case 15 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:94: T__33
+            case 13 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:82: T__33
                 {
                 mT__33(); 
 
                 }
                 break;
-            case 16 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:100: T__34
+            case 14 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:88: T__34
                 {
                 mT__34(); 
 
                 }
                 break;
-            case 17 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:106: T__35
+            case 15 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:94: T__35
                 {
                 mT__35(); 
 
                 }
                 break;
-            case 18 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:112: T__36
+            case 16 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:100: T__36
                 {
                 mT__36(); 
 
                 }
                 break;
-            case 19 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:118: T__37
+            case 17 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:106: T__37
                 {
                 mT__37(); 
 
                 }
                 break;
-            case 20 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:124: T__38
+            case 18 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:112: T__38
                 {
                 mT__38(); 
 
                 }
                 break;
-            case 21 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:130: T__39
+            case 19 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:118: T__39
                 {
                 mT__39(); 
 
                 }
                 break;
-            case 22 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:136: T__40
+            case 20 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:124: T__40
                 {
                 mT__40(); 
 
                 }
                 break;
-            case 23 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:142: T__41
+            case 21 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:130: T__41
                 {
                 mT__41(); 
 
                 }
                 break;
-            case 24 :
-                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:148: T__42
+            case 22 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:136: T__42
                 {
                 mT__42(); 
+
+                }
+                break;
+            case 23 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:142: T__43
+                {
+                mT__43(); 
+
+                }
+                break;
+            case 24 :
+                // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:1:148: T__44
+                {
+                mT__44(); 
 
                 }
                 break;
@@ -1319,7 +1321,7 @@ public class EveLexer extends Lexer {
             this.transition = DFA7_transition;
         }
         public String getDescription() {
-            return "1:1: Tokens : ( T__19 | T__20 | T__21 | T__22 | T__23 | T__24 | T__25 | T__26 | T__27 | T__28 | T__29 | T__30 | T__31 | T__32 | T__33 | T__34 | T__35 | T__36 | T__37 | T__38 | T__39 | T__40 | T__41 | T__42 | MULTILINE_COMMENT | STRING_LITERAL | CHAR_LITERAL | INTEGER | IDENT | WS | COMMENT );";
+            return "1:1: Tokens : ( T__21 | T__22 | T__23 | T__24 | T__25 | T__26 | T__27 | T__28 | T__29 | T__30 | T__31 | T__32 | T__33 | T__34 | T__35 | T__36 | T__37 | T__38 | T__39 | T__40 | T__41 | T__42 | T__43 | T__44 | MULTILINE_COMMENT | STRING_LITERAL | CHAR_LITERAL | INTEGER | IDENT | WS | COMMENT );";
         }
     }
  

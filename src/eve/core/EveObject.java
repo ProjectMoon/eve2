@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
+import eve.statements.ReturnStatement;
+import eve.statements.expressions.ExpressionStatement;
 
 public class EveObject {
 	public enum EveType { INTEGER, STRING, CUSTOM, FUNCTION };
@@ -25,6 +28,7 @@ public class EveObject {
 	
 	//Everything is an object.
 	private Map<String, EveObject> fields = new HashMap<String, EveObject>();
+	private Map<String, EveObject> tempFields = new HashMap<String, EveObject>();
 	
 	//internal object settings and state.
 	private boolean cloneable = true;
@@ -107,8 +111,26 @@ public class EveObject {
 		this.fields.put(name, eo);
 	}
 	
+	public void putTempField(String name, EveObject eo) {
+		this.tempFields.put(name, eo);
+	}
+	
 	public EveObject getField(String name) {
-		return this.fields.get(name);
+		EveObject eo = this.fields.get(name);
+		
+		//non-existent? try temp fields.
+		if (eo == null) {
+			eo = this.tempFields.get(name);
+		}
+		
+		return eo;
+	}
+	
+	/**
+	 * Called by ScopeManager.
+	 */
+	public void deleteTempFields() {
+		this.tempFields.clear();
 	}
 	
 	public void setCode(Queue<EveStatement> code) {
@@ -155,5 +177,56 @@ public class EveObject {
 		}
 		
 		return "undefined";
+	}
+	
+	public EveObject invoke() {
+		return invoke(null);
+	}
+	
+	public EveObject invoke(List<EveObject> actualParameters) {
+		if (this.getType() != EveType.FUNCTION) {
+			throw new EveError(this + " is not a function.");
+		}
+		
+		EveFunction func = this.getFunctionValue();
+		
+		//make sure parameter lengths match up.
+		if (actualParameters != null) {
+			if (actualParameters.size() != func.getParameters().size()) {
+				throw new EveError(this + " expects " + func.getParameters().size() + " arguments. " + actualParameters.size() + " were passed."); 
+			}
+		}
+		else {
+			if (func.getParameters().size() > 0) {
+				throw new EveError(this + " requires " + func.getParameters().size() + " arguments. none were passed.");
+			}
+		}
+		
+		//Copy function parameters as temp fields.
+		if (actualParameters != null) {
+			for (int c = 0; c < actualParameters.size(); c++) {
+				this.putTempField(func.getParameters().get(c), actualParameters.get(c));
+			}
+		}
+				
+		ScopeManager.pushScope(this);
+		
+		EveObject retval = null;
+		boolean returned = false;
+		for (EveStatement statement : func.getStatements()) {
+			retval = statement.execute();
+			if (statement instanceof ReturnStatement) {
+				returned = true;
+				break;
+			}
+		}
+		
+		ScopeManager.popScope();
+		if (returned) {
+			return retval;
+		}
+		else {
+			return null;
+		}
 	}
 }

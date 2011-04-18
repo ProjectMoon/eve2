@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
+import eve.statements.expressions.ExpressionStatement;
 
 public class EveFunction {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
@@ -41,6 +43,5 @@ public class EveFunction {
 
 	public List<String> getParameters() {
 		return parameters;
-	}
-	
+	}	
 }

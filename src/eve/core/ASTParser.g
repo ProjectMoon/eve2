@@ -38,8 +38,20 @@ options {
 	}
 	
 	//Function management
-	FunctionExpression currentFuncExpr = null;
+	FunctionDefExpression currentFuncExpr = null;
 	boolean inFunction = false;
+	
+	private List<ExpressionStatement> actualParamsList = new ArrayList<ExpressionStatement>();
+	private void pushFunctionInvocationParam(ExpressionStatement param) {
+		actualParamsList.add(param);
+	}
+	
+	private List<ExpressionStatement> getFunctionInvocationParams() {
+		List<ExpressionStatement> p = actualParamsList;
+		actualParamsList = new ArrayList<ExpressionStatement>(); //clear for reuse
+		return p;
+	}
+	
 }
 
 parameters returns [List<String> result]
@@ -59,10 +71,11 @@ bottomup
 	|	assignFunctionUp
 	;
 	
+//Function declarations (not invocations)
 assignFunctionDown
 	:	^('=' INIT_FUNCTION IDENT .*) {
 		//Create new FunctionExpression.
-		currentFuncExpr = new FunctionExpression();
+		currentFuncExpr = new FunctionDefExpression();
 		//Push on to current function stack.
 		//implement later.
 		System.out.println("Creating new function expression for " + $IDENT.text);
@@ -117,6 +130,7 @@ codeStatement
 	:	printStatement
 	|	initVariableStatement
 	|	updateVariableStatement
+	|	invokeFunctionStatement
 	;
 	
 printStatement
@@ -158,6 +172,14 @@ updateVariableStatement
 		}
 	;
 	
+invokeFunctionStatement
+	:	^(INVOKE_FUNCTION_STMT IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
+			//System.out.println("invoke function " + $IDENT.text);
+			
+			//$result = new FunctionInvokeExpression($IDENT.text, getFunctionInvocationParams());
+		}
+	;
+	
 //Expressions
 expression returns [ExpressionStatement result]
 	:	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2);	}
@@ -166,6 +188,11 @@ expression returns [ExpressionStatement result]
 	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op1); }
 	|	^('%' op1=expression op2=expression) { $result = new ModulusExpression(op1, op2); }
 	|	^(NEGATION e=expression) { $result = new NegationExpression(e); }
+	|	^(INVOKE_FUNCTION_EXPR IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
+			List<ExpressionStatement> params = getFunctionInvocationParams();
+			System.out.println("invoking function " + $IDENT.text + " as expression with params " + params);
+			$result = new FunctionInvokeExpression($IDENT.text, params);
+		}
 	|	IDENT {
 			$result = new IdentExpression($IDENT.text);
 		}
