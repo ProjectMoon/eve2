@@ -184,7 +184,8 @@ CHAR_LITERAL
 
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
+fragment DOT : '.' ;
 INTEGER : DIGIT+ ;
-IDENT : LETTER (LETTER | DIGIT)*;
+IDENT : LETTER (DOT | LETTER | DIGIT)*;
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};
