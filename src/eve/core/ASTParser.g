@@ -77,9 +77,9 @@ bottomup
 assignFunctionDown
 	:	^('=' INIT_FUNCTION IDENT .*) {
 		//Create new FunctionExpression.
-		ScopeManager.pushConstructionScope(new FunctionDefExpression());
-		//Push on to current function stack.
-		//implement later.
+		FunctionDefExpression expr = new FunctionDefExpression();
+		expr.setLine($IDENT.getLine());
+		ScopeManager.pushConstructionScope(expr);
 		System.out.println("Creating new function expression for " + $IDENT.text);
 	}
 	;
@@ -129,7 +129,9 @@ endParameters
 createPrototypeDown 
 	:	^(INIT_PROTO IDENT .*) {
 			//Current construction scope is now in a prototype.
-			ScopeManager.pushConstructionScope(new CreateProtoStatement($IDENT.text));
+			CreateProtoStatement createProto = new CreateProtoStatement($IDENT.text);
+			createProto.setLine($IDENT.getLine());
+			ScopeManager.pushConstructionScope(createProto);
 			System.out.println("init prototype " + $IDENT.text);
 		}
 	;
@@ -153,10 +155,11 @@ codeStatement
 	|	updateVariableStatement
 	|	invokeFunctionStatement
 	;
-	
+
 printStatement
 	:	^('print' e=expression) {
 			PrintStatement ps = new PrintStatement(e);
+			ps.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ps);
 			System.out.println("print statement");
 		}
@@ -165,6 +168,7 @@ printStatement
 returnStatement
 	:	^('return' e=expression) {
 			ReturnStatement ret = new ReturnStatement(e);
+			ret.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ret);	
 		}
 	;
@@ -173,6 +177,7 @@ initVariableStatement
 	:	^(INIT_VARIABLE IDENT e=expression) {
 			System.out.println("Initialize " + $IDENT.text + " to " + e);
 			AssignmentStatement as = new InitVariableStatement($IDENT.text, e);
+			as.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
 		}
 	;
@@ -181,39 +186,60 @@ updateVariableStatement
 	:	^(UPDATE_VARIABLE IDENT e=expression) {
 			System.out.println("Update variable " + $IDENT.text + " to " + e);
 			AssignmentStatement as = new UpdateVariableStatement($IDENT.text, e);
+			as.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
 		}
 	;
 	
 invokeFunctionStatement
 	:	^(INVOKE_FUNCTION_STMT IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
+			//args invocation
 			List<ExpressionStatement> params = getFunctionInvocationParams();
 			System.out.println("invoking function " + $IDENT.text + " as expression with params " + params);
 			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text, params);
+			expr.setLine($IDENT.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(expr);
+		}
+	|	^(INVOKE_FUNCTION_STMT IDENT) {
+			//no-args invocation
+			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text);
+			expr.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(expr);
 		}
 	;
 	
 //Expressions
 expression returns [ExpressionStatement result]
-	:	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2);	}
-	|	^('-' op1=expression op2=expression) { $result = new MinusExpression(op1, op2); }
-	|	^('*' op1=expression op2=expression) { $result = new MultiplicationExpression(op1, op2); }
-	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op1); }
-	|	^('%' op1=expression op2=expression) { $result = new ModulusExpression(op1, op2); }
-	|	^(NEGATION e=expression) { $result = new NegationExpression(e); }
+	:	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('-' op1=expression op2=expression) { $result = new MinusExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('*' op1=expression op2=expression) { $result = new MultiplicationExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op1); $result.setLine(op1.getLine()); }
+	|	^('%' op1=expression op2=expression) { $result = new ModulusExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^(NEGATION e=expression) { $result = new NegationExpression(e); $result.setLine($NEGATION.getLine()); }
 	|	^(INVOKE_FUNCTION_EXPR IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
 			List<ExpressionStatement> params = getFunctionInvocationParams();
 			System.out.println("invoking function " + $IDENT.text + " as expression with params " + params);
 			$result = new FunctionInvokeExpression($IDENT.text, params);
+			$result.setLine($IDENT.getLine());
+		}
+	|	^(INVOKE_FUNCTION_EXPR IDENT) {
+			$result = new FunctionInvokeExpression($IDENT.text);
+			$result.setLine($IDENT.getLine());
+		}
+	|	^(CLONE_PROTO IDENT) {
+			$result = new CloneExpression($IDENT.text);
+			$result.setLine($IDENT.getLine());				
 		}
 	|	IDENT {
 			$result = new IdentExpression($IDENT.text);
+			$result.setLine($IDENT.getLine());
 		}
 	|	INTEGER { 
-			$result = new WrappedPrimitiveExpression(Integer.parseInt($INTEGER.text)); 
+			$result = new WrappedPrimitiveExpression(Integer.parseInt($INTEGER.text));
+			$result.setLine($INTEGER.getLine());
 		}
 	|	STRING_LITERAL {
 			$result = new WrappedPrimitiveExpression($STRING_LITERAL.text);
+			$result.setLine($STRING_LITERAL.getLine());
 		}
 	;	

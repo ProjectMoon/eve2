@@ -16,6 +16,7 @@ tokens {
 	INVOKE_FUNCTION_STMT;
 	INVOKE_FUNCTION_EXPR;
 	INIT_PROTO;
+	CLONE_PROTO;
 }
 
 @header {
@@ -73,7 +74,7 @@ initVariable
 	;
 	
 protoStatement
-	: 'proto' IDENT '{' protoBlock '}' -> ^(INIT_PROTO IDENT protoBlock)
+	: 'proto' IDENT '{' protoBlock '}' ';'? -> ^(INIT_PROTO IDENT protoBlock)
 	;
 	
 protoBlock
@@ -81,7 +82,13 @@ protoBlock
 	;
 	
 functionInvocationStatement
-	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_STMT IDENT functionInvocationParameters)
+	:	IDENT '(' functionInvocationParameters ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT functionInvocationParameters)
+	|	IDENT '(' ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT)
+	;
+
+//Prototype cloning
+cloneExpression
+	:	'clone' IDENT -> ^(CLONE_PROTO IDENT)
 	;
 
 //Function related stuff
@@ -116,6 +123,7 @@ parameter
 
 functionInvocationExpression
 	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
+	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
 	;
 
 //Expressions
@@ -125,6 +133,7 @@ term
 	|	INTEGER
 	|	STRING_LITERAL
 	|	functionInvocationExpression
+	|	cloneExpression
 	;
 	
 boolNegation

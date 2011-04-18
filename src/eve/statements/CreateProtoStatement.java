@@ -9,7 +9,7 @@ import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
-public class CreateProtoStatement implements EveStatement, ConstructionScope {
+public class CreateProtoStatement extends AbstractStatement implements EveStatement, ConstructionScope {
 	private List<EveStatement> protoBlock = new ArrayList<EveStatement>();
 	private String protoName;
 	

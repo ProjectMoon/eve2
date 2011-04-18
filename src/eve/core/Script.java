@@ -31,8 +31,14 @@ public class Script implements ConstructionScope {
 	}
 	
 	public void execute() {
-		for (EveStatement statement : statements) {
-			statement.execute();
+		try {
+			for (EveStatement statement : statements) {
+				statement.execute();
+			}
+		}
+		catch (EveError e) {
+			System.err.println(e);
+			System.exit(1);
 		}
 	}
 	

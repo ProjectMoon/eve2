@@ -23,10 +23,14 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 		this.parameters.add(parameter);
 	}
 	
+	public FunctionInvokeExpression(String identifier) {
+		this.identifier = identifier;
+		this.parameters = null;
+	}
+	
 	@Override
 	public EveObject execute() {
 		EveObject result = new EveObject();
-		
 		EveObject funcVariable = ScopeManager.getVariable(identifier);
 		
 		if (funcVariable != null && funcVariable.getType() == EveType.FUNCTION) {
@@ -38,6 +42,10 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 	}
 	
 	private List<EveObject> getActualParameters() {
+		if (parameters == null) {
+			return null;
+		}
+		
 		List<EveObject> params = new ArrayList<EveObject>(parameters.size());
 		
 		for (ExpressionStatement statement : parameters) {

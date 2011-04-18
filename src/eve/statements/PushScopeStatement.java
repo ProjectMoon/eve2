@@ -3,7 +3,7 @@ package eve.statements;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 
-public class PushScopeStatement implements EveStatement {
+public class PushScopeStatement extends AbstractStatement implements EveStatement {
 	private EveObject newScope;
 	
 	public PushScopeStatement(EveObject newScope) {

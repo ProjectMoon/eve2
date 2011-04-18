@@ -33,7 +33,6 @@ public class EveObject {
 	
 	//internal object settings and state.
 	private boolean cloneable = true;
-	private Queue<EveStatement> code = new LinkedList<EveStatement>();
 	
 	public EveObject() {}
 	
@@ -134,18 +133,6 @@ public class EveObject {
 		this.tempFields.clear();
 	}
 	
-	public void setCode(Queue<EveStatement> code) {
-		this.code = code;
-	}
-
-	public Queue<EveStatement> getCode() {
-		return code;
-	}
-	
-	public void addCode(EveStatement statement) {
-		this.code.add(statement);
-	}
-
 	public EveType getType() {
 		return this.type;
 	}
@@ -216,5 +203,29 @@ public class EveObject {
 		ScopeManager.popScope();
 
 		return retval;
+	}
+	
+	public EveObject eveClone() {
+		if (!this.isCloneable()) {
+			return null;
+		}
+		
+		EveObject clone = new EveObject();
+		
+		//Object is cloned to initially use references of this object to save memory.
+		//Later, assignment statements will change the references for us.
+		clone.fields = this.fields;
+		clone.type = this.type;
+		clone.typeName = this.typeName;
+		clonePrimitives(clone);
+		clone.cloneable = this.cloneable;
+		
+		return clone;
+	}
+	
+	private void clonePrimitives(EveObject clone) {
+		clone.intValue = this.intValue;
+		clone.functionValue = this.functionValue;
+		clone.stringValue = this.stringValue;		
 	}
 }

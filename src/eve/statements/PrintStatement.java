@@ -3,7 +3,7 @@ package eve.statements;
 import eve.core.EveObject;
 import eve.statements.expressions.ExpressionStatement;
 
-public class PrintStatement implements EveStatement {
+public class PrintStatement extends AbstractStatement implements EveStatement {
 	private ExpressionStatement expression;
 
 	public PrintStatement(ExpressionStatement expression) {

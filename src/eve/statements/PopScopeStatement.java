@@ -3,7 +3,7 @@ package eve.statements;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 
-public class PopScopeStatement implements EveStatement {
+public class PopScopeStatement extends AbstractStatement implements EveStatement {
 
 	@Override
 	public EveObject execute() {
