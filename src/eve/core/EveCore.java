@@ -26,7 +26,7 @@ public class EveCore {
 		ScopeManager.setGlobalScope(createGlobal());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 		
-		CharStream stream = new ANTLRStringStream("def x = (a,b,c) { print(5); }");
+		CharStream stream = new ANTLRStringStream("var y = 5; print(6); def x = (a,b,c) { print(5); }");
 		EveLexer lexer = new EveLexer(stream);
 		TokenStream tokenStream = new CommonTokenStream(lexer);
 		EveParser parser = new EveParser(tokenStream);
@@ -39,6 +39,7 @@ public class EveCore {
 		
 		Queue<EveStatement> code = ScopeManager.getGlobalScope().getCode();
 		for (EveStatement statement : code) {
+			System.out.println(code);
 			statement.execute();
 		}
 		

@@ -1,12 +1,17 @@
-// $ANTLR 3.3 Nov 30, 2010 12:50:56 /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g 2011-04-17 23:49:50
+// $ANTLR 3.3 Nov 30, 2010 12:50:56 /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g 2011-04-18 07:59:37
 
 	package eve.core;
 	import eve.statements.*;
 	import eve.statements.assignment.AssignmentStatement;
 	import eve.statements.expressions.*;
 	import eve.scope.ScopeManager;
-	import java.util.List;
+	import java.util.Queue;
+	import java.util.Set;
+	import java.util.LinkedList;
 	import java.util.ArrayList;
+	import java.util.Map;
+	import java.util.HashMap;
+	import java.util.Map.Entry;
 
 
 import org.antlr.runtime.*;
@@ -77,18 +82,76 @@ public class EveInterpreter extends TreeParser {
 
     	//Re-usable list to keep track of statements in a function.
     	//Cleared after every function defintion.
-    	private List<EveStatement> funcStatements = new ArrayList<EveStatement>();
+    	private Queue<EveStatement> statementQueue = new LinkedList<EveStatement>();
+    	//private Queue<FunctionExpression> functionQueue = new LinkedList<FunctionExpression>();
+    	private Map<String, EveObject> protos = new HashMap<String, EveObject>();
+    	
+    	private void queueStatement(EveStatement statement) {
+    		statementQueue.add(statement);
+    	}
+    	
+    	private FunctionExpression createFunction() {
+    		List<EveStatement> funcStatements = new ArrayList<EveStatement>();
+    		EveStatement statement = null;
+    		while ((statement = statementQueue.poll()) != null) {
+    			funcStatements.add(statement);
+    		}
+    		
+    		return new FunctionExpression(funcStatements);
+    	}
+    	
+    	private void queuePrototype(String protoName) {
+    		EveObject proto = EveObject.customType(protoName);
+    		
+    		/*
+    		FunctionExpression funcExpr = null;
+    		while ((funcExpr = functionQueue.poll()) != null) {
+    			proto.addCode(funcExpr);
+    		}
+    		*/
+    		
+    		EveStatement statement = null;
+    		while ((statement = statementQueue.poll()) != null) {
+    			proto.addCode(statement);
+    		}
+    		
+    		protos.put(protoName, proto);
+    	}
+    	
+    	private void globalSetup() {
+    		EveObject global = ScopeManager.getGlobalScope();
+    		
+    		EveObject proto = null;
+    		Set<Map.Entry<String, EveObject>> entries = protos.entrySet();
+    		for (Map.Entry<String, EveObject> entry : entries) {
+    			global.putField(entry.getKey(), entry.getValue());
+    		}
+    		
+    		protos.clear();
+    		
+    		/*
+    		FunctionExpression funcExpr = null;
+    		while ((funcExpr = functionQueue.poll()) != null) {
+    			global.addCode(funcExpr);
+    		}
+    		*/
+    		
+    		EveStatement statement = null;
+    		while ((statement = statementQueue.poll()) != null) {
+    			global.addCode(statement);
+    		}
+    	}
 
 
 
     // $ANTLR start "interpret"
-    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:25:1: interpret : ( statement )* EOF ;
+    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:88:1: interpret : ( statement )* EOF ;
     public final void interpret() throws RecognitionException {
         try {
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:26:2: ( ( statement )* EOF )
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:26:4: ( statement )* EOF
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:89:2: ( ( statement )* EOF )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:89:4: ( statement )* EOF
             {
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:26:4: ( statement )*
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:89:4: ( statement )*
             loop1:
             do {
                 int alt1=2;
@@ -101,7 +164,7 @@ public class EveInterpreter extends TreeParser {
 
                 switch (alt1) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:26:4: statement
+            	    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:89:4: statement
             	    {
             	    pushFollow(FOLLOW_statement_in_interpret57);
             	    statement();
@@ -119,6 +182,9 @@ public class EveInterpreter extends TreeParser {
 
             match(input,EOF,FOLLOW_EOF_in_interpret60); 
 
+            			globalSetup();
+            		
+
             }
 
         }
@@ -134,13 +200,13 @@ public class EveInterpreter extends TreeParser {
 
 
     // $ANTLR start "statement"
-    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:28:1: statement : codeStatement ;
+    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:94:1: statement : codeStatement ;
     public final void statement() throws RecognitionException {
         try {
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:29:2: ( codeStatement )
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:29:4: codeStatement
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:95:2: ( codeStatement )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:95:4: codeStatement
             {
-            pushFollow(FOLLOW_codeStatement_in_statement69);
+            pushFollow(FOLLOW_codeStatement_in_statement73);
             codeStatement();
 
             state._fsp--;
@@ -161,19 +227,19 @@ public class EveInterpreter extends TreeParser {
 
 
     // $ANTLR start "printStatement"
-    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:32:1: printStatement : ^( 'print' e= expression ) ;
+    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:98:1: printStatement : ^( 'print' e= expression ) ;
     public final void printStatement() throws RecognitionException {
         ExpressionStatement e = null;
 
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:33:2: ( ^( 'print' e= expression ) )
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:33:4: ^( 'print' e= expression )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:99:2: ( ^( 'print' e= expression ) )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:99:4: ^( 'print' e= expression )
             {
-            match(input,18,FOLLOW_18_in_printStatement81); 
+            match(input,18,FOLLOW_18_in_printStatement85); 
 
             match(input, Token.DOWN, null); 
-            pushFollow(FOLLOW_expression_in_printStatement85);
+            pushFollow(FOLLOW_expression_in_printStatement89);
             e=expression();
 
             state._fsp--;
@@ -182,7 +248,7 @@ public class EveInterpreter extends TreeParser {
             match(input, Token.UP, null); 
 
             			PrintStatement ps = new PrintStatement(e);
-            			ScopeManager.getCurrentScope().addCode(ps);
+            			queueStatement(ps);
             		
 
             }
@@ -200,7 +266,7 @@ public class EveInterpreter extends TreeParser {
 
 
     // $ANTLR start "assignmentStatement"
-    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:39:1: assignmentStatement : ( ^( '=' IDENT e= expression ) | ^( '=' INIT_FUNCTION IDENT ^( FUNCTION_PARAMETERS p= parameters ) ^(fb= FUNCTION_BODY ( codeStatement )* ) ) );
+    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:105:1: assignmentStatement : ( ^( '=' IDENT e= expression ) | ^( '=' INIT_FUNCTION IDENT ^( FUNCTION_PARAMETERS p= parameters ) ^(fb= FUNCTION_BODY ( codeStatement )* ) ) );
     public final void assignmentStatement() throws RecognitionException {
         CommonTree fb=null;
         CommonTree IDENT1=null;
@@ -211,7 +277,7 @@ public class EveInterpreter extends TreeParser {
 
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:40:2: ( ^( '=' IDENT e= expression ) | ^( '=' INIT_FUNCTION IDENT ^( FUNCTION_PARAMETERS p= parameters ) ^(fb= FUNCTION_BODY ( codeStatement )* ) ) )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:106:2: ( ^( '=' IDENT e= expression ) | ^( '=' INIT_FUNCTION IDENT ^( FUNCTION_PARAMETERS p= parameters ) ^(fb= FUNCTION_BODY ( codeStatement )* ) ) )
             int alt3=2;
             int LA3_0 = input.LA(1);
 
@@ -249,13 +315,13 @@ public class EveInterpreter extends TreeParser {
             }
             switch (alt3) {
                 case 1 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:40:4: ^( '=' IDENT e= expression )
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:106:4: ^( '=' IDENT e= expression )
                     {
-                    match(input,22,FOLLOW_22_in_assignmentStatement101); 
+                    match(input,22,FOLLOW_22_in_assignmentStatement105); 
 
                     match(input, Token.DOWN, null); 
-                    IDENT1=(CommonTree)match(input,IDENT,FOLLOW_IDENT_in_assignmentStatement103); 
-                    pushFollow(FOLLOW_expression_in_assignmentStatement107);
+                    IDENT1=(CommonTree)match(input,IDENT,FOLLOW_IDENT_in_assignmentStatement107); 
+                    pushFollow(FOLLOW_expression_in_assignmentStatement111);
                     e=expression();
 
                     state._fsp--;
@@ -265,34 +331,34 @@ public class EveInterpreter extends TreeParser {
                      
                     			System.out.println("assigning " + e + " to " + (IDENT1!=null?IDENT1.getText():null));
                     			AssignmentStatement as = new AssignmentStatement((IDENT1!=null?IDENT1.getText():null), e);
-                    			ScopeManager.getCurrentScope().addCode(as);
+                    			queueStatement(as);
                     		
 
                     }
                     break;
                 case 2 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:45:4: ^( '=' INIT_FUNCTION IDENT ^( FUNCTION_PARAMETERS p= parameters ) ^(fb= FUNCTION_BODY ( codeStatement )* ) )
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:111:4: ^( '=' INIT_FUNCTION IDENT ^( FUNCTION_PARAMETERS p= parameters ) ^(fb= FUNCTION_BODY ( codeStatement )* ) )
                     {
-                    match(input,22,FOLLOW_22_in_assignmentStatement116); 
+                    match(input,22,FOLLOW_22_in_assignmentStatement120); 
 
                     match(input, Token.DOWN, null); 
-                    match(input,INIT_FUNCTION,FOLLOW_INIT_FUNCTION_in_assignmentStatement118); 
-                    IDENT2=(CommonTree)match(input,IDENT,FOLLOW_IDENT_in_assignmentStatement120); 
-                    match(input,FUNCTION_PARAMETERS,FOLLOW_FUNCTION_PARAMETERS_in_assignmentStatement123); 
+                    match(input,INIT_FUNCTION,FOLLOW_INIT_FUNCTION_in_assignmentStatement122); 
+                    IDENT2=(CommonTree)match(input,IDENT,FOLLOW_IDENT_in_assignmentStatement124); 
+                    match(input,FUNCTION_PARAMETERS,FOLLOW_FUNCTION_PARAMETERS_in_assignmentStatement127); 
 
                     match(input, Token.DOWN, null); 
-                    pushFollow(FOLLOW_parameters_in_assignmentStatement127);
+                    pushFollow(FOLLOW_parameters_in_assignmentStatement131);
                     p=parameters();
 
                     state._fsp--;
 
 
                     match(input, Token.UP, null); 
-                    fb=(CommonTree)match(input,FUNCTION_BODY,FOLLOW_FUNCTION_BODY_in_assignmentStatement133); 
+                    fb=(CommonTree)match(input,FUNCTION_BODY,FOLLOW_FUNCTION_BODY_in_assignmentStatement137); 
 
                     if ( input.LA(1)==Token.DOWN ) {
                         match(input, Token.DOWN, null); 
-                        // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:45:85: ( codeStatement )*
+                        // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:111:85: ( codeStatement )*
                         loop2:
                         do {
                             int alt2=2;
@@ -305,9 +371,9 @@ public class EveInterpreter extends TreeParser {
 
                             switch (alt2) {
                         	case 1 :
-                        	    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:45:85: codeStatement
+                        	    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:111:85: codeStatement
                         	    {
-                        	    pushFollow(FOLLOW_codeStatement_in_assignmentStatement135);
+                        	    pushFollow(FOLLOW_codeStatement_in_assignmentStatement139);
                         	    codeStatement();
 
                         	    state._fsp--;
@@ -328,11 +394,9 @@ public class EveInterpreter extends TreeParser {
                     match(input, Token.UP, null); 
 
                     			//will happen after statements collected!
-                    			FunctionExpression funcExpr = new FunctionExpression(funcStatements);
+                    			FunctionExpression funcExpr = createFunction();
                     			AssignmentStatement as = new AssignmentStatement((IDENT2!=null?IDENT2.getText():null), funcExpr);
-                    			ScopeManager.getCurrentScope().addCode(as);
-                    			System.out.println("initializing function " + (IDENT2!=null?IDENT2.getText():null) + " with " + funcStatements);
-                    			
+                    			queueStatement(as);
                     		
 
                     }
@@ -352,10 +416,10 @@ public class EveInterpreter extends TreeParser {
 
 
     // $ANTLR start "codeStatement"
-    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:55:1: codeStatement : ( initVariableStatement | printStatement | assignmentStatement );
+    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:119:1: codeStatement : ( initVariableStatement | printStatement | assignmentStatement );
     public final void codeStatement() throws RecognitionException {
         try {
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:56:2: ( initVariableStatement | printStatement | assignmentStatement )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:120:2: ( initVariableStatement | printStatement | assignmentStatement )
             int alt4=3;
             switch ( input.LA(1) ) {
             case INIT_VARIABLE:
@@ -382,9 +446,9 @@ public class EveInterpreter extends TreeParser {
 
             switch (alt4) {
                 case 1 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:56:4: initVariableStatement
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:120:4: initVariableStatement
                     {
-                    pushFollow(FOLLOW_initVariableStatement_in_codeStatement152);
+                    pushFollow(FOLLOW_initVariableStatement_in_codeStatement156);
                     initVariableStatement();
 
                     state._fsp--;
@@ -393,9 +457,9 @@ public class EveInterpreter extends TreeParser {
                     }
                     break;
                 case 2 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:57:4: printStatement
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:121:4: printStatement
                     {
-                    pushFollow(FOLLOW_printStatement_in_codeStatement157);
+                    pushFollow(FOLLOW_printStatement_in_codeStatement161);
                     printStatement();
 
                     state._fsp--;
@@ -404,9 +468,9 @@ public class EveInterpreter extends TreeParser {
                     }
                     break;
                 case 3 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:58:4: assignmentStatement
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:122:4: assignmentStatement
                     {
-                    pushFollow(FOLLOW_assignmentStatement_in_codeStatement162);
+                    pushFollow(FOLLOW_assignmentStatement_in_codeStatement166);
                     assignmentStatement();
 
                     state._fsp--;
@@ -429,21 +493,21 @@ public class EveInterpreter extends TreeParser {
 
 
     // $ANTLR start "initVariableStatement"
-    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:61:1: initVariableStatement : ^( INIT_VARIABLE IDENT e= expression ) ;
+    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:125:1: initVariableStatement : ^( INIT_VARIABLE IDENT e= expression ) ;
     public final void initVariableStatement() throws RecognitionException {
         CommonTree IDENT3=null;
         ExpressionStatement e = null;
 
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:62:2: ( ^( INIT_VARIABLE IDENT e= expression ) )
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:62:4: ^( INIT_VARIABLE IDENT e= expression )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:126:2: ( ^( INIT_VARIABLE IDENT e= expression ) )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:126:4: ^( INIT_VARIABLE IDENT e= expression )
             {
-            match(input,INIT_VARIABLE,FOLLOW_INIT_VARIABLE_in_initVariableStatement174); 
+            match(input,INIT_VARIABLE,FOLLOW_INIT_VARIABLE_in_initVariableStatement178); 
 
             match(input, Token.DOWN, null); 
-            IDENT3=(CommonTree)match(input,IDENT,FOLLOW_IDENT_in_initVariableStatement176); 
-            pushFollow(FOLLOW_expression_in_initVariableStatement180);
+            IDENT3=(CommonTree)match(input,IDENT,FOLLOW_IDENT_in_initVariableStatement180); 
+            pushFollow(FOLLOW_expression_in_initVariableStatement184);
             e=expression();
 
             state._fsp--;
@@ -470,7 +534,7 @@ public class EveInterpreter extends TreeParser {
 
 
     // $ANTLR start "expression"
-    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:68:1: expression returns [ExpressionStatement result] : ( ^( '+' op1= expression op2= expression ) | ^( '-' op1= expression op2= expression ) | ^( '*' op1= expression op2= expression ) | ^( '/' op1= expression op2= expression ) | ^( '%' op1= expression op2= expression ) | ^( NEGATION e= expression ) | INTEGER | STRING_LITERAL );
+    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:132:1: expression returns [ExpressionStatement result] : ( ^( '+' op1= expression op2= expression ) | ^( '-' op1= expression op2= expression ) | ^( '*' op1= expression op2= expression ) | ^( '/' op1= expression op2= expression ) | ^( '%' op1= expression op2= expression ) | ^( NEGATION e= expression ) | INTEGER | STRING_LITERAL );
     public final ExpressionStatement expression() throws RecognitionException {
         ExpressionStatement result = null;
 
@@ -484,7 +548,7 @@ public class EveInterpreter extends TreeParser {
 
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:69:2: ( ^( '+' op1= expression op2= expression ) | ^( '-' op1= expression op2= expression ) | ^( '*' op1= expression op2= expression ) | ^( '/' op1= expression op2= expression ) | ^( '%' op1= expression op2= expression ) | ^( NEGATION e= expression ) | INTEGER | STRING_LITERAL )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:133:2: ( ^( '+' op1= expression op2= expression ) | ^( '-' op1= expression op2= expression ) | ^( '*' op1= expression op2= expression ) | ^( '/' op1= expression op2= expression ) | ^( '%' op1= expression op2= expression ) | ^( NEGATION e= expression ) | INTEGER | STRING_LITERAL )
             int alt5=8;
             switch ( input.LA(1) ) {
             case 30:
@@ -536,17 +600,17 @@ public class EveInterpreter extends TreeParser {
 
             switch (alt5) {
                 case 1 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:69:4: ^( '+' op1= expression op2= expression )
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:133:4: ^( '+' op1= expression op2= expression )
                     {
-                    match(input,30,FOLLOW_30_in_expression199); 
+                    match(input,30,FOLLOW_30_in_expression203); 
 
                     match(input, Token.DOWN, null); 
-                    pushFollow(FOLLOW_expression_in_expression203);
+                    pushFollow(FOLLOW_expression_in_expression207);
                     op1=expression();
 
                     state._fsp--;
 
-                    pushFollow(FOLLOW_expression_in_expression207);
+                    pushFollow(FOLLOW_expression_in_expression211);
                     op2=expression();
 
                     state._fsp--;
@@ -558,17 +622,17 @@ public class EveInterpreter extends TreeParser {
                     }
                     break;
                 case 2 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:70:4: ^( '-' op1= expression op2= expression )
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:134:4: ^( '-' op1= expression op2= expression )
                     {
-                    match(input,31,FOLLOW_31_in_expression216); 
+                    match(input,31,FOLLOW_31_in_expression220); 
 
                     match(input, Token.DOWN, null); 
-                    pushFollow(FOLLOW_expression_in_expression220);
+                    pushFollow(FOLLOW_expression_in_expression224);
                     op1=expression();
 
                     state._fsp--;
 
-                    pushFollow(FOLLOW_expression_in_expression224);
+                    pushFollow(FOLLOW_expression_in_expression228);
                     op2=expression();
 
                     state._fsp--;
@@ -580,17 +644,17 @@ public class EveInterpreter extends TreeParser {
                     }
                     break;
                 case 3 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:71:4: ^( '*' op1= expression op2= expression )
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:135:4: ^( '*' op1= expression op2= expression )
                     {
-                    match(input,32,FOLLOW_32_in_expression233); 
+                    match(input,32,FOLLOW_32_in_expression237); 
 
                     match(input, Token.DOWN, null); 
-                    pushFollow(FOLLOW_expression_in_expression237);
+                    pushFollow(FOLLOW_expression_in_expression241);
                     op1=expression();
 
                     state._fsp--;
 
-                    pushFollow(FOLLOW_expression_in_expression241);
+                    pushFollow(FOLLOW_expression_in_expression245);
                     op2=expression();
 
                     state._fsp--;
@@ -602,17 +666,17 @@ public class EveInterpreter extends TreeParser {
                     }
                     break;
                 case 4 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:72:4: ^( '/' op1= expression op2= expression )
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:136:4: ^( '/' op1= expression op2= expression )
                     {
-                    match(input,33,FOLLOW_33_in_expression250); 
+                    match(input,33,FOLLOW_33_in_expression254); 
 
                     match(input, Token.DOWN, null); 
-                    pushFollow(FOLLOW_expression_in_expression254);
+                    pushFollow(FOLLOW_expression_in_expression258);
                     op1=expression();
 
                     state._fsp--;
 
-                    pushFollow(FOLLOW_expression_in_expression258);
+                    pushFollow(FOLLOW_expression_in_expression262);
                     op2=expression();
 
                     state._fsp--;
@@ -624,17 +688,17 @@ public class EveInterpreter extends TreeParser {
                     }
                     break;
                 case 5 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:73:4: ^( '%' op1= expression op2= expression )
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:137:4: ^( '%' op1= expression op2= expression )
                     {
-                    match(input,34,FOLLOW_34_in_expression267); 
+                    match(input,34,FOLLOW_34_in_expression271); 
 
                     match(input, Token.DOWN, null); 
-                    pushFollow(FOLLOW_expression_in_expression271);
+                    pushFollow(FOLLOW_expression_in_expression275);
                     op1=expression();
 
                     state._fsp--;
 
-                    pushFollow(FOLLOW_expression_in_expression275);
+                    pushFollow(FOLLOW_expression_in_expression279);
                     op2=expression();
 
                     state._fsp--;
@@ -646,12 +710,12 @@ public class EveInterpreter extends TreeParser {
                     }
                     break;
                 case 6 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:74:4: ^( NEGATION e= expression )
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:138:4: ^( NEGATION e= expression )
                     {
-                    match(input,NEGATION,FOLLOW_NEGATION_in_expression284); 
+                    match(input,NEGATION,FOLLOW_NEGATION_in_expression288); 
 
                     match(input, Token.DOWN, null); 
-                    pushFollow(FOLLOW_expression_in_expression288);
+                    pushFollow(FOLLOW_expression_in_expression292);
                     e=expression();
 
                     state._fsp--;
@@ -663,9 +727,9 @@ public class EveInterpreter extends TreeParser {
                     }
                     break;
                 case 7 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:75:4: INTEGER
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:139:4: INTEGER
                     {
-                    INTEGER4=(CommonTree)match(input,INTEGER,FOLLOW_INTEGER_in_expression296); 
+                    INTEGER4=(CommonTree)match(input,INTEGER,FOLLOW_INTEGER_in_expression300); 
                      
                     			result = new WrappedPrimitiveExpression(Integer.parseInt((INTEGER4!=null?INTEGER4.getText():null))); 
                     		
@@ -673,9 +737,9 @@ public class EveInterpreter extends TreeParser {
                     }
                     break;
                 case 8 :
-                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:78:4: STRING_LITERAL
+                    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:142:4: STRING_LITERAL
                     {
-                    STRING_LITERAL5=(CommonTree)match(input,STRING_LITERAL,FOLLOW_STRING_LITERAL_in_expression303); 
+                    STRING_LITERAL5=(CommonTree)match(input,STRING_LITERAL,FOLLOW_STRING_LITERAL_in_expression307); 
 
                     			result = new WrappedPrimitiveExpression((STRING_LITERAL5!=null?STRING_LITERAL5.getText():null));
                     		
@@ -697,16 +761,16 @@ public class EveInterpreter extends TreeParser {
 
 
     // $ANTLR start "parameters"
-    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:83:1: parameters returns [List<String> result] : IDENT ( IDENT )* ;
+    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:147:1: parameters returns [List<String> result] : IDENT ( IDENT )* ;
     public final List<String> parameters() throws RecognitionException {
         List<String> result = null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:84:2: ( IDENT ( IDENT )* )
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:84:4: IDENT ( IDENT )*
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:148:2: ( IDENT ( IDENT )* )
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:148:4: IDENT ( IDENT )*
             {
-            match(input,IDENT,FOLLOW_IDENT_in_parameters321); 
-            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:84:10: ( IDENT )*
+            match(input,IDENT,FOLLOW_IDENT_in_parameters325); 
+            // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:148:10: ( IDENT )*
             loop6:
             do {
                 int alt6=2;
@@ -719,9 +783,9 @@ public class EveInterpreter extends TreeParser {
 
                 switch (alt6) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:84:11: IDENT
+            	    // /home/jeff/workspace/eve/src/eve/core/EveInterpreter.g:148:11: IDENT
             	    {
-            	    match(input,IDENT,FOLLOW_IDENT_in_parameters324); 
+            	    match(input,IDENT,FOLLOW_IDENT_in_parameters328); 
 
             	    }
             	    break;
@@ -753,45 +817,45 @@ public class EveInterpreter extends TreeParser {
 
     public static final BitSet FOLLOW_statement_in_interpret57 = new BitSet(new long[]{0x0000000000440020L});
     public static final BitSet FOLLOW_EOF_in_interpret60 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_codeStatement_in_statement69 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_18_in_printStatement81 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_expression_in_printStatement85 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_22_in_assignmentStatement101 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_IDENT_in_assignmentStatement103 = new BitSet(new long[]{0x00000007C0000C10L});
-    public static final BitSet FOLLOW_expression_in_assignmentStatement107 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_22_in_assignmentStatement116 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_INIT_FUNCTION_in_assignmentStatement118 = new BitSet(new long[]{0x0000000000000200L});
-    public static final BitSet FOLLOW_IDENT_in_assignmentStatement120 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_FUNCTION_PARAMETERS_in_assignmentStatement123 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_parameters_in_assignmentStatement127 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_FUNCTION_BODY_in_assignmentStatement133 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_codeStatement_in_assignmentStatement135 = new BitSet(new long[]{0x0000000000440028L});
-    public static final BitSet FOLLOW_initVariableStatement_in_codeStatement152 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_printStatement_in_codeStatement157 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_assignmentStatement_in_codeStatement162 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INIT_VARIABLE_in_initVariableStatement174 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_IDENT_in_initVariableStatement176 = new BitSet(new long[]{0x00000007C0000C10L});
-    public static final BitSet FOLLOW_expression_in_initVariableStatement180 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_30_in_expression199 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_expression_in_expression203 = new BitSet(new long[]{0x00000007C0000C10L});
-    public static final BitSet FOLLOW_expression_in_expression207 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_31_in_expression216 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_expression_in_expression220 = new BitSet(new long[]{0x00000007C0000C10L});
-    public static final BitSet FOLLOW_expression_in_expression224 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_32_in_expression233 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_expression_in_expression237 = new BitSet(new long[]{0x00000007C0000C10L});
-    public static final BitSet FOLLOW_expression_in_expression241 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_33_in_expression250 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_expression_in_expression254 = new BitSet(new long[]{0x00000007C0000C10L});
-    public static final BitSet FOLLOW_expression_in_expression258 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_34_in_expression267 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_expression_in_expression271 = new BitSet(new long[]{0x00000007C0000C10L});
-    public static final BitSet FOLLOW_expression_in_expression275 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_NEGATION_in_expression284 = new BitSet(new long[]{0x0000000000000004L});
-    public static final BitSet FOLLOW_expression_in_expression288 = new BitSet(new long[]{0x0000000000000008L});
-    public static final BitSet FOLLOW_INTEGER_in_expression296 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STRING_LITERAL_in_expression303 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IDENT_in_parameters321 = new BitSet(new long[]{0x0000000000000202L});
-    public static final BitSet FOLLOW_IDENT_in_parameters324 = new BitSet(new long[]{0x0000000000000202L});
+    public static final BitSet FOLLOW_codeStatement_in_statement73 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_18_in_printStatement85 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_expression_in_printStatement89 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_22_in_assignmentStatement105 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_IDENT_in_assignmentStatement107 = new BitSet(new long[]{0x00000007C0000C10L});
+    public static final BitSet FOLLOW_expression_in_assignmentStatement111 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_22_in_assignmentStatement120 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_INIT_FUNCTION_in_assignmentStatement122 = new BitSet(new long[]{0x0000000000000200L});
+    public static final BitSet FOLLOW_IDENT_in_assignmentStatement124 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_FUNCTION_PARAMETERS_in_assignmentStatement127 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_parameters_in_assignmentStatement131 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_FUNCTION_BODY_in_assignmentStatement137 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_codeStatement_in_assignmentStatement139 = new BitSet(new long[]{0x0000000000440028L});
+    public static final BitSet FOLLOW_initVariableStatement_in_codeStatement156 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_printStatement_in_codeStatement161 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_assignmentStatement_in_codeStatement166 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_INIT_VARIABLE_in_initVariableStatement178 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_IDENT_in_initVariableStatement180 = new BitSet(new long[]{0x00000007C0000C10L});
+    public static final BitSet FOLLOW_expression_in_initVariableStatement184 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_30_in_expression203 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_expression_in_expression207 = new BitSet(new long[]{0x00000007C0000C10L});
+    public static final BitSet FOLLOW_expression_in_expression211 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_31_in_expression220 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_expression_in_expression224 = new BitSet(new long[]{0x00000007C0000C10L});
+    public static final BitSet FOLLOW_expression_in_expression228 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_32_in_expression237 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_expression_in_expression241 = new BitSet(new long[]{0x00000007C0000C10L});
+    public static final BitSet FOLLOW_expression_in_expression245 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_33_in_expression254 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_expression_in_expression258 = new BitSet(new long[]{0x00000007C0000C10L});
+    public static final BitSet FOLLOW_expression_in_expression262 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_34_in_expression271 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_expression_in_expression275 = new BitSet(new long[]{0x00000007C0000C10L});
+    public static final BitSet FOLLOW_expression_in_expression279 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_NEGATION_in_expression288 = new BitSet(new long[]{0x0000000000000004L});
+    public static final BitSet FOLLOW_expression_in_expression292 = new BitSet(new long[]{0x0000000000000008L});
+    public static final BitSet FOLLOW_INTEGER_in_expression300 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STRING_LITERAL_in_expression307 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IDENT_in_parameters325 = new BitSet(new long[]{0x0000000000000202L});
+    public static final BitSet FOLLOW_IDENT_in_parameters328 = new BitSet(new long[]{0x0000000000000202L});
 
 }

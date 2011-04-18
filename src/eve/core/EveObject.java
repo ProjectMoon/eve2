@@ -40,7 +40,7 @@ public class EveObject {
 		setStringValue(s);
 	}
 	
-	public static EveObject customEveType(String typeName) {
+	public static EveObject customType(String typeName) {
 		EveObject eo = new EveObject();
 		eo.type = EveType.CUSTOM;
 		eo.typeName = typeName;
