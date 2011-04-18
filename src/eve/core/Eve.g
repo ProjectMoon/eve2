@@ -9,6 +9,7 @@ options {
 tokens {
 	NEGATION;
 	INIT_VARIABLE;
+	UPDATE_VARIABLE;
 	INIT_FUNCTION;
 	FUNCTION_PARAMETERS;
 	FUNCTION_BODY;
@@ -46,8 +47,8 @@ printStatement
 	;
 	
 assignmentStatement
-	:	IDENT '='^ expression ';'!
-	|	initFunction IDENT '='^ function
+	:	IDENT '=' expression ';' -> ^(UPDATE_VARIABLE IDENT expression)
+	|	initFunction IDENT '='^ function ';'?
 	;
 
 initFunction

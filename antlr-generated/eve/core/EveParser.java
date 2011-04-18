@@ -1,4 +1,4 @@
-// $ANTLR 3.3 Nov 30, 2010 12:50:56 /home/jeff/workspace/eve/src/eve/core/Eve.g 2011-04-18 07:59:36
+// $ANTLR 3.3 Nov 30, 2010 12:50:56 /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g 2011-04-18 12:26:07
 
 	package eve.core;
 
@@ -13,10 +13,9 @@ import org.antlr.runtime.tree.*;
 
 public class EveParser extends Parser {
     public static final String[] tokenNames = new String[] {
-        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "NEGATION", "INIT_VARIABLE", "INIT_FUNCTION", "FUNCTION_PARAMETERS", "FUNCTION_BODY", "IDENT", "INTEGER", "STRING_LITERAL", "MULTILINE_COMMENT", "CHAR_LITERAL", "LETTER", "DIGIT", "WS", "COMMENT", "'print'", "'('", "')'", "';'", "'='", "'def'", "'var'", "'proto'", "'{'", "'}'", "','", "'not'", "'+'", "'-'", "'*'", "'/'", "'%'", "'/='", "'<'", "'<='", "'>='", "'>'", "'and'", "'or'"
+        "<invalid>", "<EOR>", "<DOWN>", "<UP>", "NEGATION", "INIT_VARIABLE", "UPDATE_VARIABLE", "INIT_FUNCTION", "FUNCTION_PARAMETERS", "FUNCTION_BODY", "IDENT", "INTEGER", "STRING_LITERAL", "MULTILINE_COMMENT", "CHAR_LITERAL", "LETTER", "DIGIT", "WS", "COMMENT", "'print'", "'('", "')'", "';'", "'='", "'def'", "'var'", "'proto'", "'{'", "'}'", "','", "'not'", "'+'", "'-'", "'*'", "'/'", "'%'", "'/='", "'<'", "'<='", "'>='", "'>'", "'and'", "'or'"
     };
     public static final int EOF=-1;
-    public static final int T__18=18;
     public static final int T__19=19;
     public static final int T__20=20;
     public static final int T__21=21;
@@ -40,20 +39,22 @@ public class EveParser extends Parser {
     public static final int T__39=39;
     public static final int T__40=40;
     public static final int T__41=41;
+    public static final int T__42=42;
     public static final int NEGATION=4;
     public static final int INIT_VARIABLE=5;
-    public static final int INIT_FUNCTION=6;
-    public static final int FUNCTION_PARAMETERS=7;
-    public static final int FUNCTION_BODY=8;
-    public static final int IDENT=9;
-    public static final int INTEGER=10;
-    public static final int STRING_LITERAL=11;
-    public static final int MULTILINE_COMMENT=12;
-    public static final int CHAR_LITERAL=13;
-    public static final int LETTER=14;
-    public static final int DIGIT=15;
-    public static final int WS=16;
-    public static final int COMMENT=17;
+    public static final int UPDATE_VARIABLE=6;
+    public static final int INIT_FUNCTION=7;
+    public static final int FUNCTION_PARAMETERS=8;
+    public static final int FUNCTION_BODY=9;
+    public static final int IDENT=10;
+    public static final int INTEGER=11;
+    public static final int STRING_LITERAL=12;
+    public static final int MULTILINE_COMMENT=13;
+    public static final int CHAR_LITERAL=14;
+    public static final int LETTER=15;
+    public static final int DIGIT=16;
+    public static final int WS=17;
+    public static final int COMMENT=18;
 
     // delegates
     // delegators
@@ -77,7 +78,7 @@ public class EveParser extends Parser {
     }
 
     public String[] getTokenNames() { return EveParser.tokenNames; }
-    public String getGrammarFileName() { return "/home/jeff/workspace/eve/src/eve/core/Eve.g"; }
+    public String getGrammarFileName() { return "/home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g"; }
 
 
     public static class program_return extends ParserRuleReturnScope {
@@ -86,7 +87,7 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "program"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:28:1: program : ( statement )* ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:29:1: program : ( statement )* ;
     public final EveParser.program_return program() throws RecognitionException {
         EveParser.program_return retval = new EveParser.program_return();
         retval.start = input.LT(1);
@@ -98,27 +99,27 @@ public class EveParser extends Parser {
 
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:29:2: ( ( statement )* )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:29:4: ( statement )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:30:2: ( ( statement )* )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:30:4: ( statement )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:29:4: ( statement )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:30:4: ( statement )*
             loop1:
             do {
                 int alt1=2;
                 int LA1_0 = input.LA(1);
 
-                if ( (LA1_0==IDENT||LA1_0==18||(LA1_0>=23 && LA1_0<=25)) ) {
+                if ( (LA1_0==IDENT||LA1_0==19||(LA1_0>=24 && LA1_0<=26)) ) {
                     alt1=1;
                 }
 
 
                 switch (alt1) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:29:4: statement
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:30:4: statement
             	    {
-            	    pushFollow(FOLLOW_statement_in_program84);
+            	    pushFollow(FOLLOW_statement_in_program88);
             	    statement1=statement();
 
             	    state._fsp--;
@@ -160,7 +161,7 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "statement"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:33:1: statement : ( codeStatement | protoStatement );
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:34:1: statement : ( codeStatement | protoStatement );
     public final EveParser.statement_return statement() throws RecognitionException {
         EveParser.statement_return retval = new EveParser.statement_return();
         retval.start = input.LT(1);
@@ -174,14 +175,14 @@ public class EveParser extends Parser {
 
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:34:2: ( codeStatement | protoStatement )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:35:2: ( codeStatement | protoStatement )
             int alt2=2;
             int LA2_0 = input.LA(1);
 
-            if ( (LA2_0==IDENT||LA2_0==18||(LA2_0>=23 && LA2_0<=24)) ) {
+            if ( (LA2_0==IDENT||LA2_0==19||(LA2_0>=24 && LA2_0<=25)) ) {
                 alt2=1;
             }
-            else if ( (LA2_0==25) ) {
+            else if ( (LA2_0==26) ) {
                 alt2=2;
             }
             else {
@@ -192,11 +193,11 @@ public class EveParser extends Parser {
             }
             switch (alt2) {
                 case 1 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:34:4: codeStatement
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:35:4: codeStatement
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    pushFollow(FOLLOW_codeStatement_in_statement97);
+                    pushFollow(FOLLOW_codeStatement_in_statement101);
                     codeStatement2=codeStatement();
 
                     state._fsp--;
@@ -206,11 +207,11 @@ public class EveParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:35:4: protoStatement
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:36:4: protoStatement
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    pushFollow(FOLLOW_protoStatement_in_statement102);
+                    pushFollow(FOLLOW_protoStatement_in_statement106);
                     protoStatement3=protoStatement();
 
                     state._fsp--;
@@ -245,7 +246,7 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "codeStatement"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:38:1: codeStatement : ( printStatement | assignmentStatement | initVariableStatement );
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:39:1: codeStatement : ( printStatement | assignmentStatement | initVariableStatement );
     public final EveParser.codeStatement_return codeStatement() throws RecognitionException {
         EveParser.codeStatement_return retval = new EveParser.codeStatement_return();
         retval.start = input.LT(1);
@@ -261,21 +262,21 @@ public class EveParser extends Parser {
 
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:39:2: ( printStatement | assignmentStatement | initVariableStatement )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:40:2: ( printStatement | assignmentStatement | initVariableStatement )
             int alt3=3;
             switch ( input.LA(1) ) {
-            case 18:
+            case 19:
                 {
                 alt3=1;
                 }
                 break;
             case IDENT:
-            case 23:
+            case 24:
                 {
                 alt3=2;
                 }
                 break;
-            case 24:
+            case 25:
                 {
                 alt3=3;
                 }
@@ -289,11 +290,11 @@ public class EveParser extends Parser {
 
             switch (alt3) {
                 case 1 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:39:4: printStatement
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:40:4: printStatement
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    pushFollow(FOLLOW_printStatement_in_codeStatement115);
+                    pushFollow(FOLLOW_printStatement_in_codeStatement119);
                     printStatement4=printStatement();
 
                     state._fsp--;
@@ -303,11 +304,11 @@ public class EveParser extends Parser {
                     }
                     break;
                 case 2 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:40:4: assignmentStatement
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:41:4: assignmentStatement
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    pushFollow(FOLLOW_assignmentStatement_in_codeStatement120);
+                    pushFollow(FOLLOW_assignmentStatement_in_codeStatement124);
                     assignmentStatement5=assignmentStatement();
 
                     state._fsp--;
@@ -317,11 +318,11 @@ public class EveParser extends Parser {
                     }
                     break;
                 case 3 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:41:4: initVariableStatement
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:42:4: initVariableStatement
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    pushFollow(FOLLOW_initVariableStatement_in_codeStatement125);
+                    pushFollow(FOLLOW_initVariableStatement_in_codeStatement129);
                     initVariableStatement6=initVariableStatement();
 
                     state._fsp--;
@@ -356,7 +357,7 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "printStatement"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:44:1: printStatement : 'print' '(' expression ')' ';' ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:45:1: printStatement : 'print' '(' expression ')' ';' ;
     public final EveParser.printStatement_return printStatement() throws RecognitionException {
         EveParser.printStatement_return retval = new EveParser.printStatement_return();
         retval.start = input.LT(1);
@@ -376,24 +377,24 @@ public class EveParser extends Parser {
         CommonTree char_literal11_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:45:2: ( 'print' '(' expression ')' ';' )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:45:4: 'print' '(' expression ')' ';'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:46:2: ( 'print' '(' expression ')' ';' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:46:4: 'print' '(' expression ')' ';'
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            string_literal7=(Token)match(input,18,FOLLOW_18_in_printStatement137); 
+            string_literal7=(Token)match(input,19,FOLLOW_19_in_printStatement141); 
             string_literal7_tree = (CommonTree)adaptor.create(string_literal7);
             root_0 = (CommonTree)adaptor.becomeRoot(string_literal7_tree, root_0);
 
-            char_literal8=(Token)match(input,19,FOLLOW_19_in_printStatement140); 
-            pushFollow(FOLLOW_expression_in_printStatement143);
+            char_literal8=(Token)match(input,20,FOLLOW_20_in_printStatement144); 
+            pushFollow(FOLLOW_expression_in_printStatement147);
             expression9=expression();
 
             state._fsp--;
 
             adaptor.addChild(root_0, expression9.getTree());
-            char_literal10=(Token)match(input,20,FOLLOW_20_in_printStatement145); 
-            char_literal11=(Token)match(input,21,FOLLOW_21_in_printStatement148); 
+            char_literal10=(Token)match(input,21,FOLLOW_21_in_printStatement149); 
+            char_literal11=(Token)match(input,22,FOLLOW_22_in_printStatement152); 
 
             }
 
@@ -421,7 +422,7 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "assignmentStatement"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:48:1: assignmentStatement : ( IDENT '=' expression ';' | initFunction IDENT '=' function );
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:49:1: assignmentStatement : ( IDENT '=' expression ';' -> ^( UPDATE_VARIABLE IDENT expression ) | initFunction IDENT '=' function ( ';' )? );
     public final EveParser.assignmentStatement_return assignmentStatement() throws RecognitionException {
         EveParser.assignmentStatement_return retval = new EveParser.assignmentStatement_return();
         retval.start = input.LT(1);
@@ -433,6 +434,7 @@ public class EveParser extends Parser {
         Token char_literal15=null;
         Token IDENT17=null;
         Token char_literal18=null;
+        Token char_literal20=null;
         EveParser.expression_return expression14 = null;
 
         EveParser.initFunction_return initFunction16 = null;
@@ -445,73 +447,124 @@ public class EveParser extends Parser {
         CommonTree char_literal15_tree=null;
         CommonTree IDENT17_tree=null;
         CommonTree char_literal18_tree=null;
-
+        CommonTree char_literal20_tree=null;
+        RewriteRuleTokenStream stream_IDENT=new RewriteRuleTokenStream(adaptor,"token IDENT");
+        RewriteRuleTokenStream stream_22=new RewriteRuleTokenStream(adaptor,"token 22");
+        RewriteRuleTokenStream stream_23=new RewriteRuleTokenStream(adaptor,"token 23");
+        RewriteRuleSubtreeStream stream_expression=new RewriteRuleSubtreeStream(adaptor,"rule expression");
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:49:2: ( IDENT '=' expression ';' | initFunction IDENT '=' function )
-            int alt4=2;
-            int LA4_0 = input.LA(1);
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:50:2: ( IDENT '=' expression ';' -> ^( UPDATE_VARIABLE IDENT expression ) | initFunction IDENT '=' function ( ';' )? )
+            int alt5=2;
+            int LA5_0 = input.LA(1);
 
-            if ( (LA4_0==IDENT) ) {
-                alt4=1;
+            if ( (LA5_0==IDENT) ) {
+                alt5=1;
             }
-            else if ( (LA4_0==23) ) {
-                alt4=2;
+            else if ( (LA5_0==24) ) {
+                alt5=2;
             }
             else {
                 NoViableAltException nvae =
-                    new NoViableAltException("", 4, 0, input);
+                    new NoViableAltException("", 5, 0, input);
 
                 throw nvae;
             }
-            switch (alt4) {
+            switch (alt5) {
                 case 1 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:49:4: IDENT '=' expression ';'
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:50:4: IDENT '=' expression ';'
                     {
-                    root_0 = (CommonTree)adaptor.nil();
+                    IDENT12=(Token)match(input,IDENT,FOLLOW_IDENT_in_assignmentStatement165);  
+                    stream_IDENT.add(IDENT12);
 
-                    IDENT12=(Token)match(input,IDENT,FOLLOW_IDENT_in_assignmentStatement161); 
-                    IDENT12_tree = (CommonTree)adaptor.create(IDENT12);
-                    adaptor.addChild(root_0, IDENT12_tree);
+                    char_literal13=(Token)match(input,23,FOLLOW_23_in_assignmentStatement167);  
+                    stream_23.add(char_literal13);
 
-                    char_literal13=(Token)match(input,22,FOLLOW_22_in_assignmentStatement163); 
-                    char_literal13_tree = (CommonTree)adaptor.create(char_literal13);
-                    root_0 = (CommonTree)adaptor.becomeRoot(char_literal13_tree, root_0);
-
-                    pushFollow(FOLLOW_expression_in_assignmentStatement166);
+                    pushFollow(FOLLOW_expression_in_assignmentStatement169);
                     expression14=expression();
 
                     state._fsp--;
 
-                    adaptor.addChild(root_0, expression14.getTree());
-                    char_literal15=(Token)match(input,21,FOLLOW_21_in_assignmentStatement168); 
+                    stream_expression.add(expression14.getTree());
+                    char_literal15=(Token)match(input,22,FOLLOW_22_in_assignmentStatement171);  
+                    stream_22.add(char_literal15);
 
+
+
+                    // AST REWRITE
+                    // elements: expression, IDENT
+                    // token labels: 
+                    // rule labels: retval
+                    // token list labels: 
+                    // rule list labels: 
+                    // wildcard labels: 
+                    retval.tree = root_0;
+                    RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
+
+                    root_0 = (CommonTree)adaptor.nil();
+                    // 50:29: -> ^( UPDATE_VARIABLE IDENT expression )
+                    {
+                        // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:50:32: ^( UPDATE_VARIABLE IDENT expression )
+                        {
+                        CommonTree root_1 = (CommonTree)adaptor.nil();
+                        root_1 = (CommonTree)adaptor.becomeRoot((CommonTree)adaptor.create(UPDATE_VARIABLE, "UPDATE_VARIABLE"), root_1);
+
+                        adaptor.addChild(root_1, stream_IDENT.nextNode());
+                        adaptor.addChild(root_1, stream_expression.nextTree());
+
+                        adaptor.addChild(root_0, root_1);
+                        }
+
+                    }
+
+                    retval.tree = root_0;
                     }
                     break;
                 case 2 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:50:4: initFunction IDENT '=' function
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:51:4: initFunction IDENT '=' function ( ';' )?
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    pushFollow(FOLLOW_initFunction_in_assignmentStatement174);
+                    pushFollow(FOLLOW_initFunction_in_assignmentStatement186);
                     initFunction16=initFunction();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, initFunction16.getTree());
-                    IDENT17=(Token)match(input,IDENT,FOLLOW_IDENT_in_assignmentStatement176); 
+                    IDENT17=(Token)match(input,IDENT,FOLLOW_IDENT_in_assignmentStatement188); 
                     IDENT17_tree = (CommonTree)adaptor.create(IDENT17);
                     adaptor.addChild(root_0, IDENT17_tree);
 
-                    char_literal18=(Token)match(input,22,FOLLOW_22_in_assignmentStatement178); 
+                    char_literal18=(Token)match(input,23,FOLLOW_23_in_assignmentStatement190); 
                     char_literal18_tree = (CommonTree)adaptor.create(char_literal18);
                     root_0 = (CommonTree)adaptor.becomeRoot(char_literal18_tree, root_0);
 
-                    pushFollow(FOLLOW_function_in_assignmentStatement181);
+                    pushFollow(FOLLOW_function_in_assignmentStatement193);
                     function19=function();
 
                     state._fsp--;
 
                     adaptor.addChild(root_0, function19.getTree());
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:51:37: ( ';' )?
+                    int alt4=2;
+                    int LA4_0 = input.LA(1);
+
+                    if ( (LA4_0==22) ) {
+                        alt4=1;
+                    }
+                    switch (alt4) {
+                        case 1 :
+                            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:51:37: ';'
+                            {
+                            char_literal20=(Token)match(input,22,FOLLOW_22_in_assignmentStatement195); 
+                            char_literal20_tree = (CommonTree)adaptor.create(char_literal20);
+                            adaptor.addChild(root_0, char_literal20_tree);
+
+
+                            }
+                            break;
+
+                    }
+
 
                     }
                     break;
@@ -541,24 +594,24 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "initFunction"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:53:1: initFunction : 'def' -> INIT_FUNCTION ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:54:1: initFunction : 'def' -> INIT_FUNCTION ;
     public final EveParser.initFunction_return initFunction() throws RecognitionException {
         EveParser.initFunction_return retval = new EveParser.initFunction_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token string_literal20=null;
+        Token string_literal21=null;
 
-        CommonTree string_literal20_tree=null;
-        RewriteRuleTokenStream stream_23=new RewriteRuleTokenStream(adaptor,"token 23");
+        CommonTree string_literal21_tree=null;
+        RewriteRuleTokenStream stream_24=new RewriteRuleTokenStream(adaptor,"token 24");
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:54:2: ( 'def' -> INIT_FUNCTION )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:54:4: 'def'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:55:2: ( 'def' -> INIT_FUNCTION )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:55:4: 'def'
             {
-            string_literal20=(Token)match(input,23,FOLLOW_23_in_initFunction192);  
-            stream_23.add(string_literal20);
+            string_literal21=(Token)match(input,24,FOLLOW_24_in_initFunction207);  
+            stream_24.add(string_literal21);
 
 
 
@@ -573,7 +626,7 @@ public class EveParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (CommonTree)adaptor.nil();
-            // 54:10: -> INIT_FUNCTION
+            // 55:10: -> INIT_FUNCTION
             {
                 adaptor.addChild(root_0, (CommonTree)adaptor.create(INIT_FUNCTION, "INIT_FUNCTION"));
 
@@ -606,49 +659,49 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "initVariableStatement"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:57:1: initVariableStatement : initVariable IDENT '=' expression ';' ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:58:1: initVariableStatement : initVariable IDENT '=' expression ';' ;
     public final EveParser.initVariableStatement_return initVariableStatement() throws RecognitionException {
         EveParser.initVariableStatement_return retval = new EveParser.initVariableStatement_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token IDENT22=null;
-        Token char_literal23=null;
-        Token char_literal25=null;
-        EveParser.initVariable_return initVariable21 = null;
+        Token IDENT23=null;
+        Token char_literal24=null;
+        Token char_literal26=null;
+        EveParser.initVariable_return initVariable22 = null;
 
-        EveParser.expression_return expression24 = null;
+        EveParser.expression_return expression25 = null;
 
 
-        CommonTree IDENT22_tree=null;
-        CommonTree char_literal23_tree=null;
-        CommonTree char_literal25_tree=null;
+        CommonTree IDENT23_tree=null;
+        CommonTree char_literal24_tree=null;
+        CommonTree char_literal26_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:58:2: ( initVariable IDENT '=' expression ';' )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:58:4: initVariable IDENT '=' expression ';'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:59:2: ( initVariable IDENT '=' expression ';' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:59:4: initVariable IDENT '=' expression ';'
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_initVariable_in_initVariableStatement208);
-            initVariable21=initVariable();
+            pushFollow(FOLLOW_initVariable_in_initVariableStatement223);
+            initVariable22=initVariable();
 
             state._fsp--;
 
-            root_0 = (CommonTree)adaptor.becomeRoot(initVariable21.getTree(), root_0);
-            IDENT22=(Token)match(input,IDENT,FOLLOW_IDENT_in_initVariableStatement211); 
-            IDENT22_tree = (CommonTree)adaptor.create(IDENT22);
-            adaptor.addChild(root_0, IDENT22_tree);
+            root_0 = (CommonTree)adaptor.becomeRoot(initVariable22.getTree(), root_0);
+            IDENT23=(Token)match(input,IDENT,FOLLOW_IDENT_in_initVariableStatement226); 
+            IDENT23_tree = (CommonTree)adaptor.create(IDENT23);
+            adaptor.addChild(root_0, IDENT23_tree);
 
-            char_literal23=(Token)match(input,22,FOLLOW_22_in_initVariableStatement213); 
-            pushFollow(FOLLOW_expression_in_initVariableStatement216);
-            expression24=expression();
+            char_literal24=(Token)match(input,23,FOLLOW_23_in_initVariableStatement228); 
+            pushFollow(FOLLOW_expression_in_initVariableStatement231);
+            expression25=expression();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, expression24.getTree());
-            char_literal25=(Token)match(input,21,FOLLOW_21_in_initVariableStatement218); 
+            adaptor.addChild(root_0, expression25.getTree());
+            char_literal26=(Token)match(input,22,FOLLOW_22_in_initVariableStatement233); 
 
             }
 
@@ -676,24 +729,24 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "initVariable"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:61:1: initVariable : 'var' -> INIT_VARIABLE ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:62:1: initVariable : 'var' -> INIT_VARIABLE ;
     public final EveParser.initVariable_return initVariable() throws RecognitionException {
         EveParser.initVariable_return retval = new EveParser.initVariable_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token string_literal26=null;
+        Token string_literal27=null;
 
-        CommonTree string_literal26_tree=null;
-        RewriteRuleTokenStream stream_24=new RewriteRuleTokenStream(adaptor,"token 24");
+        CommonTree string_literal27_tree=null;
+        RewriteRuleTokenStream stream_25=new RewriteRuleTokenStream(adaptor,"token 25");
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:62:2: ( 'var' -> INIT_VARIABLE )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:62:4: 'var'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:63:2: ( 'var' -> INIT_VARIABLE )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:63:4: 'var'
             {
-            string_literal26=(Token)match(input,24,FOLLOW_24_in_initVariable230);  
-            stream_24.add(string_literal26);
+            string_literal27=(Token)match(input,25,FOLLOW_25_in_initVariable245);  
+            stream_25.add(string_literal27);
 
 
 
@@ -708,7 +761,7 @@ public class EveParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (CommonTree)adaptor.nil();
-            // 62:10: -> INIT_VARIABLE
+            // 63:10: -> INIT_VARIABLE
             {
                 adaptor.addChild(root_0, (CommonTree)adaptor.create(INIT_VARIABLE, "INIT_VARIABLE"));
 
@@ -741,71 +794,71 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "protoStatement"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:65:1: protoStatement : 'proto' IDENT '{' ( protoBlock )* '}' ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:66:1: protoStatement : 'proto' IDENT '{' ( protoBlock )* '}' ;
     public final EveParser.protoStatement_return protoStatement() throws RecognitionException {
         EveParser.protoStatement_return retval = new EveParser.protoStatement_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token string_literal27=null;
-        Token IDENT28=null;
-        Token char_literal29=null;
-        Token char_literal31=null;
-        EveParser.protoBlock_return protoBlock30 = null;
+        Token string_literal28=null;
+        Token IDENT29=null;
+        Token char_literal30=null;
+        Token char_literal32=null;
+        EveParser.protoBlock_return protoBlock31 = null;
 
 
-        CommonTree string_literal27_tree=null;
-        CommonTree IDENT28_tree=null;
-        CommonTree char_literal29_tree=null;
-        CommonTree char_literal31_tree=null;
+        CommonTree string_literal28_tree=null;
+        CommonTree IDENT29_tree=null;
+        CommonTree char_literal30_tree=null;
+        CommonTree char_literal32_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:66:2: ( 'proto' IDENT '{' ( protoBlock )* '}' )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:66:4: 'proto' IDENT '{' ( protoBlock )* '}'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:67:2: ( 'proto' IDENT '{' ( protoBlock )* '}' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:67:4: 'proto' IDENT '{' ( protoBlock )* '}'
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            string_literal27=(Token)match(input,25,FOLLOW_25_in_protoStatement246); 
-            string_literal27_tree = (CommonTree)adaptor.create(string_literal27);
-            root_0 = (CommonTree)adaptor.becomeRoot(string_literal27_tree, root_0);
+            string_literal28=(Token)match(input,26,FOLLOW_26_in_protoStatement261); 
+            string_literal28_tree = (CommonTree)adaptor.create(string_literal28);
+            root_0 = (CommonTree)adaptor.becomeRoot(string_literal28_tree, root_0);
 
-            IDENT28=(Token)match(input,IDENT,FOLLOW_IDENT_in_protoStatement249); 
-            IDENT28_tree = (CommonTree)adaptor.create(IDENT28);
-            adaptor.addChild(root_0, IDENT28_tree);
+            IDENT29=(Token)match(input,IDENT,FOLLOW_IDENT_in_protoStatement264); 
+            IDENT29_tree = (CommonTree)adaptor.create(IDENT29);
+            adaptor.addChild(root_0, IDENT29_tree);
 
-            char_literal29=(Token)match(input,26,FOLLOW_26_in_protoStatement251); 
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:66:24: ( protoBlock )*
-            loop5:
+            char_literal30=(Token)match(input,27,FOLLOW_27_in_protoStatement266); 
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:67:24: ( protoBlock )*
+            loop6:
             do {
-                int alt5=2;
-                int LA5_0 = input.LA(1);
+                int alt6=2;
+                int LA6_0 = input.LA(1);
 
-                if ( (LA5_0==IDENT||LA5_0==18||(LA5_0>=23 && LA5_0<=24)) ) {
-                    alt5=1;
+                if ( (LA6_0==IDENT||LA6_0==19||(LA6_0>=24 && LA6_0<=25)) ) {
+                    alt6=1;
                 }
 
 
-                switch (alt5) {
+                switch (alt6) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:66:24: protoBlock
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:67:24: protoBlock
             	    {
-            	    pushFollow(FOLLOW_protoBlock_in_protoStatement254);
-            	    protoBlock30=protoBlock();
+            	    pushFollow(FOLLOW_protoBlock_in_protoStatement269);
+            	    protoBlock31=protoBlock();
 
             	    state._fsp--;
 
-            	    adaptor.addChild(root_0, protoBlock30.getTree());
+            	    adaptor.addChild(root_0, protoBlock31.getTree());
 
             	    }
             	    break;
 
             	default :
-            	    break loop5;
+            	    break loop6;
                 }
             } while (true);
 
-            char_literal31=(Token)match(input,27,FOLLOW_27_in_protoStatement257); 
+            char_literal32=(Token)match(input,28,FOLLOW_28_in_protoStatement272); 
 
             }
 
@@ -833,29 +886,29 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "protoBlock"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:69:1: protoBlock : codeStatement ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:70:1: protoBlock : codeStatement ;
     public final EveParser.protoBlock_return protoBlock() throws RecognitionException {
         EveParser.protoBlock_return retval = new EveParser.protoBlock_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        EveParser.codeStatement_return codeStatement32 = null;
+        EveParser.codeStatement_return codeStatement33 = null;
 
 
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:70:2: ( codeStatement )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:70:4: codeStatement
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:71:2: ( codeStatement )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:71:4: codeStatement
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_codeStatement_in_protoBlock270);
-            codeStatement32=codeStatement();
+            pushFollow(FOLLOW_codeStatement_in_protoBlock285);
+            codeStatement33=codeStatement();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, codeStatement32.getTree());
+            adaptor.addChild(root_0, codeStatement33.getTree());
 
             }
 
@@ -883,64 +936,64 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "actualParameters"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:74:1: actualParameters : expression ( ',' expression )* ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:75:1: actualParameters : expression ( ',' expression )* ;
     public final EveParser.actualParameters_return actualParameters() throws RecognitionException {
         EveParser.actualParameters_return retval = new EveParser.actualParameters_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal34=null;
-        EveParser.expression_return expression33 = null;
+        Token char_literal35=null;
+        EveParser.expression_return expression34 = null;
 
-        EveParser.expression_return expression35 = null;
+        EveParser.expression_return expression36 = null;
 
 
-        CommonTree char_literal34_tree=null;
+        CommonTree char_literal35_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:75:2: ( expression ( ',' expression )* )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:75:4: expression ( ',' expression )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:76:2: ( expression ( ',' expression )* )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:76:4: expression ( ',' expression )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_expression_in_actualParameters282);
-            expression33=expression();
+            pushFollow(FOLLOW_expression_in_actualParameters297);
+            expression34=expression();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, expression33.getTree());
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:75:15: ( ',' expression )*
-            loop6:
+            adaptor.addChild(root_0, expression34.getTree());
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:76:15: ( ',' expression )*
+            loop7:
             do {
-                int alt6=2;
-                int LA6_0 = input.LA(1);
+                int alt7=2;
+                int LA7_0 = input.LA(1);
 
-                if ( (LA6_0==28) ) {
-                    alt6=1;
+                if ( (LA7_0==29) ) {
+                    alt7=1;
                 }
 
 
-                switch (alt6) {
+                switch (alt7) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:75:16: ',' expression
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:76:16: ',' expression
             	    {
-            	    char_literal34=(Token)match(input,28,FOLLOW_28_in_actualParameters285); 
-            	    char_literal34_tree = (CommonTree)adaptor.create(char_literal34);
-            	    adaptor.addChild(root_0, char_literal34_tree);
+            	    char_literal35=(Token)match(input,29,FOLLOW_29_in_actualParameters300); 
+            	    char_literal35_tree = (CommonTree)adaptor.create(char_literal35);
+            	    adaptor.addChild(root_0, char_literal35_tree);
 
-            	    pushFollow(FOLLOW_expression_in_actualParameters287);
-            	    expression35=expression();
+            	    pushFollow(FOLLOW_expression_in_actualParameters302);
+            	    expression36=expression();
 
             	    state._fsp--;
 
-            	    adaptor.addChild(root_0, expression35.getTree());
+            	    adaptor.addChild(root_0, expression36.getTree());
 
             	    }
             	    break;
 
             	default :
-            	    break loop6;
+            	    break loop7;
                 }
             } while (true);
 
@@ -971,37 +1024,37 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "function"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:79:1: function : parameters functionBody ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:80:1: function : parameters functionBody ;
     public final EveParser.function_return function() throws RecognitionException {
         EveParser.function_return retval = new EveParser.function_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        EveParser.parameters_return parameters36 = null;
+        EveParser.parameters_return parameters37 = null;
 
-        EveParser.functionBody_return functionBody37 = null;
+        EveParser.functionBody_return functionBody38 = null;
 
 
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:80:2: ( parameters functionBody )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:80:4: parameters functionBody
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:81:2: ( parameters functionBody )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:81:4: parameters functionBody
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_parameters_in_function303);
-            parameters36=parameters();
+            pushFollow(FOLLOW_parameters_in_function318);
+            parameters37=parameters();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, parameters36.getTree());
-            pushFollow(FOLLOW_functionBody_in_function307);
-            functionBody37=functionBody();
+            adaptor.addChild(root_0, parameters37.getTree());
+            pushFollow(FOLLOW_functionBody_in_function322);
+            functionBody38=functionBody();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, functionBody37.getTree());
+            adaptor.addChild(root_0, functionBody38.getTree());
 
             }
 
@@ -1029,64 +1082,64 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "functionBody"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:84:1: functionBody : functionBodyToken ( codeStatement )* '}' ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:85:1: functionBody : functionBodyToken ( codeStatement )* '}' ;
     public final EveParser.functionBody_return functionBody() throws RecognitionException {
         EveParser.functionBody_return retval = new EveParser.functionBody_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal40=null;
-        EveParser.functionBodyToken_return functionBodyToken38 = null;
+        Token char_literal41=null;
+        EveParser.functionBodyToken_return functionBodyToken39 = null;
 
-        EveParser.codeStatement_return codeStatement39 = null;
+        EveParser.codeStatement_return codeStatement40 = null;
 
 
-        CommonTree char_literal40_tree=null;
+        CommonTree char_literal41_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:85:2: ( functionBodyToken ( codeStatement )* '}' )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:85:4: functionBodyToken ( codeStatement )* '}'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:86:2: ( functionBodyToken ( codeStatement )* '}' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:86:4: functionBodyToken ( codeStatement )* '}'
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_functionBodyToken_in_functionBody319);
-            functionBodyToken38=functionBodyToken();
+            pushFollow(FOLLOW_functionBodyToken_in_functionBody334);
+            functionBodyToken39=functionBodyToken();
 
             state._fsp--;
 
-            root_0 = (CommonTree)adaptor.becomeRoot(functionBodyToken38.getTree(), root_0);
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:85:23: ( codeStatement )*
-            loop7:
+            root_0 = (CommonTree)adaptor.becomeRoot(functionBodyToken39.getTree(), root_0);
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:86:23: ( codeStatement )*
+            loop8:
             do {
-                int alt7=2;
-                int LA7_0 = input.LA(1);
+                int alt8=2;
+                int LA8_0 = input.LA(1);
 
-                if ( (LA7_0==IDENT||LA7_0==18||(LA7_0>=23 && LA7_0<=24)) ) {
-                    alt7=1;
+                if ( (LA8_0==IDENT||LA8_0==19||(LA8_0>=24 && LA8_0<=25)) ) {
+                    alt8=1;
                 }
 
 
-                switch (alt7) {
+                switch (alt8) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:85:23: codeStatement
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:86:23: codeStatement
             	    {
-            	    pushFollow(FOLLOW_codeStatement_in_functionBody322);
-            	    codeStatement39=codeStatement();
+            	    pushFollow(FOLLOW_codeStatement_in_functionBody337);
+            	    codeStatement40=codeStatement();
 
             	    state._fsp--;
 
-            	    adaptor.addChild(root_0, codeStatement39.getTree());
+            	    adaptor.addChild(root_0, codeStatement40.getTree());
 
             	    }
             	    break;
 
             	default :
-            	    break loop7;
+            	    break loop8;
                 }
             } while (true);
 
-            char_literal40=(Token)match(input,27,FOLLOW_27_in_functionBody325); 
+            char_literal41=(Token)match(input,28,FOLLOW_28_in_functionBody340); 
 
             }
 
@@ -1114,24 +1167,24 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "functionBodyToken"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:88:1: functionBodyToken : '{' -> FUNCTION_BODY ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:89:1: functionBodyToken : '{' -> FUNCTION_BODY ;
     public final EveParser.functionBodyToken_return functionBodyToken() throws RecognitionException {
         EveParser.functionBodyToken_return retval = new EveParser.functionBodyToken_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal41=null;
+        Token char_literal42=null;
 
-        CommonTree char_literal41_tree=null;
-        RewriteRuleTokenStream stream_26=new RewriteRuleTokenStream(adaptor,"token 26");
+        CommonTree char_literal42_tree=null;
+        RewriteRuleTokenStream stream_27=new RewriteRuleTokenStream(adaptor,"token 27");
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:89:2: ( '{' -> FUNCTION_BODY )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:89:4: '{'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:90:2: ( '{' -> FUNCTION_BODY )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:90:4: '{'
             {
-            char_literal41=(Token)match(input,26,FOLLOW_26_in_functionBodyToken337);  
-            stream_26.add(char_literal41);
+            char_literal42=(Token)match(input,27,FOLLOW_27_in_functionBodyToken352);  
+            stream_27.add(char_literal42);
 
 
 
@@ -1146,7 +1199,7 @@ public class EveParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (CommonTree)adaptor.nil();
-            // 89:8: -> FUNCTION_BODY
+            // 90:8: -> FUNCTION_BODY
             {
                 adaptor.addChild(root_0, (CommonTree)adaptor.create(FUNCTION_BODY, "FUNCTION_BODY"));
 
@@ -1179,75 +1232,75 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "parameters"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:92:1: parameters : parametersStartToken parameter ( ',' parameter )* ')' ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:93:1: parameters : parametersStartToken parameter ( ',' parameter )* ')' ;
     public final EveParser.parameters_return parameters() throws RecognitionException {
         EveParser.parameters_return retval = new EveParser.parameters_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal44=null;
-        Token char_literal46=null;
-        EveParser.parametersStartToken_return parametersStartToken42 = null;
+        Token char_literal45=null;
+        Token char_literal47=null;
+        EveParser.parametersStartToken_return parametersStartToken43 = null;
 
-        EveParser.parameter_return parameter43 = null;
+        EveParser.parameter_return parameter44 = null;
 
-        EveParser.parameter_return parameter45 = null;
+        EveParser.parameter_return parameter46 = null;
 
 
-        CommonTree char_literal44_tree=null;
-        CommonTree char_literal46_tree=null;
+        CommonTree char_literal45_tree=null;
+        CommonTree char_literal47_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:93:2: ( parametersStartToken parameter ( ',' parameter )* ')' )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:93:4: parametersStartToken parameter ( ',' parameter )* ')'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:94:2: ( parametersStartToken parameter ( ',' parameter )* ')' )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:94:4: parametersStartToken parameter ( ',' parameter )* ')'
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_parametersStartToken_in_parameters353);
-            parametersStartToken42=parametersStartToken();
+            pushFollow(FOLLOW_parametersStartToken_in_parameters368);
+            parametersStartToken43=parametersStartToken();
 
             state._fsp--;
 
-            root_0 = (CommonTree)adaptor.becomeRoot(parametersStartToken42.getTree(), root_0);
-            pushFollow(FOLLOW_parameter_in_parameters356);
-            parameter43=parameter();
+            root_0 = (CommonTree)adaptor.becomeRoot(parametersStartToken43.getTree(), root_0);
+            pushFollow(FOLLOW_parameter_in_parameters371);
+            parameter44=parameter();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, parameter43.getTree());
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:93:36: ( ',' parameter )*
-            loop8:
+            adaptor.addChild(root_0, parameter44.getTree());
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:94:36: ( ',' parameter )*
+            loop9:
             do {
-                int alt8=2;
-                int LA8_0 = input.LA(1);
+                int alt9=2;
+                int LA9_0 = input.LA(1);
 
-                if ( (LA8_0==28) ) {
-                    alt8=1;
+                if ( (LA9_0==29) ) {
+                    alt9=1;
                 }
 
 
-                switch (alt8) {
+                switch (alt9) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:93:37: ',' parameter
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:94:37: ',' parameter
             	    {
-            	    char_literal44=(Token)match(input,28,FOLLOW_28_in_parameters359); 
-            	    pushFollow(FOLLOW_parameter_in_parameters362);
-            	    parameter45=parameter();
+            	    char_literal45=(Token)match(input,29,FOLLOW_29_in_parameters374); 
+            	    pushFollow(FOLLOW_parameter_in_parameters377);
+            	    parameter46=parameter();
 
             	    state._fsp--;
 
-            	    adaptor.addChild(root_0, parameter45.getTree());
+            	    adaptor.addChild(root_0, parameter46.getTree());
 
             	    }
             	    break;
 
             	default :
-            	    break loop8;
+            	    break loop9;
                 }
             } while (true);
 
-            char_literal46=(Token)match(input,20,FOLLOW_20_in_parameters366); 
+            char_literal47=(Token)match(input,21,FOLLOW_21_in_parameters381); 
 
             }
 
@@ -1275,24 +1328,24 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "parametersStartToken"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:96:1: parametersStartToken : '(' -> FUNCTION_PARAMETERS ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:97:1: parametersStartToken : '(' -> FUNCTION_PARAMETERS ;
     public final EveParser.parametersStartToken_return parametersStartToken() throws RecognitionException {
         EveParser.parametersStartToken_return retval = new EveParser.parametersStartToken_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal47=null;
+        Token char_literal48=null;
 
-        CommonTree char_literal47_tree=null;
-        RewriteRuleTokenStream stream_19=new RewriteRuleTokenStream(adaptor,"token 19");
+        CommonTree char_literal48_tree=null;
+        RewriteRuleTokenStream stream_20=new RewriteRuleTokenStream(adaptor,"token 20");
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:97:2: ( '(' -> FUNCTION_PARAMETERS )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:97:4: '('
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:98:2: ( '(' -> FUNCTION_PARAMETERS )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:98:4: '('
             {
-            char_literal47=(Token)match(input,19,FOLLOW_19_in_parametersStartToken379);  
-            stream_19.add(char_literal47);
+            char_literal48=(Token)match(input,20,FOLLOW_20_in_parametersStartToken394);  
+            stream_20.add(char_literal48);
 
 
 
@@ -1307,7 +1360,7 @@ public class EveParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (CommonTree)adaptor.nil();
-            // 97:8: -> FUNCTION_PARAMETERS
+            // 98:8: -> FUNCTION_PARAMETERS
             {
                 adaptor.addChild(root_0, (CommonTree)adaptor.create(FUNCTION_PARAMETERS, "FUNCTION_PARAMETERS"));
 
@@ -1341,28 +1394,28 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "parameter"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:100:1: parameter returns [String param] : IDENT ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:101:1: parameter returns [String param] : IDENT ;
     public final EveParser.parameter_return parameter() throws RecognitionException {
         EveParser.parameter_return retval = new EveParser.parameter_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token IDENT48=null;
+        Token IDENT49=null;
 
-        CommonTree IDENT48_tree=null;
+        CommonTree IDENT49_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:101:2: ( IDENT )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:101:4: IDENT
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:102:2: ( IDENT )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:102:4: IDENT
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            IDENT48=(Token)match(input,IDENT,FOLLOW_IDENT_in_parameter398); 
-            IDENT48_tree = (CommonTree)adaptor.create(IDENT48);
-            adaptor.addChild(root_0, IDENT48_tree);
+            IDENT49=(Token)match(input,IDENT,FOLLOW_IDENT_in_parameter413); 
+            IDENT49_tree = (CommonTree)adaptor.create(IDENT49);
+            adaptor.addChild(root_0, IDENT49_tree);
 
-             retval.param = (IDENT48!=null?IDENT48.getText():null); 
+             retval.param = (IDENT49!=null?IDENT49.getText():null); 
 
             }
 
@@ -1390,154 +1443,154 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "term"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:105:1: term : ( IDENT | '(' expression ')' | INTEGER | STRING_LITERAL | IDENT '(' actualParameters ')' );
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:106:1: term : ( IDENT | '(' expression ')' | INTEGER | STRING_LITERAL | IDENT '(' actualParameters ')' );
     public final EveParser.term_return term() throws RecognitionException {
         EveParser.term_return retval = new EveParser.term_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token IDENT49=null;
-        Token char_literal50=null;
-        Token char_literal52=null;
-        Token INTEGER53=null;
-        Token STRING_LITERAL54=null;
-        Token IDENT55=null;
-        Token char_literal56=null;
-        Token char_literal58=null;
-        EveParser.expression_return expression51 = null;
+        Token IDENT50=null;
+        Token char_literal51=null;
+        Token char_literal53=null;
+        Token INTEGER54=null;
+        Token STRING_LITERAL55=null;
+        Token IDENT56=null;
+        Token char_literal57=null;
+        Token char_literal59=null;
+        EveParser.expression_return expression52 = null;
 
-        EveParser.actualParameters_return actualParameters57 = null;
+        EveParser.actualParameters_return actualParameters58 = null;
 
 
-        CommonTree IDENT49_tree=null;
-        CommonTree char_literal50_tree=null;
-        CommonTree char_literal52_tree=null;
-        CommonTree INTEGER53_tree=null;
-        CommonTree STRING_LITERAL54_tree=null;
-        CommonTree IDENT55_tree=null;
-        CommonTree char_literal56_tree=null;
-        CommonTree char_literal58_tree=null;
+        CommonTree IDENT50_tree=null;
+        CommonTree char_literal51_tree=null;
+        CommonTree char_literal53_tree=null;
+        CommonTree INTEGER54_tree=null;
+        CommonTree STRING_LITERAL55_tree=null;
+        CommonTree IDENT56_tree=null;
+        CommonTree char_literal57_tree=null;
+        CommonTree char_literal59_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:106:2: ( IDENT | '(' expression ')' | INTEGER | STRING_LITERAL | IDENT '(' actualParameters ')' )
-            int alt9=5;
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:107:2: ( IDENT | '(' expression ')' | INTEGER | STRING_LITERAL | IDENT '(' actualParameters ')' )
+            int alt10=5;
             switch ( input.LA(1) ) {
             case IDENT:
                 {
-                int LA9_1 = input.LA(2);
+                int LA10_1 = input.LA(2);
 
-                if ( (LA9_1==19) ) {
-                    alt9=5;
+                if ( (LA10_1==20) ) {
+                    alt10=5;
                 }
-                else if ( ((LA9_1>=20 && LA9_1<=22)||LA9_1==28||(LA9_1>=30 && LA9_1<=41)) ) {
-                    alt9=1;
+                else if ( ((LA10_1>=21 && LA10_1<=23)||LA10_1==29||(LA10_1>=31 && LA10_1<=42)) ) {
+                    alt10=1;
                 }
                 else {
                     NoViableAltException nvae =
-                        new NoViableAltException("", 9, 1, input);
+                        new NoViableAltException("", 10, 1, input);
 
                     throw nvae;
                 }
                 }
                 break;
-            case 19:
+            case 20:
                 {
-                alt9=2;
+                alt10=2;
                 }
                 break;
             case INTEGER:
                 {
-                alt9=3;
+                alt10=3;
                 }
                 break;
             case STRING_LITERAL:
                 {
-                alt9=4;
+                alt10=4;
                 }
                 break;
             default:
                 NoViableAltException nvae =
-                    new NoViableAltException("", 9, 0, input);
+                    new NoViableAltException("", 10, 0, input);
 
                 throw nvae;
             }
 
-            switch (alt9) {
+            switch (alt10) {
                 case 1 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:106:4: IDENT
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:107:4: IDENT
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    IDENT49=(Token)match(input,IDENT,FOLLOW_IDENT_in_term412); 
-                    IDENT49_tree = (CommonTree)adaptor.create(IDENT49);
-                    adaptor.addChild(root_0, IDENT49_tree);
+                    IDENT50=(Token)match(input,IDENT,FOLLOW_IDENT_in_term427); 
+                    IDENT50_tree = (CommonTree)adaptor.create(IDENT50);
+                    adaptor.addChild(root_0, IDENT50_tree);
 
 
                     }
                     break;
                 case 2 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:107:4: '(' expression ')'
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:108:4: '(' expression ')'
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    char_literal50=(Token)match(input,19,FOLLOW_19_in_term417); 
-                    pushFollow(FOLLOW_expression_in_term420);
-                    expression51=expression();
+                    char_literal51=(Token)match(input,20,FOLLOW_20_in_term432); 
+                    pushFollow(FOLLOW_expression_in_term435);
+                    expression52=expression();
 
                     state._fsp--;
 
-                    adaptor.addChild(root_0, expression51.getTree());
-                    char_literal52=(Token)match(input,20,FOLLOW_20_in_term422); 
+                    adaptor.addChild(root_0, expression52.getTree());
+                    char_literal53=(Token)match(input,21,FOLLOW_21_in_term437); 
 
                     }
                     break;
                 case 3 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:108:4: INTEGER
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:109:4: INTEGER
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    INTEGER53=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_term428); 
-                    INTEGER53_tree = (CommonTree)adaptor.create(INTEGER53);
-                    adaptor.addChild(root_0, INTEGER53_tree);
+                    INTEGER54=(Token)match(input,INTEGER,FOLLOW_INTEGER_in_term443); 
+                    INTEGER54_tree = (CommonTree)adaptor.create(INTEGER54);
+                    adaptor.addChild(root_0, INTEGER54_tree);
 
 
                     }
                     break;
                 case 4 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:109:4: STRING_LITERAL
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:110:4: STRING_LITERAL
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    STRING_LITERAL54=(Token)match(input,STRING_LITERAL,FOLLOW_STRING_LITERAL_in_term433); 
-                    STRING_LITERAL54_tree = (CommonTree)adaptor.create(STRING_LITERAL54);
-                    adaptor.addChild(root_0, STRING_LITERAL54_tree);
+                    STRING_LITERAL55=(Token)match(input,STRING_LITERAL,FOLLOW_STRING_LITERAL_in_term448); 
+                    STRING_LITERAL55_tree = (CommonTree)adaptor.create(STRING_LITERAL55);
+                    adaptor.addChild(root_0, STRING_LITERAL55_tree);
 
 
                     }
                     break;
                 case 5 :
-                    // /home/jeff/workspace/eve/src/eve/core/Eve.g:110:4: IDENT '(' actualParameters ')'
+                    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:111:4: IDENT '(' actualParameters ')'
                     {
                     root_0 = (CommonTree)adaptor.nil();
 
-                    IDENT55=(Token)match(input,IDENT,FOLLOW_IDENT_in_term438); 
-                    IDENT55_tree = (CommonTree)adaptor.create(IDENT55);
-                    adaptor.addChild(root_0, IDENT55_tree);
+                    IDENT56=(Token)match(input,IDENT,FOLLOW_IDENT_in_term453); 
+                    IDENT56_tree = (CommonTree)adaptor.create(IDENT56);
+                    adaptor.addChild(root_0, IDENT56_tree);
 
-                    char_literal56=(Token)match(input,19,FOLLOW_19_in_term440); 
-                    char_literal56_tree = (CommonTree)adaptor.create(char_literal56);
-                    adaptor.addChild(root_0, char_literal56_tree);
+                    char_literal57=(Token)match(input,20,FOLLOW_20_in_term455); 
+                    char_literal57_tree = (CommonTree)adaptor.create(char_literal57);
+                    adaptor.addChild(root_0, char_literal57_tree);
 
-                    pushFollow(FOLLOW_actualParameters_in_term442);
-                    actualParameters57=actualParameters();
+                    pushFollow(FOLLOW_actualParameters_in_term457);
+                    actualParameters58=actualParameters();
 
                     state._fsp--;
 
-                    adaptor.addChild(root_0, actualParameters57.getTree());
-                    char_literal58=(Token)match(input,20,FOLLOW_20_in_term444); 
-                    char_literal58_tree = (CommonTree)adaptor.create(char_literal58);
-                    adaptor.addChild(root_0, char_literal58_tree);
+                    adaptor.addChild(root_0, actualParameters58.getTree());
+                    char_literal59=(Token)match(input,21,FOLLOW_21_in_term459); 
+                    char_literal59_tree = (CommonTree)adaptor.create(char_literal59);
+                    adaptor.addChild(root_0, char_literal59_tree);
 
 
                     }
@@ -1568,59 +1621,59 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "boolNegation"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:113:1: boolNegation : ( 'not' )* term ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:114:1: boolNegation : ( 'not' )* term ;
     public final EveParser.boolNegation_return boolNegation() throws RecognitionException {
         EveParser.boolNegation_return retval = new EveParser.boolNegation_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token string_literal59=null;
-        EveParser.term_return term60 = null;
+        Token string_literal60=null;
+        EveParser.term_return term61 = null;
 
 
-        CommonTree string_literal59_tree=null;
+        CommonTree string_literal60_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:114:2: ( ( 'not' )* term )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:114:4: ( 'not' )* term
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:115:2: ( ( 'not' )* term )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:115:4: ( 'not' )* term
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:114:4: ( 'not' )*
-            loop10:
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:115:4: ( 'not' )*
+            loop11:
             do {
-                int alt10=2;
-                int LA10_0 = input.LA(1);
+                int alt11=2;
+                int LA11_0 = input.LA(1);
 
-                if ( (LA10_0==29) ) {
-                    alt10=1;
+                if ( (LA11_0==30) ) {
+                    alt11=1;
                 }
 
 
-                switch (alt10) {
+                switch (alt11) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:114:4: 'not'
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:115:4: 'not'
             	    {
-            	    string_literal59=(Token)match(input,29,FOLLOW_29_in_boolNegation456); 
-            	    string_literal59_tree = (CommonTree)adaptor.create(string_literal59);
-            	    adaptor.addChild(root_0, string_literal59_tree);
+            	    string_literal60=(Token)match(input,30,FOLLOW_30_in_boolNegation471); 
+            	    string_literal60_tree = (CommonTree)adaptor.create(string_literal60);
+            	    adaptor.addChild(root_0, string_literal60_tree);
 
 
             	    }
             	    break;
 
             	default :
-            	    break loop10;
+            	    break loop11;
                 }
             } while (true);
 
-            pushFollow(FOLLOW_term_in_boolNegation459);
-            term60=term();
+            pushFollow(FOLLOW_term_in_boolNegation474);
+            term61=term();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, term60.getTree());
+            adaptor.addChild(root_0, term61.getTree());
 
             }
 
@@ -1648,73 +1701,73 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "unary"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:117:1: unary : ( '+' | negation )* boolNegation ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:118:1: unary : ( '+' | negation )* boolNegation ;
     public final EveParser.unary_return unary() throws RecognitionException {
         EveParser.unary_return retval = new EveParser.unary_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal61=null;
-        EveParser.negation_return negation62 = null;
+        Token char_literal62=null;
+        EveParser.negation_return negation63 = null;
 
-        EveParser.boolNegation_return boolNegation63 = null;
+        EveParser.boolNegation_return boolNegation64 = null;
 
 
-        CommonTree char_literal61_tree=null;
+        CommonTree char_literal62_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:118:2: ( ( '+' | negation )* boolNegation )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:118:4: ( '+' | negation )* boolNegation
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:119:2: ( ( '+' | negation )* boolNegation )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:119:4: ( '+' | negation )* boolNegation
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:118:4: ( '+' | negation )*
-            loop11:
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:119:4: ( '+' | negation )*
+            loop12:
             do {
-                int alt11=3;
-                int LA11_0 = input.LA(1);
+                int alt12=3;
+                int LA12_0 = input.LA(1);
 
-                if ( (LA11_0==30) ) {
-                    alt11=1;
+                if ( (LA12_0==31) ) {
+                    alt12=1;
                 }
-                else if ( (LA11_0==31) ) {
-                    alt11=2;
+                else if ( (LA12_0==32) ) {
+                    alt12=2;
                 }
 
 
-                switch (alt11) {
+                switch (alt12) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:118:5: '+'
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:119:5: '+'
             	    {
-            	    char_literal61=(Token)match(input,30,FOLLOW_30_in_unary472); 
+            	    char_literal62=(Token)match(input,31,FOLLOW_31_in_unary487); 
 
             	    }
             	    break;
             	case 2 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:118:12: negation
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:119:12: negation
             	    {
-            	    pushFollow(FOLLOW_negation_in_unary477);
-            	    negation62=negation();
+            	    pushFollow(FOLLOW_negation_in_unary492);
+            	    negation63=negation();
 
             	    state._fsp--;
 
-            	    root_0 = (CommonTree)adaptor.becomeRoot(negation62.getTree(), root_0);
+            	    root_0 = (CommonTree)adaptor.becomeRoot(negation63.getTree(), root_0);
 
             	    }
             	    break;
 
             	default :
-            	    break loop11;
+            	    break loop12;
                 }
             } while (true);
 
-            pushFollow(FOLLOW_boolNegation_in_unary482);
-            boolNegation63=boolNegation();
+            pushFollow(FOLLOW_boolNegation_in_unary497);
+            boolNegation64=boolNegation();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, boolNegation63.getTree());
+            adaptor.addChild(root_0, boolNegation64.getTree());
 
             }
 
@@ -1742,24 +1795,24 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "negation"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:122:1: negation : '-' -> NEGATION ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:123:1: negation : '-' -> NEGATION ;
     public final EveParser.negation_return negation() throws RecognitionException {
         EveParser.negation_return retval = new EveParser.negation_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal64=null;
+        Token char_literal65=null;
 
-        CommonTree char_literal64_tree=null;
-        RewriteRuleTokenStream stream_31=new RewriteRuleTokenStream(adaptor,"token 31");
+        CommonTree char_literal65_tree=null;
+        RewriteRuleTokenStream stream_32=new RewriteRuleTokenStream(adaptor,"token 32");
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:123:2: ( '-' -> NEGATION )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:123:4: '-'
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:124:2: ( '-' -> NEGATION )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:124:4: '-'
             {
-            char_literal64=(Token)match(input,31,FOLLOW_31_in_negation496);  
-            stream_31.add(char_literal64);
+            char_literal65=(Token)match(input,32,FOLLOW_32_in_negation511);  
+            stream_32.add(char_literal65);
 
 
 
@@ -1774,7 +1827,7 @@ public class EveParser extends Parser {
             RewriteRuleSubtreeStream stream_retval=new RewriteRuleSubtreeStream(adaptor,"rule retval",retval!=null?retval.tree:null);
 
             root_0 = (CommonTree)adaptor.nil();
-            // 123:8: -> NEGATION
+            // 124:8: -> NEGATION
             {
                 adaptor.addChild(root_0, (CommonTree)adaptor.create(NEGATION, "NEGATION"));
 
@@ -1807,104 +1860,104 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "mult"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:126:1: mult : unary ( ( '*' | '/' | '%' ) unary )* ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:127:1: mult : unary ( ( '*' | '/' | '%' ) unary )* ;
     public final EveParser.mult_return mult() throws RecognitionException {
         EveParser.mult_return retval = new EveParser.mult_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal66=null;
         Token char_literal67=null;
         Token char_literal68=null;
-        EveParser.unary_return unary65 = null;
+        Token char_literal69=null;
+        EveParser.unary_return unary66 = null;
 
-        EveParser.unary_return unary69 = null;
+        EveParser.unary_return unary70 = null;
 
 
-        CommonTree char_literal66_tree=null;
         CommonTree char_literal67_tree=null;
         CommonTree char_literal68_tree=null;
+        CommonTree char_literal69_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:127:2: ( unary ( ( '*' | '/' | '%' ) unary )* )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:127:4: unary ( ( '*' | '/' | '%' ) unary )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:128:2: ( unary ( ( '*' | '/' | '%' ) unary )* )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:128:4: unary ( ( '*' | '/' | '%' ) unary )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_unary_in_mult511);
-            unary65=unary();
+            pushFollow(FOLLOW_unary_in_mult526);
+            unary66=unary();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, unary65.getTree());
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:127:10: ( ( '*' | '/' | '%' ) unary )*
-            loop13:
+            adaptor.addChild(root_0, unary66.getTree());
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:128:10: ( ( '*' | '/' | '%' ) unary )*
+            loop14:
             do {
-                int alt13=2;
-                int LA13_0 = input.LA(1);
+                int alt14=2;
+                int LA14_0 = input.LA(1);
 
-                if ( ((LA13_0>=32 && LA13_0<=34)) ) {
-                    alt13=1;
+                if ( ((LA14_0>=33 && LA14_0<=35)) ) {
+                    alt14=1;
                 }
 
 
-                switch (alt13) {
+                switch (alt14) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:127:11: ( '*' | '/' | '%' ) unary
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:128:11: ( '*' | '/' | '%' ) unary
             	    {
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:127:11: ( '*' | '/' | '%' )
-            	    int alt12=3;
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:128:11: ( '*' | '/' | '%' )
+            	    int alt13=3;
             	    switch ( input.LA(1) ) {
-            	    case 32:
-            	        {
-            	        alt12=1;
-            	        }
-            	        break;
             	    case 33:
             	        {
-            	        alt12=2;
+            	        alt13=1;
             	        }
             	        break;
             	    case 34:
             	        {
-            	        alt12=3;
+            	        alt13=2;
+            	        }
+            	        break;
+            	    case 35:
+            	        {
+            	        alt13=3;
             	        }
             	        break;
             	    default:
             	        NoViableAltException nvae =
-            	            new NoViableAltException("", 12, 0, input);
+            	            new NoViableAltException("", 13, 0, input);
 
             	        throw nvae;
             	    }
 
-            	    switch (alt12) {
+            	    switch (alt13) {
             	        case 1 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:127:12: '*'
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:128:12: '*'
             	            {
-            	            char_literal66=(Token)match(input,32,FOLLOW_32_in_mult515); 
-            	            char_literal66_tree = (CommonTree)adaptor.create(char_literal66);
-            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal66_tree, root_0);
-
-
-            	            }
-            	            break;
-            	        case 2 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:127:19: '/'
-            	            {
-            	            char_literal67=(Token)match(input,33,FOLLOW_33_in_mult520); 
+            	            char_literal67=(Token)match(input,33,FOLLOW_33_in_mult530); 
             	            char_literal67_tree = (CommonTree)adaptor.create(char_literal67);
             	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal67_tree, root_0);
 
 
             	            }
             	            break;
-            	        case 3 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:127:26: '%'
+            	        case 2 :
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:128:19: '/'
             	            {
-            	            char_literal68=(Token)match(input,34,FOLLOW_34_in_mult525); 
+            	            char_literal68=(Token)match(input,34,FOLLOW_34_in_mult535); 
             	            char_literal68_tree = (CommonTree)adaptor.create(char_literal68);
             	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal68_tree, root_0);
+
+
+            	            }
+            	            break;
+            	        case 3 :
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:128:26: '%'
+            	            {
+            	            char_literal69=(Token)match(input,35,FOLLOW_35_in_mult540); 
+            	            char_literal69_tree = (CommonTree)adaptor.create(char_literal69);
+            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal69_tree, root_0);
 
 
             	            }
@@ -1912,18 +1965,18 @@ public class EveParser extends Parser {
 
             	    }
 
-            	    pushFollow(FOLLOW_unary_in_mult529);
-            	    unary69=unary();
+            	    pushFollow(FOLLOW_unary_in_mult544);
+            	    unary70=unary();
 
             	    state._fsp--;
 
-            	    adaptor.addChild(root_0, unary69.getTree());
+            	    adaptor.addChild(root_0, unary70.getTree());
 
             	    }
             	    break;
 
             	default :
-            	    break loop13;
+            	    break loop14;
                 }
             } while (true);
 
@@ -1954,102 +2007,102 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "add"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:130:1: add : mult ( ( '+' | '-' ) mult )* ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:131:1: add : mult ( ( '+' | '-' ) mult )* ;
     public final EveParser.add_return add() throws RecognitionException {
         EveParser.add_return retval = new EveParser.add_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal71=null;
         Token char_literal72=null;
-        EveParser.mult_return mult70 = null;
+        Token char_literal73=null;
+        EveParser.mult_return mult71 = null;
 
-        EveParser.mult_return mult73 = null;
+        EveParser.mult_return mult74 = null;
 
 
-        CommonTree char_literal71_tree=null;
         CommonTree char_literal72_tree=null;
+        CommonTree char_literal73_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:131:2: ( mult ( ( '+' | '-' ) mult )* )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:131:4: mult ( ( '+' | '-' ) mult )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:132:2: ( mult ( ( '+' | '-' ) mult )* )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:132:4: mult ( ( '+' | '-' ) mult )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_mult_in_add543);
-            mult70=mult();
+            pushFollow(FOLLOW_mult_in_add558);
+            mult71=mult();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, mult70.getTree());
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:131:9: ( ( '+' | '-' ) mult )*
-            loop15:
+            adaptor.addChild(root_0, mult71.getTree());
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:132:9: ( ( '+' | '-' ) mult )*
+            loop16:
             do {
-                int alt15=2;
-                int LA15_0 = input.LA(1);
+                int alt16=2;
+                int LA16_0 = input.LA(1);
 
-                if ( ((LA15_0>=30 && LA15_0<=31)) ) {
-                    alt15=1;
+                if ( ((LA16_0>=31 && LA16_0<=32)) ) {
+                    alt16=1;
                 }
 
 
-                switch (alt15) {
+                switch (alt16) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:131:10: ( '+' | '-' ) mult
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:132:10: ( '+' | '-' ) mult
             	    {
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:131:10: ( '+' | '-' )
-            	    int alt14=2;
-            	    int LA14_0 = input.LA(1);
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:132:10: ( '+' | '-' )
+            	    int alt15=2;
+            	    int LA15_0 = input.LA(1);
 
-            	    if ( (LA14_0==30) ) {
-            	        alt14=1;
+            	    if ( (LA15_0==31) ) {
+            	        alt15=1;
             	    }
-            	    else if ( (LA14_0==31) ) {
-            	        alt14=2;
+            	    else if ( (LA15_0==32) ) {
+            	        alt15=2;
             	    }
             	    else {
             	        NoViableAltException nvae =
-            	            new NoViableAltException("", 14, 0, input);
+            	            new NoViableAltException("", 15, 0, input);
 
             	        throw nvae;
             	    }
-            	    switch (alt14) {
+            	    switch (alt15) {
             	        case 1 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:131:11: '+'
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:132:11: '+'
             	            {
-            	            char_literal71=(Token)match(input,30,FOLLOW_30_in_add547); 
-            	            char_literal71_tree = (CommonTree)adaptor.create(char_literal71);
-            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal71_tree, root_0);
-
-
-            	            }
-            	            break;
-            	        case 2 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:131:18: '-'
-            	            {
-            	            char_literal72=(Token)match(input,31,FOLLOW_31_in_add552); 
+            	            char_literal72=(Token)match(input,31,FOLLOW_31_in_add562); 
             	            char_literal72_tree = (CommonTree)adaptor.create(char_literal72);
             	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal72_tree, root_0);
 
 
             	            }
             	            break;
+            	        case 2 :
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:132:18: '-'
+            	            {
+            	            char_literal73=(Token)match(input,32,FOLLOW_32_in_add567); 
+            	            char_literal73_tree = (CommonTree)adaptor.create(char_literal73);
+            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal73_tree, root_0);
+
+
+            	            }
+            	            break;
 
             	    }
 
-            	    pushFollow(FOLLOW_mult_in_add556);
-            	    mult73=mult();
+            	    pushFollow(FOLLOW_mult_in_add571);
+            	    mult74=mult();
 
             	    state._fsp--;
 
-            	    adaptor.addChild(root_0, mult73.getTree());
+            	    adaptor.addChild(root_0, mult74.getTree());
 
             	    }
             	    break;
 
             	default :
-            	    break loop15;
+            	    break loop16;
                 }
             } while (true);
 
@@ -2080,155 +2133,155 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "relation"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:134:1: relation : add ( ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add )* ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:135:1: relation : add ( ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add )* ;
     public final EveParser.relation_return relation() throws RecognitionException {
         EveParser.relation_return retval = new EveParser.relation_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token char_literal75=null;
-        Token string_literal76=null;
-        Token char_literal77=null;
-        Token string_literal78=null;
+        Token char_literal76=null;
+        Token string_literal77=null;
+        Token char_literal78=null;
         Token string_literal79=null;
-        Token char_literal80=null;
-        EveParser.add_return add74 = null;
+        Token string_literal80=null;
+        Token char_literal81=null;
+        EveParser.add_return add75 = null;
 
-        EveParser.add_return add81 = null;
+        EveParser.add_return add82 = null;
 
 
-        CommonTree char_literal75_tree=null;
-        CommonTree string_literal76_tree=null;
-        CommonTree char_literal77_tree=null;
-        CommonTree string_literal78_tree=null;
+        CommonTree char_literal76_tree=null;
+        CommonTree string_literal77_tree=null;
+        CommonTree char_literal78_tree=null;
         CommonTree string_literal79_tree=null;
-        CommonTree char_literal80_tree=null;
+        CommonTree string_literal80_tree=null;
+        CommonTree char_literal81_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:2: ( add ( ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add )* )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:4: add ( ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:2: ( add ( ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add )* )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:4: add ( ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_add_in_relation569);
-            add74=add();
+            pushFollow(FOLLOW_add_in_relation584);
+            add75=add();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, add74.getTree());
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:8: ( ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add )*
-            loop17:
+            adaptor.addChild(root_0, add75.getTree());
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:8: ( ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add )*
+            loop18:
             do {
-                int alt17=2;
-                int LA17_0 = input.LA(1);
+                int alt18=2;
+                int LA18_0 = input.LA(1);
 
-                if ( (LA17_0==22||(LA17_0>=35 && LA17_0<=39)) ) {
-                    alt17=1;
+                if ( (LA18_0==23||(LA18_0>=36 && LA18_0<=40)) ) {
+                    alt18=1;
                 }
 
 
-                switch (alt17) {
+                switch (alt18) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:9: ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:9: ( '=' | '/=' | '<' | '<=' | '>=' | '>' ) add
             	    {
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:9: ( '=' | '/=' | '<' | '<=' | '>=' | '>' )
-            	    int alt16=6;
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:9: ( '=' | '/=' | '<' | '<=' | '>=' | '>' )
+            	    int alt17=6;
             	    switch ( input.LA(1) ) {
-            	    case 22:
+            	    case 23:
             	        {
-            	        alt16=1;
-            	        }
-            	        break;
-            	    case 35:
-            	        {
-            	        alt16=2;
+            	        alt17=1;
             	        }
             	        break;
             	    case 36:
             	        {
-            	        alt16=3;
+            	        alt17=2;
             	        }
             	        break;
             	    case 37:
             	        {
-            	        alt16=4;
+            	        alt17=3;
             	        }
             	        break;
             	    case 38:
             	        {
-            	        alt16=5;
+            	        alt17=4;
             	        }
             	        break;
             	    case 39:
             	        {
-            	        alt16=6;
+            	        alt17=5;
+            	        }
+            	        break;
+            	    case 40:
+            	        {
+            	        alt17=6;
             	        }
             	        break;
             	    default:
             	        NoViableAltException nvae =
-            	            new NoViableAltException("", 16, 0, input);
+            	            new NoViableAltException("", 17, 0, input);
 
             	        throw nvae;
             	    }
 
-            	    switch (alt16) {
+            	    switch (alt17) {
             	        case 1 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:10: '='
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:10: '='
             	            {
-            	            char_literal75=(Token)match(input,22,FOLLOW_22_in_relation573); 
-            	            char_literal75_tree = (CommonTree)adaptor.create(char_literal75);
-            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal75_tree, root_0);
+            	            char_literal76=(Token)match(input,23,FOLLOW_23_in_relation588); 
+            	            char_literal76_tree = (CommonTree)adaptor.create(char_literal76);
+            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal76_tree, root_0);
 
 
             	            }
             	            break;
             	        case 2 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:17: '/='
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:17: '/='
             	            {
-            	            string_literal76=(Token)match(input,35,FOLLOW_35_in_relation578); 
-            	            string_literal76_tree = (CommonTree)adaptor.create(string_literal76);
-            	            root_0 = (CommonTree)adaptor.becomeRoot(string_literal76_tree, root_0);
+            	            string_literal77=(Token)match(input,36,FOLLOW_36_in_relation593); 
+            	            string_literal77_tree = (CommonTree)adaptor.create(string_literal77);
+            	            root_0 = (CommonTree)adaptor.becomeRoot(string_literal77_tree, root_0);
 
 
             	            }
             	            break;
             	        case 3 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:25: '<'
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:25: '<'
             	            {
-            	            char_literal77=(Token)match(input,36,FOLLOW_36_in_relation583); 
-            	            char_literal77_tree = (CommonTree)adaptor.create(char_literal77);
-            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal77_tree, root_0);
+            	            char_literal78=(Token)match(input,37,FOLLOW_37_in_relation598); 
+            	            char_literal78_tree = (CommonTree)adaptor.create(char_literal78);
+            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal78_tree, root_0);
 
 
             	            }
             	            break;
             	        case 4 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:32: '<='
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:32: '<='
             	            {
-            	            string_literal78=(Token)match(input,37,FOLLOW_37_in_relation588); 
-            	            string_literal78_tree = (CommonTree)adaptor.create(string_literal78);
-            	            root_0 = (CommonTree)adaptor.becomeRoot(string_literal78_tree, root_0);
-
-
-            	            }
-            	            break;
-            	        case 5 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:40: '>='
-            	            {
-            	            string_literal79=(Token)match(input,38,FOLLOW_38_in_relation593); 
+            	            string_literal79=(Token)match(input,38,FOLLOW_38_in_relation603); 
             	            string_literal79_tree = (CommonTree)adaptor.create(string_literal79);
             	            root_0 = (CommonTree)adaptor.becomeRoot(string_literal79_tree, root_0);
 
 
             	            }
             	            break;
-            	        case 6 :
-            	            // /home/jeff/workspace/eve/src/eve/core/Eve.g:135:48: '>'
+            	        case 5 :
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:40: '>='
             	            {
-            	            char_literal80=(Token)match(input,39,FOLLOW_39_in_relation598); 
-            	            char_literal80_tree = (CommonTree)adaptor.create(char_literal80);
-            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal80_tree, root_0);
+            	            string_literal80=(Token)match(input,39,FOLLOW_39_in_relation608); 
+            	            string_literal80_tree = (CommonTree)adaptor.create(string_literal80);
+            	            root_0 = (CommonTree)adaptor.becomeRoot(string_literal80_tree, root_0);
+
+
+            	            }
+            	            break;
+            	        case 6 :
+            	            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:136:48: '>'
+            	            {
+            	            char_literal81=(Token)match(input,40,FOLLOW_40_in_relation613); 
+            	            char_literal81_tree = (CommonTree)adaptor.create(char_literal81);
+            	            root_0 = (CommonTree)adaptor.becomeRoot(char_literal81_tree, root_0);
 
 
             	            }
@@ -2236,18 +2289,18 @@ public class EveParser extends Parser {
 
             	    }
 
-            	    pushFollow(FOLLOW_add_in_relation602);
-            	    add81=add();
+            	    pushFollow(FOLLOW_add_in_relation617);
+            	    add82=add();
 
             	    state._fsp--;
 
-            	    adaptor.addChild(root_0, add81.getTree());
+            	    adaptor.addChild(root_0, add82.getTree());
 
             	    }
             	    break;
 
             	default :
-            	    break loop17;
+            	    break loop18;
                 }
             } while (true);
 
@@ -2278,52 +2331,52 @@ public class EveParser extends Parser {
     };
 
     // $ANTLR start "expression"
-    // /home/jeff/workspace/eve/src/eve/core/Eve.g:138:1: expression : relation ( ( 'and' | 'or' ) relation )* ;
+    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:139:1: expression : relation ( ( 'and' | 'or' ) relation )* ;
     public final EveParser.expression_return expression() throws RecognitionException {
         EveParser.expression_return retval = new EveParser.expression_return();
         retval.start = input.LT(1);
 
         CommonTree root_0 = null;
 
-        Token set83=null;
-        EveParser.relation_return relation82 = null;
+        Token set84=null;
+        EveParser.relation_return relation83 = null;
 
-        EveParser.relation_return relation84 = null;
+        EveParser.relation_return relation85 = null;
 
 
-        CommonTree set83_tree=null;
+        CommonTree set84_tree=null;
 
         try {
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:139:2: ( relation ( ( 'and' | 'or' ) relation )* )
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:139:4: relation ( ( 'and' | 'or' ) relation )*
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:140:2: ( relation ( ( 'and' | 'or' ) relation )* )
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:140:4: relation ( ( 'and' | 'or' ) relation )*
             {
             root_0 = (CommonTree)adaptor.nil();
 
-            pushFollow(FOLLOW_relation_in_expression616);
-            relation82=relation();
+            pushFollow(FOLLOW_relation_in_expression631);
+            relation83=relation();
 
             state._fsp--;
 
-            adaptor.addChild(root_0, relation82.getTree());
-            // /home/jeff/workspace/eve/src/eve/core/Eve.g:139:13: ( ( 'and' | 'or' ) relation )*
-            loop18:
+            adaptor.addChild(root_0, relation83.getTree());
+            // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:140:13: ( ( 'and' | 'or' ) relation )*
+            loop19:
             do {
-                int alt18=2;
-                int LA18_0 = input.LA(1);
+                int alt19=2;
+                int LA19_0 = input.LA(1);
 
-                if ( ((LA18_0>=40 && LA18_0<=41)) ) {
-                    alt18=1;
+                if ( ((LA19_0>=41 && LA19_0<=42)) ) {
+                    alt19=1;
                 }
 
 
-                switch (alt18) {
+                switch (alt19) {
             	case 1 :
-            	    // /home/jeff/workspace/eve/src/eve/core/Eve.g:139:14: ( 'and' | 'or' ) relation
+            	    // /home/jeff/Projects/workspace/eve2/src/eve/core/Eve.g:140:14: ( 'and' | 'or' ) relation
             	    {
-            	    set83=(Token)input.LT(1);
-            	    if ( (input.LA(1)>=40 && input.LA(1)<=41) ) {
+            	    set84=(Token)input.LT(1);
+            	    if ( (input.LA(1)>=41 && input.LA(1)<=42) ) {
             	        input.consume();
-            	        adaptor.addChild(root_0, (CommonTree)adaptor.create(set83));
+            	        adaptor.addChild(root_0, (CommonTree)adaptor.create(set84));
             	        state.errorRecovery=false;
             	    }
             	    else {
@@ -2331,18 +2384,18 @@ public class EveParser extends Parser {
             	        throw mse;
             	    }
 
-            	    pushFollow(FOLLOW_relation_in_expression627);
-            	    relation84=relation();
+            	    pushFollow(FOLLOW_relation_in_expression642);
+            	    relation85=relation();
 
             	    state._fsp--;
 
-            	    adaptor.addChild(root_0, relation84.getTree());
+            	    adaptor.addChild(root_0, relation85.getTree());
 
             	    }
             	    break;
 
             	default :
-            	    break loop18;
+            	    break loop19;
                 }
             } while (true);
 
@@ -2372,89 +2425,90 @@ public class EveParser extends Parser {
 
  
 
-    public static final BitSet FOLLOW_statement_in_program84 = new BitSet(new long[]{0x0000000003840202L});
-    public static final BitSet FOLLOW_codeStatement_in_statement97 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_protoStatement_in_statement102 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_printStatement_in_codeStatement115 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_assignmentStatement_in_codeStatement120 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_initVariableStatement_in_codeStatement125 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_18_in_printStatement137 = new BitSet(new long[]{0x0000000000080000L});
-    public static final BitSet FOLLOW_19_in_printStatement140 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_expression_in_printStatement143 = new BitSet(new long[]{0x0000000000100000L});
-    public static final BitSet FOLLOW_20_in_printStatement145 = new BitSet(new long[]{0x0000000000200000L});
-    public static final BitSet FOLLOW_21_in_printStatement148 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IDENT_in_assignmentStatement161 = new BitSet(new long[]{0x0000000000400000L});
-    public static final BitSet FOLLOW_22_in_assignmentStatement163 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_expression_in_assignmentStatement166 = new BitSet(new long[]{0x0000000000200000L});
-    public static final BitSet FOLLOW_21_in_assignmentStatement168 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_initFunction_in_assignmentStatement174 = new BitSet(new long[]{0x0000000000000200L});
-    public static final BitSet FOLLOW_IDENT_in_assignmentStatement176 = new BitSet(new long[]{0x0000000000400000L});
-    public static final BitSet FOLLOW_22_in_assignmentStatement178 = new BitSet(new long[]{0x0000000000080000L});
-    public static final BitSet FOLLOW_function_in_assignmentStatement181 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_23_in_initFunction192 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_initVariable_in_initVariableStatement208 = new BitSet(new long[]{0x0000000000000200L});
-    public static final BitSet FOLLOW_IDENT_in_initVariableStatement211 = new BitSet(new long[]{0x0000000000400000L});
-    public static final BitSet FOLLOW_22_in_initVariableStatement213 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_expression_in_initVariableStatement216 = new BitSet(new long[]{0x0000000000200000L});
-    public static final BitSet FOLLOW_21_in_initVariableStatement218 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_24_in_initVariable230 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_25_in_protoStatement246 = new BitSet(new long[]{0x0000000000000200L});
-    public static final BitSet FOLLOW_IDENT_in_protoStatement249 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_26_in_protoStatement251 = new BitSet(new long[]{0x0000000009840200L});
-    public static final BitSet FOLLOW_protoBlock_in_protoStatement254 = new BitSet(new long[]{0x0000000009840200L});
-    public static final BitSet FOLLOW_27_in_protoStatement257 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_codeStatement_in_protoBlock270 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_expression_in_actualParameters282 = new BitSet(new long[]{0x0000000010000002L});
-    public static final BitSet FOLLOW_28_in_actualParameters285 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_expression_in_actualParameters287 = new BitSet(new long[]{0x0000000010000002L});
-    public static final BitSet FOLLOW_parameters_in_function303 = new BitSet(new long[]{0x0000000004000000L});
-    public static final BitSet FOLLOW_functionBody_in_function307 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_functionBodyToken_in_functionBody319 = new BitSet(new long[]{0x0000000009840200L});
-    public static final BitSet FOLLOW_codeStatement_in_functionBody322 = new BitSet(new long[]{0x0000000009840200L});
-    public static final BitSet FOLLOW_27_in_functionBody325 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_26_in_functionBodyToken337 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_parametersStartToken_in_parameters353 = new BitSet(new long[]{0x0000000000000200L});
-    public static final BitSet FOLLOW_parameter_in_parameters356 = new BitSet(new long[]{0x0000000010100000L});
-    public static final BitSet FOLLOW_28_in_parameters359 = new BitSet(new long[]{0x0000000000000200L});
-    public static final BitSet FOLLOW_parameter_in_parameters362 = new BitSet(new long[]{0x0000000010100000L});
-    public static final BitSet FOLLOW_20_in_parameters366 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_19_in_parametersStartToken379 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IDENT_in_parameter398 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IDENT_in_term412 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_19_in_term417 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_expression_in_term420 = new BitSet(new long[]{0x0000000000100000L});
-    public static final BitSet FOLLOW_20_in_term422 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INTEGER_in_term428 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STRING_LITERAL_in_term433 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_IDENT_in_term438 = new BitSet(new long[]{0x0000000000080000L});
-    public static final BitSet FOLLOW_19_in_term440 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_actualParameters_in_term442 = new BitSet(new long[]{0x0000000000100000L});
-    public static final BitSet FOLLOW_20_in_term444 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_29_in_boolNegation456 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_term_in_boolNegation459 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_30_in_unary472 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_negation_in_unary477 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_boolNegation_in_unary482 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_31_in_negation496 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_unary_in_mult511 = new BitSet(new long[]{0x0000000700000002L});
-    public static final BitSet FOLLOW_32_in_mult515 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_33_in_mult520 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_34_in_mult525 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_unary_in_mult529 = new BitSet(new long[]{0x0000000700000002L});
-    public static final BitSet FOLLOW_mult_in_add543 = new BitSet(new long[]{0x00000000C0000002L});
-    public static final BitSet FOLLOW_30_in_add547 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_31_in_add552 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_mult_in_add556 = new BitSet(new long[]{0x00000000C0000002L});
-    public static final BitSet FOLLOW_add_in_relation569 = new BitSet(new long[]{0x000000F800400002L});
-    public static final BitSet FOLLOW_22_in_relation573 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_35_in_relation578 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_36_in_relation583 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_37_in_relation588 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_38_in_relation593 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_39_in_relation598 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_add_in_relation602 = new BitSet(new long[]{0x000000F800400002L});
-    public static final BitSet FOLLOW_relation_in_expression616 = new BitSet(new long[]{0x0000030000000002L});
-    public static final BitSet FOLLOW_set_in_expression619 = new BitSet(new long[]{0x00000000E0080E00L});
-    public static final BitSet FOLLOW_relation_in_expression627 = new BitSet(new long[]{0x0000030000000002L});
+    public static final BitSet FOLLOW_statement_in_program88 = new BitSet(new long[]{0x0000000007080402L});
+    public static final BitSet FOLLOW_codeStatement_in_statement101 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_protoStatement_in_statement106 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_printStatement_in_codeStatement119 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_assignmentStatement_in_codeStatement124 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_initVariableStatement_in_codeStatement129 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_19_in_printStatement141 = new BitSet(new long[]{0x0000000000100000L});
+    public static final BitSet FOLLOW_20_in_printStatement144 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_expression_in_printStatement147 = new BitSet(new long[]{0x0000000000200000L});
+    public static final BitSet FOLLOW_21_in_printStatement149 = new BitSet(new long[]{0x0000000000400000L});
+    public static final BitSet FOLLOW_22_in_printStatement152 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IDENT_in_assignmentStatement165 = new BitSet(new long[]{0x0000000000800000L});
+    public static final BitSet FOLLOW_23_in_assignmentStatement167 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_expression_in_assignmentStatement169 = new BitSet(new long[]{0x0000000000400000L});
+    public static final BitSet FOLLOW_22_in_assignmentStatement171 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_initFunction_in_assignmentStatement186 = new BitSet(new long[]{0x0000000000000400L});
+    public static final BitSet FOLLOW_IDENT_in_assignmentStatement188 = new BitSet(new long[]{0x0000000000800000L});
+    public static final BitSet FOLLOW_23_in_assignmentStatement190 = new BitSet(new long[]{0x0000000000100000L});
+    public static final BitSet FOLLOW_function_in_assignmentStatement193 = new BitSet(new long[]{0x0000000000400002L});
+    public static final BitSet FOLLOW_22_in_assignmentStatement195 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_24_in_initFunction207 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_initVariable_in_initVariableStatement223 = new BitSet(new long[]{0x0000000000000400L});
+    public static final BitSet FOLLOW_IDENT_in_initVariableStatement226 = new BitSet(new long[]{0x0000000000800000L});
+    public static final BitSet FOLLOW_23_in_initVariableStatement228 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_expression_in_initVariableStatement231 = new BitSet(new long[]{0x0000000000400000L});
+    public static final BitSet FOLLOW_22_in_initVariableStatement233 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_25_in_initVariable245 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_26_in_protoStatement261 = new BitSet(new long[]{0x0000000000000400L});
+    public static final BitSet FOLLOW_IDENT_in_protoStatement264 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_27_in_protoStatement266 = new BitSet(new long[]{0x0000000013080400L});
+    public static final BitSet FOLLOW_protoBlock_in_protoStatement269 = new BitSet(new long[]{0x0000000013080400L});
+    public static final BitSet FOLLOW_28_in_protoStatement272 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_codeStatement_in_protoBlock285 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_expression_in_actualParameters297 = new BitSet(new long[]{0x0000000020000002L});
+    public static final BitSet FOLLOW_29_in_actualParameters300 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_expression_in_actualParameters302 = new BitSet(new long[]{0x0000000020000002L});
+    public static final BitSet FOLLOW_parameters_in_function318 = new BitSet(new long[]{0x0000000008000000L});
+    public static final BitSet FOLLOW_functionBody_in_function322 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_functionBodyToken_in_functionBody334 = new BitSet(new long[]{0x0000000013080400L});
+    public static final BitSet FOLLOW_codeStatement_in_functionBody337 = new BitSet(new long[]{0x0000000013080400L});
+    public static final BitSet FOLLOW_28_in_functionBody340 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_27_in_functionBodyToken352 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_parametersStartToken_in_parameters368 = new BitSet(new long[]{0x0000000000000400L});
+    public static final BitSet FOLLOW_parameter_in_parameters371 = new BitSet(new long[]{0x0000000020200000L});
+    public static final BitSet FOLLOW_29_in_parameters374 = new BitSet(new long[]{0x0000000000000400L});
+    public static final BitSet FOLLOW_parameter_in_parameters377 = new BitSet(new long[]{0x0000000020200000L});
+    public static final BitSet FOLLOW_21_in_parameters381 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_20_in_parametersStartToken394 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IDENT_in_parameter413 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IDENT_in_term427 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_20_in_term432 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_expression_in_term435 = new BitSet(new long[]{0x0000000000200000L});
+    public static final BitSet FOLLOW_21_in_term437 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_INTEGER_in_term443 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STRING_LITERAL_in_term448 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_IDENT_in_term453 = new BitSet(new long[]{0x0000000000100000L});
+    public static final BitSet FOLLOW_20_in_term455 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_actualParameters_in_term457 = new BitSet(new long[]{0x0000000000200000L});
+    public static final BitSet FOLLOW_21_in_term459 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_30_in_boolNegation471 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_term_in_boolNegation474 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_31_in_unary487 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_negation_in_unary492 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_boolNegation_in_unary497 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_32_in_negation511 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_unary_in_mult526 = new BitSet(new long[]{0x0000000E00000002L});
+    public static final BitSet FOLLOW_33_in_mult530 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_34_in_mult535 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_35_in_mult540 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_unary_in_mult544 = new BitSet(new long[]{0x0000000E00000002L});
+    public static final BitSet FOLLOW_mult_in_add558 = new BitSet(new long[]{0x0000000180000002L});
+    public static final BitSet FOLLOW_31_in_add562 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_32_in_add567 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_mult_in_add571 = new BitSet(new long[]{0x0000000180000002L});
+    public static final BitSet FOLLOW_add_in_relation584 = new BitSet(new long[]{0x000001F000800002L});
+    public static final BitSet FOLLOW_23_in_relation588 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_36_in_relation593 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_37_in_relation598 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_38_in_relation603 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_39_in_relation608 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_40_in_relation613 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_add_in_relation617 = new BitSet(new long[]{0x000001F000800002L});
+    public static final BitSet FOLLOW_relation_in_expression631 = new BitSet(new long[]{0x0000060000000002L});
+    public static final BitSet FOLLOW_set_in_expression634 = new BitSet(new long[]{0x00000001C0101C00L});
+    public static final BitSet FOLLOW_relation_in_expression642 = new BitSet(new long[]{0x0000060000000002L});
 
 }
