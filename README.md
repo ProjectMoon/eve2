@@ -28,6 +28,7 @@ Very much a work in progress:
 Everything else is either broken or unimplemented.
 
 Big things left to do:
+
 * REPL
 * Read and execute files
 * import functionality
@@ -43,5 +44,6 @@ Big things left to do:
 * A standard library
 
 Things to consider:
+
 * Closures
 * Multithreading
