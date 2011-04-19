@@ -23,7 +23,25 @@ Very much a work in progress:
 * Prototype cloning works
 * Adding properties to objects works
 * Basic scoping implemented
+* Very basic Java interop implemented
 
 Everything else is either broken or unimplemented.
 
+Big things left to do:
+* REPL
+* Read and execute files
+* import functionality
+* Decimal data type
+* Boolean data type
+* if/else statements
+* loop statements (for, while)
+* Cloning objects
+* Scope operator
+* delete statement
+* Object family support (for pushing changes to many objects)
+* Ahead of Time "compilation"
+* A standard library
 
+Things to consider:
+* Closures
+* Multithreading
