@@ -24,8 +24,7 @@ Very much a work in progress:
 * Adding properties to objects works
 * Basic scoping implemented
 * Very basic Java interop implemented
-
-Everything else is either broken or unimplemented.
+* function invocation works
 
 Big things left to do:
 
