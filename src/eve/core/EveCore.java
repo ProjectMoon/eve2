@@ -27,7 +27,7 @@ public class EveCore {
 		ScopeManager.setGlobalScope(createGlobal());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 		
-		CharStream stream = new ANTLRStringStream("proto X { var y = 5; }; var x.y = clone X; print(x.y);");
+		CharStream stream = new ANTLRStringStream("proto X { var y = 5; }; var x = 5; x.y = clone X; print(x.y);");
 		EveLexer lexer = new EveLexer(stream);
 		TokenStream tokenStream = new CommonTokenStream(lexer);
 		EveParser parser = new EveParser(tokenStream);

@@ -2,6 +2,7 @@ package eve.scope;
 
 import java.util.Stack;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 
@@ -27,11 +28,82 @@ public class ScopeManager {
 	}
 	
 	public static EveObject getVariable(String name) {
-		return getCurrentScope().getField(name);
+		String[] split = name.split("\\.");
+			
+		if (split.length > 1) {
+			String resolvedObj = split[0];
+			
+			EveObject eo = getCurrentScope();
+			for (int c = 1; c < split.length; c++) {
+				String ident = split[c];
+				eo = eo.getField(ident);
+				
+				if (eo == null) {
+					throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
+				}
+				
+				resolvedObj += "." + ident;
+			}
+			
+			return eo;
+		}
+		else {
+			return getCurrentScope().getField(name);
+		}
 	}
 	
 	public static void putVariable(String name, EveObject eo) {
-		getCurrentScope().putField(name, eo);
+		String[] split = name.split("\\.");
+		
+		EveObject obj = getCurrentScope();
+		
+		if (split.length > 1) {
+			String resolvedObj = split[0];
+			obj = obj.getField(resolvedObj);
+			if (obj == null) {
+				throw new EveError(resolvedObj + " is undefined");
+			}
+
+			for (int c = 1; c < split.length; c++) {
+				String ident = split[c];
+				if (c == split.length - 1) {
+					//potentially undefined property.
+					//if so, we assign it to the next to last
+					//object.
+					EveObject prop = obj.getField(ident);
+					if (prop == null) {
+						name = ident;
+						break;
+					}
+				}
+				else {	
+					name = ident;
+					obj = obj.getField(ident);
+					
+					//allow undefined properties at the end, but not
+					//during resolution.
+					if (obj == null && c != split.length - 1) {
+						throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
+					}
+					
+					resolvedObj += "." + ident;
+				}
+			}
+			
+			if (obj == null) {
+				throw new EveError(resolvedObj + " is undefined in current scope");
+			}
+		}
+		else {
+			EveObject prop = obj.getField(name);
+			
+			//Handle new assignment and update.
+			if (prop != null) {
+				obj = prop;
+			}
+		}
+				
+		obj.putField(name, eo);
 	}
 		
 	public static boolean inFunction() {
