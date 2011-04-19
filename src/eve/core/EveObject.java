@@ -65,6 +65,7 @@ public class EveObject {
 		EveObject eo = new EveObject();
 		eo.type = EveType.CUSTOM;
 		eo.typeName = "global";
+		eo = eo.eveClone(); //even global is cloned once.
 		eo.cloneable = false;
 		return eo;
 	}
@@ -233,7 +234,7 @@ public class EveObject {
 	
 	public EveObject eveClone() {
 		if (!this.isCloneable()) {
-			return null;
+			throw new EveError("attempting to clone uncloneable prototype");
 		}
 		
 		EveObject clone = new EveObject();
