@@ -1,2 +1,5 @@
 bin/
 antlr-generated/
+dist/
+build/
+lib/

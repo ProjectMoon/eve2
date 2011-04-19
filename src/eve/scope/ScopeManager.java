@@ -108,29 +108,26 @@ public class ScopeManager {
 			}
 
 			for (int c = 1; c < split.length; c++) {
-				String ident = split[c];
+				name = split[c];
 				if (c == split.length - 1) {
-					//potentially undefined property.
-					//if so, we assign it to the next to last
-					//object.
-					EveObject prop = obj.getField(ident);
+					//we possibly have an undefined property at the end.
+					//if so, break out of the loop before it can be assigned
+					//to obj.
+					EveObject prop = obj.getField(name);
 					if (prop == null) {
-						name = ident;
 						break;
 					}
 				}
-				else {	
-					name = ident;
-					obj = obj.getField(ident);
+
+				obj = obj.getField(name);
 					
-					//allow undefined properties at the end, but not
-					//during resolution.
-					if (obj == null && c != split.length - 1) {
-						throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
-					}
-					
-					resolvedObj += "." + ident;
+				//allow undefined properties at the end, but not
+				//during resolution.
+				if (obj == null && c != split.length - 1) {
+					throw new EveError("property " + name + " of " + resolvedObj + " is undefined");
 				}
+					
+				resolvedObj += "." + name;
 			}
 			
 			if (obj == null) {
