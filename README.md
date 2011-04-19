@@ -16,11 +16,13 @@ Status
 
 Very much a work in progress:
 
-* Primitive variable assignment works
-* Function assignment (not invocation) works
+* Variable assignment works
 * Variable update works
 * Print statement works
-* Basic scoping implemented.
+* Prototype definition works
+* Prototype cloning works
+* Adding properties to objects works
+* Basic scoping implemented
 
 Everything else is either broken or unimplemented.
 
