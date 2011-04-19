@@ -96,9 +96,13 @@ functionInvocationParameters
 	:	expression (',' expression)* -> (expression)* //apparently this somehow rewrites the entire thing to "p1 p2 p3 ..."
 	;
 	
-function 
-	:	parameters
+/*function 
+	:	parameters*
 		functionBody
+	;*/
+	
+function
+	:	'(' p=(IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
 	;
 	
 functionBody
@@ -154,7 +158,7 @@ mult
 	;
 	
 add
-	:	mult (('+'^ | '-'^) mult)*
+	:	mult (('+'^ | '-'^ | '~'^) mult)*
 	;
 
 relation

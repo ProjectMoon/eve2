@@ -133,6 +133,10 @@ public class EveObject {
 		this.tempFields.clear();
 	}
 	
+	public boolean hasField(String field) {
+		return this.fields.containsKey(field);
+	}
+	
 	public EveType getType() {
 		return this.type;
 	}
@@ -153,6 +157,18 @@ public class EveObject {
 	}
 	
 	public String toString() {
+		//Utilize custom toString() if present.
+		if (hasField("toString")) {
+			EveObject toString = this.getField("toString");
+			if (toString.getType() == EveType.FUNCTION) {
+				EveObject res = toString.invoke();
+				if (res != null) {
+					return res.getStringValue();
+				}
+			}
+		}
+		
+		//Otherwise, default.
 		switch (type) {
 		case INTEGER:
 			return new Integer(this.getIntValue()).toString();

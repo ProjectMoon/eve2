@@ -33,7 +33,11 @@ public class ScopeManager {
 		if (split.length > 1) {
 			String resolvedObj = split[0];
 			
-			EveObject eo = getCurrentScope();
+			EveObject eo = getCurrentScope().getField(resolvedObj);
+			if (eo == null) {
+				throw new EveError(resolvedObj + " is undefined");
+			}
+			
 			for (int c = 1; c < split.length; c++) {
 				String ident = split[c];
 				eo = eo.getField(ident);

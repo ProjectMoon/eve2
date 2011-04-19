@@ -7,7 +7,6 @@ import eve.statements.EveStatement;
 
 public class PlusExpression extends ExpressionStatement implements EveStatement {
 	private ExpressionStatement exp1, exp2;
-	private EveObject op1, op2;
 	
 	public PlusExpression(ExpressionStatement exp1, ExpressionStatement exp2) {
 		this.exp1 = exp1;
@@ -21,25 +20,31 @@ public class PlusExpression extends ExpressionStatement implements EveStatement 
 		EveObject result = new EveObject();
 		
 		if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.INTEGER) {
-			//int + int = int math
 			int res = op1.getIntValue() + op2.getIntValue();
 			result.setIntValue(res);
 		}
+		/*
 		else if (op1.getType() == EveType.STRING && op2.getType() == EveType.STRING) {
-			//string + string = concat
 			String res = op1.getStringValue() + op2.getStringValue();
 			result.setStringValue(res);
 		}
 		else if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.STRING) {
-			//int + string = int.toString() + string
 			String res = op1.getIntValue() + op2.getStringValue();
 			result.setStringValue(res);
 		}
 		else if (op1.getType() == EveType.STRING && op2.getType() == EveType.INTEGER) {
-			//string + int = string + int.toString()
 			String res = op1.getStringValue() + op2.getIntValue();
 			result.setStringValue(res);			
 		}
+		else if (op1.getType() == EveType.STRING && op2.getType() == EveType.CUSTOM) {
+			String res = op1.getStringValue() + op2.toString();
+			result.setStringValue(res);
+		}
+		else if (op1.getType() == EveType.CUSTOM && op2.getType() == EveType.STRING) {
+			String res = op1.toString() + op2.getStringValue();
+			result.setStringValue(res);
+		}
+		*/
 		else {
 			//anything else = error
 			ErrorHandler.operatorError("+", op1, op2);

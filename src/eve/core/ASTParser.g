@@ -29,6 +29,13 @@ options {
 	private StringBuilder currentParameters = new StringBuilder();
 	private List<String> getFunctionParams() {
 		List<String> params = Arrays.asList(currentParameters.toString().trim().split(" "));
+		
+		//Gets rid of "" being put as a single element in the params array.
+		//This means we actually have no parameters declared.
+		if (params.size() == 1 && params.get(0).equals("")) {
+			params = new ArrayList<String>(0);
+		}
+		
 		currentParameters = new StringBuilder();
 		return params;
 	}
@@ -210,7 +217,8 @@ invokeFunctionStatement
 	
 //Expressions
 expression returns [ExpressionStatement result]
-	:	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2); $result.setLine(op1.getLine()); }
+	:	^('~' op1=expression op2=expression) {$result = new ConcatExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('-' op1=expression op2=expression) { $result = new MinusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('*' op1=expression op2=expression) { $result = new MultiplicationExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op1); $result.setLine(op1.getLine()); }
