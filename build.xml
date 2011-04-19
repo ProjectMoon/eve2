@@ -1,0 +1,85 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="eve-interpreter" default="jar" basedir=".">
+	<!-- global properties -->
+	<property name="src" location="src" />
+	<property name="lib" location="lib" />
+	<property name="antlr-generated" location="antlr-generated" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	
+	<!-- Build macro for antlr code generation -->
+	<macrodef name="antlr3">
+		<attribute name="grammar"/>
+		<attribute name="output" default="."/>
+		<attribute name="lib" default="."/>
+		<sequential>
+			<java classname="org.antlr.Tool" fork="true" failonerror="true">
+				<classpath>
+					<fileset dir="lib/" includes="*.jar" />
+				</classpath>
+				<arg value="-o"/>
+				<arg path="@{output}"/>
+				<arg value="-verbose"/>
+				<arg value="-make"/>
+				<arg path="@{grammar}"/>
+			</java>
+		</sequential>
+	</macrodef>
+	
+    <target name="dependencies" description="--> retrieve dependencies with ivy">
+        <ivy:retrieve />
+    </target>
+	
+	<target name="init" depends="dependencies">
+		<tstamp />
+		<mkdir dir="${build}" />
+	</target>
+
+	<target name="antlr" depends="init">
+		<mkdir dir="${antlr-generated}" />
+		<property name="dest" location="${antlr-generated}/eve/core/"/>
+		<property name="grammar" location="${src}/eve/core/Eve.g" />
+		<property name="ast" location="${src}/eve/core/ASTParser.g" />
+
+		<!-- Generate code from Eve.g and ASTParser.g -->
+		<antlr3 grammar="${grammar}" output="${dest}" />
+		<antlr3 grammar="${ast}" output="${dest}" />		
+	</target>
+	
+	<target name="compile" depends="antlr">
+		<mkdir dir="${build}" />
+		<javac srcdir="${src};${antlr-generated}" destdir="${build}" deprecation="Yes" includeantruntime="false">
+			<classpath>
+				<fileset dir="lib/" includes="*.jar" />
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="jar" depends="compile">
+		<property name="antlr" location="${lib}/antlr-runtime-3.3.jar" />
+		
+		<copy file="${antlr}" todir="${dist}/lib" />
+		
+		<manifestclasspath property="manifest_cp" jarfile="${dist}/eve.jar">
+			<classpath>
+				<fileset dir="${dist}/lib">
+					<include name="**/antlr-runtime-3.3.jar" />
+				</fileset>
+			</classpath>
+		</manifestclasspath>
+				
+		<jar destfile ="${dist}/eve.jar" basedir="${build}" includes="**/*.class">
+			<manifest>
+				<attribute name="Main-Class" value="eve.core.EveCore" />
+				<attribute name="Class-Path" value="${manifest_cp}" />
+			</manifest>
+		</jar>
+		
+		<chmod perm="+x" file="${dist}/eve.jar" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="${dist}" />
+		<delete dir="${build}" />
+		<delete dir="${antlr-generated}" />
+	</target>
+</project>
