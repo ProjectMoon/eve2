@@ -12,6 +12,10 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 import eve.core.EveLexer;
 import eve.core.EveParser;
 import eve.core.EveParser.program_return;
+import eve.eni.EveNativeFunction;
+import eve.eni.NativeCode;
+import eve.hooks.EveHook;
+import eve.hooks.HookManager;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
@@ -23,11 +27,34 @@ public class EveCore {
 		return global;
 	}
 	
+	private static void eni() {
+		final NativeCode nc = new NativeCode() {
+			@Override
+			public EveObject execute() {
+				System.out.println("nativity!");
+				return null;
+			}		
+		};
+		
+		final EveNativeFunction nfunc = new EveNativeFunction(nc);
+		final EveObject nfuncObject = new EveObject(nfunc);
+		
+		EveHook hook = new EveHook() {
+			@Override
+			public void instrument(EveObject eo) {
+				eo.putField("nativeTest", nfuncObject);
+			}	
+		};
+		
+		HookManager.registerCloneHook(hook);
+	}
+	
 	public static void main(String[] args) throws RecognitionException {
+		eni();
 		ScopeManager.setGlobalScope(createGlobal());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 		
-		CharStream stream = new ANTLRStringStream("proto X { def toString = () { return \"durp a durp\"; } }; var x = 5; x.y = clone X; print(\"x is \" ~ x); print(\"x.y is \" ~ x.y);");
+		CharStream stream = new ANTLRStringStream("proto X { var whee = 5; def toString = () { print(self.whee); } }; var x = clone X; x.nativeTest();");
 		EveLexer lexer = new EveLexer(stream);
 		TokenStream tokenStream = new CommonTokenStream(lexer);
 		EveParser parser = new EveParser(tokenStream);

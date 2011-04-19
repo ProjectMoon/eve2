@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import eve.hooks.HookManager;
 import eve.interpreter.Interpreter;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
@@ -34,14 +35,23 @@ public class EveObject {
 	//internal object settings and state.
 	private boolean cloneable = true;
 	
-	public EveObject() {}
+	public EveObject() {
+		//putField("self", this); //Does not seem to work as we want it to.
+	}
 	
 	public EveObject(int i) {
+		this();
 		setIntValue(i);
 	}
 	
 	public EveObject(String s) {
+		this();
 		setStringValue(s);
+	}
+	
+	public EveObject(EveFunction func) {
+		this();
+		setFunctionValue(func);
 	}
 	
 	public static EveObject customType(String typeName) {
@@ -212,10 +222,10 @@ public class EveObject {
 				this.putTempField(func.getParameters().get(c), actualParameters.get(c));
 			}
 		}
-		
+				
 		//switch to function scope and run.
 		ScopeManager.pushScope(this);
-		EveObject retval = Interpreter.executeStatements(func.getStatements());
+		EveObject retval = func.execute();
 		ScopeManager.popScope();
 
 		return retval;
@@ -235,6 +245,8 @@ public class EveObject {
 		clone.typeName = this.typeName;
 		clonePrimitives(clone);
 		clone.cloneable = this.cloneable;
+		
+		HookManager.callCloneHooks(clone);
 		
 		return clone;
 	}

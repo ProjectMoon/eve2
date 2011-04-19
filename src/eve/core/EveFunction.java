@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import eve.interpreter.Interpreter;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
@@ -47,5 +48,13 @@ public class EveFunction {
 	
 	public void addParameter(String param) {
 		parameters.add(param);
+	}
+	
+	/**
+	 * Execute this function.
+	 * @return
+	 */
+	public EveObject execute() {
+		return Interpreter.executeStatements(this.getStatements());
 	}
 }

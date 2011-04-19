@@ -32,9 +32,11 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 	public EveObject execute() {
 		EveObject result = new EveObject();
 		EveObject funcVariable = ScopeManager.getVariable(identifier);
+		EveObject objContext = ScopeManager.getParentVariable(identifier);
 		
 		if (funcVariable != null && funcVariable.getType() == EveType.FUNCTION) {
 			List<EveObject> actualParameters = getActualParameters();
+			funcVariable.putTempField("self", objContext);
 			result = funcVariable.invoke(actualParameters);
 		}
 		

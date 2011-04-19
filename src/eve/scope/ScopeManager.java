@@ -8,6 +8,7 @@ import eve.core.EveObject.EveType;
 
 public class ScopeManager {
 	private static EveObject globalScope;
+	private static EveObject parentScope; //right below the current scope in the stack.
 	private static Stack<EveObject> scopeStack = new Stack<EveObject>();
 	
 	//construction only
@@ -18,13 +19,51 @@ public class ScopeManager {
 	}
 	
 	public static void pushScope(EveObject eo) {
+		parentScope = (!scopeStack.isEmpty()) ? getCurrentScope() : null; 
 		scopeStack.push(eo);
 	}
 	
 	public static EveObject popScope() {
 		EveObject prevScope = scopeStack.pop();
+		parentScope = scopeStack.peek();
 		prevScope.deleteTempFields();
 		return prevScope;
+	}
+	
+	/**
+	 * Gets the "parent" variable of a property in the current scope. When given
+	 * a name such as "x.y.z", x.y will be returned. If there is no dot, then the
+	 * scope above the current scope is returned. 
+	 * @param name a valid identifier. e.g "x", "x.y".
+	 * @return "parent" EveObject.
+	 */
+	public static EveObject getParentVariable(String name) {
+		String[] split = name.split("\\.");
+		
+		if (split.length > 1) {
+			String resolvedObj = split[0];
+			
+			EveObject eo = getCurrentScope().getField(resolvedObj);
+			if (eo == null) {
+				throw new EveError(resolvedObj + " is undefined");
+			}
+			
+			for (int c = 1; c < split.length - 1; c++) {
+				String ident = split[c];
+				eo = eo.getField(ident);
+				
+				if (eo == null) {
+					throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
+				}
+				
+				resolvedObj += "." + ident;
+			}
+			
+			return eo;
+		}
+		else {
+			return parentScope;
+		}		
 	}
 	
 	public static EveObject getVariable(String name) {
