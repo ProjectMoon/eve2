@@ -1,18 +1,11 @@
 package eve.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import eve.hooks.HookManager;
-import eve.interpreter.Interpreter;
 import eve.scope.ScopeManager;
-import eve.statements.EveStatement;
-import eve.statements.ReturnStatement;
-import eve.statements.expressions.ExpressionStatement;
 
 public class EveObject {
 	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION };
