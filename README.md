@@ -80,13 +80,13 @@ Very much a work in progress. Completed things:
 * Cloning objects
 * Very basic Java interop implemented (only internally)
 * function invocation works
+* Boolean data type
+* if/else statements
 
 Big things left to do:
 
 * REPL
 * import statment
-* Boolean data type
-* if/else statements
 * loop statements (for, while)
 * Scope operator
 * delete statement
