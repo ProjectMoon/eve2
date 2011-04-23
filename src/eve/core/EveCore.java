@@ -31,6 +31,8 @@ import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
 public class EveCore {
+	private boolean printSyntaxTree;
+
 	private EveObject createGlobal() {
 		EveObject global = EveObject.globalType();
 		//need anything else?
@@ -67,11 +69,14 @@ public class EveCore {
 	private String parseOptions(String[] args) {
 		Options opts = new Options();
 		opts.addOption("d", false, "debug mode");
+		opts.addOption("t", false, "print syntax tree");
+		
 		CommandLineParser parser = new GnuParser();
 		try {
 			CommandLine line = parser.parse(opts, args);
 			
 			if (line.hasOption("d")) EveLogger.debugLevel();
+			if (line.hasOption("t")) printSyntaxTree = true;
 			//more options here...
 			
 			//Find the eve file to run.
@@ -119,6 +124,11 @@ public class EveCore {
 			}
 			
 			System.exit(1);
+		}
+		
+		if (printSyntaxTree) {
+			System.out.println(main.tree.toStringTree());
+			System.exit(0);
 		}
 		
 		//global is root construction scope.

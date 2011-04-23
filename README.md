@@ -69,6 +69,7 @@ Very much a work in progress:
 * Prototype cloning works
 * Adding properties to objects works
 * Basic scoping implemented
+* Cloning objects
 * Very basic Java interop implemented (only internally)
 * function invocation works
 
@@ -80,7 +81,6 @@ Big things left to do:
 * Boolean data type
 * if/else statements
 * loop statements (for, while)
-* Cloning objects
 * Scope operator
 * delete statement
 * Object family support (for pushing changes to many objects)
