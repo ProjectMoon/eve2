@@ -15,7 +15,7 @@ public class CloneExpression extends ExpressionStatement implements EveStatement
 
 	@Override
 	public EveObject execute() {
-		EveObject proto = ScopeManager.getPrototype(identifier);
+		EveObject proto = ScopeManager.getVariable(identifier);
 		if (proto != null && proto.isCloneable()) {
 			return proto.eveClone();
 		}

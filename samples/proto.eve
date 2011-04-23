@@ -1,0 +1,17 @@
+proto X {
+	var y = 5;
+	def g = () {
+		def h = () {
+			print("inner function");
+		}
+		var q = 6;
+		print("q is " ~ q);
+		self.y = 10;
+		print("y is " ~ self.y);
+		h();
+	}
+}
+
+var x = clone X;
+x.g();
+print("global x.y is " ~ x.y);

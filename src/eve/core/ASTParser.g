@@ -87,7 +87,7 @@ assignFunctionDown
 		FunctionDefExpression expr = new FunctionDefExpression();
 		expr.setLine($IDENT.getLine());
 		ScopeManager.pushConstructionScope(expr);
-		System.out.println("Creating new function expression for " + $IDENT.text);
+		EveLogger.debug("Creating new function expression for " + $IDENT.text);
 	}
 	;
 	
@@ -100,7 +100,7 @@ assignFunctionUp
 
 		//we are now back on global (or proto).		
 		ScopeManager.getCurrentConstructionScope().addStatement(as);
-		System.out.println("Assigning " + $IDENT.text + " function to current scope.");
+		EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");
 	}
 	;
 	
@@ -139,7 +139,7 @@ createPrototypeDown
 			CreateProtoStatement createProto = new CreateProtoStatement($IDENT.text);
 			createProto.setLine($IDENT.getLine());
 			ScopeManager.pushConstructionScope(createProto);
-			System.out.println("init prototype " + $IDENT.text);
+			EveLogger.debug("init prototype " + $IDENT.text);
 		}
 	;
 	
@@ -150,7 +150,7 @@ createPrototypeUp
 			
 			//This should be global construction scope.
 			ScopeManager.getCurrentConstructionScope().addStatement(createProto);
-			System.out.println("creating create proto statement for " + $IDENT.text);
+			EveLogger.debug("creating create proto statement for " + $IDENT.text);
 		}
 	;
 
@@ -168,7 +168,7 @@ printStatement
 			PrintStatement ps = new PrintStatement(e);
 			ps.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ps);
-			System.out.println("print statement");
+			EveLogger.debug("print statement");
 		}
 	;
 	
@@ -182,7 +182,7 @@ returnStatement
 	
 initVariableStatement
 	:	^(INIT_VARIABLE IDENT e=expression) {
-			System.out.println("Initialize " + $IDENT.text + " to " + e);
+			EveLogger.debug("Initialize " + $IDENT.text + " to " + e);
 			AssignmentStatement as = new InitVariableStatement($IDENT.text, e);
 			as.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
@@ -191,7 +191,7 @@ initVariableStatement
 
 updateVariableStatement
 	:	^(UPDATE_VARIABLE IDENT e=expression) {
-			System.out.println("Update variable " + $IDENT.text + " to " + e);
+			EveLogger.debug("Update variable " + $IDENT.text + " to " + e);
 			AssignmentStatement as = new UpdateVariableStatement($IDENT.text, e);
 			as.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
@@ -202,7 +202,7 @@ invokeFunctionStatement
 	:	^(INVOKE_FUNCTION_STMT IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
 			//args invocation
 			List<ExpressionStatement> params = getFunctionInvocationParams();
-			System.out.println("invoking function " + $IDENT.text + " as expression with params " + params);
+			EveLogger.debug("invoking function " + $IDENT.text + " as expression with params " + params);
 			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text, params);
 			expr.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(expr);
@@ -226,7 +226,7 @@ expression returns [ExpressionStatement result]
 	|	^(NEGATION e=expression) { $result = new NegationExpression(e); $result.setLine($NEGATION.getLine()); }
 	|	^(INVOKE_FUNCTION_EXPR IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
 			List<ExpressionStatement> params = getFunctionInvocationParams();
-			System.out.println("invoking function " + $IDENT.text + " as expression with params " + params);
+			EveLogger.debug("invoking function " + $IDENT.text + " as expression with params " + params);
 			$result = new FunctionInvokeExpression($IDENT.text, params);
 			$result.setLine($IDENT.getLine());
 		}

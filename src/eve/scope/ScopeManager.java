@@ -5,6 +5,7 @@ import java.util.Stack;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.statements.expressions.IdentExpression;
 
 public class ScopeManager {
 	private static EveObject globalScope;
@@ -100,53 +101,45 @@ public class ScopeManager {
 		
 		EveObject obj = getCurrentScope();
 		
+		//can either be property (dot) assignment, or simple assignment.
 		if (split.length > 1) {
 			String resolvedObj = split[0];
-			obj = obj.getField(resolvedObj);
+			obj = obj.getField(split[0]);
 			if (obj == null) {
 				throw new EveError(resolvedObj + " is undefined");
 			}
 
+			//resolve down to the object to the property before the one we want.
 			for (int c = 1; c < split.length; c++) {
-				String ident = split[c];
+				name = split[c];
+				
+				//do this instead of looping to length - 1
+				//so name can be assigned at least once.
 				if (c == split.length - 1) {
-					//potentially undefined property.
-					//if so, we assign it to the next to last
-					//object.
-					EveObject prop = obj.getField(ident);
-					if (prop == null) {
-						name = ident;
-						break;
-					}
+					break;
 				}
-				else {	
-					name = ident;
-					obj = obj.getField(ident);
+
+				obj = obj.getField(name);
 					
-					//allow undefined properties at the end, but not
-					//during resolution.
-					if (obj == null && c != split.length - 1) {
-						throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
-					}
-					
-					resolvedObj += "." + ident;
+				//allow undefined properties at the end, but not
+				//during resolution.
+				if (obj == null && c != split.length - 1) {
+					throw new EveError("property " + name + " of " + resolvedObj + " is undefined");
 				}
+					
+				resolvedObj += "." + name;
 			}
 			
 			if (obj == null) {
 				throw new EveError(resolvedObj + " is undefined in current scope");
 			}
+			
+			obj.putField(name, eo);
 		}
 		else {
-			EveObject prop = obj.getField(name);
-			
-			//Handle new assignment and update.
-			if (prop != null) {
-				obj = prop;
-			}
+			//simple non-property assignment.
+			obj.putField(name, eo);
 		}
-				
-		obj.putField(name, eo);
 	}
 		
 	public static boolean inFunction() {
@@ -171,10 +164,5 @@ public class ScopeManager {
 	
 	public static ConstructionScope popConstructionScope() {
 		return constructionScopeStack.pop();
-	}
-
-	public static EveObject getPrototype(String name) {
-		EveObject globalScope = getGlobalScope();
-		return globalScope.getField(name);
 	}
 }

@@ -15,7 +15,7 @@ import eve.statements.ReturnStatement;
 import eve.statements.expressions.ExpressionStatement;
 
 public class EveObject {
-	public enum EveType { INTEGER, STRING, CUSTOM, FUNCTION };
+	public enum EveType { INTEGER, STRING, CUSTOM, PROTOTYPE, FUNCTION };
 	
 	//the type of this object.
 	private EveType type;
@@ -57,6 +57,13 @@ public class EveObject {
 	public static EveObject customType(String typeName) {
 		EveObject eo = new EveObject();
 		eo.type = EveType.CUSTOM;
+		eo.typeName = typeName;
+		return eo;
+	}
+	
+	public static EveObject prototypeType(String typeName) {
+		EveObject eo = new EveObject();
+		eo.type = EveType.PROTOTYPE;
 		eo.typeName = typeName;
 		return eo;
 	}
@@ -162,9 +169,11 @@ public class EveObject {
 				return "function";
 			case CUSTOM:
 				return this.typeName;
+			case PROTOTYPE:
+				return this.typeName;
 		}
 		
-		return "undefined";
+		return "unknown type";
 	}
 	
 	public String toString() {
@@ -181,14 +190,16 @@ public class EveObject {
 		
 		//Otherwise, default.
 		switch (type) {
-		case INTEGER:
-			return new Integer(this.getIntValue()).toString();
-		case STRING:
-			return this.getStringValue();
-		case FUNCTION:
-			return "[function]";
-		case CUSTOM:
-			return "[custom type " + this.typeName + "]";
+			case INTEGER:
+				return new Integer(this.getIntValue()).toString();
+			case STRING:
+				return this.getStringValue();
+			case FUNCTION:
+				return "[function]";
+			case CUSTOM:
+				return "[custom " + this.typeName + "]";
+			case PROTOTYPE:
+				return "[prototype " + this.typeName + "]";
 		}
 		
 		return "undefined";
