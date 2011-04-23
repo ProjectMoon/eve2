@@ -83,7 +83,7 @@ public class ScopeManager {
 				String ident = split[c];
 				eo = eo.getField(ident);
 				
-				if (eo == null) {
+				if (eo == null && c != split.length - 1) {
 					throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
 				}
 				

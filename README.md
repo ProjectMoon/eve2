@@ -69,7 +69,7 @@ Very much a work in progress. Completed things:
 
 * Read and execute script files
 * Debug mode
-* int, double, string, and function data types.
+* all data types are complete.
 * Variable assignment works
 * Variable update works
 * Print statement works
