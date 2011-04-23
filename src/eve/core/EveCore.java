@@ -17,6 +17,7 @@ import org.antlr.runtime.tree.CommonTreeNodeStream;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
@@ -70,11 +71,14 @@ public class EveCore {
 		Options opts = new Options();
 		opts.addOption("d", false, "debug mode");
 		opts.addOption("t", false, "print syntax tree");
+		opts.addOption("h", false, "print help");
 		
 		CommandLineParser parser = new GnuParser();
+		
 		try {
 			CommandLine line = parser.parse(opts, args);
 			
+			if (line.hasOption("h")) printHelp(opts);
 			if (line.hasOption("d")) EveLogger.debugLevel();
 			if (line.hasOption("t")) printSyntaxTree = true;
 			//more options here...
@@ -95,6 +99,12 @@ public class EveCore {
 		}
 		
 		return ""; //keeps compiler happy.
+	}
+	
+	private void printHelp(Options opts) {
+		HelpFormatter help = new HelpFormatter();
+		help.printHelp("eve", opts);
+		System.exit(0);
 	}
 	
 	private void run(String file) throws RecognitionException, IOException {
