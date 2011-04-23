@@ -90,11 +90,7 @@ initVariableStatement
 	;
 
 protoStatement
-	: 'proto' IDENT '{' protoBlock '}' ';'? -> ^(INIT_PROTO IDENT protoBlock)
-	;
-	
-protoBlock
-	:	codeStatement*
+	: 'proto' IDENT '{' codeStatement* '}' ';'? -> ^(INIT_PROTO IDENT codeStatement*)
 	;
 	
 functionInvocationStatement
@@ -116,26 +112,10 @@ function
 	:	'(' (IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
 	;
 	
-functionBody
-	:	functionBodyToken^ codeStatement* '}'!
-	;
-
-functionBodyToken
-	:	'{' -> FUNCTION_BODY
-	;
-	
 parameters
-	:	parametersStartToken^ parameter (','! parameter)* ')'!
+	:	'(' IDENT (',' IDENT)* ')' -> ^(FUNCTION_PARAMETERS IDENT*)
 	;
 	
-parametersStartToken
-	:	'(' -> FUNCTION_PARAMETERS
-	;
-
-parameter
-	:	IDENT
-	;
-
 functionInvocationExpression
 	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
 	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
@@ -145,7 +125,7 @@ functionInvocationExpression
 ifStatement
 	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
 	|	'else' 'if' '(' expression ')' '{' codeStatement* '}' -> ^(ELSE_IF expression codeStatement*)
-	|	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*) //an else is just else if (true)
+	|	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*)
 	;
 
 //Expressions

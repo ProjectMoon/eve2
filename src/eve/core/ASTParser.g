@@ -70,7 +70,7 @@ parameters returns [List<String> result]
 	;
 
 topdown
-	:	beginParameters
+	:	functionParametersDown
 	|	assignFunctionDown
 	|	updateFunctionDown
 	|	functionNameDown
@@ -82,8 +82,7 @@ topdown
 	;
 
 bottomup
-	:	endParameters
-	|	assignFunctionUp
+	:	assignFunctionUp
 	|	updateFunctionUp
 	|	ifStatementUp
 	|	elseIfStatementUp
@@ -145,7 +144,7 @@ updateFunctionUp
 		}
 	;
 	
-beginParameters
+functionParametersDown
 	:	(FUNCTION_PARAMETERS type=. (s=IDENT { pushFunctionParam($s.text); })* ) {	
 			//This MUST be a function definition, otherwise we have issues.
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
@@ -153,12 +152,6 @@ beginParameters
 		}
 	;
 	
-endParameters
-	:	(FUNCTION_PARAMETERS) {
-			//Ignore, i think?
-		}
-	;
-
 //Prototype creation (not cloning)
 createPrototypeDown 
 	:	^(INIT_PROTO IDENT .*) {
