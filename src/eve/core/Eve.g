@@ -152,6 +152,7 @@ term
 	:	IDENT
 	|	'('! expression ')'!
 	|	INTEGER
+	|	DOUBLE
 	|	STRING_LITERAL
 	|	functionInvocationExpression
 	|	cloneExpression
@@ -207,6 +208,7 @@ fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
 fragment DOT : '.' ;
 INTEGER : DIGIT+ ;
+DOUBLE : DIGIT+ '.' DIGIT+ ;
 IDENT : LETTER (DOT | LETTER | DIGIT)*;
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};

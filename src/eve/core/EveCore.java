@@ -128,6 +128,11 @@ public class EveCore {
 		EveParser parser = new EveParser(tokenStream);
 		program_return main = parser.program();
 		
+		if (printSyntaxTree) {
+			System.out.println(main.tree.toStringTree());
+			System.exit(0);
+		}
+		
 		if (parser.hasErrors()) {
 			for (String error : parser.getErrors()) {
 				System.err.println("error: " + error);
@@ -135,12 +140,7 @@ public class EveCore {
 			
 			System.exit(1);
 		}
-		
-		if (printSyntaxTree) {
-			System.out.println(main.tree.toStringTree());
-			System.exit(0);
-		}
-		
+			
 		//global is root construction scope.
 		ScopeManager.pushConstructionScope(new Script());
 		CommonTreeNodeStream nodeStream = new CommonTreeNodeStream(main.getTree());

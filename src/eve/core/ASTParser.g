@@ -242,9 +242,13 @@ expression returns [ExpressionStatement result]
 			$result = new IdentExpression($IDENT.text);
 			$result.setLine($IDENT.getLine());
 		}
-	|	INTEGER { 
-			$result = new WrappedPrimitiveExpression(Integer.parseInt($INTEGER.text));
+	|	INTEGER {
+			$result = new WrappedPrimitiveExpression(new Integer($INTEGER.text));
 			$result.setLine($INTEGER.getLine());
+		}
+	|	DOUBLE {
+			$result = new WrappedPrimitiveExpression(new Double($DOUBLE.text));
+			$result.setLine($DOUBLE.getLine());
 		}
 	|	STRING_LITERAL {
 			$result = new WrappedPrimitiveExpression($STRING_LITERAL.text);

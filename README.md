@@ -58,10 +58,11 @@ should be able to be run from anywhere.
 Status
 ======
 
-Very much a work in progress:
+Very much a work in progress. Completed things:
 
 * Read and execute script files
 * Debug mode
+* int, double, string, and function data types.
 * Variable assignment works
 * Variable update works
 * Print statement works
@@ -77,7 +78,6 @@ Big things left to do:
 
 * REPL
 * import statment
-* Decimal data type
 * Boolean data type
 * if/else statements
 * loop statements (for, while)
