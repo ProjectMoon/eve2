@@ -28,7 +28,7 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 	
 	@Override
 	public EveObject execute() {
-		EveObject proto = EveObject.customType(protoName);
+		EveObject proto = EveObject.prototypeType(protoName);
 		
 		ScopeManager.pushScope(proto);
 		Interpreter.executeStatements(protoBlock);

@@ -29,11 +29,8 @@ import eve.hooks.EveHook;
 import eve.hooks.HookManager;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
-import eve.statements.EveStatement;
 
 public class EveCore {
-	private String eveFile;
-	
 	private EveObject createGlobal() {
 		EveObject global = EveObject.globalType();
 		//need anything else?
@@ -120,6 +117,7 @@ public class EveCore {
 			for (String error : parser.getErrors()) {
 				System.err.println("error: " + error);
 			}
+			
 			System.exit(1);
 		}
 		

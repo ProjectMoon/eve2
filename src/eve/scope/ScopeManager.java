@@ -169,9 +169,4 @@ public class ScopeManager {
 	public static ConstructionScope popConstructionScope() {
 		return constructionScopeStack.pop();
 	}
-
-	public static EveObject getPrototype(String name) {
-		EveObject globalScope = getGlobalScope();
-		return globalScope.getField(name);
-	}
 }
