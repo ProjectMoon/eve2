@@ -60,18 +60,20 @@ public class EveFunction {
 	
 	@Override
 	public String toString() {
-		String res = "[function ";
+		String res = "[function";
 		
 		if (name != null) {
-			res += name; 
+			res += " " + name; 
 		}
 		
 		res += "(";
-		for (String param : getParameters()) {
-			res += param + ", ";
+		if (getParameters().size() > 0) {
+			for (String param : getParameters()) {
+				res += param + ", ";
+			}
+			
+			res = res.substring(0, res.length() - 2);
 		}
-		
-		res = res.substring(0, res.length() - 2);
 		res += ")]";
 		return res;
 	}

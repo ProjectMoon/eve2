@@ -304,8 +304,16 @@ public class EveObject {
 		//Object is cloned to initially use references of this object to save memory.
 		//Later, assignment statements will change the references for us.
 		clone.cloneParent = this;
-		clone.fields = this.fields;
-		clone.type = this.type;
+		clone.fields = new HashMap<String, EveObject>(this.fields); //a new map with the same references.
+		
+		//prototypes can only exist as base objects. any clone is immediately custom.
+		if (this.type == EveType.PROTOTYPE) {
+			clone.type = EveType.CUSTOM;
+		}
+		else {
+			clone.type = this.type;
+		}
+		
 		clone.typeName = this.typeName;
 		clonePrimitives(clone);
 		clone.cloneable = this.cloneable;
@@ -313,9 +321,9 @@ public class EveObject {
 		HookManager.callCloneHooks(clone);
 		
 		//onClone special function.
-		if (hasField("onClone")) {
-			getField("onClone").putTempField("self", this);
-			getField("onClone").invoke(clone);
+		if (hasField(SpecialFunctions.ON_CLONE)) {
+			getField(SpecialFunctions.ON_CLONE).putTempField("self", this);
+			getField(SpecialFunctions.ON_CLONE).invoke(clone);
 		}
 		
 		return clone;
