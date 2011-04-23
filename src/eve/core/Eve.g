@@ -160,7 +160,7 @@ term
 	;
 	
 boolNegation
-	:	'not'* term
+	:	'!'* term
 	;
 	
 unary
@@ -185,7 +185,7 @@ relation
 	;
 	
 expression
-	:	relation (('and' | 'or') relation)*
+	:	relation (('&&'^ | '||'^) relation)*
 	;
 	
 // Tokens

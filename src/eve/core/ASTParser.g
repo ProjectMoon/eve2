@@ -228,6 +228,8 @@ expression returns [ExpressionStatement result]
 	|	^(NEGATION e=expression) { $result = new NegationExpression(e); $result.setLine($NEGATION.getLine()); }
 	
 	//Boolean comparison.
+	|	^('&&' op1=expression op2=expression) { $result = new AndExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('||' op1=expression op2=expression) { $result = new OrExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('==' op1=expression op2=expression) { $result = new EqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('!=' op1=expression op2=expression) { $result = new NotEqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('>' op1=expression op2=expression) { $result = new GreaterThanExpression(op1, op2); $result.setLine(op1.getLine()); }

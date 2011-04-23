@@ -1,3 +1,19 @@
 var b = true;
 var expr = 5 == 5;
 print("expr is " ~ expr);
+
+var expr2 = true && false;
+print("expr2 is " ~ expr2);
+
+var expr3 = true && true;
+print("expr3 is " ~ expr3);
+
+var expr4 = false && false;
+print("expr4 is " ~ expr4);
+
+var expr5 = expr3 || expr4;
+print("expr5 is " ~ expr5);
+
+var x = 6;
+var expr6 = ((x != 5) && (4 == 4)) && (true || false);
+print("expr6 is " ~ expr6);
