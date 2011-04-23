@@ -1,0 +1,17 @@
+proto Base {
+    def doSomething = () {
+        print("doing something in super");
+    }
+
+    def onClone = (cl) {
+        cl.super = self;
+    }
+}
+
+var sub = clone Base;
+def sub.doSomething = () {
+    self.super.doSomething();
+    print("doing something in child");
+}
+
+sub.doSomething();

@@ -73,6 +73,7 @@ topdown
 	:	enterFunction
 	|	beginParameters
 	|	assignFunctionDown
+	|	functionNameDown
 	|	createPrototypeDown
 	|	ifStatementDown
 	|	elseIfStatementDown
@@ -99,6 +100,15 @@ assignFunctionDown
 		ScopeManager.pushConstructionScope(expr);
 		EveLogger.debug("Creating new function expression for " + $IDENT.text);
 	}
+	;
+	
+functionNameDown
+	:	^(FUNCTION_NAME IDENT .*) {
+			//we have to be in a function definition!
+			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
+			expr.setName($IDENT.text);
+			EveLogger.debug("named function expression " + $IDENT.text);
+		}
 	;
 	
 assignFunctionUp
