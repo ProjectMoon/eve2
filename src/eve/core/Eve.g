@@ -1,9 +1,9 @@
 grammar Eve;
 
 options {
-  language = Java;
-  output = AST;
-  ASTLabelType = CommonTree;
+	language = Java;
+	output = AST;
+	ASTLabelType = CommonTree;
 }
 
 tokens {
@@ -27,6 +27,23 @@ tokens {
 	package eve.core;
 	import java.util.List;
 	import java.util.ArrayList;
+}
+
+@members {
+    private List<String> errors = new ArrayList<String>();
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+        String hdr = getErrorHeader(e);
+        String msg = getErrorMessage(e, tokenNames);
+        errors.add(hdr + " " + msg);
+    }
+    
+    public List<String> getErrors() {
+        return errors;
+    }
+    
+    public boolean hasErrors() {
+    	return errors.size() > 0;
+    }
 }
 
 //Statements

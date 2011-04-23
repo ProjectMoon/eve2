@@ -60,9 +60,13 @@
 	
 	<!-- build executable jar file -->
 	<target name="jar" depends="compile" description="--> create executable jar">
+		<!-- library definitions -->
 		<property name="antlr" location="${lib}/antlr-runtime-3.3.jar" />
+		<property name="commons-cli" location="${lib}/commons-cli-1.2.jar" />
 		
+		<!-- copy runtime dependencies to dist/lib -->
 		<copy file="${antlr}" todir="${dist}/lib" />
+		<copy file="${commons-cli}" todir="${dist}/lib" />
 		
 		<manifestclasspath property="manifest_cp" jarfile="${dist}/eve.jar">
 			<classpath>
