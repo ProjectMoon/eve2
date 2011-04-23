@@ -11,6 +11,7 @@ tokens {
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
 	INIT_FUNCTION;
+	FUNCTION_NAME;
 	FUNCTION_PARAMETERS;
 	FUNCTION_BODY;
 	INVOKE_FUNCTION_STMT;
@@ -79,7 +80,8 @@ printStatement
 	
 assignmentStatement
 	:	IDENT '=' expression ';' -> ^(UPDATE_VARIABLE IDENT expression)
-	|	initFunction IDENT '='^ function ';'?
+	//|	initFunction prop=IDENT '='^ name=IDENT? function ';'?
+	|	'def' prop=IDENT '=' name=IDENT? function ';'? -> ^('=' INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 
 initFunction
