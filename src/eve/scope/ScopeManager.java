@@ -101,17 +101,20 @@ public class ScopeManager {
 		
 		EveObject obj = getCurrentScope();
 		
+		//can either be property (dot) assignment, or simple assignment.
 		if (split.length > 1) {
 			String resolvedObj = split[0];
-			obj = obj.getField(resolvedObj);
+			obj = obj.getField(split[0]);
 			if (obj == null) {
 				throw new EveError(resolvedObj + " is undefined");
 			}
 
-			//breaking on split.length - 1 so we can assign name at least once.
-			//otherwise it would make more sense to loop from c = 1 to split.length - 1
+			//resolve down to the object to the property before the one we want.
 			for (int c = 1; c < split.length; c++) {
 				name = split[c];
+				
+				//do this instead of looping to length - 1
+				//so name can be assigned at least once.
 				if (c == split.length - 1) {
 					break;
 				}
@@ -134,6 +137,7 @@ public class ScopeManager {
 			obj.putField(name, eo);
 		}
 		else {
+			//simple non-property assignment.
 			obj.putField(name, eo);
 		}
 	}
