@@ -9,12 +9,12 @@ proto Base {
 }
 
 var sub = clone Base;
-def sub.doSomething2 = child() {
+def sub.doSomething = child() {
     self.super.doSomething();
     print("doing something in child");
 }
 
-sub.doSomething2();
+sub.doSomething();
 
 def int.lol = () {
 	print("lol from int");

@@ -54,10 +54,9 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	public EveObject execute() {
 		Function func = new Function();
 		func.setName(name);
-		EveObject eo = new EveObject();
 		func.addStatements(getStatements());
 		func.setParameters(this.parameters);
-		eo.setFunctionValue(func);
+		EveObject eo = new EveObject(func);
 		return eo;
 	}
 	

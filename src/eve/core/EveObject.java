@@ -79,7 +79,7 @@ public class EveObject {
 		
 		//onClone special function.
 		if (source.hasField(SpecialFunctions.ON_CLONE)) {
-			source.getField(SpecialFunctions.ON_CLONE).putTempField("self", this);
+			source.getField(SpecialFunctions.ON_CLONE).putTempField("self", source);
 			source.getField(SpecialFunctions.ON_CLONE).invoke(this);
 		}
 	}
