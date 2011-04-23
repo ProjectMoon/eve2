@@ -14,6 +14,7 @@ public class ScopeManager {
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
+	private static ConstructionScope mostRecentConstructionScope;
 	
 	public static EveObject getCurrentScope() {
 		return scopeStack.peek();
@@ -163,6 +164,11 @@ public class ScopeManager {
 	}
 	
 	public static ConstructionScope popConstructionScope() {
-		return constructionScopeStack.pop();
+		mostRecentConstructionScope = constructionScopeStack.pop();
+		return mostRecentConstructionScope;
+	}
+	
+	public static ConstructionScope getLastConstructionScope() {
+		return mostRecentConstructionScope;
 	}
 }
