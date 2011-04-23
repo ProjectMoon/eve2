@@ -58,6 +58,7 @@ program
 statement
 	:	codeStatement
 	|	protoStatement
+	|	ifStatement
 	;
 	
 codeStatement //Statements that can appear pretty much anywhere.
@@ -66,7 +67,6 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	assignmentStatement
 	|	initVariableStatement
 	|	functionInvocationStatement
-	|	ifStatement
 	;
 	
 returnStatement
@@ -147,27 +147,12 @@ functionInvocationExpression
 	;
 
 //If statements
-/*ifStatement
+ifStatement
 	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
-	|	'else' 'if' '(' expression ')' '{' codeStatement* '}' -> ^(CHILD_IF expression codeStatement*)
+	|	'else' 'if' '(' expression ')' '{' codeStatement* '}' -> ^(ELSE_IF expression codeStatement*)
 	|	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*) //an else is just else if (true)
 	;
-*/
 
-ifStatement
-	:	'if' '(' expression ')' '{' codeStatement* '}' elseIfStatement* elseStatement?	
-	 -> ^(IF_STATEMENT expression codeStatement*) ^(elseIfStatement)* ^(elseStatement)?
-	;
-	
-elseIfStatement
-	:	'else' 'if' '(' expression ')' '{' codeStatement* '}'
-		-> ^(ELSE_IF expression codeStatement*)
-	;
-
-elseStatement
-	:	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*)
-	;
-	
 //Expressions
 term
 	:	IDENT

@@ -192,7 +192,7 @@ ifStatementDown
 			IfStatement expr = new IfStatement(e);
 			expr.setLine($IF_STATEMENT.getLine());
 			
-			//If this is true, that means we have an else if or an else statement.
+			//If this is true, that means we have an if inside an if
 			if (ScopeManager.getCurrentConstructionScope() instanceof IfStatement) {
 				IfStatement parentIf = (IfStatement)ScopeManager.getCurrentConstructionScope();
 				parentIf.setChildIf(expr);
@@ -213,12 +213,12 @@ ifStatementUp
 	;
 	
 elseIfStatementDown
-	:	^(CHILD_IF e=expression .*) {
-			//we must be inside of an if statement to append an else if or else.
-			if (ScopeManager.getCurrentConstructionScope() instanceof IfStatement) {
-				EveLogger.debug("Creating else-if at " + $CHILD_IF.text);
+	:	^(ELSE_IF e=expression .*) {
+			//the last statement must have been an if.
+			if (ScopeManager.getLastConstructionScope() instanceof IfStatement) {
+				EveLogger.debug("Creating else-if at " + $ELSE_IF.getText());
 				IfStatement elseIf = new IfStatement(e);
-				IfStatement parentIf = (IfStatement)ScopeManager.getCurrentConstructionScope();
+				IfStatement parentIf = (IfStatement)ScopeManager.getLastConstructionScope();
 				parentIf.setChildIf(elseIf);
 				ScopeManager.pushConstructionScope(elseIf);
 			}
@@ -229,9 +229,11 @@ elseIfStatementDown
 	;
 	
 elseIfStatementUp
-	:	^(CHILD_IF expression .*) {
+	:	^(ELSE_IF expression .*) {
 			IfStatement ifStatement = (IfStatement)ScopeManager.popConstructionScope();
-			ScopeManager.getCurrentConstructionScope().addStatement(ifStatement);
+			//ScopeManager.getCurrentConstructionScope().addStatement(ifStatement);
+			//current construction scope would not be the if statement, so we do not add here.
+			//that is taken care of going down.
 			EveLogger.debug("Finished creating else-if statement at " + ScopeManager.getCurrentConstructionScope());	
 		}
 	;
@@ -240,12 +242,12 @@ elseStatementDown
 	:	^(ELSE .*) {
 			//we must be inside of an if statement to append an else if or else.
 			System.out.println("current scope: " + ScopeManager.getCurrentConstructionScope().getClass().getName());
-			if (ScopeManager.getCurrentConstructionScope() instanceof IfStatement) {
+			if (ScopeManager.getLastConstructionScope() instanceof IfStatement) {
 				EveLogger.debug("Creating else at " + $ELSE.getLine());
 				
 				//An else is just an else-if (true)
 				IfStatement elseStatement = new IfStatement(new WrappedPrimitiveExpression(true));
-				IfStatement parentIf = (IfStatement)ScopeManager.getCurrentConstructionScope();
+				IfStatement parentIf = (IfStatement)ScopeManager.getLastConstructionScope();
 				parentIf.setChildIf(elseStatement);
 				ScopeManager.pushConstructionScope(elseStatement);
 			}
@@ -258,7 +260,9 @@ elseStatementDown
 elseStatementUp
 	:	^(ELSE .*) {
 			IfStatement elseStatement = (IfStatement)ScopeManager.popConstructionScope();
-			ScopeManager.getCurrentConstructionScope().addStatement(elseStatement);
+			//ScopeManager.getCurrentConstructionScope().addStatement(elseStatement);
+			//current construction scope is not the if statmeent, so we do not add here.
+			//that is taken care of going down.
 			EveLogger.debug("Finished creating else-if statement at " + ScopeManager.getCurrentConstructionScope());	
 		}
 	;	
