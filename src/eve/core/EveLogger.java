@@ -9,11 +9,12 @@ import java.util.logging.Logger;
 
 public class EveLogger {
 	private static Logger log = initLogger();
+	private static Handler handler;
 	
 	private static Logger initLogger() {
 		Logger log = Logger.getLogger("eve");
 		log.setUseParentHandlers(false);
-		Handler handler = new ConsoleHandler();
+		handler = new ConsoleHandler();
 		handler.setFormatter(new EveFormatter());
 		log.addHandler(handler);
 		return log;
@@ -21,14 +22,17 @@ public class EveLogger {
 	
 	public static void severeLeve() {
 		log.setLevel(Level.SEVERE);
+		log.setLevel(Level.SEVERE);
 	}
 	
 	public static void infoLevel() {
 		log.setLevel(Level.INFO);
+		handler.setLevel(Level.INFO);
 	}
 	
 	public static void debugLevel() {
 		log.setLevel(Level.FINE);
+		handler.setLevel(Level.FINE);
 	}
 	
 	public static void info(String message) {
