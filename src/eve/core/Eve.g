@@ -188,10 +188,12 @@ CHAR_LITERAL
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
 fragment DOT : '.' ;
+fragment ARRAY_ACCESS : '[' DIGIT ']' ;
+fragment SCOPE_OP : ':' ':' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
-IDENT : LETTER (DOT | LETTER | DIGIT)*;
+IDENT : LETTER (SCOPE_OP | DOT | ARRAY_ACCESS | LETTER | DIGIT)*;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};
