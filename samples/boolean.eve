@@ -17,3 +17,19 @@ print("expr5 is " ~ expr5);
 var x = 6;
 var expr6 = ((x != 5) && (4 == 4)) && (true || false);
 print("expr6 is " ~ expr6);
+
+if (5 == 5) {
+	print("hello from the first if statement");
+}
+
+if (5 != 6) {
+	print("hello from the second if statement");
+}
+
+if (x != 5 && 4 != 5) {
+	print("hello from the third if statement");
+}
+
+if (x != 6 && 4 != 5) {
+	print("this statement should not appear");
+}

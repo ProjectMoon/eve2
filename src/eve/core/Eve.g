@@ -17,6 +17,7 @@ tokens {
 	INVOKE_FUNCTION_EXPR;
 	INIT_PROTO;
 	CLONE_PROTO;
+	IF_STATEMENT;
 }
 
 @header {
@@ -63,6 +64,7 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	assignmentStatement
 	|	initVariableStatement
 	|	functionInvocationStatement
+	|	ifStatement
 	;
 	
 returnStatement
@@ -113,13 +115,8 @@ functionInvocationParameters
 	:	expression (',' expression)* -> (expression)* //apparently this somehow rewrites the entire thing to "p1 p2 p3 ..."
 	;
 	
-/*function 
-	:	parameters*
-		functionBody
-	;*/
-	
 function
-	:	'(' p=(IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
+	:	'(' (IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
 	;
 	
 functionBody
@@ -147,6 +144,11 @@ functionInvocationExpression
 	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
 	;
 
+//If statements
+ifStatement
+	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
+	;
+	
 //Expressions
 term
 	:	IDENT
@@ -166,8 +168,7 @@ boolNegation
 unary
 	:	('+'! | negation^)* boolNegation
 	;
-	
-	
+		
 negation
 	:	'-' -> NEGATION
 	;

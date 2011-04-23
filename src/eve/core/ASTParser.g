@@ -71,6 +71,7 @@ topdown
 	|	beginParameters
 	|	assignFunctionDown
 	|	createPrototypeDown
+	|	ifStatementDown
 	|	codeStatement
 	;
 
@@ -78,6 +79,7 @@ bottomup
 	:	exitFunction
 	|	endParameters
 	|	assignFunctionUp
+	|	ifStatementUp
 	|	createPrototypeUp
 	;
 	
@@ -178,6 +180,24 @@ returnStatement
 			ReturnStatement ret = new ReturnStatement(e);
 			ret.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ret);	
+		}
+	;
+	
+ifStatementDown
+	:	^(IF_STATEMENT e=expression .*) {
+			IfStatement expr = new IfStatement(e);
+			expr.setLine($IF_STATEMENT.getLine());
+			ScopeManager.pushConstructionScope(expr);
+			EveLogger.debug("Creating if statement for " + e);	
+		}
+	;
+	
+ifStatementUp
+	:	^(IF_STATEMENT expression .*) {
+			//ConstructionScope MUST be IfStatement, or we have issues.
+			IfStatement ifStatement = (IfStatement)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(ifStatement);
+			EveLogger.debug("Finished creating if statement at " + ScopeManager.getCurrentConstructionScope());
 		}
 	;
 	

@@ -28,4 +28,9 @@ public class AndExpression extends ExpressionStatement implements EveStatement {
 		
 		return result;
 	}
+	
+	@Override
+	public String toString() {
+		return exp1.toString() + " && " + exp2.toString();
+	}
 }
