@@ -1,2 +1,9 @@
-var x = 5;
-print(x);
+proto X {
+	def g = () {
+		var global::durp = 5;
+	}
+}
+
+var x = clone X;
+x.g();
+print(durp);

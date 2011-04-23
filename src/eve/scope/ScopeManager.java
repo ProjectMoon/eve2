@@ -14,7 +14,10 @@ public class ScopeManager {
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
-	private static ConstructionScope mostRecentConstructionScope;
+	private static ConstructionScope lastConstructionScope;
+	
+	//state.
+	private static boolean jumpedScope;
 	
 	public static EveObject getCurrentScope() {
 		return scopeStack.peek();
@@ -32,6 +35,33 @@ public class ScopeManager {
 		return prevScope;
 	}
 	
+	private static String scopeOperatorAnalysis(String name) {
+		String[] split = name.split("::");
+		if (split.length > 2) {
+			throw new EveError("can only have one scope operator");
+		}
+		
+		if (split.length == 2) {
+			String scope = split[0];
+			if (scope.equals("global")) {
+				pushScope(getGlobalScope());
+				jumpedScope = true;
+				return split[1];
+			}
+			else {
+				throw new EveError("unrecognized scope " + scope);
+			}
+		}
+		else {
+			return name;
+		}
+	}
+	
+	private static void scopeOperatorEnsure() {
+		if (jumpedScope) {
+			popScope();
+		}
+	}
 	/**
 	 * Gets the "parent" variable of a property in the current scope. When given
 	 * a name such as "x.y.z", x.y will be returned. If there is no dot, then the
@@ -40,6 +70,7 @@ public class ScopeManager {
 	 * @return "parent" EveObject.
 	 */
 	public static EveObject getParentVariable(String name) {
+		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 		
 		if (split.length > 1) {
@@ -61,14 +92,17 @@ public class ScopeManager {
 				resolvedObj += "." + ident;
 			}
 			
+			scopeOperatorEnsure();
 			return eo;
 		}
 		else {
+			scopeOperatorEnsure();
 			return parentScope;
-		}		
+		}
 	}
 	
 	public static EveObject getVariable(String name) {
+		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 			
 		if (split.length > 1) {
@@ -90,9 +124,11 @@ public class ScopeManager {
 				resolvedObj += "." + ident;
 			}
 			
+			scopeOperatorEnsure();
 			return eo;
 		}
 		else {
+			scopeOperatorEnsure();
 			return getCurrentScope().getField(name);
 		}
 	}
@@ -164,11 +200,11 @@ public class ScopeManager {
 	}
 	
 	public static ConstructionScope popConstructionScope() {
-		mostRecentConstructionScope = constructionScopeStack.pop();
-		return mostRecentConstructionScope;
+		lastConstructionScope = constructionScopeStack.pop();
+		return lastConstructionScope;
 	}
 	
 	public static ConstructionScope getLastConstructionScope() {
-		return mostRecentConstructionScope;
+		return lastConstructionScope;
 	}
 }
