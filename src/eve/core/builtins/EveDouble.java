@@ -1,8 +1,12 @@
 package eve.core.builtins;
 
 import eve.core.EveObject;
-import eve.core.EveObject.EveType;
 
+/**
+ * The double prototype.
+ * @author jeff
+ *
+ */
 public class EveDouble extends EveObject {
 	private static final EveDouble proto = new EveDouble();
 	

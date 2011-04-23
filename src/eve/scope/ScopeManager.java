@@ -5,7 +5,6 @@ import java.util.Stack;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
-import eve.statements.expressions.IdentExpression;
 
 public class ScopeManager {
 	private static EveObject globalScope;
@@ -35,6 +34,12 @@ public class ScopeManager {
 		return prevScope;
 	}
 	
+	/**
+	 * Analyze an identifier to determine if it has a scope operator.
+	 * If it does have one, set the proper scope.
+	 * @param name
+	 * @return the identifier without the scope identifier.
+	 */
 	private static String scopeOperatorAnalysis(String name) {
 		String[] split = name.split("::");
 		if (split.length > 2) {
@@ -57,6 +62,9 @@ public class ScopeManager {
 		}
 	}
 	
+	/**
+	 * Fix the scope if and only if we pushed a new scope via :: operator.
+	 */
 	private static void scopeOperatorEnsure() {
 		if (jumpedScope) {
 			popScope();

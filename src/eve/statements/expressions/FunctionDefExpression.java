@@ -6,10 +6,7 @@ import java.util.List;
 import eve.core.Function;
 import eve.core.EveObject;
 import eve.scope.ConstructionScope;
-import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
-import eve.statements.PopScopeStatement;
-import eve.statements.PushScopeStatement;
 
 public class FunctionDefExpression extends ExpressionStatement implements EveStatement, ConstructionScope {
 	private String name;

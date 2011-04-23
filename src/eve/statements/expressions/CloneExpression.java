@@ -3,7 +3,6 @@ package eve.statements.expressions;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
-import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
 
 public class CloneExpression extends ExpressionStatement implements EveStatement {

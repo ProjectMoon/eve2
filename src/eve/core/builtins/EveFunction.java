@@ -1,7 +1,6 @@
 package eve.core.builtins;
 
 import eve.core.EveObject;
-import eve.core.EveObject.EveType;
 
 /**
  * The Function prototype.
@@ -18,6 +17,5 @@ public class EveFunction extends EveObject {
 	private EveFunction() {
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("function");
-		putField("funcTest", new EveObject(1, false));
 	}
 }

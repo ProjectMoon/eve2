@@ -3,7 +3,6 @@ package eve.statements.expressions;
 import java.util.ArrayList;
 import java.util.List;
 
-import eve.core.Function;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;

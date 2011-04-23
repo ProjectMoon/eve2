@@ -111,7 +111,6 @@ public class Function {
 		//Function analysis: if all statements and parameter names are
 		//equal, then the two functions are equal.
 		Function other = (Function)o;
-		boolean equal = true;
 		
 		//Parameters: length and names.
 		if (this.getParameters().size() != other.getParameters().size()) {
