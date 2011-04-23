@@ -22,6 +22,7 @@ import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveList;
 import eve.core.builtins.EveString;
 import eve.eni.EveNativeFunction;
 import eve.eni.NativeCode;
@@ -37,11 +38,12 @@ public class EveCore {
 		EveObject global = EveObject.globalType();
 		
 		//add the built-in prototypes to the global scope.
-		global.putField("int", EveInteger.getPrototype());
-		global.putField("string", EveString.getPrototype());
-		global.putField("double", EveDouble.getPrototype());
-		global.putField("bool", EveBoolean.getPrototype());
-		global.putField("function", EveFunction.getPrototype());
+		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
+		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
+		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
+		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
+		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
+		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
 		
 		return global;
 	}

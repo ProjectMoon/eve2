@@ -1,5 +1,7 @@
 package eve.statements.expressions;
 
+import java.util.List;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.statements.EveStatement;
@@ -9,6 +11,7 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	private String stringOp;
 	private Double doubleOp;
 	private Boolean booleanOp;
+	private List<EveObject> listOp;
 	
 	public WrappedPrimitiveExpression(Integer op) {
 		this.intOp = op;
@@ -26,6 +29,10 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		this.booleanOp = op;
 	}
 	
+	public WrappedPrimitiveExpression(List<EveObject> op) {
+		this.listOp = op;
+	}
+	
 	@Override
 	public EveObject execute() {	
 		if (intOp != null) {
@@ -39,6 +46,9 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		}
 		else if (booleanOp != null) {
 			return new EveObject(booleanOp);
+		}
+		else if (listOp != null) {
+			return new EveObject(listOp);
 		}
 		else {
 			throw new EveError("unable to assign wrapped primitive");

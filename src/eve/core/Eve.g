@@ -136,6 +136,7 @@ term
 	|	DOUBLE
 	|	BOOLEAN
 	|	STRING_LITERAL
+	|	LIST_LITERAL
 	|	functionInvocationExpression
 	|	cloneExpression
 	;
@@ -181,9 +182,8 @@ STRING_LITERAL
 		{ setText(b.toString()); }
 	;
 	
-CHAR_LITERAL
-	:	'\'' . '\'' {setText(getText().substring(1,2));}
-	;
+LIST_LITERAL
+	:	'[' ']' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';

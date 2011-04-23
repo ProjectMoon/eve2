@@ -383,4 +383,8 @@ expression returns [ExpressionStatement result]
 			$result = new WrappedPrimitiveExpression($STRING_LITERAL.text);
 			$result.setLine($STRING_LITERAL.getLine());
 		}
+	|	LIST_LITERAL {
+			$result = new WrappedPrimitiveExpression(new ArrayList<EveObject>());
+			$result.setLine($LIST_LITERAL.getLine());
+		}
 	;	
