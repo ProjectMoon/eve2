@@ -8,6 +8,7 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.CommonTreeNodeStream;
+import org.apache.commons.cli.Options;
 
 import eve.core.EveLexer;
 import eve.core.EveParser;
@@ -50,6 +51,8 @@ public class EveCore {
 	}
 	
 	public static void main(String[] args) throws RecognitionException {
+		Options opts = new Options();
+		
 		eni();
 		ScopeManager.setGlobalScope(createGlobal());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());

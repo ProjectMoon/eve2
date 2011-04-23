@@ -2,5 +2,6 @@
     <info organisation="thermetics.eve" module="eve-interpreter" />
     <dependencies>
         <dependency org="org.antlr" name="antlr" rev="3.3" />
+        <dependency org="commons-cli" name="commons-cli" rev="1.2"/>
     </dependencies>
 </ivy-module>
