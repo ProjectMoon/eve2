@@ -1,0 +1,3 @@
+var b = true;
+var expr = 5 == 5;
+print("expr is " ~ expr);
