@@ -22,5 +22,5 @@ def int.hello = () {
 	print("hello from int");
 }
 
-x = 5;
+var x = 5;
 x.hello();
