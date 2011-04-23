@@ -57,6 +57,26 @@ public class EveFunction {
 	public EveObject execute() {
 		return Interpreter.executeStatements(this.getStatements());
 	}
+	
+	@Override
+	public String toString() {
+		String res = "[function";
+		
+		if (name != null) {
+			res += " " + name; 
+		}
+		
+		res += "(";
+		if (getParameters().size() > 0) {
+			for (String param : getParameters()) {
+				res += param + ", ";
+			}
+			
+			res = res.substring(0, res.length() - 2);
+		}
+		res += ")]";
+		return res;
+	}
 
 	@Override
 	public int hashCode() {

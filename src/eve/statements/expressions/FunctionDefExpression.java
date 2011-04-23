@@ -12,6 +12,7 @@ import eve.statements.PopScopeStatement;
 import eve.statements.PushScopeStatement;
 
 public class FunctionDefExpression extends ExpressionStatement implements EveStatement, ConstructionScope {
+	private String name;
 	private List<String> parameters = new ArrayList<String>();
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	
@@ -41,9 +42,18 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		return parameters;
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 	@Override
 	public EveObject execute() {
 		EveFunction func = new EveFunction();
+		func.setName(name);
 		EveObject eo = new EveObject();
 		func.addStatements(getStatements());
 		func.setParameters(this.parameters);

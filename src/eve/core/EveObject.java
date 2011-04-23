@@ -1,5 +1,7 @@
 package eve.core;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,10 @@ public class EveObject {
 	
 	//internal object settings and state.
 	private boolean cloneable = true;
+	
+	//object family support.
+	private EveObject cloneParent;
+	
 	
 	public EveObject() {
 		//putField("self", this); //Does not seem to work as we want it to.
@@ -232,7 +238,7 @@ public class EveObject {
 			case STRING:
 				return this.getStringValue();
 			case FUNCTION:
-				return "[function]";
+				return this.getFunctionValue().toString();
 			case CUSTOM:
 				return "[custom " + this.typeName + "]";
 			case PROTOTYPE:
@@ -243,10 +249,18 @@ public class EveObject {
 	}
 	
 	public EveObject invoke() {
-		return invoke(null);
+		return invoke0(null);
+	}
+	
+	public EveObject invoke(EveObject ... actualParameters) {
+		return invoke0(Arrays.asList(actualParameters));
 	}
 	
 	public EveObject invoke(List<EveObject> actualParameters) {
+		return invoke0(actualParameters);
+	}
+	
+	private EveObject invoke0(List<EveObject> actualParameters) {
 		if (this.getType() != EveType.FUNCTION) {
 			throw new EveError(this + " is not a function.");
 		}
@@ -289,13 +303,28 @@ public class EveObject {
 		
 		//Object is cloned to initially use references of this object to save memory.
 		//Later, assignment statements will change the references for us.
-		clone.fields = this.fields;
-		clone.type = this.type;
+		clone.cloneParent = this;
+		clone.fields = new HashMap<String, EveObject>(this.fields); //a new map with the same references.
+		
+		//prototypes can only exist as base objects. any clone is immediately custom.
+		if (this.type == EveType.PROTOTYPE) {
+			clone.type = EveType.CUSTOM;
+		}
+		else {
+			clone.type = this.type;
+		}
+		
 		clone.typeName = this.typeName;
 		clonePrimitives(clone);
 		clone.cloneable = this.cloneable;
 		
 		HookManager.callCloneHooks(clone);
+		
+		//onClone special function.
+		if (hasField(SpecialFunctions.ON_CLONE)) {
+			getField(SpecialFunctions.ON_CLONE).putTempField("self", this);
+			getField(SpecialFunctions.ON_CLONE).invoke(clone);
+		}
 		
 		return clone;
 	}
