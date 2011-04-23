@@ -47,10 +47,7 @@ Before running Ant, make sure Ivy is on your classpath. If Ivy is not on
 the classpath, the dependecy resolution task will fail. For example, to
 get Ivy on the classpath in Ubuntu 10.10:
 
-`export CLASSPATH=/usr/share/java/ivy.jar:/usr/share/ivy-2.1.0-rc2.jar`
-
-Make sure you don't remove any other depencies from the classpath when
-doing this.
+`export CLASSPATH=/usr/share/java/ivy.jar:$CLASSPATH`
 
 ### Interpreter Can't Find ANTLR Runtime ###
 The executable jar has the ANTLR runtime in its classpath. Make sure a
@@ -63,6 +60,8 @@ Status
 
 Very much a work in progress:
 
+* Read and execute script files
+* Debug mode
 * Variable assignment works
 * Variable update works
 * Print statement works
@@ -76,7 +75,6 @@ Very much a work in progress:
 Big things left to do:
 
 * REPL
-* Read and execute script files.
 * import statment
 * Decimal data type
 * Boolean data type
