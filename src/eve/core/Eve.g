@@ -11,6 +11,7 @@ tokens {
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
 	INIT_FUNCTION;
+	UPDATE_FUNCTION;
 	FUNCTION_NAME;
 	FUNCTION_PARAMETERS;
 	FUNCTION_BODY;
@@ -80,22 +81,14 @@ printStatement
 	
 assignmentStatement
 	:	IDENT '=' expression ';' -> ^(UPDATE_VARIABLE IDENT expression)
-	//|	initFunction prop=IDENT '='^ name=IDENT? function ';'?
-	|	'def' prop=IDENT '=' name=IDENT? function ';'? -> ^('=' INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
-	;
-
-initFunction
-	:	'def' -> INIT_FUNCTION
+	|	prop=IDENT '=' name=IDENT? function ';'? -> ^(UPDATE_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 	
 initVariableStatement
-	:	initVariable^ IDENT '='! expression ';'!
+	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
+	|	'def' prop=IDENT '=' name=IDENT? function ';'? -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 
-initVariable
-	:	'var' -> INIT_VARIABLE
-	;
-	
 protoStatement
 	: 'proto' IDENT '{' protoBlock '}' ';'? -> ^(INIT_PROTO IDENT protoBlock)
 	;

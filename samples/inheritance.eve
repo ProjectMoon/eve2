@@ -1,15 +1,15 @@
 proto Base {
-    def doSomething = super() {
-        print("doing something in super");
-    }
+	def doSomething = super() {
+	        print("doing something in super");
+	}
 
-    def onClone = (cl) {
-        cl.super = self;
-    }
+	def onClone = (cl) {
+		cl.super = self;
+	}
 }
 
 var sub = clone Base;
-def sub.doSomething = child() {
+sub.doSomething = child() {
     self.super.doSomething();
     print("doing something in child");
 }
@@ -18,9 +18,10 @@ sub.doSomething();
 
 //stick everything onto new ints.
 //this function would not be on any previously defined ints.
-def int.hello = () {
-	print("hello from int");
+int.hello = () {
+	if (self == 5) {
+		print("you equal 5");
+	}
 }
-
 var x = 5;
 x.hello();
