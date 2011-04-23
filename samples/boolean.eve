@@ -1,0 +1,84 @@
+
+print("---testing simple boolean expressions---");
+var b = true;
+var expr = 5 == 5;
+print("expr is " ~ expr);
+
+var expr2 = true && false;
+print("expr2 is " ~ expr2);
+
+var expr3 = true && true;
+print("expr3 is " ~ expr3);
+
+var expr4 = false && false;
+print("expr4 is " ~ expr4);
+
+var expr5 = expr3 || expr4;
+print("expr5 is " ~ expr5);
+
+var x = 6;
+var expr6 = ((x != 5) && (4 == 4)) && (true || false);
+print("expr6 is " ~ expr6);
+
+print("---testing if statements---");
+if (5 == 5) {
+	print("hello from the first if statement");
+}
+
+if (5 != 6) {
+	print("hello from the second if statement");
+}
+
+if (x != 5 && 4 != 5) {
+	print("hello from the third if statement");
+}
+
+if (x != 6 && 4 != 5) {
+	print("this statement should not appear");
+}
+
+print("---testing if-else statements---");
+
+if (5 != 6) {
+	print("success 1");
+}
+else {
+	print("should not see this 1");
+}
+
+if (5 != 5) {
+	print("should not see this 2");
+}
+else {
+	print("success 2");
+}
+
+var x = 5;
+if (x == 2) {
+	print("should not see this 3");
+}
+else if (x == 6 || x == 5) {
+	print("success 3");
+}
+else {
+	print("should not see this 3 (else)");
+}
+
+print("---nested ifs---");
+var x = 6;
+var y = 7;
+if (x == 6) {
+	print("inside if");
+	if (y == 7) {
+		print("success 1");
+		if (1 == 1) {
+			print("3 levels of nesting whod've thunk");
+		}
+	}
+	else {
+		print("should not see 1");
+	}
+}
+else {
+	print("x does not equal 6!");
+}

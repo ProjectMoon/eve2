@@ -13,6 +13,7 @@ options {
 	import eve.statements.*;
 	import eve.statements.assignment.*;
 	import eve.statements.expressions.*;
+	import eve.statements.expressions.bool.*;
 	import eve.scope.ScopeManager;
 	import java.util.Queue;
 	import java.util.Set;
@@ -59,6 +60,9 @@ options {
 		return p;
 	}
 	
+	//If statement management
+	private EveStatement previousStatement;
+	
 }
 
 parameters returns [List<String> result]
@@ -70,6 +74,9 @@ topdown
 	|	beginParameters
 	|	assignFunctionDown
 	|	createPrototypeDown
+	|	ifStatementDown
+	|	elseIfStatementDown
+	|	elseStatementDown
 	|	codeStatement
 	;
 
@@ -77,6 +84,9 @@ bottomup
 	:	exitFunction
 	|	endParameters
 	|	assignFunctionUp
+	|	ifStatementUp
+	|	elseIfStatementUp
+	|	elseStatementUp
 	|	createPrototypeUp
 	;
 	
@@ -168,6 +178,7 @@ printStatement
 			PrintStatement ps = new PrintStatement(e);
 			ps.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ps);
+			previousStatement = ps;
 			EveLogger.debug("print statement");
 		}
 	;
@@ -176,9 +187,96 @@ returnStatement
 	:	^('return' e=expression) {
 			ReturnStatement ret = new ReturnStatement(e);
 			ret.setLine(e.getLine());
-			ScopeManager.getCurrentConstructionScope().addStatement(ret);	
+			ScopeManager.getCurrentConstructionScope().addStatement(ret);
+			previousStatement = ret;	
 		}
 	;
+
+ifStatementDown
+	:	^(IF_STATEMENT e=expression .*) {
+			IfStatement expr = new IfStatement(e);
+			expr.setLine($IF_STATEMENT.getLine());
+			
+			//If this is true, that means we have an if inside an if
+			if (ScopeManager.getCurrentConstructionScope() instanceof IfStatement) {
+				IfStatement parentIf = (IfStatement)ScopeManager.getCurrentConstructionScope();
+				parentIf.setChildIf(expr);
+			}
+			
+			ScopeManager.pushConstructionScope(expr);
+			previousStatement = expr;
+			EveLogger.debug("Creating if statement for " + e);	
+		}
+	;
+	
+ifStatementUp
+	:	^(IF_STATEMENT expression .*) {
+			//ConstructionScope MUST be IfStatement, or we have issues.
+			IfStatement ifStatement = (IfStatement)ScopeManager.popConstructionScope();
+			previousStatement = ifStatement;
+			ScopeManager.getCurrentConstructionScope().addStatement(ifStatement);
+			EveLogger.debug("Finished creating if statement at " + ScopeManager.getCurrentConstructionScope());
+		}
+	;
+	
+elseIfStatementDown
+	:	^(ELSE_IF e=expression .*) {
+			//the last statement must have been an if.
+			if (ScopeManager.getLastConstructionScope() instanceof IfStatement && previousStatement instanceof IfStatement) {
+				EveLogger.debug("Creating else-if at " + $ELSE_IF.getText());
+				IfStatement elseIf = new IfStatement(e);
+				IfStatement parentIf = (IfStatement)ScopeManager.getLastConstructionScope();
+				parentIf.setChildIf(elseIf);
+				ScopeManager.pushConstructionScope(elseIf);
+				previousStatement = elseIf;
+			}
+			else {
+				throw new EveError("else if statement must follow an if or an else if");
+			}
+		}
+	;
+	
+elseIfStatementUp
+	:	^(ELSE_IF expression .*) {
+			IfStatement ifStatement = (IfStatement)ScopeManager.popConstructionScope();
+			previousStatement = ifStatement;
+			//ScopeManager.getCurrentConstructionScope().addStatement(ifStatement);
+			//current construction scope would not be the if statement, so we do not add here.
+			//that is taken care of going down.
+			EveLogger.debug("Finished creating else-if statement at " + ScopeManager.getCurrentConstructionScope());	
+		}
+	;
+	
+elseStatementDown
+	:	^(ELSE .*) {
+			//we must be inside of an if statement to append an else if or else.
+			System.out.println("current scope: " + ScopeManager.getCurrentConstructionScope().getClass().getName());
+			if (ScopeManager.getLastConstructionScope() instanceof IfStatement && previousStatement instanceof IfStatement) {
+				EveLogger.debug("Creating else at " + $ELSE.getLine());
+				
+				//An else is just an else-if (true)
+				IfStatement elseStatement = new IfStatement(new WrappedPrimitiveExpression(true));
+				IfStatement parentIf = (IfStatement)ScopeManager.getLastConstructionScope();
+				parentIf.setChildIf(elseStatement);
+				ScopeManager.pushConstructionScope(elseStatement);
+				previousStatement = elseStatement;
+			}
+			else {
+				throw new EveError("else statement must follow an if or an else if");
+			}
+		}
+	;
+	
+elseStatementUp
+	:	^(ELSE .*) {
+			IfStatement elseStatement = (IfStatement)ScopeManager.popConstructionScope();
+			previousStatement = elseStatement;
+			//ScopeManager.getCurrentConstructionScope().addStatement(elseStatement);
+			//current construction scope is not the if statmeent, so we do not add here.
+			//that is taken care of going down.
+			EveLogger.debug("Finished creating else statement at " + ScopeManager.getCurrentConstructionScope());	
+		}
+	;	
 	
 initVariableStatement
 	:	^(INIT_VARIABLE IDENT e=expression) {
@@ -186,6 +284,7 @@ initVariableStatement
 			AssignmentStatement as = new InitVariableStatement($IDENT.text, e);
 			as.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
+			previousStatement = as;
 		}
 	;
 
@@ -195,6 +294,7 @@ updateVariableStatement
 			AssignmentStatement as = new UpdateVariableStatement($IDENT.text, e);
 			as.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
+			previousStatement = as;
 		}
 	;
 	
@@ -206,17 +306,20 @@ invokeFunctionStatement
 			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text, params);
 			expr.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(expr);
+			previousStatement = expr;
 		}
 	|	^(INVOKE_FUNCTION_STMT IDENT) {
 			//no-args invocation
 			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text);
 			expr.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(expr);
+			previousStatement = expr;
 		}
 	;
 	
 //Expressions
 expression returns [ExpressionStatement result]
+	//Operators
 	:	^('~' op1=expression op2=expression) {$result = new ConcatExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('-' op1=expression op2=expression) { $result = new MinusExpression(op1, op2); $result.setLine(op1.getLine()); }
@@ -224,6 +327,18 @@ expression returns [ExpressionStatement result]
 	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op1); $result.setLine(op1.getLine()); }
 	|	^('%' op1=expression op2=expression) { $result = new ModulusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^(NEGATION e=expression) { $result = new NegationExpression(e); $result.setLine($NEGATION.getLine()); }
+	
+	//Boolean comparison.
+	|	^('&&' op1=expression op2=expression) { $result = new AndExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('||' op1=expression op2=expression) { $result = new OrExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('==' op1=expression op2=expression) { $result = new EqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('!=' op1=expression op2=expression) { $result = new NotEqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('>' op1=expression op2=expression) { $result = new GreaterThanExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('<' op1=expression op2=expression) { $result = new LessThanExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('>=' op1=expression op2=expression) { $result = new GreaterThanOrEqualToExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('<=' op1=expression op2=expression) { $result = new LessThanOrEqualToExpression(op1, op2); $result.setLine(op1.getLine()); }
+	
+	//Everything else.
 	|	^(INVOKE_FUNCTION_EXPR IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
 			List<ExpressionStatement> params = getFunctionInvocationParams();
 			EveLogger.debug("invoking function " + $IDENT.text + " as expression with params " + params);
@@ -249,6 +364,10 @@ expression returns [ExpressionStatement result]
 	|	DOUBLE {
 			$result = new WrappedPrimitiveExpression(new Double($DOUBLE.text));
 			$result.setLine($DOUBLE.getLine());
+		}
+	|	BOOLEAN {
+			$result = new WrappedPrimitiveExpression(new Boolean($BOOLEAN.text));
+			$result.setLine($BOOLEAN.getLine());
 		}
 	|	STRING_LITERAL {
 			$result = new WrappedPrimitiveExpression($STRING_LITERAL.text);

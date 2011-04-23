@@ -17,6 +17,9 @@ tokens {
 	INVOKE_FUNCTION_EXPR;
 	INIT_PROTO;
 	CLONE_PROTO;
+	IF_STATEMENT;
+	ELSE_IF;
+	ELSE;
 }
 
 @header {
@@ -63,6 +66,7 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	assignmentStatement
 	|	initVariableStatement
 	|	functionInvocationStatement
+	|	ifStatement
 	;
 	
 returnStatement
@@ -113,13 +117,8 @@ functionInvocationParameters
 	:	expression (',' expression)* -> (expression)* //apparently this somehow rewrites the entire thing to "p1 p2 p3 ..."
 	;
 	
-/*function 
-	:	parameters*
-		functionBody
-	;*/
-	
 function
-	:	'(' p=(IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
+	:	'(' (IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
 	;
 	
 functionBody
@@ -147,26 +146,33 @@ functionInvocationExpression
 	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
 	;
 
+//If statements
+ifStatement
+	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
+	|	'else' 'if' '(' expression ')' '{' codeStatement* '}' -> ^(ELSE_IF expression codeStatement*)
+	|	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*) //an else is just else if (true)
+	;
+
 //Expressions
 term
 	:	IDENT
 	|	'('! expression ')'!
 	|	INTEGER
 	|	DOUBLE
+	|	BOOLEAN
 	|	STRING_LITERAL
 	|	functionInvocationExpression
 	|	cloneExpression
 	;
 	
 boolNegation
-	:	'not'* term
+	:	'!'* term
 	;
 	
 unary
 	:	('+'! | negation^)* boolNegation
 	;
-	
-	
+		
 negation
 	:	'-' -> NEGATION
 	;
@@ -180,11 +186,11 @@ add
 	;
 
 relation
-	:	add (('='^ | '/='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
+	:	add (('=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
 	;
 	
 expression
-	:	relation (('and' | 'or') relation)*
+	:	relation (('&&'^ | '||'^) relation)*
 	;
 	
 // Tokens
@@ -209,6 +215,8 @@ fragment DIGIT : '0'..'9';
 fragment DOT : '.' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
+BOOLEAN : 'true' | 'false' ;
 IDENT : LETTER (DOT | LETTER | DIGIT)*;
+
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};
