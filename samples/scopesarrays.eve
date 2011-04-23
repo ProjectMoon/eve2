@@ -1,9 +1,10 @@
 proto X {
 	def g = () {
-		var global::durp = 5;
+		global::durp.q = 5;
 	}
 }
 
+var durp = 10;
 var x = clone X;
 x.g();
-print(durp);
+print(durp.q);

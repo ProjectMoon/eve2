@@ -60,6 +60,7 @@ public class ScopeManager {
 	private static void scopeOperatorEnsure() {
 		if (jumpedScope) {
 			popScope();
+			jumpedScope = false;
 		}
 	}
 	/**
@@ -134,6 +135,7 @@ public class ScopeManager {
 	}
 	
 	public static void putVariable(String name, EveObject eo) {
+		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 		
 		EveObject obj = getCurrentScope();
@@ -177,6 +179,8 @@ public class ScopeManager {
 			//simple non-property assignment.
 			obj.putField(name, eo);
 		}
+		
+		scopeOperatorEnsure();
 	}
 		
 	public static boolean inFunction() {
