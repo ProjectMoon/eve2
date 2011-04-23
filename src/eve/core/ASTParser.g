@@ -60,6 +60,9 @@ options {
 		return p;
 	}
 	
+	//If statement management
+	private EveStatement previousStatement;
+	
 }
 
 parameters returns [List<String> result]
@@ -175,6 +178,7 @@ printStatement
 			PrintStatement ps = new PrintStatement(e);
 			ps.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ps);
+			previousStatement = ps;
 			EveLogger.debug("print statement");
 		}
 	;
@@ -183,7 +187,8 @@ returnStatement
 	:	^('return' e=expression) {
 			ReturnStatement ret = new ReturnStatement(e);
 			ret.setLine(e.getLine());
-			ScopeManager.getCurrentConstructionScope().addStatement(ret);	
+			ScopeManager.getCurrentConstructionScope().addStatement(ret);
+			previousStatement = ret;	
 		}
 	;
 
@@ -199,6 +204,7 @@ ifStatementDown
 			}
 			
 			ScopeManager.pushConstructionScope(expr);
+			previousStatement = expr;
 			EveLogger.debug("Creating if statement for " + e);	
 		}
 	;
@@ -207,6 +213,7 @@ ifStatementUp
 	:	^(IF_STATEMENT expression .*) {
 			//ConstructionScope MUST be IfStatement, or we have issues.
 			IfStatement ifStatement = (IfStatement)ScopeManager.popConstructionScope();
+			previousStatement = ifStatement;
 			ScopeManager.getCurrentConstructionScope().addStatement(ifStatement);
 			EveLogger.debug("Finished creating if statement at " + ScopeManager.getCurrentConstructionScope());
 		}
@@ -215,12 +222,13 @@ ifStatementUp
 elseIfStatementDown
 	:	^(ELSE_IF e=expression .*) {
 			//the last statement must have been an if.
-			if (ScopeManager.getLastConstructionScope() instanceof IfStatement) {
+			if (ScopeManager.getLastConstructionScope() instanceof IfStatement && previousStatement instanceof IfStatement) {
 				EveLogger.debug("Creating else-if at " + $ELSE_IF.getText());
 				IfStatement elseIf = new IfStatement(e);
 				IfStatement parentIf = (IfStatement)ScopeManager.getLastConstructionScope();
 				parentIf.setChildIf(elseIf);
 				ScopeManager.pushConstructionScope(elseIf);
+				previousStatement = elseIf;
 			}
 			else {
 				throw new EveError("else if statement must follow an if or an else if");
@@ -231,6 +239,7 @@ elseIfStatementDown
 elseIfStatementUp
 	:	^(ELSE_IF expression .*) {
 			IfStatement ifStatement = (IfStatement)ScopeManager.popConstructionScope();
+			previousStatement = ifStatement;
 			//ScopeManager.getCurrentConstructionScope().addStatement(ifStatement);
 			//current construction scope would not be the if statement, so we do not add here.
 			//that is taken care of going down.
@@ -242,7 +251,7 @@ elseStatementDown
 	:	^(ELSE .*) {
 			//we must be inside of an if statement to append an else if or else.
 			System.out.println("current scope: " + ScopeManager.getCurrentConstructionScope().getClass().getName());
-			if (ScopeManager.getLastConstructionScope() instanceof IfStatement) {
+			if (ScopeManager.getLastConstructionScope() instanceof IfStatement && previousStatement instanceof IfStatement) {
 				EveLogger.debug("Creating else at " + $ELSE.getLine());
 				
 				//An else is just an else-if (true)
@@ -250,6 +259,7 @@ elseStatementDown
 				IfStatement parentIf = (IfStatement)ScopeManager.getLastConstructionScope();
 				parentIf.setChildIf(elseStatement);
 				ScopeManager.pushConstructionScope(elseStatement);
+				previousStatement = elseStatement;
 			}
 			else {
 				throw new EveError("else statement must follow an if or an else if");
@@ -260,10 +270,11 @@ elseStatementDown
 elseStatementUp
 	:	^(ELSE .*) {
 			IfStatement elseStatement = (IfStatement)ScopeManager.popConstructionScope();
+			previousStatement = elseStatement;
 			//ScopeManager.getCurrentConstructionScope().addStatement(elseStatement);
 			//current construction scope is not the if statmeent, so we do not add here.
 			//that is taken care of going down.
-			EveLogger.debug("Finished creating else-if statement at " + ScopeManager.getCurrentConstructionScope());	
+			EveLogger.debug("Finished creating else statement at " + ScopeManager.getCurrentConstructionScope());	
 		}
 	;	
 	
@@ -273,6 +284,7 @@ initVariableStatement
 			AssignmentStatement as = new InitVariableStatement($IDENT.text, e);
 			as.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
+			previousStatement = as;
 		}
 	;
 
@@ -282,6 +294,7 @@ updateVariableStatement
 			AssignmentStatement as = new UpdateVariableStatement($IDENT.text, e);
 			as.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
+			previousStatement = as;
 		}
 	;
 	
@@ -293,12 +306,14 @@ invokeFunctionStatement
 			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text, params);
 			expr.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(expr);
+			previousStatement = expr;
 		}
 	|	^(INVOKE_FUNCTION_STMT IDENT) {
 			//no-args invocation
 			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text);
 			expr.setLine($IDENT.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(expr);
+			previousStatement = expr;
 		}
 	;
 	
