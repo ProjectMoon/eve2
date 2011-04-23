@@ -20,31 +20,21 @@ public class PlusExpression extends ExpressionStatement implements EveStatement 
 		EveObject result = new EveObject();
 		
 		if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.INTEGER) {
-			int res = op1.getIntValue() + op2.getIntValue();
+			Integer res = op1.getIntValue() + op2.getIntValue();
 			result.setIntValue(res);
 		}
-		/*
-		else if (op1.getType() == EveType.STRING && op2.getType() == EveType.STRING) {
-			String res = op1.getStringValue() + op2.getStringValue();
-			result.setStringValue(res);
+		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.DOUBLE) {
+			Double res = op1.getDoubleValue() + op2.getDoubleValue();
+			result.setDoubleValue(res);
 		}
-		else if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.STRING) {
-			String res = op1.getIntValue() + op2.getStringValue();
-			result.setStringValue(res);
+		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.INTEGER) {
+			Double res = op1.getDoubleValue() + op2.getIntValue();
+			result.setDoubleValue(res);
 		}
-		else if (op1.getType() == EveType.STRING && op2.getType() == EveType.INTEGER) {
-			String res = op1.getStringValue() + op2.getIntValue();
-			result.setStringValue(res);			
+		else if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.DOUBLE) {
+			Double res = op1.getIntValue() + op2.getDoubleValue();
+			result.setDoubleValue(res);
 		}
-		else if (op1.getType() == EveType.STRING && op2.getType() == EveType.CUSTOM) {
-			String res = op1.getStringValue() + op2.toString();
-			result.setStringValue(res);
-		}
-		else if (op1.getType() == EveType.CUSTOM && op2.getType() == EveType.STRING) {
-			String res = op1.toString() + op2.getStringValue();
-			result.setStringValue(res);
-		}
-		*/
 		else {
 			//anything else = error
 			ErrorHandler.operatorError("+", op1, op2);

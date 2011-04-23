@@ -15,20 +15,21 @@ import eve.statements.ReturnStatement;
 import eve.statements.expressions.ExpressionStatement;
 
 public class EveObject {
-	public enum EveType { INTEGER, STRING, CUSTOM, PROTOTYPE, FUNCTION };
+	public enum EveType { INTEGER, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION };
 	
 	//the type of this object.
 	private EveType type;
 	
 	//base eve types.
-	private int intValue;
+	private Integer intValue;
 	private String stringValue;
+	private Double doubleValue;
 	private EveFunction functionValue;
 	
 	//user-defined type specific.
 	private String typeName;
 	
-	//Everything is an object.
+	//Properties of this object. Temp fields are deleted on scope exit.
 	private Map<String, EveObject> fields = new HashMap<String, EveObject>();
 	private Map<String, EveObject> tempFields = new HashMap<String, EveObject>();
 	
@@ -47,6 +48,11 @@ public class EveObject {
 	public EveObject(String s) {
 		this();
 		setStringValue(s);
+	}
+	
+	public EveObject(double d) {
+		this();
+		setDoubleValue(d);
 	}
 	
 	public EveObject(EveFunction func) {
@@ -81,12 +87,12 @@ public class EveObject {
 		return cloneable;
 	}
 	
-	public void setIntValue(int intValue) {
+	public void setIntValue(Integer intValue) {
 		this.type = EveType.INTEGER;
 		this.intValue = intValue;
 	}
 	
-	public int getIntValue() {
+	public Integer getIntValue() {
 		if (this.type != EveType.INTEGER) {
 			throw new EveError(this + " is not an int!");
 		}
@@ -103,6 +109,18 @@ public class EveObject {
 			throw new EveError(this + " is not a string!");
 		}
 		return stringValue;
+	}
+	
+	public void setDoubleValue(Double d) {
+		this.type = EveType.DOUBLE;
+		this.doubleValue = d;
+	}
+	
+	public Double getDoubleValue() {
+		if (this.type != EveType.DOUBLE){ 
+			throw new EveError(this + " is not a double!");
+		}
+		return doubleValue;
 	}
 	
 	public void setFunctionValue(EveFunction functionValue) {
@@ -192,6 +210,8 @@ public class EveObject {
 		switch (type) {
 			case INTEGER:
 				return new Integer(this.getIntValue()).toString();
+			case DOUBLE:
+				return this.getDoubleValue().toString();
 			case STRING:
 				return this.getStringValue();
 			case FUNCTION:
@@ -202,7 +222,7 @@ public class EveObject {
 				return "[prototype " + this.typeName + "]";
 		}
 		
-		return "undefined";
+		return "[unknown]";
 	}
 	
 	public EveObject invoke() {
