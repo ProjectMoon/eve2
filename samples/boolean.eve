@@ -1,4 +1,4 @@
-/*
+
 print("---testing simple boolean expressions---");
 var b = true;
 var expr = 5 == 5;
@@ -36,8 +36,7 @@ if (x != 5 && 4 != 5) {
 if (x != 6 && 4 != 5) {
 	print("this statement should not appear");
 }
-*/
-/*
+
 print("---testing if-else statements---");
 
 if (5 != 6) {
@@ -64,7 +63,7 @@ else if (x == 6 || x == 5) {
 else {
 	print("should not see this 3 (else)");
 }
-*/
+
 print("---nested ifs---");
 var x = 6;
 var y = 7;
