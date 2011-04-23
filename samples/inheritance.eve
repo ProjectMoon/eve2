@@ -1,5 +1,5 @@
 proto Base {
-    def doSomething = () {
+    def doSomething = super() {
         print("doing something in super");
     }
 
@@ -9,9 +9,16 @@ proto Base {
 }
 
 var sub = clone Base;
-def sub.doSomething = () {
+def sub.doSomething2 = child() {
     self.super.doSomething();
     print("doing something in child");
 }
 
-sub.doSomething();
+sub.doSomething2();
+
+def int.lol = () {
+	print("lol from int");
+}
+
+x = 5;
+x.lol();

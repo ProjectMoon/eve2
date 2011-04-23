@@ -5,11 +5,17 @@ import java.util.Collection;
 import java.util.List;
 
 import eve.interpreter.Interpreter;
-import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
-import eve.statements.expressions.ExpressionStatement;
 
-public class EveFunction {
+/**
+ * Holds the internal information of an EveFunction: its name, statements, and
+ * parameters. The interpreter does not really interact with this class directly
+ * except to create a FunctionDefStatement. EveObject contains an invoke method
+ * which delegates to this class.
+ * @author jeff
+ *
+ */
+public class Function {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	private String name;
 	private List<String> parameters = new ArrayList<String>();
@@ -98,13 +104,13 @@ public class EveFunction {
 		if (o == this) { 
 			return true;
 		}
-		if (!(o instanceof EveFunction)) {
+		if (!(o instanceof Function)) {
 			return false;
 		}
 		
 		//Function analysis: if all statements and parameter names are
 		//equal, then the two functions are equal.
-		EveFunction other = (EveFunction)o;
+		Function other = (Function)o;
 		boolean equal = true;
 		
 		//Parameters: length and names.

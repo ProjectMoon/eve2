@@ -1,14 +1,10 @@
 package eve.core;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Queue;
 
 import org.antlr.runtime.ANTLRInputStream;
-import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -21,9 +17,12 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import eve.core.EveLexer;
-import eve.core.EveParser;
 import eve.core.EveParser.program_return;
+import eve.core.builtins.EveBoolean;
+import eve.core.builtins.EveDouble;
+import eve.core.builtins.EveFunction;
+import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveString;
 import eve.eni.EveNativeFunction;
 import eve.eni.NativeCode;
 import eve.hooks.EveHook;
@@ -34,9 +33,16 @@ import eve.scope.ScopeManager;
 public class EveCore {
 	private boolean printSyntaxTree;
 
-	private EveObject createGlobal() {
+	private EveObject initialize() {
 		EveObject global = EveObject.globalType();
-		//need anything else?
+		
+		//add the built-in prototypes to the global scope.
+		global.putField("int", EveInteger.getPrototype());
+		global.putField("string", EveString.getPrototype());
+		global.putField("double", EveDouble.getPrototype());
+		global.putField("bool", EveBoolean.getPrototype());
+		global.putField("function", EveFunction.getPrototype());
+		
 		return global;
 	}
 	
@@ -119,7 +125,7 @@ public class EveCore {
 		CharStream stream = new ANTLRInputStream(input);
 		
 		eni();
-		ScopeManager.setGlobalScope(createGlobal());
+		ScopeManager.setGlobalScope(initialize());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 	
 		// ANTLRStringStream("def g = (q) { q.z = 6; print(\"q.z is \" ~ q.z); }; proto X { var y = 5; } var x = clone X; g(x);");

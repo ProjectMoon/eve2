@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import eve.core.builtins.EveBoolean;
+import eve.core.builtins.EveDouble;
+import eve.core.builtins.EveFunction;
+import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveString;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
@@ -20,9 +25,8 @@ public class EveObject {
 	private String stringValue;
 	private Double doubleValue;
 	private Boolean booleanValue;
-	private EveFunction functionValue;
+	private Function functionValue;
 	
-	//user-defined type specific.
 	private String typeName;
 	
 	//Properties of this object. Temp fields are deleted on scope exit.
@@ -40,49 +44,114 @@ public class EveObject {
 		//putField("self", this); //Does not seem to work as we want it to.
 	}
 	
+	/**
+	 * Copy constructor. Used for cloning.
+	 * @param source The object to clone.
+	 */
+	public EveObject(EveObject source) {
+		if (!source.isCloneable()) {
+			throw new EveError("attempting to clone uncloneable prototype");
+		}
+				
+		//Object is cloned to initially use references of this object to save memory.
+		//Later, assignment statements will change the references for us.
+		this.cloneParent = source;
+		this.fields = new HashMap<String, EveObject>(source.fields); //a new map with the same references.
+		
+		//prototypes can only exist as base objects. any clone is immediately custom.
+		if (source.getType() == EveType.PROTOTYPE) {
+			this.setType(EveType.CUSTOM);
+		}
+		else {
+			this.setType(source.getType());
+		}
+		
+		this.setTypeName(source.getTypeName());
+		this.cloneable = source.cloneable;
+		this.intValue = source.intValue;
+		this.functionValue = source.functionValue;
+		this.stringValue = source.stringValue;
+		this.doubleValue = source.doubleValue;
+		this.booleanValue = source.booleanValue;
+		
+		
+		HookManager.callCloneHooks(this);
+		
+		//onClone special function.
+		if (source.hasField(SpecialFunctions.ON_CLONE)) {
+			source.getField(SpecialFunctions.ON_CLONE).putTempField("self", this);
+			source.getField(SpecialFunctions.ON_CLONE).invoke(this);
+		}
+	}
+	
 	public EveObject(Integer i) {
+		this(EveInteger.getPrototype());
+		setIntValue(i);
+	}
+	
+	public EveObject(Integer i, boolean clone) {
 		this();
 		setIntValue(i);
 	}
 	
 	public EveObject(String s) {
+		this(EveString.getPrototype());
+		setStringValue(s);
+	}
+	
+	public EveObject(String s, boolean clone) {
 		this();
 		setStringValue(s);
 	}
 	
 	public EveObject(Double d) {
+		this(EveDouble.getPrototype());
+		setDoubleValue(d);
+	}
+	
+	public EveObject(Double d, boolean clone) {
 		this();
 		setDoubleValue(d);
 	}
 	
-	public EveObject(EveFunction func) {
+	public EveObject(Function func) {
+		this(EveFunction.getPrototype());
+		setFunctionValue(func);
+	}
+	
+	public EveObject(Function func, boolean clone) {
 		this();
 		setFunctionValue(func);
 	}
 	
 	public EveObject(Boolean b) {
-		this();
+		this(EveBoolean.getPrototype());
 		setBooleanValue(b);
 	}
 	
+	public EveObject(Boolean b, boolean clone) {
+		this();
+		setBooleanValue(b);
+	}
+		
 	public static EveObject customType(String typeName) {
 		EveObject eo = new EveObject();
-		eo.type = EveType.CUSTOM;
-		eo.typeName = typeName;
+		eo.setType(EveType.CUSTOM);
+		eo.setTypeName(typeName);
 		return eo;
 	}
 	
 	public static EveObject prototypeType(String typeName) {
 		EveObject eo = new EveObject();
-		eo.type = EveType.PROTOTYPE;
-		eo.typeName = typeName;
+		eo.setType(EveType.PROTOTYPE);
+		eo.setTypeName(typeName);
 		return eo;
 	}
 	
 	public static EveObject globalType() {
 		EveObject eo = new EveObject();
-		eo.type = EveType.CUSTOM;
-		eo.typeName = "global";
+		eo.setType(EveType.CUSTOM);
+		eo.setTypeName("global");
 		eo = eo.eveClone(); //even global is cloned once.
 		eo.cloneable = false;
 		return eo;
@@ -93,63 +162,71 @@ public class EveObject {
 	}
 	
 	public void setIntValue(Integer intValue) {
-		this.type = EveType.INTEGER;
+		this.setType(EveType.INTEGER);
 		this.intValue = intValue;
 	}
 	
 	public Integer getIntValue() {
-		if (this.type != EveType.INTEGER) {
+		if (this.getType() != EveType.INTEGER) {
 			throw new EveError(this + " is not an int!");
 		}
 		return intValue;
 	}
 	
 	public void setStringValue(String stringValue) {
-		this.type = EveType.STRING;
+		this.setType(EveType.STRING);
 		this.stringValue = stringValue;
 	}
 	
 	public String getStringValue() {
-		if (this.type != EveType.STRING) {
+		if (this.getType() != EveType.STRING) {
 			throw new EveError(this + " is not a string!");
 		}
 		return stringValue;
 	}
 	
 	public void setDoubleValue(Double d) {
-		this.type = EveType.DOUBLE;
+		this.setType(EveType.DOUBLE);
 		this.doubleValue = d;
 	}
 	
 	public Double getDoubleValue() {
-		if (this.type != EveType.DOUBLE){ 
+		if (this.getType() != EveType.DOUBLE){ 
 			throw new EveError(this + " is not a double!");
 		}
 		return doubleValue;
 	}
 	
 	public void setBooleanValue(Boolean booleanValue) {
-		this.type = EveType.BOOLEAN;
+		this.setType(EveType.BOOLEAN);
 		this.booleanValue = booleanValue;
 	}
 	
 	public Boolean getBooleanValue() {
-		if (this.type != EveType.BOOLEAN){
+		if (this.getType() != EveType.BOOLEAN){
 			throw new EveError(this + " is not a boolean!");
 		}
 		return booleanValue;
 	}
 	
-	public void setFunctionValue(EveFunction functionValue) {
-		this.type = EveType.FUNCTION;
+	public void setFunctionValue(Function functionValue) {
+		this.setType(EveType.FUNCTION);
 		this.functionValue = functionValue;
 	}
 
-	public EveFunction getFunctionValue() {
-		if (this.type != EveType.FUNCTION) {
+	public Function getFunctionValue() {
+		if (this.getType() != EveType.FUNCTION) {
 			throw new EveError(this + " is not a function!");
 		}
 		return functionValue;
+	}
+
+	public void setType(EveType type) {
+		this.type = type;
+	}
+
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
 	}
 
 	public void setFields(Map<String, EveObject> fields) {
@@ -195,7 +272,7 @@ public class EveObject {
 	}
 	
 	public String getTypeName() {
-		switch (type) {
+		switch (getType()) {
 			case INTEGER:
 				return "int";
 			case DOUBLE:
@@ -228,9 +305,9 @@ public class EveObject {
 		}
 		
 		//Otherwise, default.
-		switch (type) {
+		switch (getType()) {
 			case INTEGER:
-				return new Integer(this.getIntValue()).toString();
+				return this.getIntValue().toString();
 			case DOUBLE:
 				return this.getDoubleValue().toString();
 			case BOOLEAN:
@@ -240,9 +317,9 @@ public class EveObject {
 			case FUNCTION:
 				return this.getFunctionValue().toString();
 			case CUSTOM:
-				return "[custom " + this.typeName + "]";
+				return "[custom " + this.getTypeName() + "]";
 			case PROTOTYPE:
-				return "[prototype " + this.typeName + "]";
+				return "[prototype " + this.getTypeName() + "]";
 		}
 		
 		return "[unknown]";
@@ -265,7 +342,7 @@ public class EveObject {
 			throw new EveError(this + " is not a function.");
 		}
 		
-		EveFunction func = this.getFunctionValue();
+		Function func = this.getFunctionValue();
 		
 		//make sure parameter lengths match up.
 		if (actualParameters != null) {
@@ -294,50 +371,14 @@ public class EveObject {
 		return retval;
 	}
 	
+	/**
+	 * Clone this EveObject. All properties will be shallowly replicated.
+	 * This method also handles managing of the object's family.
+	 * @return A clone of this EveObject.
+	 */
 	public EveObject eveClone() {
-		if (!this.isCloneable()) {
-			throw new EveError("attempting to clone uncloneable prototype");
-		}
-		
-		EveObject clone = new EveObject();
-		
-		//Object is cloned to initially use references of this object to save memory.
-		//Later, assignment statements will change the references for us.
-		clone.cloneParent = this;
-		clone.fields = new HashMap<String, EveObject>(this.fields); //a new map with the same references.
-		
-		//prototypes can only exist as base objects. any clone is immediately custom.
-		if (this.type == EveType.PROTOTYPE) {
-			clone.type = EveType.CUSTOM;
-		}
-		else {
-			clone.type = this.type;
-		}
-		
-		clone.typeName = this.typeName;
-		clonePrimitives(clone);
-		clone.cloneable = this.cloneable;
-		
-		HookManager.callCloneHooks(clone);
-		
-		//onClone special function.
-		if (hasField(SpecialFunctions.ON_CLONE)) {
-			getField(SpecialFunctions.ON_CLONE).putTempField("self", this);
-			getField(SpecialFunctions.ON_CLONE).invoke(clone);
-		}
-		
-		return clone;
+		return new EveObject(this);
 	}
-	
-	private void clonePrimitives(EveObject clone) {
-		clone.intValue = this.intValue;
-		clone.functionValue = this.functionValue;
-		clone.stringValue = this.stringValue;
-		clone.doubleValue = this.doubleValue;
-		clone.booleanValue = this.booleanValue;
-	}
-	
-
 	
 	@Override
 	public int hashCode() {
@@ -357,9 +398,9 @@ public class EveObject {
 				+ ((stringValue == null) ? 0 : stringValue.hashCode());
 		result = prime * result
 				+ ((tempFields == null) ? 0 : tempFields.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
 		result = prime * result
-				+ ((typeName == null) ? 0 : typeName.hashCode());
+				+ ((getTypeName() == null) ? 0 : getTypeName().hashCode());
 		return result;
 	}
 

@@ -3,7 +3,7 @@ package eve.statements.expressions;
 import java.util.ArrayList;
 import java.util.List;
 
-import eve.core.EveFunction;
+import eve.core.Function;
 import eve.core.EveObject;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
@@ -52,7 +52,7 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 
 	@Override
 	public EveObject execute() {
-		EveFunction func = new EveFunction();
+		Function func = new Function();
 		func.setName(name);
 		EveObject eo = new EveObject();
 		func.addStatements(getStatements());
