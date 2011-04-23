@@ -11,6 +11,7 @@ tokens {
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
 	INIT_FUNCTION;
+	UPDATE_FUNCTION;
 	FUNCTION_NAME;
 	FUNCTION_PARAMETERS;
 	FUNCTION_BODY;
@@ -80,28 +81,16 @@ printStatement
 	
 assignmentStatement
 	:	IDENT '=' expression ';' -> ^(UPDATE_VARIABLE IDENT expression)
-	//|	initFunction prop=IDENT '='^ name=IDENT? function ';'?
-	|	'def' prop=IDENT '=' name=IDENT? function ';'? -> ^('=' INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
-	;
-
-initFunction
-	:	'def' -> INIT_FUNCTION
+	|	prop=IDENT '=' name=IDENT? function ';'? -> ^(UPDATE_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 	
 initVariableStatement
-	:	initVariable^ IDENT '='! expression ';'!
+	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
+	|	'def' prop=IDENT '=' name=IDENT? function ';'? -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 
-initVariable
-	:	'var' -> INIT_VARIABLE
-	;
-	
 protoStatement
-	: 'proto' IDENT '{' protoBlock '}' ';'? -> ^(INIT_PROTO IDENT protoBlock)
-	;
-	
-protoBlock
-	:	codeStatement*
+	: 'proto' IDENT '{' codeStatement* '}' ';'? -> ^(INIT_PROTO IDENT codeStatement*)
 	;
 	
 functionInvocationStatement
@@ -123,26 +112,10 @@ function
 	:	'(' (IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
 	;
 	
-functionBody
-	:	functionBodyToken^ codeStatement* '}'!
-	;
-
-functionBodyToken
-	:	'{' -> FUNCTION_BODY
-	;
-	
 parameters
-	:	parametersStartToken^ parameter (','! parameter)* ')'!
+	:	'(' IDENT (',' IDENT)* ')' -> ^(FUNCTION_PARAMETERS IDENT*)
 	;
 	
-parametersStartToken
-	:	'(' -> FUNCTION_PARAMETERS
-	;
-
-parameter
-	:	IDENT
-	;
-
 functionInvocationExpression
 	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
 	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
@@ -152,7 +125,7 @@ functionInvocationExpression
 ifStatement
 	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
 	|	'else' 'if' '(' expression ')' '{' codeStatement* '}' -> ^(ELSE_IF expression codeStatement*)
-	|	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*) //an else is just else if (true)
+	|	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*)
 	;
 
 //Expressions

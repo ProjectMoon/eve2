@@ -70,9 +70,9 @@ parameters returns [List<String> result]
 	;
 
 topdown
-	:	enterFunction
-	|	beginParameters
+	:	functionParametersDown
 	|	assignFunctionDown
+	|	updateFunctionDown
 	|	functionNameDown
 	|	createPrototypeDown
 	|	ifStatementDown
@@ -82,9 +82,8 @@ topdown
 	;
 
 bottomup
-	:	exitFunction
-	|	endParameters
-	|	assignFunctionUp
+	:	assignFunctionUp
+	|	updateFunctionUp
 	|	ifStatementUp
 	|	elseIfStatementUp
 	|	elseStatementUp
@@ -93,13 +92,23 @@ bottomup
 	
 //Function declarations (not invocations)
 assignFunctionDown
-	:	^('=' INIT_FUNCTION IDENT .*) {
-		//Create new FunctionExpression.
-		FunctionDefExpression expr = new FunctionDefExpression();
-		expr.setLine($IDENT.getLine());
-		ScopeManager.pushConstructionScope(expr);
-		EveLogger.debug("Creating new function expression for " + $IDENT.text);
+	:	^(INIT_FUNCTION IDENT .*) {
+			//Create new FunctionExpression.
+			FunctionDefExpression expr = new FunctionDefExpression();
+			expr.setLine($IDENT.getLine());
+			ScopeManager.pushConstructionScope(expr);
+			EveLogger.debug("Creating new function expression for " + $IDENT.text);
 	}
+	;
+	
+updateFunctionDown
+	:	^(UPDATE_FUNCTION IDENT .*) {
+			//Create new FunctionExpression.
+			FunctionDefExpression expr = new FunctionDefExpression();
+			expr.setLine($IDENT.getLine());
+			ScopeManager.pushConstructionScope(expr);
+			EveLogger.debug("Creating new function update expression for " + $IDENT.text);	
+		}
 	;
 	
 functionNameDown
@@ -112,33 +121,30 @@ functionNameDown
 	;
 	
 assignFunctionUp
-	:	^('=' INIT_FUNCTION IDENT .*) {
-		//Create new Assignment statement.
-		//This MUST be a function def, otherwise there's a serious problem.
-		FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
-		AssignmentStatement as = new InitVariableStatement($IDENT.text, expr);
-
-		//we are now back on global (or proto).		
-		ScopeManager.getCurrentConstructionScope().addStatement(as);
-		EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");
+	:	^(INIT_FUNCTION IDENT .*) {
+			//Create new Assignment statement.
+			//This MUST be a function def, otherwise there's a serious problem.
+			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
+			AssignmentStatement as = new InitVariableStatement($IDENT.text, expr);
+	
+			//we are now back on global (or proto).		
+			ScopeManager.getCurrentConstructionScope().addStatement(as);
+			EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");
 	}
 	;
+		
+updateFunctionUp
+	:	^(UPDATE_FUNCTION IDENT .*) {
+			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
+			AssignmentStatement as = new UpdateVariableStatement($IDENT.text, expr);
 	
-enterFunction
-	:	^(FUNCTION_BODY .*) {
-			//Peek at current function and set scope to it.
-			//Can ignore this, because we scope push at assignFunctionDown 
+			//we are now back on global (or proto).		
+			ScopeManager.getCurrentConstructionScope().addStatement(as);
+			EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");	
 		}
 	;
 	
-exitFunction
-	:	(FUNCTION_BODY .*) {
-			//pop scope stack.
-			//Can ignore this because we pop scope at assignFunctionUp
-		}
-	;
-	
-beginParameters
+functionParametersDown
 	:	(FUNCTION_PARAMETERS type=. (s=IDENT { pushFunctionParam($s.text); })* ) {	
 			//This MUST be a function definition, otherwise we have issues.
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
@@ -146,12 +152,6 @@ beginParameters
 		}
 	;
 	
-endParameters
-	:	(FUNCTION_PARAMETERS) {
-			//Ignore, i think?
-		}
-	;
-
 //Prototype creation (not cloning)
 createPrototypeDown 
 	:	^(INIT_PROTO IDENT .*) {

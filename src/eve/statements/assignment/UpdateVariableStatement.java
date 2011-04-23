@@ -17,13 +17,12 @@ public class UpdateVariableStatement extends AssignmentStatement implements EveS
 	
 	@Override
 	public EveObject execute() {
-		/*
+		//Verify that stuff exists.
 		EveObject eo = ScopeManager.getVariable(identifier);
 		
-		if (eo == null) {
+		if (eo == null && !identifier.contains(".")) {
 			throw new EveError("variable " + identifier + " does not exist in the current scope.");
 		}
-		*/
 				
 		EveObject result = expression.execute();
 		ScopeManager.putVariable(identifier, result);

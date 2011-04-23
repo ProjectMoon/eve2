@@ -27,26 +27,22 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	}
 	
 	@Override
-	public EveObject execute() {
-		EveObject eo = new EveObject();
-		
+	public EveObject execute() {	
 		if (intOp != null) {
-			eo.setIntValue(intOp);
+			return new EveObject(intOp);
 		}
 		else if (stringOp != null) {
-			eo.setStringValue(stringOp);
+			return new EveObject(stringOp);
 		}
 		else if (doubleOp != null) {
-			eo.setDoubleValue(doubleOp);
+			return new EveObject(doubleOp);
 		}
 		else if (booleanOp != null) {
-			eo.setBooleanValue(booleanOp);
+			return new EveObject(booleanOp);
 		}
 		else {
 			throw new EveError("unable to assign wrapped primitive");
 		}
-		
-		return eo;
 	}
 	
 	@Override
