@@ -16,9 +16,11 @@ def sub.doSomething = child() {
 
 sub.doSomething();
 
-def int.lol = () {
-	print("lol from int");
+//stick everything onto new ints.
+//this function would not be on any previously defined ints.
+def int.hello = () {
+	print("hello from int");
 }
 
 x = 5;
-x.lol();
+x.hello();
