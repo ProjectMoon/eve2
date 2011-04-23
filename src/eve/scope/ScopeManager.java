@@ -5,6 +5,7 @@ import java.util.Stack;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.statements.expressions.IdentExpression;
 
 public class ScopeManager {
 	private static EveObject globalScope;
@@ -107,16 +108,12 @@ public class ScopeManager {
 				throw new EveError(resolvedObj + " is undefined");
 			}
 
+			//breaking on split.length - 1 so we can assign name at least once.
+			//otherwise it would make more sense to loop from c = 1 to split.length - 1
 			for (int c = 1; c < split.length; c++) {
 				name = split[c];
 				if (c == split.length - 1) {
-					//we possibly have an undefined property at the end.
-					//if so, break out of the loop before it can be assigned
-					//to obj.
-					EveObject prop = obj.getField(name);
-					if (prop == null) {
-						break;
-					}
+					break;
 				}
 
 				obj = obj.getField(name);
@@ -133,17 +130,12 @@ public class ScopeManager {
 			if (obj == null) {
 				throw new EveError(resolvedObj + " is undefined in current scope");
 			}
+			
+			obj.putField(name, eo);
 		}
 		else {
-			EveObject prop = obj.getField(name);
-			
-			//Handle new assignment and update.
-			if (prop != null) {
-				obj = prop;
-			}
+			obj.putField(name, eo);
 		}
-				
-		obj.putField(name, eo);
 	}
 		
 	public static boolean inFunction() {
