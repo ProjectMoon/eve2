@@ -15,7 +15,7 @@ import eve.statements.ReturnStatement;
 import eve.statements.expressions.ExpressionStatement;
 
 public class EveObject {
-	public enum EveType { INTEGER, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION };
+	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION };
 	
 	//the type of this object.
 	private EveType type;
@@ -24,6 +24,7 @@ public class EveObject {
 	private Integer intValue;
 	private String stringValue;
 	private Double doubleValue;
+	private Boolean booleanValue;
 	private EveFunction functionValue;
 	
 	//user-defined type specific.
@@ -123,6 +124,18 @@ public class EveObject {
 		return doubleValue;
 	}
 	
+	public void setBooleanValue(Boolean booleanValue) {
+		this.type = EveType.BOOLEAN;
+		this.booleanValue = booleanValue;
+	}
+	
+	public Boolean getBooleanValue() {
+		if (this.type != EveType.BOOLEAN){
+			throw new EveError(this + " is not a boolean!");
+		}
+		return booleanValue;
+	}
+	
 	public void setFunctionValue(EveFunction functionValue) {
 		this.type = EveType.FUNCTION;
 		this.functionValue = functionValue;
@@ -181,6 +194,10 @@ public class EveObject {
 		switch (type) {
 			case INTEGER:
 				return "int";
+			case DOUBLE:
+				return "double";
+			case BOOLEAN:
+				return "boolean";
 			case STRING:
 				return "string";
 			case FUNCTION:
@@ -212,6 +229,8 @@ public class EveObject {
 				return new Integer(this.getIntValue()).toString();
 			case DOUBLE:
 				return this.getDoubleValue().toString();
+			case BOOLEAN:
+				return this.getBooleanValue().toString();
 			case STRING:
 				return this.getStringValue();
 			case FUNCTION:
@@ -286,6 +305,8 @@ public class EveObject {
 	private void clonePrimitives(EveObject clone) {
 		clone.intValue = this.intValue;
 		clone.functionValue = this.functionValue;
-		clone.stringValue = this.stringValue;		
+		clone.stringValue = this.stringValue;
+		clone.doubleValue = this.doubleValue;
+		clone.booleanValue = this.booleanValue;
 	}
 }

@@ -250,6 +250,10 @@ expression returns [ExpressionStatement result]
 			$result = new WrappedPrimitiveExpression(new Double($DOUBLE.text));
 			$result.setLine($DOUBLE.getLine());
 		}
+	|	BOOLEAN {
+			$result = new WrappedPrimitiveExpression(new Boolean($BOOLEAN.text));
+			$result.setLine($BOOLEAN.getLine());
+		}
 	|	STRING_LITERAL {
 			$result = new WrappedPrimitiveExpression($STRING_LITERAL.text);
 			$result.setLine($STRING_LITERAL.getLine());

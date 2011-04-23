@@ -153,6 +153,7 @@ term
 	|	'('! expression ')'!
 	|	INTEGER
 	|	DOUBLE
+	|	BOOLEAN
 	|	STRING_LITERAL
 	|	functionInvocationExpression
 	|	cloneExpression
@@ -209,6 +210,7 @@ fragment DIGIT : '0'..'9';
 fragment DOT : '.' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
+BOOLEAN : 'true' | 'false' ;
 IDENT : LETTER (DOT | LETTER | DIGIT)*;
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};

@@ -8,6 +8,7 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	private Integer intOp;
 	private String stringOp;
 	private Double doubleOp;
+	private Boolean booleanOp;
 	
 	public WrappedPrimitiveExpression(Integer op) {
 		this.intOp = op;
@@ -19,6 +20,10 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	
 	public WrappedPrimitiveExpression(Double op) {
 		this.doubleOp = op;
+	}
+	
+	public WrappedPrimitiveExpression(Boolean op) {
+		this.booleanOp = op;
 	}
 	
 	@Override
@@ -33,6 +38,9 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		}
 		else if (doubleOp != null) {
 			eo.setDoubleValue(doubleOp);
+		}
+		else if (booleanOp != null) {
+			eo.setBooleanValue(booleanOp);
 		}
 		else {
 			throw new EveError("unable to assign wrapped primitive");
