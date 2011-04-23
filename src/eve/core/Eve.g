@@ -18,6 +18,8 @@ tokens {
 	INIT_PROTO;
 	CLONE_PROTO;
 	IF_STATEMENT;
+	ELSE_IF;
+	ELSE;
 }
 
 @header {
@@ -145,8 +147,25 @@ functionInvocationExpression
 	;
 
 //If statements
-ifStatement
+/*ifStatement
 	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
+	|	'else' 'if' '(' expression ')' '{' codeStatement* '}' -> ^(CHILD_IF expression codeStatement*)
+	|	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*) //an else is just else if (true)
+	;
+*/
+
+ifStatement
+	:	'if' '(' expression ')' '{' codeStatement* '}' elseIfStatement* elseStatement?	
+	 -> ^(IF_STATEMENT expression codeStatement*) ^(elseIfStatement)* ^(elseStatement)?
+	;
+	
+elseIfStatement
+	:	'else' 'if' '(' expression ')' '{' codeStatement* '}'
+		-> ^(ELSE_IF expression codeStatement*)
+	;
+
+elseStatement
+	:	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*)
 	;
 	
 //Expressions
@@ -213,5 +232,6 @@ INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
 IDENT : LETTER (DOT | LETTER | DIGIT)*;
+
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};

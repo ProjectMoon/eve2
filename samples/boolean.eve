@@ -1,3 +1,5 @@
+/*
+print("---testing simple boolean expressions---");
 var b = true;
 var expr = 5 == 5;
 print("expr is " ~ expr);
@@ -18,6 +20,7 @@ var x = 6;
 var expr6 = ((x != 5) && (4 == 4)) && (true || false);
 print("expr6 is " ~ expr6);
 
+print("---testing if statements---");
 if (5 == 5) {
 	print("hello from the first if statement");
 }
@@ -32,4 +35,31 @@ if (x != 5 && 4 != 5) {
 
 if (x != 6 && 4 != 5) {
 	print("this statement should not appear");
+}
+*/
+print("---testing if-else statements---");
+
+if (5 != 6) {
+	print("success 1");
+}
+else {
+	print("should not see this 1");
+}
+
+if (5 != 5) {
+	print("should not see this 2");
+}
+else {
+	print("success 2");
+}
+
+var x = 5;
+if (x == 2) {
+	print("should not see this 3");
+}
+else if (x == 5) {
+	print("success 3");
+}
+else {
+	print("should not see this 3 (else)");
 }

@@ -17,6 +17,7 @@ import eve.statements.expressions.ExpressionStatement;
 public class IfStatement extends AbstractStatement implements EveStatement, ConstructionScope {
 	private ExpressionStatement ifExpression;
 	private List<EveStatement> ifBlock = new ArrayList<EveStatement>();
+	private IfStatement childIf;
 	
 	public IfStatement(ExpressionStatement ifExpression) {
 		this.ifExpression = ifExpression;
@@ -32,12 +33,26 @@ public class IfStatement extends AbstractStatement implements EveStatement, Cons
 			if (exprResult.getBooleanValue() == true) {
 				result = Interpreter.executeStatements(ifBlock);
 			}
+			else {
+				//This implements else-if and else statements.
+				if (childIf != null) {
+					result = childIf.execute();
+				}
+			}
 			
 			return result;
 		}
 		else {
 			throw new EveError(exprResult + " must return a boolean value.");
 		}
+	}
+	
+	public void setChildIf(IfStatement childIf) {
+		this.childIf = childIf;
+	}
+	
+	public IfStatement getChildIf() {
+		return childIf;
 	}
 
 	@Override

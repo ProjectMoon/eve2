@@ -72,6 +72,8 @@ topdown
 	|	assignFunctionDown
 	|	createPrototypeDown
 	|	ifStatementDown
+	|	elseIfStatementDown
+	|	elseStatementDown
 	|	codeStatement
 	;
 
@@ -80,6 +82,8 @@ bottomup
 	|	endParameters
 	|	assignFunctionUp
 	|	ifStatementUp
+	|	elseIfStatementUp
+	|	elseStatementUp
 	|	createPrototypeUp
 	;
 	
@@ -182,11 +186,18 @@ returnStatement
 			ScopeManager.getCurrentConstructionScope().addStatement(ret);	
 		}
 	;
-	
+
 ifStatementDown
 	:	^(IF_STATEMENT e=expression .*) {
 			IfStatement expr = new IfStatement(e);
 			expr.setLine($IF_STATEMENT.getLine());
+			
+			//If this is true, that means we have an else if or an else statement.
+			if (ScopeManager.getCurrentConstructionScope() instanceof IfStatement) {
+				IfStatement parentIf = (IfStatement)ScopeManager.getCurrentConstructionScope();
+				parentIf.setChildIf(expr);
+			}
+			
 			ScopeManager.pushConstructionScope(expr);
 			EveLogger.debug("Creating if statement for " + e);	
 		}
@@ -200,6 +211,57 @@ ifStatementUp
 			EveLogger.debug("Finished creating if statement at " + ScopeManager.getCurrentConstructionScope());
 		}
 	;
+	
+elseIfStatementDown
+	:	^(CHILD_IF e=expression .*) {
+			//we must be inside of an if statement to append an else if or else.
+			if (ScopeManager.getCurrentConstructionScope() instanceof IfStatement) {
+				EveLogger.debug("Creating else-if at " + $CHILD_IF.text);
+				IfStatement elseIf = new IfStatement(e);
+				IfStatement parentIf = (IfStatement)ScopeManager.getCurrentConstructionScope();
+				parentIf.setChildIf(elseIf);
+				ScopeManager.pushConstructionScope(elseIf);
+			}
+			else {
+				throw new EveError("else if statement must follow an if or an else if");
+			}
+		}
+	;
+	
+elseIfStatementUp
+	:	^(CHILD_IF expression .*) {
+			IfStatement ifStatement = (IfStatement)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(ifStatement);
+			EveLogger.debug("Finished creating else-if statement at " + ScopeManager.getCurrentConstructionScope());	
+		}
+	;
+	
+elseStatementDown
+	:	^(ELSE .*) {
+			//we must be inside of an if statement to append an else if or else.
+			System.out.println("current scope: " + ScopeManager.getCurrentConstructionScope().getClass().getName());
+			if (ScopeManager.getCurrentConstructionScope() instanceof IfStatement) {
+				EveLogger.debug("Creating else at " + $ELSE.getLine());
+				
+				//An else is just an else-if (true)
+				IfStatement elseStatement = new IfStatement(new WrappedPrimitiveExpression(true));
+				IfStatement parentIf = (IfStatement)ScopeManager.getCurrentConstructionScope();
+				parentIf.setChildIf(elseStatement);
+				ScopeManager.pushConstructionScope(elseStatement);
+			}
+			else {
+				throw new EveError("else statement must follow an if or an else if");
+			}
+		}
+	;
+	
+elseStatementUp
+	:	^(ELSE .*) {
+			IfStatement elseStatement = (IfStatement)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(elseStatement);
+			EveLogger.debug("Finished creating else-if statement at " + ScopeManager.getCurrentConstructionScope());	
+		}
+	;	
 	
 initVariableStatement
 	:	^(INIT_VARIABLE IDENT e=expression) {
