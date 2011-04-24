@@ -38,6 +38,3 @@ def closure = () {
 
 	return yarr;
 }
-
-var cl = closure();
-cl();
