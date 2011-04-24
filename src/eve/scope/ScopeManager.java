@@ -362,7 +362,7 @@ public class ScopeManager {
 		while (desc.hasNext()) {
 			EveObject eo = desc.next();
 			if (eo.getType() == EveType.FUNCTION) {
-				closureStack.push(eo);
+				closureStack.push(eo.eveClone());
 			}
 		}
 		
