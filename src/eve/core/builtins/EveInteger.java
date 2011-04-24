@@ -2,6 +2,11 @@ package eve.core.builtins;
 
 import eve.core.EveObject;
 
+/**
+ * The int prototype.
+ * @author jeff
+ *
+ */
 public class EveInteger extends EveObject {
 	private static final EveInteger proto = new EveInteger();
 	
@@ -12,6 +17,5 @@ public class EveInteger extends EveObject {
 	private EveInteger() {
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("int");
-		putField("stringTest", new EveObject(1, false));
 	}
 }

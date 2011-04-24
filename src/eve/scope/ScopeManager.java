@@ -1,11 +1,14 @@
 package eve.scope;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
-import eve.statements.expressions.IdentExpression;
 
 public class ScopeManager {
 	private static EveObject globalScope;
@@ -14,7 +17,10 @@ public class ScopeManager {
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
-	private static ConstructionScope mostRecentConstructionScope;
+	private static ConstructionScope lastConstructionScope;
+	
+	//state.
+	private static boolean jumpedScope;
 	
 	public static EveObject getCurrentScope() {
 		return scopeStack.peek();
@@ -33,6 +39,64 @@ public class ScopeManager {
 	}
 	
 	/**
+	 * Analyze an identifier to determine if it has a scope operator.
+	 * If it does have one, set the proper scope.
+	 * @param name
+	 * @return the identifier without the scope identifier.
+	 */
+	private static String scopeOperatorAnalysis(String name) {
+		String[] split = name.split("::");
+		if (split.length > 2) {
+			throw new EveError("can only have one scope operator");
+		}
+		
+		if (split.length == 2) {
+			String scope = split[0];
+			if (scope.equals("global")) {
+				pushScope(getGlobalScope());
+				jumpedScope = true;
+				return split[1];
+			}
+			else {
+				throw new EveError("unrecognized scope " + scope);
+			}
+		}
+		else {
+			return name;
+		}
+	}
+	
+	/**
+	 * Fix the scope if and only if we pushed a new scope via :: operator.
+	 */
+	private static void scopeOperatorEnsure() {
+		if (jumpedScope) {
+			popScope();
+			jumpedScope = false;
+		}
+	}
+	
+	private static List<Integer> indexOperatorAnalysis(String name) {
+		if (name != null && name.matches(".+\\[[0-9]+\\]*")) {
+			List<Integer> indices = new ArrayList<Integer>();
+			Pattern pattern = Pattern.compile("\\[[0-9]+\\]");
+			Matcher matcher = pattern.matcher(name);
+			
+			while (matcher.find()) {
+				String indexStr = matcher.group();
+				int start = indexStr.indexOf("[") + 1;
+				int end = indexStr.indexOf("]");
+				String index = indexStr.substring(start, end);
+				indices.add(new Integer(index));
+			}
+			
+			return indices;
+		}
+		else {
+			return null;
+		}
+	}
+	/**
 	 * Gets the "parent" variable of a property in the current scope. When given
 	 * a name such as "x.y.z", x.y will be returned. If there is no dot, then the
 	 * scope above the current scope is returned. 
@@ -40,6 +104,7 @@ public class ScopeManager {
 	 * @return "parent" EveObject.
 	 */
 	public static EveObject getParentVariable(String name) {
+		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 		
 		if (split.length > 1) {
@@ -52,7 +117,14 @@ public class ScopeManager {
 			
 			for (int c = 1; c < split.length - 1; c++) {
 				String ident = split[c];
-				eo = eo.getField(ident);
+				List<Integer> indices = indexOperatorAnalysis(ident);
+				if (indices != null) {
+					eo = eo.getField(stripIndices(ident));
+					eo = getByIndex(eo, indices);
+				}
+				else {
+					eo = eo.getField(ident);
+				}
 				
 				if (eo == null) {
 					throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
@@ -61,14 +133,17 @@ public class ScopeManager {
 				resolvedObj += "." + ident;
 			}
 			
+			scopeOperatorEnsure();
 			return eo;
 		}
 		else {
+			scopeOperatorEnsure();
 			return parentScope;
-		}		
+		}
 	}
 	
 	public static EveObject getVariable(String name) {
+		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 			
 		if (split.length > 1) {
@@ -81,7 +156,14 @@ public class ScopeManager {
 			
 			for (int c = 1; c < split.length; c++) {
 				String ident = split[c];
-				eo = eo.getField(ident);
+				List<Integer> indices = indexOperatorAnalysis(ident);
+				if (indices != null) {
+					eo = eo.getField(stripIndices(ident));
+					eo = getByIndex(eo, indices);
+				}
+				else {
+					eo = eo.getField(ident);
+				}
 				
 				if (eo == null && c != split.length - 1) {
 					throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
@@ -90,14 +172,53 @@ public class ScopeManager {
 				resolvedObj += "." + ident;
 			}
 			
+			scopeOperatorEnsure();
 			return eo;
 		}
 		else {
-			return getCurrentScope().getField(name);
+			EveObject obj = null;
+			List<Integer> indices = indexOperatorAnalysis(name);
+			if (indices != null) {
+				obj = getCurrentScope().getField(stripIndices(name));
+				obj = getByIndex(obj, indices);
+			}
+			else {
+				obj = getCurrentScope().getField(name);	
+			}
+
+			scopeOperatorEnsure();
+			return obj;
 		}
 	}
 	
+	/**
+	 * Removes [index]s from the given identifier. The name is assumed to be
+	 * in the correct format.
+	 * @param name
+	 * @return The name without any index properties.
+	 */
+	private static String stripIndices(String name) {
+		return name.substring(0, name.indexOf("["));
+	}
+	
+	private static EveObject getByIndex(EveObject obj, List<Integer> indices) {
+		for (int index : indices) {
+			obj = obj.getIndexedProperty(index);
+		}
+		
+		return obj;
+	}
+	
+	private static EveObject getParentByIndex(EveObject obj, List<Integer> indices) {
+		for (int c = 0; c < indices.size() - 1; c++) {
+			obj = obj.getIndexedProperty(indices.get(c));
+		}
+		
+		return obj;
+	}
+	
 	public static void putVariable(String name, EveObject eo) {
+		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 		
 		EveObject obj = getCurrentScope();
@@ -111,16 +232,33 @@ public class ScopeManager {
 			}
 
 			//resolve down to the object to the property before the one we want.
+			Integer index = null; //only used if we find out that we need to assign an indexed prop.
 			for (int c = 1; c < split.length; c++) {
 				name = split[c];
+				index = null;
 				
 				//do this instead of looping to length - 1
 				//so name can be assigned at least once.
 				if (c == split.length - 1) {
+					//might have an index access on our hands...
+					List<Integer> indices = indexOperatorAnalysis(name);
+					if (indices != null) {
+						obj = obj.getField(stripIndices(name));
+						obj = getParentByIndex(obj, indices);
+						index = indices.get(indices.size() - 1);
+					}
 					break;
 				}
 
-				obj = obj.getField(name);
+				List<Integer> indices = indexOperatorAnalysis(name);
+				if (indices != null) {
+					obj = obj.getField(stripIndices(name));
+					obj = getByIndex(obj, indices);
+					index = indices.get(indices.size() - 1);
+				}
+				else {
+					obj = obj.getField(name);
+				}
 					
 				//allow undefined properties at the end, but not
 				//during resolution.
@@ -135,12 +273,30 @@ public class ScopeManager {
 				throw new EveError(resolvedObj + " is undefined in current scope");
 			}
 			
-			obj.putField(name, eo);
+			if (index != null) {
+				obj.setIndexedProperty(index, eo);
+			}
+			else {
+				obj.putField(name, eo);
+			}
 		}
 		else {
 			//simple non-property assignment.
+			List<Integer> indices = indexOperatorAnalysis(name);
+			if (indices != null) {
+				obj = obj.getField(stripIndices(name));
+				
+				if (indices.size() > 1) {
+					obj = getParentByIndex(obj, indices);
+				}
+				
+				obj.setIndexedProperty(indices.get(indices.size() - 1), eo);
+			}
+
 			obj.putField(name, eo);
 		}
+		
+		scopeOperatorEnsure();
 	}
 		
 	public static boolean inFunction() {
@@ -164,11 +320,11 @@ public class ScopeManager {
 	}
 	
 	public static ConstructionScope popConstructionScope() {
-		mostRecentConstructionScope = constructionScopeStack.pop();
-		return mostRecentConstructionScope;
+		lastConstructionScope = constructionScopeStack.pop();
+		return lastConstructionScope;
 	}
 	
 	public static ConstructionScope getLastConstructionScope() {
-		return mostRecentConstructionScope;
+		return lastConstructionScope;
 	}
 }
