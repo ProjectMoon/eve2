@@ -66,7 +66,7 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		func.setParameters(this.parameters);
 		
 		if (isClosureDef) {
-			func.setClosureScope(ScopeManager.getCurrentScope());
+			func.setClosureStack(ScopeManager.cloneScopeStack());
 		}
 		
 		EveObject eo = new EveObject(func);

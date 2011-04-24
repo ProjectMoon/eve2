@@ -444,12 +444,17 @@ public class EveObject {
 		//Copy function parameters as temp fields.
 		if (actualParameters != null) {
 			for (int c = 0; c < actualParameters.size(); c++) {
-				this.putTempField(func.getParameters().get(c), actualParameters.get(c));
+				if (func.isClosure()) {
+					this.putField(func.getParameters().get(c), actualParameters.get(c));
+				}
+				else {
+					this.putTempField(func.getParameters().get(c), actualParameters.get(c));
+				}
 			}
 		}
 		
 		if (func.isClosure()) {
-			ScopeManager.setClosureScope(func.getClosureScope());
+			ScopeManager.setClosureStack(func.getClosureStack());
 		}
 		
 		//switch to function scope and run.
@@ -458,7 +463,7 @@ public class EveObject {
 		ScopeManager.popScope();
 		
 		if (func.isClosure()) {
-			ScopeManager.setClosureScope(null);
+			ScopeManager.setClosureStack(null);
 		}
 
 		return retval;

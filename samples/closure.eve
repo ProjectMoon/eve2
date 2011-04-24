@@ -1,6 +1,5 @@
 def makeAnimal = (noise) {
 	proto Animal {
-		var noise = parent::noise;
 		def makeNoise = () {
 			print(closure::noise);
 		}

@@ -28,6 +28,6 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 	
 	@Override
 	public boolean referencesClosure() {
-		return super.analyzeForClosure(identifier);
+		return super.analyzeForClosure(identifier) || expression.referencesClosure();
 	}
 }
