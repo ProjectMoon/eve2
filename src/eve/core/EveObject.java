@@ -380,6 +380,7 @@ public class EveObject {
 		if (hasField("toString")) {
 			EveObject toString = this.getField("toString");
 			if (toString.getType() == EveType.FUNCTION) {
+				toString.putTempField("self", this);
 				EveObject res = toString.invoke();
 				if (res != null) {
 					return res.getStringValue();
