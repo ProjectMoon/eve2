@@ -1,12 +1,27 @@
-def makeAnimal = (noise) {
-	proto Animal {
-		def makeNoise = () {
-			print(closure::noise);
+/*
+closure.eve
+
+Demonstration of closures. The closure:: scope operator tells the interpreter 
+to search the closure scope stack for the specified identifier. It will
+return the first identifier it finds, so don't shadow! closure:: only works
+in functions. Anywhere else will throw a closure scope not present error.
+*/
+def Animal = (noise) {
+	def anotherFunc = () {
+		proto Animal {
+			def makeNoise = () {
+				print(closure::noise);
+			}
 		}
+
+		return Animal;
 	}
 
-	return Animal;
+	return anotherFunc();
 }
 
-var cat = makeAnimal("meow");
+var cat = Animal("meow");
 cat.makeNoise();
+
+var dog = Animal("woof");
+dog.makeNoise();

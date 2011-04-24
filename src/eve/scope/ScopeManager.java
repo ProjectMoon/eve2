@@ -3,6 +3,7 @@ package eve.scope;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -354,9 +355,18 @@ public class ScopeManager {
 		ScopeManager.closureScope = closureScope;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static Deque<EveObject> cloneScopeStack() {
-		return new ArrayDeque<EveObject>(scopeStack);
+	public static Deque<EveObject> createClosureStack() {
+		Deque<EveObject> closureStack = new ArrayDeque<EveObject>();
+		Iterator<EveObject> desc = scopeStack.descendingIterator();
+		
+		while (desc.hasNext()) {
+			EveObject eo = desc.next();
+			if (eo.getType() == EveType.FUNCTION) {
+				closureStack.push(eo);
+			}
+		}
+		
+		return closureStack;		
 	}
 	
 	public static Deque<EveObject> getClosureScope() {
