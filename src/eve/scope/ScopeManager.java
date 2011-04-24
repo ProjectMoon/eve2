@@ -117,7 +117,14 @@ public class ScopeManager {
 			
 			for (int c = 1; c < split.length - 1; c++) {
 				String ident = split[c];
-				eo = eo.getField(ident);
+				List<Integer> indices = indexOperatorAnalysis(ident);
+				if (indices != null) {
+					eo = eo.getField(stripIndices(ident));
+					eo = getByIndex(eo, indices);
+				}
+				else {
+					eo = eo.getField(ident);
+				}
 				
 				if (eo == null) {
 					throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
@@ -149,8 +156,14 @@ public class ScopeManager {
 			
 			for (int c = 1; c < split.length; c++) {
 				String ident = split[c];
-				indexOperatorAnalysis(name);
-				eo = eo.getField(ident);
+				List<Integer> indices = indexOperatorAnalysis(ident);
+				if (indices != null) {
+					eo = eo.getField(stripIndices(ident));
+					eo = getByIndex(eo, indices);
+				}
+				else {
+					eo = eo.getField(ident);
+				}
 				
 				if (eo == null && c != split.length - 1) {
 					throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
@@ -163,11 +176,45 @@ public class ScopeManager {
 			return eo;
 		}
 		else {
+			EveObject obj = null;
+			List<Integer> indices = indexOperatorAnalysis(name);
+			if (indices != null) {
+				obj = getCurrentScope().getField(stripIndices(name));
+				obj = getByIndex(obj, indices);
+			}
+			else {
+				obj = getCurrentScope().getField(name);	
+			}
+
 			scopeOperatorEnsure();
-			indexOperatorAnalysis(name);
-			//System.out.println("index is " + index);
-			return getCurrentScope().getField(name);
+			return obj;
 		}
+	}
+	
+	/**
+	 * Removes [index]s from the given identifier. The name is assumed to be
+	 * in the correct format.
+	 * @param name
+	 * @return The name without any index properties.
+	 */
+	private static String stripIndices(String name) {
+		return name.substring(0, name.indexOf("["));
+	}
+	
+	private static EveObject getByIndex(EveObject obj, List<Integer> indices) {
+		for (int index : indices) {
+			obj = obj.getIndexedProperty(index);
+		}
+		
+		return obj;
+	}
+	
+	private static EveObject getParentByIndex(EveObject obj, List<Integer> indices) {
+		for (int c = 0; c < indices.size() - 1; c++) {
+			obj = obj.getIndexedProperty(c);
+		}
+		
+		return obj;
 	}
 	
 	public static void putVariable(String name, EveObject eo) {
@@ -194,7 +241,14 @@ public class ScopeManager {
 					break;
 				}
 
-				obj = obj.getField(name);
+				List<Integer> indices = indexOperatorAnalysis(name);
+				if (indices != null) {
+					obj = obj.getField(stripIndices(name));
+					obj = getByIndex(obj, indices);
+				}
+				else {
+					obj = obj.getField(name);
+				}
 					
 				//allow undefined properties at the end, but not
 				//during resolution.
@@ -213,6 +267,17 @@ public class ScopeManager {
 		}
 		else {
 			//simple non-property assignment.
+			List<Integer> indices = indexOperatorAnalysis(name);
+			if (indices != null) {
+				obj = obj.getField(stripIndices(name));
+				
+				if (indices.size() > 1) {
+					obj = getParentByIndex(obj, indices);
+				}
+				
+				obj.setIndexedProperty(indices.get(indices.size() - 1), eo);
+			}
+
 			obj.putField(name, eo);
 		}
 		

@@ -20,7 +20,7 @@ public class UpdateVariableStatement extends AssignmentStatement implements EveS
 		//Verify that stuff exists.
 		EveObject eo = ScopeManager.getVariable(identifier);
 		
-		if (eo == null && !identifier.contains(".")) {
+		if (eo == null && !identifier.contains(".") && !identifier.matches(".+\\[[0-9]+\\]*")) {
 			throw new EveError("variable " + identifier + " does not exist in the current scope.");
 		}
 				

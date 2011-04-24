@@ -10,4 +10,6 @@ x.g();
 print(durp.q);
 
 var l = [];
-print(l[10][300]);
+l[0] = 1;
+l[2] = 2;
+print(l);
