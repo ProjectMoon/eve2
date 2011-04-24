@@ -1,6 +1,10 @@
 package eve.scope;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import eve.core.EveError;
 import eve.core.EveObject;
@@ -71,6 +75,27 @@ public class ScopeManager {
 			jumpedScope = false;
 		}
 	}
+	
+	private static List<Integer> indexOperatorAnalysis(String name) {
+		if (name != null && name.matches(".+\\[[0-9]+\\]*")) {
+			List<Integer> indices = new ArrayList<Integer>();
+			Pattern pattern = Pattern.compile("\\[[0-9]+\\]");
+			Matcher matcher = pattern.matcher(name);
+			
+			while (matcher.find()) {
+				String indexStr = matcher.group();
+				int start = indexStr.indexOf("[") + 1;
+				int end = indexStr.indexOf("]");
+				String index = indexStr.substring(start, end);
+				indices.add(new Integer(index));
+			}
+			
+			return indices;
+		}
+		else {
+			return null;
+		}
+	}
 	/**
 	 * Gets the "parent" variable of a property in the current scope. When given
 	 * a name such as "x.y.z", x.y will be returned. If there is no dot, then the
@@ -124,6 +149,7 @@ public class ScopeManager {
 			
 			for (int c = 1; c < split.length; c++) {
 				String ident = split[c];
+				indexOperatorAnalysis(name);
 				eo = eo.getField(ident);
 				
 				if (eo == null && c != split.length - 1) {
@@ -138,6 +164,8 @@ public class ScopeManager {
 		}
 		else {
 			scopeOperatorEnsure();
+			indexOperatorAnalysis(name);
+			//System.out.println("index is " + index);
 			return getCurrentScope().getField(name);
 		}
 	}

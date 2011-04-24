@@ -188,7 +188,7 @@ LIST_LITERAL
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
 fragment DOT : '.' ;
-fragment ARRAY_ACCESS : '[' DIGIT ']' ;
+fragment ARRAY_ACCESS : '[' DIGIT+ ']' ;
 fragment SCOPE_OP : ':' ':' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
