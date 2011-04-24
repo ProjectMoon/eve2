@@ -35,13 +35,14 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 		ScopeManager.popScope();
 		
 		//This should be global.
-		if (ScopeManager.getCurrentScope() == ScopeManager.getGlobalScope()) {
+		/*if (ScopeManager.getCurrentScope() == ScopeManager.getGlobalScope()) {
 			ScopeManager.putVariable(protoName, proto);
 		}
 		else {
 			throw new EveError("can't add prototype to non-global scope");
 		}
-		
+		*/
+		ScopeManager.putVariable(protoName, proto);
 		return proto;
 	}
 
