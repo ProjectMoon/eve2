@@ -3,6 +3,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CharStream;
@@ -45,29 +47,55 @@ public class EveCore {
 		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
 		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
 		
+		eni(global);
 		return global;
 	}
 	
-	private void eni() {
+	private void eni(EveObject global) {
 		final NativeCode nc = new NativeCode() {
 			@Override
 			public EveObject execute() {
-				System.out.println("nativity!");
+				EveObject cname = ScopeManager.getVariable("cname");
+				String className = cname.getStringValue();
+				
+				try {
+					Class cl = Class.forName(className);
+					Constructor ctor = cl.getConstructor(int.class);
+					Object o = ctor.newInstance(1);
+					EveObject eo = EveObject.javaType(o);
+					return eo;
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				return null;
 			}		
 		};
 		
-		final EveNativeFunction nfunc = new EveNativeFunction(nc);
-		final EveObject nfuncObject = new EveObject(nfunc);
+		EveNativeFunction nfunc = new EveNativeFunction(nc);
+		nfunc.addParameter("cname");
+		EveObject nfuncObject = new EveObject(nfunc);
 		
-		EveHook hook = new EveHook() {
-			@Override
-			public void instrument(EveObject eo) {
-				eo.putField("nativeTest", nfuncObject);
-			}	
-		};
+		global.putField("java", nfuncObject);
 		
-		HookManager.registerCloneHook(hook);
 	}
 	
 	/**
@@ -80,6 +108,7 @@ public class EveCore {
 		opts.addOption("d", false, "debug mode");
 		opts.addOption("t", false, "print syntax tree");
 		opts.addOption("h", false, "print help");
+		opts.addOption("i", true, "register instrumentation hook");
 		
 		CommandLineParser parser = new GnuParser();
 		
@@ -126,7 +155,6 @@ public class EveCore {
 		InputStream input = new FileInputStream(file);
 		CharStream stream = new ANTLRInputStream(input);
 		
-		eni();
 		ScopeManager.setGlobalScope(initialize());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 	

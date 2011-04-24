@@ -17,7 +17,7 @@ import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
 public class EveObject {
-	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST };
+	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, JAVA };
 	
 	//the type of this object.
 	private EveType type;
@@ -28,6 +28,7 @@ public class EveObject {
 	private Double doubleValue;
 	private Boolean booleanValue;
 	private Function functionValue;
+	private Object objectValue;
 	private Map<Integer, EveObject> listValues;
 	
 	private String typeName;
@@ -146,6 +147,14 @@ public class EveObject {
 		this();
 		setListValue(l);
 	}
+	
+	public static EveObject javaType(Object o) {
+		EveObject eo = new EveObject();
+		eo.setType(EveType.JAVA);
+		eo.setTypeName(o.getClass().getName());
+		eo.setObjectValue(o);
+		return eo;
+	}
 		
 	public static EveObject customType(String typeName) {
 		EveObject eo = new EveObject();
@@ -256,6 +265,14 @@ public class EveObject {
 		return results;
 	}
 	
+	public void setObjectValue(Object objectValue) {
+		this.objectValue = objectValue;
+	}
+
+	public Object getObjectValue() {
+		return objectValue;
+	}
+
 	/**
 	 * Gets an indexed property. Only works on strings and lists. For
 	 * strings, it returns the character at the specified index. For
@@ -370,6 +387,8 @@ public class EveObject {
 				return this.typeName;
 			case PROTOTYPE:
 				return this.typeName;
+			case JAVA:
+				return this.typeName;
 		}
 		
 		return "unknown type";
@@ -406,6 +425,8 @@ public class EveObject {
 				return "[custom " + this.getTypeName() + "]";
 			case PROTOTYPE:
 				return "[prototype " + this.getTypeName() + "]";
+			case JAVA:
+				return this.getObjectValue().toString();
 		}
 		
 		return "[unknown]";
