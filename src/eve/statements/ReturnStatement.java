@@ -13,5 +13,10 @@ public class ReturnStatement extends AbstractStatement implements EveStatement {
 	public EveObject execute() {
 		return expression.execute();
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return expression.referencesClosure();
+	}
 
 }

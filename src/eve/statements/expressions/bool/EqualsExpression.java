@@ -20,4 +20,9 @@ public class EqualsExpression extends ExpressionStatement implements EveStatemen
 		EveObject res = new EveObject(op1.equals(op2));
 		return res;
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return exp1.referencesClosure() || exp2.referencesClosure();
+	}
 }

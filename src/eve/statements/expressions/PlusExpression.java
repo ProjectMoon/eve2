@@ -42,5 +42,10 @@ public class PlusExpression extends ExpressionStatement implements EveStatement 
 		
 		return result;
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return exp1.referencesClosure() || exp2.referencesClosure();
+	}
 
 }

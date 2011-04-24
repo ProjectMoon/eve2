@@ -56,5 +56,10 @@ public class IfStatement extends AbstractStatement implements EveStatement, Cons
 		ifBlock.add(statement);
 	}
 	
+	@Override
+	public boolean referencesClosure() {
+		return ifExpression.referencesClosure();
+	}
+	
 
 }

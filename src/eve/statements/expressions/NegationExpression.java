@@ -33,5 +33,10 @@ public class NegationExpression extends ExpressionStatement implements EveStatem
 		
 		return result;
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return exp.referencesClosure();
+	}
 
 }

@@ -15,5 +15,10 @@ public class PrintStatement extends AbstractStatement implements EveStatement {
 		System.out.println(expression.execute());
 		return null;
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return expression.referencesClosure();
+	}
 
 }

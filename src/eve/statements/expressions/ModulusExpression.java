@@ -42,4 +42,9 @@ public class ModulusExpression extends ExpressionStatement implements EveStateme
 		
 		return result;
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return exp1.referencesClosure() || exp2.referencesClosure();
+	}
 }
