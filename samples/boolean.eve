@@ -1,3 +1,8 @@
+/*
+boolean.eve
+
+A bunch of tests of boolean expressions.
+*/
 
 print("---testing simple boolean expressions---");
 var b = true;

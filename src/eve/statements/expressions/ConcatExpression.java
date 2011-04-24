@@ -19,5 +19,9 @@ public class ConcatExpression extends ExpressionStatement implements EveStatemen
 		eo.setStringValue(op1.toString() + op2.toString());
 		return eo;
 	}
-
+	
+	@Override
+	public boolean referencesClosure() {
+		return exp1.referencesClosure() || exp2.referencesClosure();
+	}
 }

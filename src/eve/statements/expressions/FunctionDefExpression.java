@@ -3,15 +3,20 @@ package eve.statements.expressions;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.omg.CORBA.IdentifierHelper;
+
+import eve.core.EveError;
 import eve.core.Function;
 import eve.core.EveObject;
 import eve.scope.ConstructionScope;
+import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
 public class FunctionDefExpression extends ExpressionStatement implements EveStatement, ConstructionScope {
 	private String name;
 	private List<String> parameters = new ArrayList<String>();
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
+	private boolean isClosureDef = false;
 	
 	public FunctionDefExpression() {}
 	
@@ -21,10 +26,16 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	
 	public void addStatement(EveStatement statement) {
 		this.getStatements().add(statement);
+		if (!this.isClosureDef) {
+			this.isClosureDef = analyzeForClosure(statement);
+		}
 	}
 	
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
+		if (!this.isClosureDef) {
+			this.isClosureDef = analyzeForClosure(statements);
+		}
 	}
 
 	public List<EveStatement> getStatements() {
@@ -53,6 +64,11 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		func.setName(name);
 		func.addStatements(getStatements());
 		func.setParameters(this.parameters);
+		
+		if (isClosureDef) {
+			func.setClosureStack(ScopeManager.createClosureStack());
+		}
+		
 		EveObject eo = new EveObject(func);
 		return eo;
 	}
@@ -65,5 +81,27 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		}
 		res += "}";
 		return res;
+	}
+	
+	private boolean analyzeForClosure(List<EveStatement> statements) {
+		boolean isClosure = false;
+		
+		for (EveStatement stmt : statements) {
+			isClosure = analyzeForClosure(stmt);
+			if (isClosure) {
+				break;
+			}
+		}
+		
+		return isClosure;
+	}
+	
+	private boolean analyzeForClosure(EveStatement stmt) {
+		return stmt.referencesClosure();
+	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return isClosureDef;
 	}
 }

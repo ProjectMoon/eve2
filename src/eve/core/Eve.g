@@ -59,7 +59,6 @@ program
 // Statements
 statement
 	:	codeStatement
-	|	protoStatement
 	;
 	
 codeStatement //Statements that can appear pretty much anywhere.
@@ -69,6 +68,7 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	initVariableStatement
 	|	functionInvocationStatement
 	|	ifStatement
+	|	protoStatement
 	;
 	
 returnStatement

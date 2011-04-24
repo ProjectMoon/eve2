@@ -33,4 +33,9 @@ public class AndExpression extends ExpressionStatement implements EveStatement {
 	public String toString() {
 		return exp1.toString() + " && " + exp2.toString();
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return exp1.referencesClosure() || exp2.referencesClosure();
+	}
 }

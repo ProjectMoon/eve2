@@ -37,4 +37,9 @@ public class LessThanOrEqualToExpression extends ExpressionStatement implements 
 		
 		return null;
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return exp1.referencesClosure() || exp2.referencesClosure();
+	}
 }

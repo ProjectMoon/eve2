@@ -33,5 +33,10 @@ public class UpdateVariableStatement extends AssignmentStatement implements EveS
 	public String toString() {
 		return "InitVariableStatement: " + identifier + "=" + expression.toString();
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return super.analyzeForClosure(identifier);
+	}
 
 }

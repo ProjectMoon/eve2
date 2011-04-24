@@ -69,5 +69,10 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 		res += ")";
 		return res;
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return super.analyzeForClosure(identifier);
+	}
 
 }

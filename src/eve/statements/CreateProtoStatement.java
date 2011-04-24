@@ -12,6 +12,7 @@ import eve.scope.ScopeManager;
 public class CreateProtoStatement extends AbstractStatement implements EveStatement, ConstructionScope {
 	private List<EveStatement> protoBlock = new ArrayList<EveStatement>();
 	private String protoName;
+	private boolean referencesClosure;
 	
 	public CreateProtoStatement(String protoName) {
 		this.protoName = protoName;
@@ -35,14 +36,28 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 		ScopeManager.popScope();
 		
 		//This should be global.
-		if (ScopeManager.getCurrentScope() == ScopeManager.getGlobalScope()) {
+		/*if (ScopeManager.getCurrentScope() == ScopeManager.getGlobalScope()) {
 			ScopeManager.putVariable(protoName, proto);
 		}
 		else {
 			throw new EveError("can't add prototype to non-global scope");
 		}
-		
+		*/
+		ScopeManager.putVariable(protoName, proto);
 		return proto;
+	}
+	
+	public boolean referencesClosure() {
+		if (!referencesClosure) {
+			for (EveStatement stmt : protoBlock) {
+				referencesClosure = stmt.referencesClosure();
+				if (referencesClosure) {
+					break;
+				}
+			}
+		}
+		
+		return referencesClosure;
 	}
 
 }

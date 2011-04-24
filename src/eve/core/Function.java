@@ -2,7 +2,9 @@ package eve.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
+import java.util.Stack;
 
 import eve.interpreter.Interpreter;
 import eve.statements.EveStatement;
@@ -19,6 +21,7 @@ public class Function {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	private String name;
 	private List<String> parameters = new ArrayList<String>();
+	private Deque<EveObject> closureStack;
 
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
@@ -140,5 +143,18 @@ public class Function {
 		
 		//We have finally verified that these functions are equal.
 		return true;
+	}
+
+		
+	public boolean isClosure() {
+		return this.closureStack != null;
+	}
+
+	public void setClosureStack(Deque<EveObject> closureStack) {
+		this.closureStack = closureStack;
+	}
+
+	public Deque<EveObject> getClosureStack() {
+		return closureStack;
 	}
 }

@@ -1,3 +1,21 @@
+/*
+inheritance.eve
+
+Demonstrates Eve's "inheritance" capabilities. Eve does not have classical
+inheritance, nor does it have any built-in capability that does something
+similar. Objects have no FUNCTIONAL relationship to one another unless the
+developer sets it up. 
+
+Here we see two different ways to emulate inheritance: cloning and event.
+The first is the simplest: clone an object and replace parts you want to
+override. Event-based inheritance allows you to set up super relations (among
+other things).
+
+The Base example combines both of these.
+
+A secondary example shows how to attach a function to all integers (that are
+cloned after the definition, of course).
+*/
 proto Base {
 	def doSomething = super() {
 	        print("doing something in super");

@@ -1,6 +1,9 @@
 package eve.scope;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -13,7 +16,8 @@ import eve.core.EveObject.EveType;
 public class ScopeManager {
 	private static EveObject globalScope;
 	private static EveObject parentScope; //right below the current scope in the stack.
-	private static Stack<EveObject> scopeStack = new Stack<EveObject>();
+	private static Deque<EveObject> scopeStack = new ArrayDeque<EveObject>();
+	private static Deque<EveObject> closureScope; //only a single level for now...
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
@@ -21,13 +25,14 @@ public class ScopeManager {
 	
 	//state.
 	private static boolean jumpedScope;
+	private static boolean usingClosureScope;
 	
 	public static EveObject getCurrentScope() {
 		return scopeStack.peek();
 	}
 	
 	public static void pushScope(EveObject eo) {
-		parentScope = (!scopeStack.isEmpty()) ? getCurrentScope() : null; 
+		parentScope = (!scopeStack.isEmpty()) ? getCurrentScope() : globalScope; 
 		scopeStack.push(eo);
 	}
 	
@@ -57,6 +62,21 @@ public class ScopeManager {
 				jumpedScope = true;
 				return split[1];
 			}
+			else if (scope.equals("parent")) {
+				if (parentScope == globalScope) {
+					throw new EveError("global scope must be referenced with global::, not parent::");
+				}
+				pushScope(parentScope);
+				jumpedScope = true;
+				return split[1];
+			}
+			else if (scope.equals("closure")) {
+				if (closureScope == null) {
+					throw new EveError("no closure scope present");
+				}
+				usingClosureScope = true;
+				return split[1];
+			}
 			else {
 				throw new EveError("unrecognized scope " + scope);
 			}
@@ -73,6 +93,26 @@ public class ScopeManager {
 		if (jumpedScope) {
 			popScope();
 			jumpedScope = false;
+		}
+		if (usingClosureScope) {
+			usingClosureScope = false;
+		}
+	}
+	
+	private static EveObject getObject(String name) {
+		if (!usingClosureScope) {
+			return getCurrentScope().getField(name);
+		}
+		else {
+			EveObject eo = null;
+			for (EveObject closure : closureScope) {
+				eo = closure.getField(name);
+				if (eo != null) {
+					break;
+				}
+			}
+			
+			return eo;
 		}
 	}
 	
@@ -110,7 +150,7 @@ public class ScopeManager {
 		if (split.length > 1) {
 			String resolvedObj = split[0];
 			
-			EveObject eo = getCurrentScope().getField(resolvedObj);
+			EveObject eo = getObject(resolvedObj);
 			if (eo == null) {
 				throw new EveError(resolvedObj + " is undefined");
 			}
@@ -149,7 +189,7 @@ public class ScopeManager {
 		if (split.length > 1) {
 			String resolvedObj = split[0];
 			
-			EveObject eo = getCurrentScope().getField(resolvedObj);
+			EveObject eo = getObject(resolvedObj);
 			if (eo == null) {
 				throw new EveError(resolvedObj + " is undefined");
 			}
@@ -179,11 +219,11 @@ public class ScopeManager {
 			EveObject obj = null;
 			List<Integer> indices = indexOperatorAnalysis(name);
 			if (indices != null) {
-				obj = getCurrentScope().getField(stripIndices(name));
+				obj = getObject(stripIndices(name));
 				obj = getByIndex(obj, indices);
 			}
 			else {
-				obj = getCurrentScope().getField(name);	
+				obj = getObject(name);	
 			}
 
 			scopeOperatorEnsure();
@@ -309,6 +349,28 @@ public class ScopeManager {
 	
 	public static void setGlobalScope(EveObject scope) {
 		globalScope = scope;
+	}
+	
+	public static void setClosureStack(Deque<EveObject> closureScope) {
+		ScopeManager.closureScope = closureScope;
+	}
+	
+	public static Deque<EveObject> createClosureStack() {
+		Deque<EveObject> closureStack = new ArrayDeque<EveObject>();
+		Iterator<EveObject> desc = scopeStack.descendingIterator();
+		
+		while (desc.hasNext()) {
+			EveObject eo = desc.next();
+			if (eo.getType() == EveType.FUNCTION) {
+				closureStack.push(eo);
+			}
+		}
+		
+		return closureStack;		
+	}
+	
+	public static Deque<EveObject> getClosureScope() {
+		return closureScope;
 	}
 	
 	public static void pushConstructionScope(ConstructionScope cs) {
