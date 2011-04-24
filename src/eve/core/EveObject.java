@@ -383,7 +383,7 @@ public class EveObject {
 				toString.putTempField("self", this);
 				EveObject res = toString.invoke();
 				if (res != null) {
-					return res.getStringValue();
+					return res.toString();
 				}
 			}
 		}
