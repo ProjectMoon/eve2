@@ -40,6 +40,7 @@ For example, to install Ant and Ivy on Ubuntu 10.10:
 If necessary, install Ant and Ivy manually. They can be found at:
 
 <http://ant.apache.org/>
+
 <http://ant.apache.org/ivy/>
 
 Once having installed Ant and Ivy and putting them on your classpath, run the
