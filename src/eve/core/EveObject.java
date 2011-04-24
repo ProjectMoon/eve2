@@ -447,11 +447,19 @@ public class EveObject {
 				this.putTempField(func.getParameters().get(c), actualParameters.get(c));
 			}
 		}
-				
+		
+		if (func.isClosure()) {
+			ScopeManager.setClosureScope(func.getClosureScope());
+		}
+		
 		//switch to function scope and run.
 		ScopeManager.pushScope(this);
 		EveObject retval = func.execute();
 		ScopeManager.popScope();
+		
+		if (func.isClosure()) {
+			ScopeManager.setClosureScope(null);
+		}
 
 		return retval;
 	}

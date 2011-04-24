@@ -1,0 +1,13 @@
+def makeAnimal = (noise) {
+	proto Animal {
+		var noise = parent::noise;
+		def makeNoise = () {
+			print(closure::noise);
+		}
+	}
+
+	return Animal;
+}
+
+var cat = makeAnimal("meow");
+cat.makeNoise();

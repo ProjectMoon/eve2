@@ -25,4 +25,9 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 	public String toString() {
 		return "InitVariableStatement: " + identifier + "=" + expression.toString();
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return super.analyzeForClosure(identifier);
+	}
 }

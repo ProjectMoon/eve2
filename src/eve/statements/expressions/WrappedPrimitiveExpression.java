@@ -70,5 +70,10 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 			return "undefined";
 		}
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return false;
+	}
 
 }

@@ -19,4 +19,9 @@ public class NotEqualsExpression extends ExpressionStatement implements EveState
 		
 		return new EveObject(op1.equals(op2) == false);
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return exp1.referencesClosure() || exp2.referencesClosure();
+	}
 }

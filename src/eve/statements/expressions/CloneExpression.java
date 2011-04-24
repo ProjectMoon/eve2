@@ -22,5 +22,10 @@ public class CloneExpression extends ExpressionStatement implements EveStatement
 			throw new EveError("prototype is undefined or uncloneable");
 		}
 	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return super.analyzeForClosure(identifier);
+	}
 
 }

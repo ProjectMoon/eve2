@@ -14,6 +14,7 @@ public class ScopeManager {
 	private static EveObject globalScope;
 	private static EveObject parentScope; //right below the current scope in the stack.
 	private static Stack<EveObject> scopeStack = new Stack<EveObject>();
+	private static EveObject closureScope; //only a single level for now...
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
@@ -62,6 +63,14 @@ public class ScopeManager {
 					throw new EveError("global scope must be referenced with global::, not parent::");
 				}
 				pushScope(parentScope);
+				jumpedScope = true;
+				return split[1];
+			}
+			else if (scope.equals("closure")) {
+				if (closureScope == null) {
+					throw new EveError("no closure scope present");
+				}
+				pushScope(closureScope);
 				jumpedScope = true;
 				return split[1];
 			}
@@ -317,6 +326,14 @@ public class ScopeManager {
 	
 	public static void setGlobalScope(EveObject scope) {
 		globalScope = scope;
+	}
+	
+	public static void setClosureScope(EveObject scope) {
+		closureScope = scope;
+	}
+	
+	public static EveObject getClosureScope() {
+		return closureScope;
 	}
 	
 	public static void pushConstructionScope(ConstructionScope cs) {

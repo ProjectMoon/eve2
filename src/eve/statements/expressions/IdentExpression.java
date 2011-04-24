@@ -11,6 +11,11 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 	public IdentExpression(String identifier) {
 		this.identifier = identifier;
 	}
+	
+	public String getIdentifier() {
+		return identifier;
+	}
+	
 	@Override
 	public EveObject execute() {
 		EveObject eo = ScopeManager.getVariable(identifier);
@@ -20,6 +25,11 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 		else {
 			throw new EveError(identifier + " not defined at current scope.");
 		}
+	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return super.analyzeForClosure(identifier);
 	}
 
 }

@@ -6,4 +6,5 @@ public interface EveStatement {
 	public EveObject execute();
 	public void setLine(int line);
 	public int getLine();
+	public boolean referencesClosure();
 }

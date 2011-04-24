@@ -19,6 +19,7 @@ public class Function {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	private String name;
 	private List<String> parameters = new ArrayList<String>();
+	private EveObject closureScope;
 
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
@@ -140,5 +141,17 @@ public class Function {
 		
 		//We have finally verified that these functions are equal.
 		return true;
+	}
+
+	public void setClosureScope(EveObject closureScope) {
+		this.closureScope = closureScope;
+	}
+	
+	public EveObject getClosureScope() {
+		return this.closureScope;
+	}
+	
+	public boolean isClosure() {
+		return this.closureScope != null;
 	}
 }
