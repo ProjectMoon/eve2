@@ -3,15 +3,11 @@ package eve.statements;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.antlr.grammar.v3.ANTLRv3Parser.throwsSpec_return;
-
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
-import eve.interpreter.ErrorHandler;
 import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
-import eve.scope.ScopeManager;
 import eve.statements.expressions.ExpressionStatement;
 
 public class IfStatement extends AbstractStatement implements EveStatement, ConstructionScope {

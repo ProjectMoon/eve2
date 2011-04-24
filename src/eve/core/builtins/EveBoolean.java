@@ -17,6 +17,5 @@ public class EveBoolean extends EveObject {
 	private EveBoolean() {
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("bool");
-		putField("boolTest", new EveObject(1, false));
 	}
 }

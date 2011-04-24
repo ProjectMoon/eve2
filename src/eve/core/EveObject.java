@@ -6,16 +6,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import eve.core.EveParser.returnStatement_return;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveList;
 import eve.core.builtins.EveString;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
 public class EveObject {
-	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION };
+	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST };
 	
 	//the type of this object.
 	private EveType type;
@@ -26,6 +28,7 @@ public class EveObject {
 	private Double doubleValue;
 	private Boolean booleanValue;
 	private Function functionValue;
+	private Map<Integer, EveObject> listValues;
 	
 	private String typeName;
 	
@@ -39,16 +42,16 @@ public class EveObject {
 	//object family support.
 	private EveObject cloneParent;
 	
-	
-	public EveObject() {
-		//putField("self", this); //Does not seem to work as we want it to.
-	}
+	/**
+	 * The base constructor. Creates an EveObject with no properties set.
+	 */
+	public EveObject() {}
 	
 	/**
 	 * Copy constructor. Used for cloning.
 	 * @param source The object to clone.
 	 */
-	public EveObject(EveObject source) {
+	private EveObject(EveObject source) {
 		if (!source.isCloneable()) {
 			throw new EveError("attempting to clone uncloneable prototype");
 		}
@@ -132,6 +135,16 @@ public class EveObject {
 	public EveObject(Boolean b, boolean clone) {
 		this();
 		setBooleanValue(b);
+	}
+	
+	public EveObject(List<EveObject> l) {
+		this(EveList.getPrototype());
+		setListValue(l);
+	}
+	
+	public EveObject(List<EveObject> l, boolean clone) {
+		this();
+		setListValue(l);
 	}
 		
 	public static EveObject customType(String typeName) {
@@ -221,6 +234,74 @@ public class EveObject {
 		return functionValue;
 	}
 
+	public void setListValue(List<EveObject> listValue) {
+		this.setType(EveType.LIST);
+		this.listValues = new HashMap<Integer, EveObject>();
+		
+		for (int c = 0; c < listValue.size(); c++) {
+			this.listValues.put(c, listValue.get(c));
+		}
+	}
+
+	public List<EveObject> getListValue() {
+		if (this.getType() != EveType.LIST) {
+			throw new EveError(this + " is not a list!");
+		}
+		
+		List<EveObject> results = new ArrayList<EveObject>(this.listValues.size());
+		for (Map.Entry<Integer, EveObject> entry : this.listValues.entrySet()) {
+			results.add(entry.getValue());
+		}
+		
+		return results;
+	}
+	
+	/**
+	 * Gets an indexed property. Only works on strings and lists. For
+	 * strings, it returns the character at the specified index. For
+	 * lists, it returns the object at the specified index.
+	 * @param index The index to get.
+	 * @return An EveObject.
+	 */
+	public EveObject getIndexedProperty(int index) {
+		if (this.getType() == EveType.STRING) {
+			Character c = this.getStringValue().charAt(index);
+			return new EveObject(c.toString());
+		}
+		else if (this.getType() == EveType.LIST) {
+			return this.listValues.get(index);
+		}
+		else {
+			throw new EveError("can't use indexer access on non-indexed property");
+		}
+	}
+	
+	public void setIndexedProperty(int index, EveObject eo) {
+		if (this.getType() == EveType.STRING) {
+			if (eo.getType() != EveType.STRING) {
+				throw new EveError("can't insert a non-string into a string");
+			}
+			if (eo.getStringValue().length() > 1) {
+				throw new EveError("can only insert one character at index " + index);
+			}
+			
+			String str = this.getStringValue();
+			String firstPart = str.substring(0, index - 1);
+			String lastPart = str.substring(index, str.length());
+			this.setStringValue(firstPart + eo.getStringValue() + lastPart);
+		}
+		else if (this.getType() == EveType.LIST) {
+			this.listValues.put(index, eo);
+		}
+		else {
+			throw new EveError("can't use indexer access on non-indexed property");
+		}
+	}
+	
+	public boolean isIndexed() {
+		return this.getType() == EveType.LIST || this.getType() == EveType.STRING;
+	}
+
 	public void setType(EveType type) {
 		this.type = type;
 	}
@@ -283,6 +364,8 @@ public class EveObject {
 				return "string";
 			case FUNCTION:
 				return "function";
+			case LIST:
+				return "list";
 			case CUSTOM:
 				return this.typeName;
 			case PROTOTYPE:
@@ -316,6 +399,8 @@ public class EveObject {
 				return this.getStringValue();
 			case FUNCTION:
 				return this.getFunctionValue().toString();
+			case LIST:
+				return this.getListValue().toString();
 			case CUSTOM:
 				return "[custom " + this.getTypeName() + "]";
 			case PROTOTYPE:
@@ -379,7 +464,7 @@ public class EveObject {
 	public EveObject eveClone() {
 		return new EveObject(this);
 	}
-	
+		
 	@Override
 	public int hashCode() {
 		final int prime = 31;

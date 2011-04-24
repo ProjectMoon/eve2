@@ -1,0 +1,18 @@
+proto X {
+	def g = () {
+		global::durp.q = 5;
+	}
+}
+
+var durp = 10;
+var x = clone X;
+x.g();
+print(durp.q);
+
+durp.l = [];
+durp.l[0] = 1;
+durp.l[2] = [];
+durp.l[2][0] = 10;
+durp.l[2][0].x = [];
+durp.l[2][0].x[0] = 13;
+print(durp.l[2][0].x);
