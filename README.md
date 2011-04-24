@@ -17,7 +17,8 @@ Eve is a dynamically strongly typed, pure prototypal, object-oriented language:
   possible.
   
 For more information about Prototypal OOP programming, see the Wikipedia
-article:<br>
+article:
+
 <http://en.wikipedia.org/wiki/Prototype-based_programming>
 
 Building
@@ -37,6 +38,7 @@ For example, to install Ant and Ivy on Ubuntu 10.10:
     sudo apt-get install ant ivy
     
 If necessary, install Ant and Ivy manually. They can be found at:
+
 <http://ant.apache.org/>
 <http://ant.apache.org/ivy/>
 
@@ -69,6 +71,7 @@ Very much a work in progress. Completed things:
 
 * Read and execute script files
 * Debug mode
+* Closures
 * all data types are complete.
 * Variable assignment works
 * Variable update works
@@ -96,5 +99,4 @@ Big things left to do:
 
 Things to consider:
 
-* Closures
 * Multithreading
