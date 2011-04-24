@@ -25,3 +25,19 @@ cat.makeNoise();
 
 var dog = Animal("woof");
 dog.makeNoise();
+
+//You can even use closure:: to refer to the object holding the function.
+proto obj {
+	var aProp = 10;
+
+	def demonstrate = () {
+		var a = "5";
+		def z = () {
+			print(closure::self.aProp);
+		}
+
+		z();
+	}
+}
+
+obj.demonstrate();
