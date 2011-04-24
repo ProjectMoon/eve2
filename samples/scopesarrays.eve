@@ -19,13 +19,25 @@ durp.l[2][0].x[0] = 13;
 print(durp.l[2][0].x);
 */
 
-def ctor = () {
+def ctor = (x) {
 	proto X {
-		var q = 5;
+		var q = parent::x;
 	}
 
 	return X;
 }
 
-var q = ctor();
-print(q.q);
+var X = ctor(12);
+print(X.q);
+
+def closure = () {
+	var a = 15;
+	def yarr = () {
+		print(parent::a);
+	}
+
+	return yarr;
+}
+
+var cl = closure();
+cl();

@@ -27,7 +27,7 @@ public class ScopeManager {
 	}
 	
 	public static void pushScope(EveObject eo) {
-		parentScope = (!scopeStack.isEmpty()) ? getCurrentScope() : null; 
+		parentScope = (!scopeStack.isEmpty()) ? getCurrentScope() : globalScope; 
 		scopeStack.push(eo);
 	}
 	
@@ -54,6 +54,14 @@ public class ScopeManager {
 			String scope = split[0];
 			if (scope.equals("global")) {
 				pushScope(getGlobalScope());
+				jumpedScope = true;
+				return split[1];
+			}
+			else if (scope.equals("parent")) {
+				if (parentScope == globalScope) {
+					throw new EveError("global scope must be referenced with global::, not parent::");
+				}
+				pushScope(parentScope);
 				jumpedScope = true;
 				return split[1];
 			}
