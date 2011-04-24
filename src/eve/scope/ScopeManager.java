@@ -211,7 +211,7 @@ public class ScopeManager {
 	
 	private static EveObject getParentByIndex(EveObject obj, List<Integer> indices) {
 		for (int c = 0; c < indices.size() - 1; c++) {
-			obj = obj.getIndexedProperty(c);
+			obj = obj.getIndexedProperty(indices.get(c));
 		}
 		
 		return obj;
@@ -232,12 +232,21 @@ public class ScopeManager {
 			}
 
 			//resolve down to the object to the property before the one we want.
+			Integer index = null; //only used if we find out that we need to assign an indexed prop.
 			for (int c = 1; c < split.length; c++) {
 				name = split[c];
+				index = null;
 				
 				//do this instead of looping to length - 1
 				//so name can be assigned at least once.
 				if (c == split.length - 1) {
+					//might have an index access on our hands...
+					List<Integer> indices = indexOperatorAnalysis(name);
+					if (indices != null) {
+						obj = obj.getField(stripIndices(name));
+						obj = getParentByIndex(obj, indices);
+						index = indices.get(indices.size() - 1);
+					}
 					break;
 				}
 
@@ -245,6 +254,7 @@ public class ScopeManager {
 				if (indices != null) {
 					obj = obj.getField(stripIndices(name));
 					obj = getByIndex(obj, indices);
+					index = indices.get(indices.size() - 1);
 				}
 				else {
 					obj = obj.getField(name);
@@ -263,7 +273,12 @@ public class ScopeManager {
 				throw new EveError(resolvedObj + " is undefined in current scope");
 			}
 			
-			obj.putField(name, eo);
+			if (index != null) {
+				obj.setIndexedProperty(index, eo);
+			}
+			else {
+				obj.putField(name, eo);
+			}
 		}
 		else {
 			//simple non-property assignment.

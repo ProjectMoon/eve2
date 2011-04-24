@@ -9,7 +9,9 @@ var x = clone X;
 x.g();
 print(durp.q);
 
-var l = [];
-l[0] = 1;
-l[2] = 2;
-print(l);
+durp.l = [];
+durp.l[0] = 1;
+durp.l[2] = [];
+durp.l[2][0] = 10;
+durp.l[2][0].x = 11;
+print(durp.l[2][0].x);
