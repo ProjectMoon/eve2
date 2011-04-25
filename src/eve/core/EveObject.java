@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import eve.core.EveParser.returnStatement_return;
 import eve.core.builtins.EveBoolean;
@@ -39,6 +40,7 @@ public class EveObject {
 	
 	//internal object settings and state.
 	private boolean cloneable = true;
+	private boolean isMarkedForClone = false; //set to true by eveClone and used to detect modifications.
 	
 	//object family support.
 	private EveObject cloneParent;
@@ -70,6 +72,11 @@ public class EveObject {
 			this.setType(source.getType());
 		}
 		
+		//mark all fields as cloned recursively, so that we will know to clone them later
+		//when modifications come in
+		this.markFieldsForClone();
+		this.isMarkedForClone = false;
+		
 		this.setTypeName(source.getTypeName());
 		this.cloneable = source.cloneable;
 		this.intValue = source.intValue;
@@ -77,7 +84,7 @@ public class EveObject {
 		this.stringValue = source.stringValue;
 		this.doubleValue = source.doubleValue;
 		this.booleanValue = source.booleanValue;
-		
+		this.listValues = (source.listValues != null) ? new HashMap<Integer, EveObject>(source.listValues) : null;		
 		
 		HookManager.callCloneHooks(this);
 		
@@ -336,6 +343,9 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
+		if (this.isMarkedForClone()) {
+			
+		}
 		this.fields.put(name, eo);
 	}
 	
@@ -394,6 +404,14 @@ public class EveObject {
 		return "unknown type";
 	}
 	
+	public void setMarkedForClone(boolean markedForClone) {
+		this.isMarkedForClone = markedForClone;
+	}
+
+	public boolean isMarkedForClone() {
+		return isMarkedForClone;
+	}
+
 	public String toString() {
 		//Utilize custom toString() if present.
 		if (hasField("toString")) {
@@ -498,6 +516,15 @@ public class EveObject {
 	 */
 	public EveObject eveClone() {
 		return new EveObject(this);
+	}
+	
+	private void markFieldsForClone() {
+		Set<Map.Entry<String, EveObject>> entries = this.fields.entrySet();
+		
+		for (Map.Entry<String, EveObject> entry : entries) {
+			entry.getValue().setMarkedForClone(true);
+			entry.getValue().markFieldsForClone();
+		}
 	}
 		
 	@Override

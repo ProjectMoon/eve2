@@ -233,12 +233,18 @@ public class ScopeManager {
 	
 	/**
 	 * Removes [index]s from the given identifier. The name is assumed to be
-	 * in the correct format.
+	 * in the correct format. If there are no index accessors, it just returns
+	 * the name that was passed in.
 	 * @param name
 	 * @return The name without any index properties.
 	 */
 	private static String stripIndices(String name) {
-		return name.substring(0, name.indexOf("["));
+		if (name.contains("[")) {
+			return name.substring(0, name.indexOf("["));
+		}
+		else {
+			return name;
+		}
 	}
 	
 	private static EveObject getByIndex(EveObject obj, List<Integer> indices) {
@@ -258,6 +264,7 @@ public class ScopeManager {
 	}
 	
 	public static void putVariable(String name, EveObject eo) {
+		String fullName = name;
 		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 		
@@ -313,6 +320,30 @@ public class ScopeManager {
 				throw new EveError(resolvedObj + " is undefined in current scope");
 			}
 			
+			//create a clone if we need to. 
+			if (obj.isMarkedForClone()) {
+				EveObject parent = null;
+				if (resolvedObj.contains(".")) {
+					parent = getParentVariable(resolvedObj);
+				}
+				else {
+					parent = getVariable(resolvedObj);
+				}
+				String[] propSplit = resolvedObj.split("\\.");
+				String prop = "";
+				
+				if (propSplit.length > 1) {
+					prop = stripIndices(propSplit[propSplit.length - 1]);
+				}
+				else {
+					prop = stripIndices(name);
+				}
+				
+				obj = obj.eveClone();
+				parent.putField(prop, obj);
+			}
+			
+			//indexed property assignment vs regular property assignment.
 			if (index != null) {
 				obj.setIndexedProperty(index, eo);
 			}
