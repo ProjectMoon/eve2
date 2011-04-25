@@ -3,8 +3,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CharStream;
@@ -26,10 +24,6 @@ import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveList;
 import eve.core.builtins.EveString;
-import eve.eni.EveNativeFunction;
-import eve.eni.NativeCode;
-import eve.hooks.EveHook;
-import eve.hooks.HookManager;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
@@ -47,55 +41,7 @@ public class EveCore {
 		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
 		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
 		
-		eni(global);
 		return global;
-	}
-	
-	private void eni(EveObject global) {
-		final NativeCode nc = new NativeCode() {
-			@Override
-			public EveObject execute() {
-				EveObject cname = ScopeManager.getVariable("cname");
-				String className = cname.getStringValue();
-				
-				try {
-					Class cl = Class.forName(className);
-					Constructor ctor = cl.getConstructor(int.class);
-					Object o = ctor.newInstance(1);
-					EveObject eo = EveObject.javaType(o);
-					return eo;
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return null;
-			}		
-		};
-		
-		EveNativeFunction nfunc = new EveNativeFunction(nc);
-		nfunc.addParameter("cname");
-		EveObject nfuncObject = new EveObject(nfunc);
-		
-		global.putField("java", nfuncObject);
-		
 	}
 	
 	/**

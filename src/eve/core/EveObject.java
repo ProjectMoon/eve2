@@ -401,7 +401,30 @@ public class EveObject {
 				return this.typeName;
 		}
 		
-		return "unknown type";
+		throw new EveError("unrecognized type " + getType() + " for getTypeName()");
+	}
+	
+	public Class<?> getTypeClass() {
+		switch (getType()) {
+		case INTEGER:
+			return int.class;
+		case STRING:
+			return String.class;
+		case BOOLEAN:
+			return boolean.class;
+		case DOUBLE:
+			return double.class;
+		case LIST:
+			return List.class;
+		case CUSTOM:
+			return EveObject.class;
+		case FUNCTION:
+			return Function.class;
+		case JAVA:
+			return this.getObjectValue().getClass();
+		}
+		
+		throw new EveError("unrecognized type " + getType() + " for getTypeClass()");
 	}
 	
 	public void setMarkedForClone(boolean markedForClone) {
