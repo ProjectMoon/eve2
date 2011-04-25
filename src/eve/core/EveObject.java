@@ -12,6 +12,7 @@ import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
 import eve.core.builtins.EveString;
 import eve.hooks.HookManager;
@@ -156,7 +157,7 @@ public class EveObject {
 	}
 	
 	public static EveObject javaType(Object o) {
-		EveObject eo = new EveObject();
+		EveObject eo = new EveObject(EveJava.getPrototype());
 		eo.setType(EveType.JAVA);
 		eo.setTypeName(o.getClass().getName());
 		eo.setObjectValue(o);
@@ -278,6 +279,35 @@ public class EveObject {
 
 	public Object getObjectValue() {
 		return objectValue;
+	}
+	
+	/**
+	 * Returns the internal value of this object based on its type.
+	 * @return
+	 */
+	public Object getJavaValue() {
+		switch (getType()) {
+		case INTEGER:
+			return this.getIntValue();
+		case DOUBLE:
+			return this.getDoubleValue();
+		case BOOLEAN:
+			return this.getBooleanValue();
+		case STRING:
+			return this.getStringValue();
+		case FUNCTION:
+			return this.getFunctionValue();
+		case LIST:
+			return this.getListValue();
+		case CUSTOM:
+			return this;
+		case PROTOTYPE:
+			return this;
+		case JAVA:
+			return this.getObjectValue();
+		}
+	
+		throw new EveError("unrecognized type " + getType() + " for getJavaValue()");		
 	}
 
 	/**

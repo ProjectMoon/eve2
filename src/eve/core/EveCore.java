@@ -22,8 +22,10 @@ import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
 import eve.core.builtins.EveString;
+import eve.eni.NativeHelper;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
@@ -40,6 +42,7 @@ public class EveCore {
 		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
 		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
 		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
+		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
 		
 		return global;
 	}

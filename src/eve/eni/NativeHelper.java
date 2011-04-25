@@ -12,6 +12,10 @@ import eve.core.Function;
 import eve.scope.ScopeManager;
 
 public class NativeHelper {
+	public static Constructor<?> findConstructor(Class<?> cl, List<EveObject> params) {
+		return findConstructor(cl, params.toArray(new EveObject[0]));
+	}
+	
 	public static Constructor<?> findConstructor(Class<?> cl, EveObject ... params) {
 		List<Class<?>> clParams = new ArrayList<Class<?>>(params.length);
 		
@@ -31,16 +35,27 @@ public class NativeHelper {
 		throw new EveError("could not find constructor for " + cl.getName() + " matching " + params);
 	}
 	
+	private static Object[] mapToJava(List<EveObject> ctorArgs) {
+		Object[] args = new Object[ctorArgs.size()];
+		
+		for (int c = 0; c < args.length; c++) {
+			args[c] = ctorArgs.get(c).getJavaValue();
+		}
+		
+		return args;
+	}
+	
 	public static EveObject javaFunction() {
 		final NativeCode nc = new NativeCode() {
 			@Override
 			public EveObject execute() {
 				EveObject cname = ScopeManager.getVariable("cname");
 				String className = cname.getStringValue();
-				
+				EveObject ctorArgs = ScopeManager.getVariable("ctorArgs");
+							
 				try {
-					Constructor<?> ctor = findConstructor(Class.forName(className), null);
-					Object o = ctor.newInstance(1);
+					Constructor<?> ctor = findConstructor(Class.forName(className), ctorArgs.getListValue());
+					Object o = ctor.newInstance(mapToJava(ctorArgs.getListValue()));
 					EveObject eo = EveObject.javaType(o);
 					return eo;
 				} catch (ClassNotFoundException e) {
@@ -68,6 +83,9 @@ public class NativeHelper {
 		
 		EveNativeFunction nfunc = new EveNativeFunction(nc);
 		nfunc.addParameter("cname");
+		nfunc.addParameter("ctorArgs");
+		nfunc.setVarargs(true);
+		nfunc.setVarargsIndex(1); //ctorArgs ...
 		return new EveObject(nfunc);
 	}
 }
