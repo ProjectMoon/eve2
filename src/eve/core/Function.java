@@ -22,7 +22,9 @@ public class Function {
 	private String name;
 	private List<String> parameters = new ArrayList<String>();
 	private Deque<EveObject> closureStack;
-
+	private boolean isVarargs;
+	private int varargsIndex;
+	
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
 	}
@@ -154,7 +156,23 @@ public class Function {
 		this.closureStack = closureStack;
 	}
 
+	public void setVarargs(boolean isVarargs) {
+		this.isVarargs = isVarargs;
+	}
+
+	public boolean isVarargs() {
+		return isVarargs;
+	}
+
 	public Deque<EveObject> getClosureStack() {
 		return closureStack;
+	}
+
+	public void setVarargsIndex(int varargsIndex) {
+		this.varargsIndex = varargsIndex;
+	}
+	
+	public int getVarargsIndex() {
+		return this.varargsIndex;
 	}
 }

@@ -494,8 +494,14 @@ public class EveObject {
 		
 		//make sure parameter lengths match up.
 		if (actualParameters != null) {
-			if (actualParameters.size() != func.getParameters().size()) {
+			if (!func.isVarargs() && actualParameters.size() != func.getParameters().size()) {
 				throw new EveError(this + " expects " + func.getParameters().size() + " arguments. " + actualParameters.size() + " were passed."); 
+			}
+			else {
+				//var-args validation: need AT LEAST the right amount of params.
+				if (!func.isVarargs() && actualParameters.size() < func.getParameters().size()) {
+					throw new EveError(this + " expects " + func.getParameters().size() + " arguments. " + actualParameters.size() + " were passed."); 
+				}
 			}
 		}
 		else {
@@ -507,11 +513,30 @@ public class EveObject {
 		//Copy function parameters as temp fields.
 		if (actualParameters != null) {
 			for (int c = 0; c < actualParameters.size(); c++) {
-				if (func.isClosure()) {
-					this.putField(func.getParameters().get(c), actualParameters.get(c));
+				if (func.isVarargs() && c == func.getVarargsIndex()) {
+					//everything from here on out is a list of var-args.
+					EveObject varargs = new EveObject(new ArrayList<EveObject>(0));
+					for (int v = c; v < actualParameters.size(); v++) {
+						varargs.setIndexedProperty(v - c, actualParameters.get(v));
+					}
+					
+					if (func.isClosure()) {
+						this.putField(func.getParameters().get(c), varargs);
+					}
+					else {
+						this.putTempField(func.getParameters().get(c), varargs);
+					}
+					
+					break;
 				}
 				else {
-					this.putTempField(func.getParameters().get(c), actualParameters.get(c));
+					//normal parameter handling
+					if (func.isClosure()) {
+						this.putField(func.getParameters().get(c), actualParameters.get(c));
+					}
+					else {
+						this.putTempField(func.getParameters().get(c), actualParameters.get(c));
+					}
 				}
 			}
 		}
