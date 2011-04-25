@@ -21,8 +21,20 @@ public class MultiplicationExpression extends ExpressionStatement implements Eve
 		
 		if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.INTEGER) {
 			//int * int = int math
-			int res = op1.getIntValue() * op2.getIntValue();
+			Integer res = op1.getIntValue() * op2.getIntValue();
 			result.setIntValue(res);
+		}
+		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.DOUBLE) {
+			Double res = op1.getDoubleValue() * op2.getDoubleValue();
+			result.setDoubleValue(res);
+		}
+		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.INTEGER) {
+			Double res = op1.getDoubleValue() * op2.getIntValue();
+			result.setDoubleValue(res);
+		}
+		else if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.DOUBLE) {
+			Double res = op1.getIntValue() * op2.getDoubleValue();
+			result.setDoubleValue(res);
 		}
 		else {
 			//anything else = error
@@ -32,4 +44,8 @@ public class MultiplicationExpression extends ExpressionStatement implements Eve
 		return result;
 	}
 
+	@Override
+	public boolean referencesClosure() {
+		return exp1.referencesClosure() || exp2.referencesClosure();
+	}
 }

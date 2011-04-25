@@ -1,9 +1,9 @@
 grammar Eve;
 
 options {
-  language = Java;
-  output = AST;
-  ASTLabelType = CommonTree;
+	language = Java;
+	output = AST;
+	ASTLabelType = CommonTree;
 }
 
 tokens {
@@ -11,12 +11,17 @@ tokens {
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
 	INIT_FUNCTION;
+	UPDATE_FUNCTION;
+	FUNCTION_NAME;
 	FUNCTION_PARAMETERS;
 	FUNCTION_BODY;
 	INVOKE_FUNCTION_STMT;
 	INVOKE_FUNCTION_EXPR;
 	INIT_PROTO;
 	CLONE_PROTO;
+	IF_STATEMENT;
+	ELSE_IF;
+	ELSE;
 }
 
 @header {
@@ -29,6 +34,23 @@ tokens {
 	import java.util.ArrayList;
 }
 
+@members {
+    private List<String> errors = new ArrayList<String>();
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+        String hdr = getErrorHeader(e);
+        String msg = getErrorMessage(e, tokenNames);
+        errors.add(hdr + " " + msg);
+    }
+    
+    public List<String> getErrors() {
+        return errors;
+    }
+    
+    public boolean hasErrors() {
+    	return errors.size() > 0;
+    }
+}
+
 //Statements
 program
 	:	statement*
@@ -37,7 +59,6 @@ program
 // Statements
 statement
 	:	codeStatement
-	|	protoStatement
 	;
 	
 codeStatement //Statements that can appear pretty much anywhere.
@@ -46,6 +67,8 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	assignmentStatement
 	|	initVariableStatement
 	|	functionInvocationStatement
+	|	ifStatement
+	|	protoStatement
 	;
 	
 returnStatement
@@ -58,27 +81,16 @@ printStatement
 	
 assignmentStatement
 	:	IDENT '=' expression ';' -> ^(UPDATE_VARIABLE IDENT expression)
-	|	initFunction IDENT '='^ function ';'?
-	;
-
-initFunction
-	:	'def' -> INIT_FUNCTION
+	|	prop=IDENT '=' name=IDENT? function ';'? -> ^(UPDATE_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 	
 initVariableStatement
-	:	initVariable^ IDENT '='! expression ';'!
+	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
+	|	'def' prop=IDENT '=' name=IDENT? function ';'? -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 
-initVariable
-	:	'var' -> INIT_VARIABLE
-	;
-	
 protoStatement
-	: 'proto' IDENT '{' protoBlock '}' ';'? -> ^(INIT_PROTO IDENT protoBlock)
-	;
-	
-protoBlock
-	:	codeStatement*
+	: 'proto' IDENT '{' codeStatement* '}' ';'? -> ^(INIT_PROTO IDENT codeStatement*)
 	;
 	
 functionInvocationStatement
@@ -96,38 +108,24 @@ functionInvocationParameters
 	:	expression (',' expression)* -> (expression)* //apparently this somehow rewrites the entire thing to "p1 p2 p3 ..."
 	;
 	
-/*function 
-	:	parameters*
-		functionBody
-	;*/
-	
 function
-	:	'(' p=(IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
-	;
-	
-functionBody
-	:	functionBodyToken^ codeStatement* '}'!
-	;
-
-functionBodyToken
-	:	'{' -> FUNCTION_BODY
+	:	'(' (IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
 	;
 	
 parameters
-	:	parametersStartToken^ parameter (','! parameter)* ')'!
+	:	'(' IDENT (',' IDENT)* ')' -> ^(FUNCTION_PARAMETERS IDENT*)
 	;
 	
-parametersStartToken
-	:	'(' -> FUNCTION_PARAMETERS
-	;
-
-parameter
-	:	IDENT
-	;
-
 functionInvocationExpression
 	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
 	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
+	;
+
+//If statements
+ifStatement
+	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
+	|	'else' 'if' '(' expression ')' '{' codeStatement* '}' -> ^(ELSE_IF expression codeStatement*)
+	|	'else' '{' codeStatement* '}' -> ^(ELSE codeStatement*)
 	;
 
 //Expressions
@@ -135,20 +133,22 @@ term
 	:	IDENT
 	|	'('! expression ')'!
 	|	INTEGER
+	|	DOUBLE
+	|	BOOLEAN
 	|	STRING_LITERAL
+	|	LIST_LITERAL
 	|	functionInvocationExpression
 	|	cloneExpression
 	;
 	
 boolNegation
-	:	'not'* term
+	:	'!'* term
 	;
 	
 unary
 	:	('+'! | negation^)* boolNegation
 	;
-	
-	
+		
 negation
 	:	'-' -> NEGATION
 	;
@@ -162,11 +162,11 @@ add
 	;
 
 relation
-	:	add (('='^ | '/='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
+	:	add (('=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
 	;
 	
 expression
-	:	relation (('and' | 'or') relation)*
+	:	relation (('&&'^ | '||'^) relation)*
 	;
 	
 // Tokens
@@ -182,14 +182,18 @@ STRING_LITERAL
 		{ setText(b.toString()); }
 	;
 	
-CHAR_LITERAL
-	:	'\'' . '\'' {setText(getText().substring(1,2));}
-	;
+LIST_LITERAL
+	:	'[' ']' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
 fragment DOT : '.' ;
+fragment ARRAY_ACCESS : '[' DIGIT+ ']' ;
+fragment SCOPE_OP : ':' ':' ;
 INTEGER : DIGIT+ ;
-IDENT : LETTER (DOT | LETTER | DIGIT)*;
+DOUBLE : DIGIT+ '.' DIGIT+ ;
+BOOLEAN : 'true' | 'false' ;
+IDENT : LETTER (SCOPE_OP | DOT | ARRAY_ACCESS | LETTER | DIGIT)*;
+
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};

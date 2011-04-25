@@ -26,16 +26,18 @@
 		</sequential>
 	</macrodef>
 	
+	<!-- resolve all dependencies via Ivy -->
     <target name="dependencies" description="--> retrieve dependencies with ivy">
         <ivy:retrieve />
     </target>
 	
-	<target name="init" depends="dependencies">
+	<!-- initial build setup -->
+	<target name="init" depends="dependencies" description="--> build setup">
 		<tstamp />
 		<mkdir dir="${build}" />
 	</target>
 
-	<target name="antlr" depends="init">
+	<target name="antlr" depends="init" description="--> antlr code generation">
 		<mkdir dir="${antlr-generated}" />
 		<property name="dest" location="${antlr-generated}/eve/core/"/>
 		<property name="grammar" location="${src}/eve/core/Eve.g" />
@@ -46,7 +48,8 @@
 		<antlr3 grammar="${ast}" output="${dest}" />		
 	</target>
 	
-	<target name="compile" depends="antlr">
+	<!-- compile code -->
+	<target name="compile" depends="antlr" description="--> build eve">
 		<mkdir dir="${build}" />
 		<javac srcdir="${src};${antlr-generated}" destdir="${build}" deprecation="Yes" includeantruntime="false">
 			<classpath>
@@ -55,15 +58,21 @@
 		</javac>
 	</target>
 	
-	<target name="jar" depends="compile">
+	<!-- build executable jar file -->
+	<target name="jar" depends="compile" description="--> create executable jar">
+		<!-- library definitions -->
 		<property name="antlr" location="${lib}/antlr-runtime-3.3.jar" />
+		<property name="commons-cli" location="${lib}/commons-cli-1.2.jar" />
 		
+		<!-- copy runtime dependencies to dist/lib -->
 		<copy file="${antlr}" todir="${dist}/lib" />
+		<copy file="${commons-cli}" todir="${dist}/lib" />
 		
 		<manifestclasspath property="manifest_cp" jarfile="${dist}/eve.jar">
 			<classpath>
 				<fileset dir="${dist}/lib">
 					<include name="**/antlr-runtime-3.3.jar" />
+					<include name="**/commons-cli-1.2.jar" />
 				</fileset>
 			</classpath>
 		</manifestclasspath>
@@ -78,7 +87,7 @@
 		<chmod perm="+x" file="${dist}/eve.jar" />
 	</target>
 	
-	<target name="clean">
+	<target name="clean" description="--> clean Up">
 		<delete dir="${dist}" />
 		<delete dir="${build}" />
 		<delete dir="${antlr-generated}" />

@@ -3,7 +3,6 @@ package eve.statements.expressions;
 import java.util.ArrayList;
 import java.util.List;
 
-import eve.core.EveFunction;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
@@ -69,6 +68,11 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 		}
 		res += ")";
 		return res;
+	}
+	
+	@Override
+	public boolean referencesClosure() {
+		return super.analyzeForClosure(identifier);
 	}
 
 }
