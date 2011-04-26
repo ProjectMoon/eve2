@@ -22,7 +22,9 @@ public class Function {
 	private String name;
 	private List<String> parameters = new ArrayList<String>();
 	private Deque<EveObject> closureStack;
-
+	private boolean isVarargs;
+	private int varargsIndex;
+	
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
 	}
@@ -56,7 +58,17 @@ public class Function {
 	}
 	
 	public void addParameter(String param) {
+		if (this.isVarargs) {
+			throw new EveError("cannot add more parameters to a var-args function");
+		}
+		
 		parameters.add(param);
+	}
+	
+	public void addVarargsParameter(String param) {
+		parameters.add(param);
+		this.setVarargs(true);
+		this.setVarargsIndex(parameters.size() - 1);
 	}
 	
 	/**
@@ -82,6 +94,10 @@ public class Function {
 			}
 			
 			res = res.substring(0, res.length() - 2);
+			
+			if (isVarargs) {
+				res += " ...";
+			}
 		}
 		res += ")]";
 		return res;
@@ -154,7 +170,23 @@ public class Function {
 		this.closureStack = closureStack;
 	}
 
+	public void setVarargs(boolean isVarargs) {
+		this.isVarargs = isVarargs;
+	}
+
+	public boolean isVarargs() {
+		return isVarargs;
+	}
+
 	public Deque<EveObject> getClosureStack() {
 		return closureStack;
+	}
+
+	public void setVarargsIndex(int varargsIndex) {
+		this.varargsIndex = varargsIndex;
+	}
+	
+	public int getVarargsIndex() {
+		return this.varargsIndex;
 	}
 }

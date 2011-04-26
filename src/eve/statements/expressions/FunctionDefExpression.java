@@ -17,6 +17,8 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	private List<String> parameters = new ArrayList<String>();
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	private boolean isClosureDef = false;
+	private boolean isVarargs = false;
+	private int varargsIndex;
 	
 	public FunctionDefExpression() {}
 	
@@ -58,12 +60,33 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		return name;
 	}
 
+	public void setVarargs(boolean isVarargs) {
+		this.isVarargs = isVarargs;
+	}
+
+	public boolean isVarargs() {
+		return isVarargs;
+	}
+
+	public void setVarargsIndex(int varargsIndex) {
+		this.varargsIndex = varargsIndex;
+	}
+
+	public int getVarargsIndex() {
+		return varargsIndex;
+	}
+
 	@Override
 	public EveObject execute() {
 		Function func = new Function();
 		func.setName(name);
 		func.addStatements(getStatements());
 		func.setParameters(this.parameters);
+		
+		if (isVarargs) {
+			func.setVarargs(true);
+			func.setVarargsIndex(varargsIndex);
+		}
 		
 		if (isClosureDef) {
 			func.setClosureStack(ScopeManager.createClosureStack());

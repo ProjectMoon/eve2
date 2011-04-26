@@ -12,13 +12,15 @@ import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
+import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
 public class EveObject {
-	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST };
+	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, JAVA };
 	
 	//the type of this object.
 	private EveType type;
@@ -29,6 +31,7 @@ public class EveObject {
 	private Double doubleValue;
 	private Boolean booleanValue;
 	private Function functionValue;
+	private Object javaValue;
 	private Map<Integer, EveObject> listValues;
 	
 	private String typeName;
@@ -53,7 +56,7 @@ public class EveObject {
 	 * Copy constructor. Used for cloning.
 	 * @param source The object to clone.
 	 */
-	private EveObject(EveObject source) {
+	public EveObject(EveObject source) {
 		if (!source.isCloneable()) {
 			throw new EveError("attempting to clone uncloneable prototype");
 		}
@@ -153,30 +156,29 @@ public class EveObject {
 		this();
 		setListValue(l);
 	}
+	
+	public static EveObject javaType(Object o) {
+		EveObject eo = new EveObject(EveJava.getPrototype());
+		eo.setType(EveType.JAVA);
+		eo.setTypeName(o.getClass().getName());
+		eo.setObjectValue(o);
+		return eo;
+	}
 		
 	public static EveObject customType(String typeName) {
-		EveObject eo = new EveObject();
+		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName(typeName);
 		return eo;
 	}
 	
 	public static EveObject prototypeType(String typeName) {
-		EveObject eo = new EveObject();
+		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
 		eo.setType(EveType.PROTOTYPE);
 		eo.setTypeName(typeName);
 		return eo;
 	}
-	
-	public static EveObject globalType() {
-		EveObject eo = new EveObject();
-		eo.setType(EveType.CUSTOM);
-		eo.setTypeName("global");
-		eo = eo.eveClone(); //even global is cloned once.
-		eo.cloneable = false;
-		return eo;
-	}
-	
+		
 	public boolean isCloneable() {
 		return cloneable;
 	}
@@ -263,6 +265,43 @@ public class EveObject {
 		return results;
 	}
 	
+	public void setObjectValue(Object objectValue) {
+		this.javaValue = objectValue;
+	}
+
+	public Object getJavaValue() {
+		return javaValue;
+	}
+	
+	/**
+	 * Returns the value of this object based on its type.
+	 * @return
+	 */
+	public Object getObjectValue() {
+		switch (getType()) {
+		case INTEGER:
+			return this.getIntValue();
+		case DOUBLE:
+			return this.getDoubleValue();
+		case BOOLEAN:
+			return this.getBooleanValue();
+		case STRING:
+			return this.getStringValue();
+		case FUNCTION:
+			return this.getFunctionValue();
+		case LIST:
+			return this.getListValue();
+		case CUSTOM:
+			return this;
+		case PROTOTYPE:
+			return this;
+		case JAVA:
+			return this.getJavaValue();
+		}
+	
+		throw new EveError("unrecognized type " + getType() + " for getObjectValue()");		
+	}
+
 	/**
 	 * Gets an indexed property. Only works on strings and lists. For
 	 * strings, it returns the character at the specified index. For
@@ -380,9 +419,34 @@ public class EveObject {
 				return this.typeName;
 			case PROTOTYPE:
 				return this.typeName;
+			case JAVA:
+				return this.typeName;
 		}
 		
-		return "unknown type";
+		throw new EveError("unrecognized type " + getType() + " for getTypeName()");
+	}
+	
+	public Class<?> getTypeClass() {
+		switch (getType()) {
+		case INTEGER:
+			return int.class;
+		case STRING:
+			return String.class;
+		case BOOLEAN:
+			return boolean.class;
+		case DOUBLE:
+			return double.class;
+		case LIST:
+			return List.class;
+		case CUSTOM:
+			return EveObject.class;
+		case FUNCTION:
+			return Function.class;
+		case JAVA:
+			return this.getJavaValue().getClass();
+		}
+		
+		throw new EveError("unrecognized type " + getType() + " for getTypeClass()");
 	}
 	
 	public void setMarkedForClone(boolean markedForClone) {
@@ -401,7 +465,14 @@ public class EveObject {
 				toString.putTempField("self", this);
 				EveObject res = toString.invoke();
 				if (res != null) {
-					return res.toString();
+					//prevents an infinite recursion of toString() calls
+					//because of the way NativeHelper.mapJavaMethods works.
+					if (res.getType() != EveType.JAVA) {
+						return res.toString();
+					}
+					else {
+						return res.getJavaValue().toString();
+					}
 				}
 			}
 		}
@@ -424,6 +495,8 @@ public class EveObject {
 				return "[custom " + this.getTypeName() + "]";
 			case PROTOTYPE:
 				return "[prototype " + this.getTypeName() + "]";
+			case JAVA:
+				return this.getJavaValue().toString();
 		}
 		
 		return "[unknown]";
@@ -450,8 +523,14 @@ public class EveObject {
 		
 		//make sure parameter lengths match up.
 		if (actualParameters != null) {
-			if (actualParameters.size() != func.getParameters().size()) {
+			if (!func.isVarargs() && actualParameters.size() != func.getParameters().size()) {
 				throw new EveError(this + " expects " + func.getParameters().size() + " arguments. " + actualParameters.size() + " were passed."); 
+			}
+			else {
+				//var-args validation: need AT LEAST the right amount of params.
+				if (!func.isVarargs() && actualParameters.size() < func.getParameters().size()) {
+					throw new EveError(this + " expects " + func.getParameters().size() + " arguments. " + actualParameters.size() + " were passed."); 
+				}
 			}
 		}
 		else {
@@ -463,11 +542,30 @@ public class EveObject {
 		//Copy function parameters as temp fields.
 		if (actualParameters != null) {
 			for (int c = 0; c < actualParameters.size(); c++) {
-				if (func.isClosure()) {
-					this.putField(func.getParameters().get(c), actualParameters.get(c));
+				if (func.isVarargs() && c == func.getVarargsIndex()) {
+					//everything from here on out is a list of var-args.
+					EveObject varargs = new EveObject(new ArrayList<EveObject>(0));
+					for (int v = c; v < actualParameters.size(); v++) {
+						varargs.setIndexedProperty(v - c, actualParameters.get(v));
+					}
+					
+					if (func.isClosure()) {
+						this.putField(func.getParameters().get(c), varargs);
+					}
+					else {
+						this.putTempField(func.getParameters().get(c), varargs);
+					}
+					
+					break;
 				}
 				else {
-					this.putTempField(func.getParameters().get(c), actualParameters.get(c));
+					//normal parameter handling
+					if (func.isClosure()) {
+						this.putField(func.getParameters().get(c), actualParameters.get(c));
+					}
+					else {
+						this.putTempField(func.getParameters().get(c), actualParameters.get(c));
+					}
 				}
 			}
 		}

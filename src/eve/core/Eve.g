@@ -109,7 +109,7 @@ functionInvocationParameters
 	;
 	
 function
-	:	'(' (IDENT (',' IDENT)*)* ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT*) ^(FUNCTION_BODY codeStatement*)
+	:	'(' (IDENT (',' IDENT)*)* '...'? ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT* '...'?) ^(FUNCTION_BODY codeStatement*)
 	;
 	
 parameters

@@ -21,13 +21,13 @@ import eve.core.EveParser.program_return;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
+import eve.core.builtins.EveGlobal;
 import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
+import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
-import eve.eni.EveNativeFunction;
-import eve.eni.NativeCode;
-import eve.hooks.EveHook;
-import eve.hooks.HookManager;
+import eve.eni.NativeHelper;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
@@ -35,39 +35,19 @@ public class EveCore {
 	private boolean printSyntaxTree;
 
 	private EveObject initialize() {
-		EveObject global = EveObject.globalType();
+		EveObject global = EveGlobal.getPrototype();
 		
 		//add the built-in prototypes to the global scope.
+		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
 		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
 		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
 		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
 		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
 		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
 		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
+		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
 		
 		return global;
-	}
-	
-	private void eni() {
-		final NativeCode nc = new NativeCode() {
-			@Override
-			public EveObject execute() {
-				System.out.println("nativity!");
-				return null;
-			}		
-		};
-		
-		final EveNativeFunction nfunc = new EveNativeFunction(nc);
-		final EveObject nfuncObject = new EveObject(nfunc);
-		
-		EveHook hook = new EveHook() {
-			@Override
-			public void instrument(EveObject eo) {
-				eo.putField("nativeTest", nfuncObject);
-			}	
-		};
-		
-		HookManager.registerCloneHook(hook);
 	}
 	
 	/**
@@ -80,6 +60,7 @@ public class EveCore {
 		opts.addOption("d", false, "debug mode");
 		opts.addOption("t", false, "print syntax tree");
 		opts.addOption("h", false, "print help");
+		opts.addOption("i", true, "register instrumentation hook");
 		
 		CommandLineParser parser = new GnuParser();
 		
@@ -126,7 +107,6 @@ public class EveCore {
 		InputStream input = new FileInputStream(file);
 		CharStream stream = new ANTLRInputStream(input);
 		
-		eni();
 		ScopeManager.setGlobalScope(initialize());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 	

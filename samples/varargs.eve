@@ -1,0 +1,11 @@
+/*
+varargs.eve
+Variable Arguments demonstration.
+*/
+
+def x = (args ...) {
+	print(args[0]);
+	print(args[1]);
+}
+
+x(1, 2);
