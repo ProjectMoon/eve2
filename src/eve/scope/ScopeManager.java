@@ -100,6 +100,7 @@ public class ScopeManager {
 	}
 	
 	private static EveObject getObject(String name) {
+		/*
 		if (!usingClosureScope) {
 			return getCurrentScope().getField(name);
 		}
@@ -114,6 +115,32 @@ public class ScopeManager {
 			
 			return eo;
 		}
+		*/
+		EveObject eo = null;
+		if (closureScope != null) {
+			for (EveObject closure : closureScope) {
+				eo = closure.getField(name);
+				if (eo != null) {
+					return eo;
+				}
+			}
+		}
+			
+		for (EveObject scope : scopeStack) {
+			if (scope != globalScope) {
+				eo = scope.getField(name);
+				if (eo != null) {
+					return eo;
+				}
+			}
+		}
+		
+		if (getCurrentScope() == getGlobalScope()) {
+			return getGlobalScope().getField(name);
+		}
+		
+		
+		return null;
 	}
 	
 	private static List<Integer> indexOperatorAnalysis(String name) {
@@ -393,7 +420,9 @@ public class ScopeManager {
 		while (desc.hasNext()) {
 			EveObject eo = desc.next();
 			if (eo.getType() == EveType.FUNCTION) {
-				closureStack.push(eo.eveClone());
+				EveObject clone = eo.eveClone();
+				clone.transferTempFields();
+				closureStack.push(clone);
 			}
 		}
 		

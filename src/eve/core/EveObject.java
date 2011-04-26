@@ -65,6 +65,7 @@ public class EveObject {
 		//Later, assignment statements will change the references for us.
 		this.cloneParent = source;
 		this.fields = new HashMap<String, EveObject>(source.fields); //a new map with the same references.
+		this.tempFields = new HashMap<String, EveObject>(source.tempFields); //a new map with the same references.
 		
 		//prototypes can only exist as base objects. any clone is immediately custom.
 		if (source.getType() == EveType.PROTOTYPE) {
@@ -570,18 +571,24 @@ public class EveObject {
 			}
 		}
 		
+		
 		if (func.isClosure()) {
 			ScopeManager.setClosureStack(func.getClosureStack());
 		}
 		
+		
 		//switch to function scope and run.
 		ScopeManager.pushScope(this);
 		EveObject retval = func.execute();
-		ScopeManager.popScope();
 		
-		if (func.isClosure()) {
-			ScopeManager.setClosureStack(null);
+		
+		//do we have a closure?
+		if (retval != null && retval.getType() == EveType.FUNCTION) {
+			Function retfunc = retval.getFunctionValue();
+			retfunc.setClosureStack(ScopeManager.createClosureStack());
 		}
+		
+		ScopeManager.popScope();
 
 		return retval;
 	}
@@ -705,5 +712,13 @@ public class EveObject {
 	
 	private boolean customTypeEquals(EveObject other) {
 		return true;
+	}
+
+	public void transferTempFields() {
+		for (Map.Entry<String, EveObject> entry : this.tempFields.entrySet()) {
+			this.putField(entry.getKey(), entry.getValue());
+		}
+		
+		this.markFieldsForClone();
 	}
 }

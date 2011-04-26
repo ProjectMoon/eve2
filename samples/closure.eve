@@ -6,12 +6,12 @@ to search the closure scope stack for the specified identifier. It will
 return the first identifier it finds, so don't shadow! closure:: only works
 in functions. Anywhere else will throw a closure scope not present error.
 */
-/*
+
 def Animal = (noise) {
 	def anotherFunc = () {
 		proto Animal {
 			def makeNoise = () {
-				print(closure::noise);
+				print(noise);
 			}
 		}
 
@@ -35,7 +35,7 @@ proto obj {
 	def demonstrate = () {
 		var a = "5";
 		def z = () {
-			print(closure::self.aProp);
+			print(self.aProp);
 		}
 
 		z();
@@ -43,16 +43,3 @@ proto obj {
 }
 
 obj.demonstrate();
-*/
-def MyInt = (i) {
-        var MyInt = clone global::int;
-        MyInt.value = i;
-
-	def MyInt.toString = () {
-		return self.value;
-	}
-
-        return MyInt;
-}
-var x = MyInt(5);
-print(x);

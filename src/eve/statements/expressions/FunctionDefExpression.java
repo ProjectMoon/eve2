@@ -85,9 +85,11 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 			func.setVarargsIndex(varargsIndex);
 		}
 		
+		/*
 		if (isClosureDef) {
 			func.setClosureStack(ScopeManager.createClosureStack());
 		}
+		*/
 		
 		EveObject eo = new EveObject(func);
 		return eo;
