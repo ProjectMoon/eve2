@@ -22,6 +22,7 @@ public class EveJava extends EveObject {
 	}
 	
 	private EveJava() {
+		super(EveObjectPrototype.getPrototype());
 		this.setTypeName("java");
 		this.setType(EveType.PROTOTYPE);
 		this.putField("create", javaFunction());
@@ -39,8 +40,6 @@ public class EveJava extends EveObject {
 					Constructor<?> ctor = NativeHelper.findConstructor(Class.forName(className), ctorArgs.getListValue());
 					Object o = ctor.newInstance(NativeHelper.mapToJava(ctorArgs.getListValue()));
 					EveObject eo = EveObject.javaType(o);
-					eo.putField("class", new EveObject(o.getClass().getName()));
-					eo.setTypeName(o.getClass().getName());
 					NativeHelper.mapJavaMethods(eo);
 					return eo;
 				}

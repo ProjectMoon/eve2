@@ -21,9 +21,11 @@ import eve.core.EveParser.program_return;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
+import eve.core.builtins.EveGlobal;
 import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
+import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
 import eve.eni.NativeHelper;
 import eve.scope.ConstructionScope;
@@ -33,9 +35,10 @@ public class EveCore {
 	private boolean printSyntaxTree;
 
 	private EveObject initialize() {
-		EveObject global = EveObject.globalType();
+		EveObject global = EveGlobal.getPrototype();
 		
 		//add the built-in prototypes to the global scope.
+		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
 		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
 		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
 		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());

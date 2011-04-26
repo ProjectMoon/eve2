@@ -14,6 +14,7 @@ import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
+import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
@@ -55,7 +56,7 @@ public class EveObject {
 	 * Copy constructor. Used for cloning.
 	 * @param source The object to clone.
 	 */
-	private EveObject(EveObject source) {
+	public EveObject(EveObject source) {
 		if (!source.isCloneable()) {
 			throw new EveError("attempting to clone uncloneable prototype");
 		}
@@ -165,28 +166,19 @@ public class EveObject {
 	}
 		
 	public static EveObject customType(String typeName) {
-		EveObject eo = new EveObject();
+		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName(typeName);
 		return eo;
 	}
 	
 	public static EveObject prototypeType(String typeName) {
-		EveObject eo = new EveObject();
+		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
 		eo.setType(EveType.PROTOTYPE);
 		eo.setTypeName(typeName);
 		return eo;
 	}
-	
-	public static EveObject globalType() {
-		EveObject eo = new EveObject();
-		eo.setType(EveType.CUSTOM);
-		eo.setTypeName("global");
-		eo = eo.eveClone(); //even global is cloned once.
-		eo.cloneable = false;
-		return eo;
-	}
-	
+		
 	public boolean isCloneable() {
 		return cloneable;
 	}
