@@ -1,7 +1,11 @@
-object.hello = () {
-	print("hello");
+/*
+varargs.eve
+Variable Arguments demonstration.
+*/
+
+def x = (args ...) {
+	print(args[0]);
+	print(args[1]);
 }
 
-object.hello();
-var x = 5;
-x.hello();
+x(1, 2);
