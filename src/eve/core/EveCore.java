@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CharStream;
@@ -96,6 +97,13 @@ public class EveCore {
 		System.exit(0);
 	}
 	
+	private void handleErrors(List<String> errors) {
+		for (String error : errors) {
+			System.err.println(error);
+		}
+		System.exit(1);
+	}
+	
 	private void run(String file) throws RecognitionException, IOException {
 		File inputFile = new File(file);
 		
@@ -110,11 +118,19 @@ public class EveCore {
 		ScopeManager.setGlobalScope(initialize());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 	
-		// ANTLRStringStream("def g = (q) { q.z = 6; print(\"q.z is \" ~ q.z); }; proto X { var y = 5; } var x = clone X; g(x);");
 		EveLexer lexer = new EveLexer(stream);
+		
 		TokenStream tokenStream = new CommonTokenStream(lexer);
 		EveParser parser = new EveParser(tokenStream);
-		program_return main = parser.program();
+		program_return main = null;
+		
+		try {
+			main = parser.program();
+		}
+		catch (EveError e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
 		
 		if (printSyntaxTree) {
 			System.out.println(main.tree.toStringTree());
@@ -122,11 +138,7 @@ public class EveCore {
 		}
 		
 		if (parser.hasErrors()) {
-			for (String error : parser.getErrors()) {
-				System.err.println("error: " + error);
-			}
-			
-			System.exit(1);
+			handleErrors(parser.getErrors());
 		}
 			
 		//global is root construction scope.
@@ -134,6 +146,10 @@ public class EveCore {
 		CommonTreeNodeStream nodeStream = new CommonTreeNodeStream(main.getTree());
 		ASTParser treeParser = new ASTParser(nodeStream);
 		treeParser.downup(main.tree);
+		
+		if (treeParser.hasErrors()) {
+			handleErrors(parser.getErrors());
+		}
 		
 		//we should be back to global scope after construction phase.
 		ConstructionScope cs = ScopeManager.popConstructionScope();

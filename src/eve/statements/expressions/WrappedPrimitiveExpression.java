@@ -54,26 +54,36 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 			throw new EveError("unable to assign wrapped primitive");
 		}
 	}
-	
-	@Override
-	public String toString() {
-		if (intOp != null) {
-			return intOp.toString();
-		}
-		else if (stringOp != null) {
-			return stringOp.toString();
-		}
-		else if (doubleOp != null) {
-			return doubleOp.toString();
-		}
-		else {
-			return "undefined";
-		}
-	}
-	
+		
 	@Override
 	public boolean referencesClosure() {
 		return false;
+	}
+	
+	private Object getOp() {
+		if (intOp != null) {
+			return intOp;
+		}
+		else if (stringOp != null) {
+			return stringOp;
+		}
+		else if (doubleOp != null) {
+			return doubleOp;
+		}
+		else if (booleanOp != null) {
+			return booleanOp;
+		}
+		else if (listOp != null) {
+			return listOp;
+		}
+		else {
+			throw new EveError("unable to find operator");
+		}	
+	}
+	
+	@Override
+	public String toString() {
+		return "WrappedPrimitive(" + getOp().toString() + ")"; 
 	}
 
 }

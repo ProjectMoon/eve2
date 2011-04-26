@@ -64,6 +64,22 @@ options {
 	//If statement management
 	private EveStatement previousStatement;
 	
+	//Error handling
+    private List<String> errors = new ArrayList<String>();
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+        String hdr = getErrorHeader(e);
+        String msg = getErrorMessage(e, tokenNames);
+        errors.add(hdr + " " + msg);
+    }
+    
+    public List<String> getErrors() {
+        return errors;
+    }
+    
+    public boolean hasErrors() {
+    	return errors.size() > 0;
+    }
+	
 }
 
 parameters returns [List<String> result]

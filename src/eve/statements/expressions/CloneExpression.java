@@ -27,5 +27,10 @@ public class CloneExpression extends ExpressionStatement implements EveStatement
 	public boolean referencesClosure() {
 		return super.analyzeForClosure(identifier);
 	}
+	
+	@Override
+	public String toString() {
+		return "clone " + identifier;
+	}
 
 }

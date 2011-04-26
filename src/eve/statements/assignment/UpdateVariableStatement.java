@@ -26,7 +26,7 @@ public class UpdateVariableStatement extends AssignmentStatement implements EveS
 		}
 		
 		if (expression instanceof IdentExpression) {
-			throw new EveError("identifiers cannot be assigned directly. they must be cloned with the clone statement.");
+			throw new EveError("identifiers cannot be assigned directly. use clone.");
 		}
 				
 		EveObject result = expression.execute();
@@ -36,7 +36,7 @@ public class UpdateVariableStatement extends AssignmentStatement implements EveS
 	
 	@Override
 	public String toString() {
-		return "InitVariableStatement: " + identifier + "=" + expression.toString();
+		return identifier + "=" + expression.toString();
 	}
 	
 	@Override

@@ -17,7 +17,7 @@ public class ScopeManager {
 	private static EveObject globalScope;
 	private static EveObject parentScope; //right below the current scope in the stack.
 	private static Deque<EveObject> scopeStack = new ArrayDeque<EveObject>();
-	private static Deque<EveObject> closureScope; //only a single level for now...
+	private static Deque<EveObject> closureScope;
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
@@ -28,17 +28,17 @@ public class ScopeManager {
 	private static boolean usingClosureScope;
 	
 	public static EveObject getCurrentScope() {
-		return scopeStack.peek();
+		return getScopeStack().peek();
 	}
 	
 	public static void pushScope(EveObject eo) {
-		parentScope = (!scopeStack.isEmpty()) ? getCurrentScope() : globalScope; 
-		scopeStack.push(eo);
+		parentScope = (!getScopeStack().isEmpty()) ? getCurrentScope() : globalScope; 
+		getScopeStack().push(eo);
 	}
 	
 	public static EveObject popScope() {
-		EveObject prevScope = scopeStack.pop();
-		parentScope = scopeStack.peek();
+		EveObject prevScope = getScopeStack().pop();
+		parentScope = getScopeStack().peek();
 		prevScope.deleteTempFields();
 		return prevScope;
 	}
@@ -388,7 +388,7 @@ public class ScopeManager {
 	
 	public static Deque<EveObject> createClosureStack() {
 		Deque<EveObject> closureStack = new ArrayDeque<EveObject>();
-		Iterator<EveObject> desc = scopeStack.descendingIterator();
+		Iterator<EveObject> desc = getScopeStack().descendingIterator();
 		
 		while (desc.hasNext()) {
 			EveObject eo = desc.next();
@@ -419,5 +419,13 @@ public class ScopeManager {
 	
 	public static ConstructionScope getLastConstructionScope() {
 		return lastConstructionScope;
+	}
+
+	public static void setScopeStack(Deque<EveObject> scopeStack) {
+		ScopeManager.scopeStack = scopeStack;
+	}
+
+	public static Deque<EveObject> getScopeStack() {
+		return scopeStack;
 	}
 }

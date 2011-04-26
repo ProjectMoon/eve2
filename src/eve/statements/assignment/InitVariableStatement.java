@@ -19,7 +19,7 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 	@Override
 	public EveObject execute() {
 		if (expression instanceof IdentExpression) {
-			throw new EveError("identifiers cannot be assigned directly. they must be cloned with the clone statement.");
+			throw new EveError("identifiers cannot be assigned directly. use clone.");
 		}
 		
 		EveObject result = expression.execute();
@@ -29,7 +29,7 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 	
 	@Override
 	public String toString() {
-		return "InitVariableStatement: " + identifier + "=" + expression.toString();
+		return "var " + identifier + "=" + expression.toString();
 	}
 	
 	@Override

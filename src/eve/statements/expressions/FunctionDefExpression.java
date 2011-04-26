@@ -3,11 +3,8 @@ package eve.statements.expressions;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omg.CORBA.IdentifierHelper;
-
-import eve.core.EveError;
-import eve.core.Function;
 import eve.core.EveObject;
+import eve.core.Function;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
@@ -98,12 +95,8 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	
 	@Override
 	public String toString() {
-		String res = "FunctionDefStatement { ";
-		for (EveStatement statement : getStatements()) {
-			res += statement.toString() + ";";
-		}
-		res += "}";
-		return res;
+		String name = (getName() != null) ? getName() : "function";
+		return "def + " + name + "(" + getParameters().toString() + ")";
 	}
 	
 	private boolean analyzeForClosure(List<EveStatement> statements) {

@@ -34,12 +34,29 @@ tokens {
 	import java.util.ArrayList;
 }
 
-@members {
+@lexer::members {
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+        String hdr = getErrorHeader(e);
+        String msg = getErrorMessage(e, tokenNames);
+        throw new EveError(hdr + " " + msg);
+    }
+    
+    public void recover(RecognitionException e) {
+ 	    String hdr = getErrorHeader(e);
+        throw new EveError(hdr + " " + e.getMessage());
+    }
+}
+
+@parser::members {
     private List<String> errors = new ArrayList<String>();
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
         String hdr = getErrorHeader(e);
         String msg = getErrorMessage(e, tokenNames);
         errors.add(hdr + " " + msg);
+    }
+    
+    public void recover(RecognitionException e) {
+    	errors.add(e.getMessage());
     }
     
     public List<String> getErrors() {
