@@ -1,2 +1,3 @@
 var x = java.create("java.lang.Integer", 1);
-print(x.class);
+var short = x.shortValue();
+print(short);

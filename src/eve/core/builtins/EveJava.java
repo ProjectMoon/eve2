@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import eve.core.EveObject;
-import eve.eni.EveNativeFunction;
+import eve.eni.NativeFunction;
 import eve.eni.NativeCode;
 import eve.eni.NativeHelper;
 import eve.scope.ScopeManager;
@@ -41,6 +41,7 @@ public class EveJava extends EveObject {
 					EveObject eo = EveObject.javaType(o);
 					eo.putField("class", new EveObject(o.getClass().getName()));
 					eo.setTypeName(o.getClass().getName());
+					NativeHelper.mapJavaMethods(eo);
 					return eo;
 				}
 				catch (ClassNotFoundException e) {
@@ -67,7 +68,7 @@ public class EveJava extends EveObject {
 			}		
 		};
 		
-		EveNativeFunction nfunc = new EveNativeFunction(nc);
+		NativeFunction nfunc = new NativeFunction(nc);
 		nfunc.addParameter("cname");
 		nfunc.addParameter("ctorArgs");
 		nfunc.setVarargs(true);
