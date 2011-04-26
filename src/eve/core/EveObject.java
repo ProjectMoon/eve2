@@ -31,7 +31,7 @@ public class EveObject {
 	private Double doubleValue;
 	private Boolean booleanValue;
 	private Function functionValue;
-	private Object objectValue;
+	private Object javaValue;
 	private Map<Integer, EveObject> listValues;
 	
 	private String typeName;
@@ -266,18 +266,18 @@ public class EveObject {
 	}
 	
 	public void setObjectValue(Object objectValue) {
-		this.objectValue = objectValue;
+		this.javaValue = objectValue;
 	}
 
-	public Object getObjectValue() {
-		return objectValue;
+	public Object getJavaValue() {
+		return javaValue;
 	}
 	
 	/**
-	 * Returns the internal value of this object based on its type.
+	 * Returns the value of this object based on its type.
 	 * @return
 	 */
-	public Object getJavaValue() {
+	public Object getObjectValue() {
 		switch (getType()) {
 		case INTEGER:
 			return this.getIntValue();
@@ -296,10 +296,10 @@ public class EveObject {
 		case PROTOTYPE:
 			return this;
 		case JAVA:
-			return this.getObjectValue();
+			return this.getJavaValue();
 		}
 	
-		throw new EveError("unrecognized type " + getType() + " for getJavaValue()");		
+		throw new EveError("unrecognized type " + getType() + " for getObjectValue()");		
 	}
 
 	/**
@@ -443,7 +443,7 @@ public class EveObject {
 		case FUNCTION:
 			return Function.class;
 		case JAVA:
-			return this.getObjectValue().getClass();
+			return this.getJavaValue().getClass();
 		}
 		
 		throw new EveError("unrecognized type " + getType() + " for getTypeClass()");
@@ -465,7 +465,14 @@ public class EveObject {
 				toString.putTempField("self", this);
 				EveObject res = toString.invoke();
 				if (res != null) {
-					return res.toString();
+					//prevents an infinite recursion of toString() calls
+					//because of the way NativeHelper.mapJavaMethods works.
+					if (res.getType() != EveType.JAVA) {
+						return res.toString();
+					}
+					else {
+						return res.getJavaValue().toString();
+					}
 				}
 			}
 		}
@@ -489,7 +496,7 @@ public class EveObject {
 			case PROTOTYPE:
 				return "[prototype " + this.getTypeName() + "]";
 			case JAVA:
-				return this.getObjectValue().toString();
+				return this.getJavaValue().toString();
 		}
 		
 		return "[unknown]";

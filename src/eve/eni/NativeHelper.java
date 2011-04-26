@@ -59,7 +59,7 @@ public class NativeHelper {
 		Object[] args = new Object[eoArgs.size()];
 		
 		for (int c = 0; c < args.length; c++) {
-			args[c] = eoArgs.get(c).getJavaValue();
+			args[c] = eoArgs.get(c).getObjectValue();
 		}
 		
 		return args;
@@ -71,7 +71,7 @@ public class NativeHelper {
 		}
 		
 		
-		final Object o = eo.getJavaValue();
+		final Object o = eo.getObjectValue();
 		for (final Method meth : o.getClass().getMethods()) {
 			final NativeCode nc = new NativeCode() {
 				@Override
@@ -81,7 +81,9 @@ public class NativeHelper {
 						Object[] args = (eoArgs != null) ? NativeHelper.mapToJava(eoArgs.getListValue()) : null;
 						Object retVal = meth.invoke(o, args);
 						if (retVal != null) {
-							return EveObject.javaType(retVal);
+							EveObject eo = EveObject.javaType(retVal);
+							mapJavaMethods(eo);
+							return eo;
 						}
 						else {
 							return null;
@@ -105,9 +107,11 @@ public class NativeHelper {
 			};
 			
 			NativeFunction nfunc = new NativeFunction(nc);
-			nfunc.addParameter("args");
-			nfunc.setVarargs(true);
-			nfunc.setVarargsIndex(0); //args ...
+			if (meth.getParameterTypes().length > 0) {
+				nfunc.addParameter("args");
+				nfunc.setVarargs(true);
+				nfunc.setVarargsIndex(0); //args ...
+			}
 			eo.putField(meth.getName(), new EveObject(nfunc));
 		}
 	}

@@ -1,3 +1,7 @@
-var x = java.create("java.lang.Integer", 1);
-var short = x.shortValue();
-print(short);
+object.hello = () {
+	print("hello");
+}
+
+object.hello();
+var x = 5;
+x.hello();
