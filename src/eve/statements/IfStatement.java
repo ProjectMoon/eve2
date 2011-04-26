@@ -24,10 +24,17 @@ public class IfStatement extends AbstractStatement implements EveStatement, Cons
 		EveObject exprResult = ifExpression.execute();
 		
 		if (exprResult.getType() == EveType.BOOLEAN) {
-			EveObject result = new EveObject();
+			EveObject result = null;
 						
 			if (exprResult.getBooleanValue() == true) {
-				result = Interpreter.executeStatements(ifBlock);
+				Interpreter interp = new Interpreter();
+				result = interp.executeStatements(ifBlock);
+				
+				//If we executed a return statement, we need to pump the return back up.
+				if (interp.isReturned()) {
+					this.pumpValue(result);
+					return result;
+				}
 			}
 			else {
 				//This implements else-if and else statements.
@@ -59,6 +66,11 @@ public class IfStatement extends AbstractStatement implements EveStatement, Cons
 	@Override
 	public boolean referencesClosure() {
 		return ifExpression.referencesClosure();
+	}
+	
+	@Override
+	public String toString() {
+		return "if (" + ifExpression.toString() + ")";
 	}
 	
 

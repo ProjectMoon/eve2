@@ -2,9 +2,11 @@ package eve.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
 
 import eve.scope.ConstructionScope;
+import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
 public class Script implements ConstructionScope {
@@ -31,14 +33,21 @@ public class Script implements ConstructionScope {
 	}
 	
 	public void execute() {
-		try {
-			for (EveStatement statement : statements) {
+		for (EveStatement statement : statements) {
+			try {
 				statement.execute();
 			}
-		}
-		catch (EveError e) {
-			System.err.println(e);
-			System.exit(1);
+			catch (EveError e) {
+				System.err.println("(line " + statement.getLine() + ") " + e.getMessage());
+				
+				Deque<EveObject> stack = ScopeManager.getScopeStack();
+				
+				while (!stack.isEmpty()) {
+					EveObject scope = stack.pop();
+					System.err.println("\tat " + scope);
+				}
+				System.exit(1);	
+			}
 		}
 	}
 	

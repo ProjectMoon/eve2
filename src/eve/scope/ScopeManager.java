@@ -17,7 +17,7 @@ public class ScopeManager {
 	private static EveObject globalScope;
 	private static EveObject parentScope; //right below the current scope in the stack.
 	private static Deque<EveObject> scopeStack = new ArrayDeque<EveObject>();
-	private static Deque<EveObject> closureScope; //only a single level for now...
+	private static Deque<EveObject> closureScope;
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
@@ -28,17 +28,17 @@ public class ScopeManager {
 	private static boolean usingClosureScope;
 	
 	public static EveObject getCurrentScope() {
-		return scopeStack.peek();
+		return getScopeStack().peek();
 	}
 	
 	public static void pushScope(EveObject eo) {
-		parentScope = (!scopeStack.isEmpty()) ? getCurrentScope() : globalScope; 
-		scopeStack.push(eo);
+		parentScope = (!getScopeStack().isEmpty()) ? getCurrentScope() : globalScope; 
+		getScopeStack().push(eo);
 	}
 	
 	public static EveObject popScope() {
-		EveObject prevScope = scopeStack.pop();
-		parentScope = scopeStack.peek();
+		EveObject prevScope = getScopeStack().pop();
+		parentScope = getScopeStack().peek();
 		prevScope.deleteTempFields();
 		return prevScope;
 	}
@@ -233,12 +233,18 @@ public class ScopeManager {
 	
 	/**
 	 * Removes [index]s from the given identifier. The name is assumed to be
-	 * in the correct format.
+	 * in the correct format. If there are no index accessors, it just returns
+	 * the name that was passed in.
 	 * @param name
 	 * @return The name without any index properties.
 	 */
 	private static String stripIndices(String name) {
-		return name.substring(0, name.indexOf("["));
+		if (name.contains("[")) {
+			return name.substring(0, name.indexOf("["));
+		}
+		else {
+			return name;
+		}
 	}
 	
 	private static EveObject getByIndex(EveObject obj, List<Integer> indices) {
@@ -258,6 +264,7 @@ public class ScopeManager {
 	}
 	
 	public static void putVariable(String name, EveObject eo) {
+		String fullName = name;
 		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 		
@@ -313,6 +320,30 @@ public class ScopeManager {
 				throw new EveError(resolvedObj + " is undefined in current scope");
 			}
 			
+			//create a clone if we need to. 
+			if (obj.isMarkedForClone()) {
+				EveObject parent = null;
+				if (resolvedObj.contains(".")) {
+					parent = getParentVariable(resolvedObj);
+				}
+				else {
+					parent = getVariable(resolvedObj);
+				}
+				String[] propSplit = resolvedObj.split("\\.");
+				String prop = "";
+				
+				if (propSplit.length > 1) {
+					prop = stripIndices(propSplit[propSplit.length - 1]);
+				}
+				else {
+					prop = stripIndices(name);
+				}
+				
+				obj = obj.eveClone();
+				parent.putField(prop, obj);
+			}
+			
+			//indexed property assignment vs regular property assignment.
 			if (index != null) {
 				obj.setIndexedProperty(index, eo);
 			}
@@ -357,7 +388,7 @@ public class ScopeManager {
 	
 	public static Deque<EveObject> createClosureStack() {
 		Deque<EveObject> closureStack = new ArrayDeque<EveObject>();
-		Iterator<EveObject> desc = scopeStack.descendingIterator();
+		Iterator<EveObject> desc = getScopeStack().descendingIterator();
 		
 		while (desc.hasNext()) {
 			EveObject eo = desc.next();
@@ -388,5 +419,13 @@ public class ScopeManager {
 	
 	public static ConstructionScope getLastConstructionScope() {
 		return lastConstructionScope;
+	}
+
+	public static void setScopeStack(Deque<EveObject> scopeStack) {
+		ScopeManager.scopeStack = scopeStack;
+	}
+
+	public static Deque<EveObject> getScopeStack() {
+		return scopeStack;
 	}
 }

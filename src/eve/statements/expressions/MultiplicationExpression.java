@@ -48,4 +48,9 @@ public class MultiplicationExpression extends ExpressionStatement implements Eve
 	public boolean referencesClosure() {
 		return exp1.referencesClosure() || exp2.referencesClosure();
 	}
+	
+	@Override
+	public String toString() {
+		return exp1.toString() + " * " + exp2.toString();
+	}
 }

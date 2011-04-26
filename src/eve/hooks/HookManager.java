@@ -7,6 +7,7 @@ import eve.core.EveObject;
 
 public class HookManager {
 	private static List<EveHook> cloneHooks = new ArrayList<EveHook>();
+	private static List<EveHook> startupHooks = new ArrayList<EveHook>();
 	
 	/**
 	 * Registers a hook to be called whenever an object or prototype is cloned.
@@ -18,6 +19,16 @@ public class HookManager {
 	
 	public static void callCloneHooks(EveObject eo) {
 		for (EveHook hook : cloneHooks) {
+			hook.instrument(eo);
+		}
+	}
+	
+	public static void registerStartupHook(EveHook hook) {
+		startupHooks.add(hook);
+	}
+	
+	public static void callStartupHooks(EveObject eo) {
+		for (EveHook hook : startupHooks) {
 			hook.instrument(eo);
 		}
 	}

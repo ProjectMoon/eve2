@@ -15,6 +15,7 @@ public class EveDouble extends EveObject {
 	}
 	
 	private EveDouble() {
+		super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("double");
 	}

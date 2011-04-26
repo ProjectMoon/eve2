@@ -48,4 +48,9 @@ public class MinusExpression extends ExpressionStatement implements EveStatement
 	public boolean referencesClosure() {
 		return exp1.referencesClosure() || exp2.referencesClosure();
 	}
+	
+	@Override
+	public String toString() {
+		return exp1.toString() + " - " + exp2.toString();
+	}
 }

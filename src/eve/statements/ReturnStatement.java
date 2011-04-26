@@ -9,14 +9,16 @@ public class ReturnStatement extends AbstractStatement implements EveStatement {
 	public ReturnStatement(ExpressionStatement expression) {
 		this.expression = expression;
 	}
+	
 	@Override
 	public EveObject execute() {
-		return expression.execute();
+		this.pumpValue(expression.execute());
+		return null;
 	}
 	
 	@Override
 	public boolean referencesClosure() {
-		return expression.referencesClosure();
+		return expression != null && expression.referencesClosure();
 	}
 
 }

@@ -10,6 +10,7 @@ public class EveList extends EveObject {
 	}
 	
 	private EveList() {
+		super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("list");
 	}

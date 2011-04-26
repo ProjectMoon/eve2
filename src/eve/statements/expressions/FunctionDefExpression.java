@@ -3,11 +3,8 @@ package eve.statements.expressions;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.omg.CORBA.IdentifierHelper;
-
-import eve.core.EveError;
-import eve.core.Function;
 import eve.core.EveObject;
+import eve.core.Function;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
@@ -17,6 +14,8 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	private List<String> parameters = new ArrayList<String>();
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	private boolean isClosureDef = false;
+	private boolean isVarargs = false;
+	private int varargsIndex;
 	
 	public FunctionDefExpression() {}
 	
@@ -58,12 +57,33 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		return name;
 	}
 
+	public void setVarargs(boolean isVarargs) {
+		this.isVarargs = isVarargs;
+	}
+
+	public boolean isVarargs() {
+		return isVarargs;
+	}
+
+	public void setVarargsIndex(int varargsIndex) {
+		this.varargsIndex = varargsIndex;
+	}
+
+	public int getVarargsIndex() {
+		return varargsIndex;
+	}
+
 	@Override
 	public EveObject execute() {
 		Function func = new Function();
 		func.setName(name);
 		func.addStatements(getStatements());
 		func.setParameters(this.parameters);
+		
+		if (isVarargs) {
+			func.setVarargs(true);
+			func.setVarargsIndex(varargsIndex);
+		}
 		
 		if (isClosureDef) {
 			func.setClosureStack(ScopeManager.createClosureStack());
@@ -75,12 +95,8 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	
 	@Override
 	public String toString() {
-		String res = "FunctionDefStatement { ";
-		for (EveStatement statement : getStatements()) {
-			res += statement.toString() + ";";
-		}
-		res += "}";
-		return res;
+		String name = (getName() != null) ? getName() : "function";
+		return "def + " + name + "(" + getParameters().toString() + ")";
 	}
 	
 	private boolean analyzeForClosure(List<EveStatement> statements) {

@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.CharStream;
@@ -21,13 +22,13 @@ import eve.core.EveParser.program_return;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
+import eve.core.builtins.EveGlobal;
 import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
+import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
-import eve.eni.EveNativeFunction;
-import eve.eni.NativeCode;
-import eve.hooks.EveHook;
-import eve.hooks.HookManager;
+import eve.eni.NativeHelper;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
@@ -35,39 +36,19 @@ public class EveCore {
 	private boolean printSyntaxTree;
 
 	private EveObject initialize() {
-		EveObject global = EveObject.globalType();
+		EveObject global = EveGlobal.getPrototype();
 		
 		//add the built-in prototypes to the global scope.
+		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
 		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
 		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
 		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
 		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
 		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
 		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
+		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
 		
 		return global;
-	}
-	
-	private void eni() {
-		final NativeCode nc = new NativeCode() {
-			@Override
-			public EveObject execute() {
-				System.out.println("nativity!");
-				return null;
-			}		
-		};
-		
-		final EveNativeFunction nfunc = new EveNativeFunction(nc);
-		final EveObject nfuncObject = new EveObject(nfunc);
-		
-		EveHook hook = new EveHook() {
-			@Override
-			public void instrument(EveObject eo) {
-				eo.putField("nativeTest", nfuncObject);
-			}	
-		};
-		
-		HookManager.registerCloneHook(hook);
 	}
 	
 	/**
@@ -80,6 +61,7 @@ public class EveCore {
 		opts.addOption("d", false, "debug mode");
 		opts.addOption("t", false, "print syntax tree");
 		opts.addOption("h", false, "print help");
+		opts.addOption("i", true, "register instrumentation hook");
 		
 		CommandLineParser parser = new GnuParser();
 		
@@ -115,6 +97,13 @@ public class EveCore {
 		System.exit(0);
 	}
 	
+	private void handleErrors(List<String> errors) {
+		for (String error : errors) {
+			System.err.println(error);
+		}
+		System.exit(1);
+	}
+	
 	private void run(String file) throws RecognitionException, IOException {
 		File inputFile = new File(file);
 		
@@ -126,15 +115,22 @@ public class EveCore {
 		InputStream input = new FileInputStream(file);
 		CharStream stream = new ANTLRInputStream(input);
 		
-		eni();
 		ScopeManager.setGlobalScope(initialize());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 	
-		// ANTLRStringStream("def g = (q) { q.z = 6; print(\"q.z is \" ~ q.z); }; proto X { var y = 5; } var x = clone X; g(x);");
 		EveLexer lexer = new EveLexer(stream);
+		
 		TokenStream tokenStream = new CommonTokenStream(lexer);
 		EveParser parser = new EveParser(tokenStream);
-		program_return main = parser.program();
+		program_return main = null;
+		
+		try {
+			main = parser.program();
+		}
+		catch (EveError e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
 		
 		if (printSyntaxTree) {
 			System.out.println(main.tree.toStringTree());
@@ -142,11 +138,7 @@ public class EveCore {
 		}
 		
 		if (parser.hasErrors()) {
-			for (String error : parser.getErrors()) {
-				System.err.println("error: " + error);
-			}
-			
-			System.exit(1);
+			handleErrors(parser.getErrors());
 		}
 			
 		//global is root construction scope.
@@ -154,6 +146,10 @@ public class EveCore {
 		CommonTreeNodeStream nodeStream = new CommonTreeNodeStream(main.getTree());
 		ASTParser treeParser = new ASTParser(nodeStream);
 		treeParser.downup(main.tree);
+		
+		if (treeParser.hasErrors()) {
+			handleErrors(parser.getErrors());
+		}
 		
 		//we should be back to global scope after construction phase.
 		ConstructionScope cs = ScopeManager.popConstructionScope();

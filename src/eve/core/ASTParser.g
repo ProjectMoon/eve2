@@ -46,6 +46,7 @@ options {
 	}
 	
 	//Function management
+	private boolean isVarargs = false;
 	FunctionDefExpression currentFuncExpr = null;
 	boolean inFunction = false;
 	
@@ -62,6 +63,22 @@ options {
 	
 	//If statement management
 	private EveStatement previousStatement;
+	
+	//Error handling
+    private List<String> errors = new ArrayList<String>();
+    public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
+        String hdr = getErrorHeader(e);
+        String msg = getErrorMessage(e, tokenNames);
+        errors.add(hdr + " " + msg);
+    }
+    
+    public List<String> getErrors() {
+        return errors;
+    }
+    
+    public boolean hasErrors() {
+    	return errors.size() > 0;
+    }
 	
 }
 
@@ -126,6 +143,7 @@ assignFunctionUp
 			//This MUST be a function def, otherwise there's a serious problem.
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
 			AssignmentStatement as = new InitVariableStatement($IDENT.text, expr);
+			isVarargs = false;
 	
 			//we are now back on global (or proto).		
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
@@ -145,10 +163,16 @@ updateFunctionUp
 	;
 	
 functionParametersDown
-	:	(FUNCTION_PARAMETERS type=. (s=IDENT { pushFunctionParam($s.text); })* ) {	
+	:	(FUNCTION_PARAMETERS type=. (s=IDENT { pushFunctionParam($s.text); })* (varargs=.* { isVarargs = ($varargs != null && $varargs.getText().equals("...")); }) ) {	
 			//This MUST be a function definition, otherwise we have issues.
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
-			expr.setParameters(getFunctionParams());
+			List<String> params = getFunctionParams();
+			expr.setParameters(params);
+			
+			if (isVarargs) {
+				expr.setVarargs(true);
+				expr.setVarargsIndex(params.size() - 1);
+			}
 		}
 	;
 	

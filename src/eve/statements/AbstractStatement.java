@@ -5,6 +5,7 @@ import eve.core.EveObject;
 
 public abstract class AbstractStatement implements EveStatement {
 	private int line;
+	private EveObject pumpedValue;
 	
 	@Override
 	public abstract EveObject execute();
@@ -17,6 +18,14 @@ public abstract class AbstractStatement implements EveStatement {
 	@Override
 	public int getLine() {
 		return line;
+	}
+	
+	public void pumpValue(EveObject eo) {
+		pumpedValue = eo;
+	}
+	
+	public EveObject getPumpedValue() {
+		return pumpedValue;
 	}
 	
 	public abstract boolean referencesClosure();

@@ -31,5 +31,10 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 	public boolean referencesClosure() {
 		return super.analyzeForClosure(identifier);
 	}
+	
+	@Override
+	public String toString() {
+		return identifier;
+	}
 
 }
