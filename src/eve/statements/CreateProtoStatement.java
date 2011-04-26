@@ -32,7 +32,7 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 		EveObject proto = EveObject.prototypeType(protoName);
 		
 		ScopeManager.pushScope(proto);
-		Interpreter.executeStatements(protoBlock);
+		new Interpreter().executeStatements(protoBlock);
 		ScopeManager.popScope();
 		
 		//This should be global.

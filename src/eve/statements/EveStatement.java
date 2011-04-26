@@ -7,4 +7,6 @@ public interface EveStatement {
 	public void setLine(int line);
 	public int getLine();
 	public boolean referencesClosure();
+	public EveObject getPumpedValue();
+	public void pumpValue(EveObject eo);
 }

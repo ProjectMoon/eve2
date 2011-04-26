@@ -75,7 +75,7 @@ public class Function {
 	 * @return
 	 */
 	public EveObject execute() {
-		return Interpreter.executeStatements(this.getStatements());
+		return new Interpreter().executeStatements(this.getStatements());
 	}
 	
 	@Override
