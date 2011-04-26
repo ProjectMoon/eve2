@@ -1,15 +1,28 @@
 Contributing
 ============
 To contribute to Eve, you need only fork the repository on GitHub and send pull
-requests. Please follow the coding style that is already present in the code
+requests. 
+
+You will need to set up a tracking branch for the develop branch before coding:
+
+    git branch --track develop origin/develop
+
+The `develop` branch is where all new code goes (see development model, below).
+
+Coding Style
+------------
+Please follow the coding style that is already present in the code
 when submitting changes:
 
 * The `{` character should go on the end of method declarations, if statements,
   for loops, etc. It should not go below it (as is common in .NET). 
 * If editing the AST Parser or the Lexer/Parser files, follow the grouping and
   formatting conventions in those files.
+* Use tabs, not spaces.
 
-Also, please follow this development model when making changes:
+Development Model
+-----------------
+Please follow this development model when making changes:
 
 * All new code should be in or merged into the '''develop''' branch.
 * New features should be created in a local branch and then merged with 
@@ -17,3 +30,17 @@ Also, please follow this development model when making changes:
   network graph.
 * Bug fixes should be done on the develop branch, although if you happen to
   fix a bug while making a new feature, that's fine too.
+
+Development Environment
+-----------------------
+At a minimum, you will need Apache Ant and Apache Ivy to build Eve. You can
+find out how to get them by reading the README. If you use an IDE, Eclipse is
+the IDE recommended. To set up Eclipse for Eve development, use the following
+plugins:
+
+* IvyDE: <http://ant.apache.org/ivy/ivyde/>
+* ANTLR IDE: <http://antlrv3ide.sourceforge.net/>
+   * Under the Code Generator settings, check 'Append Java package to output
+     folder'. This preserves package hierarchy.
+   * This will also require an ANTLR 3 installation. Get the complete version
+     from <http://www.antlr.org>.
