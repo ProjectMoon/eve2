@@ -1,4 +1,7 @@
 package eve.statements.expressions;
+import java.util.ArrayList;
+import java.util.List;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
@@ -35,6 +38,13 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 	@Override
 	public String toString() {
 		return identifier;
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>(1);
+		idents.add(identifier);
+		return idents;
 	}
 
 }

@@ -1,5 +1,7 @@
 package eve.statements;
 
+import java.util.List;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 
@@ -9,6 +11,9 @@ public abstract class AbstractStatement implements EveStatement {
 	
 	@Override
 	public abstract EveObject execute();
+	
+	@Override
+	public abstract List<String> getIdentifiers();
 
 	@Override
 	public void setLine(int line) {

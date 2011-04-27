@@ -1,10 +1,14 @@
 package eve.statements.assignment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
+import eve.statements.expressions.FunctionDefExpression;
 import eve.statements.expressions.IdentExpression;
 
 public class InitVariableStatement extends AssignmentStatement implements EveStatement {
@@ -12,28 +16,55 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 	private ExpressionStatement expression;
 	
 	public InitVariableStatement(String identifier, ExpressionStatement expression) {
-		this.identifier = identifier;
-		this.expression = expression;
+		this.setIdentifier(identifier);
+		this.setExpression(expression);
 	}
 	
 	@Override
 	public EveObject execute() {
-		if (expression instanceof IdentExpression) {
+		if (getExpression() instanceof IdentExpression) {
 			throw new EveError("identifiers cannot be assigned directly. use clone.");
 		}
 		
-		EveObject result = expression.execute();
-		ScopeManager.putVariable(identifier, result);
+		EveObject result = getExpression().execute();
+		ScopeManager.putVariable(getIdentifier(), result);
 		return result;
 	}
 	
 	@Override
 	public String toString() {
-		return "var " + identifier + "=" + expression.toString();
+		return "var " + getIdentifier() + "=" + getExpression().toString();
 	}
 	
 	@Override
 	public boolean referencesClosure() {
-		return super.analyzeForClosure(identifier) || expression.referencesClosure();
+		return super.analyzeForClosure(getIdentifier()) || getExpression().referencesClosure();
+	}
+
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
+	}
+
+	public String getIdentifier() {
+		return identifier;
+	}
+
+	public void setExpression(ExpressionStatement expression) {
+		this.expression = expression;
+	}
+
+	public ExpressionStatement getExpression() {
+		return expression;
+	}
+	
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		idents.add(identifier);
+		
+		if (!(expression instanceof FunctionDefExpression)) {
+			idents.addAll(expression.getIdentifiers());
+		}
+		return idents;
 	}
 }

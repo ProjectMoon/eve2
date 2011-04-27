@@ -1,5 +1,7 @@
 package eve.statements;
 
+import java.util.List;
+
 import eve.core.EveObject;
 import eve.statements.expressions.ExpressionStatement;
 
@@ -19,6 +21,11 @@ public class PrintStatement extends AbstractStatement implements EveStatement {
 	@Override
 	public boolean referencesClosure() {
 		return expression.referencesClosure();
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		return expression.getIdentifiers();		
 	}
 
 }

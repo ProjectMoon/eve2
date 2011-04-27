@@ -6,7 +6,7 @@ to search the closure scope stack for the specified identifier. It will
 return the first identifier it finds, so don't shadow! closure:: only works
 in functions. Anywhere else will throw a closure scope not present error.
 */
-
+/*
 def Animal = (noise) {
 	def anotherFunc = () {
 		proto Animal {
@@ -43,3 +43,17 @@ proto obj {
 }
 
 obj.demonstrate();
+*/
+
+def x = x(a) {
+	proto X {
+		def y = () {
+			print(a);
+		}
+	}
+
+	return X;
+}
+
+var z = x("hi");
+z.y();

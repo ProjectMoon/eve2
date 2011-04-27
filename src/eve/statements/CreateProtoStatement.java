@@ -60,4 +60,15 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 		return referencesClosure;
 	}
 
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		
+		for (EveStatement statement : protoBlock) {
+			idents.addAll(statement.getIdentifiers());
+		}
+		
+		return idents;
+	}
+
 }

@@ -575,22 +575,37 @@ public class EveObject {
 		if (func.isClosure()) {
 			ScopeManager.setClosureStack(func.getClosureStack());
 		}
-		
-		
+				
 		//switch to function scope and run.
 		ScopeManager.pushScope(this);
 		EveObject retval = func.execute();
 		
-		
 		//do we have a closure?
-		if (retval != null && retval.getType() == EveType.FUNCTION) {
-			Function retfunc = retval.getFunctionValue();
-			retfunc.setClosureStack(ScopeManager.createClosureStack());
+		if (retval != null) {
+			retval.recursePossibleClosures();
 		}
 		
 		ScopeManager.popScope();
-
+		
 		return retval;
+	}
+	
+	private void recursePossibleClosures() {
+		//first, this one.
+		if (this.getType() == EveType.FUNCTION) {
+			Function func = this.getFunctionValue();
+			if (func.isPossibleClosure()) {
+				func.setClosure(true);
+				func.setClosureStack(ScopeManager.createClosureStack());
+			}
+		}
+		
+		//and now all its fields (and their fields)
+		for (EveObject field : getFields().values()) {
+			if (field.getType() == EveType.FUNCTION) {
+				field.recursePossibleClosures();
+			}
+		}
 	}
 	
 	/**

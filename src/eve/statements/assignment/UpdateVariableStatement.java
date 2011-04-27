@@ -1,10 +1,14 @@
 package eve.statements.assignment;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
+import eve.statements.expressions.FunctionDefExpression;
 import eve.statements.expressions.IdentExpression;
 
 public class UpdateVariableStatement extends AssignmentStatement implements EveStatement {
@@ -42,6 +46,16 @@ public class UpdateVariableStatement extends AssignmentStatement implements EveS
 	@Override
 	public boolean referencesClosure() {
 		return super.analyzeForClosure(identifier);
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		idents.add(identifier);
+		if (!(expression instanceof FunctionDefExpression)) {
+			idents.addAll(expression.getIdentifiers());
+		}
+		return idents;
 	}
 
 }

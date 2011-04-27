@@ -75,4 +75,13 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 		return super.analyzeForClosure(identifier);
 	}
 
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		for (ExpressionStatement expr : parameters) {
+			idents.addAll(expr.getIdentifiers());
+		}
+		return idents;
+	}
+
 }

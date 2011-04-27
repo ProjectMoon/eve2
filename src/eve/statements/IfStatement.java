@@ -8,6 +8,7 @@ import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
+import eve.statements.assignment.InitVariableStatement;
 import eve.statements.expressions.ExpressionStatement;
 
 public class IfStatement extends AbstractStatement implements EveStatement, ConstructionScope {
@@ -71,6 +72,35 @@ public class IfStatement extends AbstractStatement implements EveStatement, Cons
 	@Override
 	public String toString() {
 		return "if (" + ifExpression.toString() + ")";
+	}
+	
+	public List<String> getClosureVariables() {
+		List<String> variables = new ArrayList<String>();
+		
+		for (EveStatement statement : ifBlock) {
+			if (statement instanceof InitVariableStatement) {
+				variables.add(((InitVariableStatement)statement).getIdentifier());
+			}
+		}
+		
+		return variables;
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		
+		idents.addAll(ifExpression.getIdentifiers());
+		
+		for (EveStatement statement : ifBlock) {
+			idents.addAll(statement.getIdentifiers());
+		}
+		
+		if (childIf != null) {
+			idents.addAll(childIf.getIdentifiers());
+		}
+		
+		return idents;
 	}
 	
 

@@ -1,5 +1,8 @@
 package eve.statements.expressions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.interpreter.ErrorHandler;
@@ -52,5 +55,13 @@ public class MinusExpression extends ExpressionStatement implements EveStatement
 	@Override
 	public String toString() {
 		return exp1.toString() + " - " + exp2.toString();
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		idents.addAll(exp1.getIdentifiers());
+		idents.addAll(exp2.getIdentifiers());
+		return idents;
 	}
 }

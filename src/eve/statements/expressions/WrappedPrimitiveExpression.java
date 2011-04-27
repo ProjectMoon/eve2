@@ -1,5 +1,6 @@
 package eve.statements.expressions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import eve.core.EveError;
@@ -84,6 +85,11 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	@Override
 	public String toString() {
 		return "WrappedPrimitive(" + getOp().toString() + ")"; 
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		return new ArrayList<String>(0);
 	}
 
 }

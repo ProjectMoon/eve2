@@ -29,7 +29,7 @@ options {
 	//Parameter management.	
 	private StringBuilder currentParameters = new StringBuilder();
 	private List<String> getFunctionParams() {
-		List<String> params = Arrays.asList(currentParameters.toString().trim().split(" "));
+		List<String> params = new ArrayList<String>(Arrays.asList(currentParameters.toString().trim().split(" ")));
 		
 		//Gets rid of "" being put as a single element in the params array.
 		//This means we actually have no parameters declared.
