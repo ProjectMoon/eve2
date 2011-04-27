@@ -1,6 +1,8 @@
 package eve.statements.expressions;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
@@ -8,6 +10,7 @@ import eve.core.Function;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
+import eve.statements.assignment.InitVariableStatement;
 
 public class FunctionDefExpression extends ExpressionStatement implements EveStatement, ConstructionScope {
 	private String name;
@@ -16,6 +19,9 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	private boolean isClosureDef = false;
 	private boolean isVarargs = false;
 	private int varargsIndex;
+	
+	//closure analysis related
+	private Deque<List<InitVariableStatement>> closureList = new ArrayDeque<List<InitVariableStatement>>();
 	
 	public FunctionDefExpression() {}
 	
@@ -95,6 +101,30 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		return eo;
 	}
 	
+	private void closureAnalysis() {
+		List<InitVariableStatement> functionVariables = getFunctionVariables();
+		
+		for (List<InitVariableStatement> variables : closureList) {
+			for (InitVariableStatement variable : variables) {
+				if (functionVariables.contains(variable)) {
+					//this function is a closure.
+				}
+			}
+		}
+	}
+	
+	private List<InitVariableStatement> getFunctionVariables() {
+		List<InitVariableStatement> variables = new ArrayList<InitVariableStatement>();
+		
+		for (EveStatement statement : getStatements()) {
+			if (statement instanceof IdentExpression) {
+				variables.add((InitVariableStatement)statement);
+			}
+		}
+		
+		return variables;
+	}
+
 	@Override
 	public String toString() {
 		String name = (getName() != null) ? getName() : "function";
