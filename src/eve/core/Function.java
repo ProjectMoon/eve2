@@ -177,7 +177,7 @@ public class Function {
 	 * @return
 	 */
 	public boolean isPossibleClosure() {
-		return this.isPossibleClosure && !isClosure;
+		return this.isPossibleClosure;
 	}
 	
 	public void setPossibleClosure(boolean isPossibleClosure) {

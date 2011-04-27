@@ -7,11 +7,12 @@ return the first identifier it finds, so don't shadow! closure:: only works
 in functions. Anywhere else will throw a closure scope not present error.
 */
 
-def Animal = (noise) {
+def Animal = (noise, fluff) {
+	var fluffy = clone fluff;
 	def anotherFunc = () {
 		proto Animal {
 			def makeNoise = makeNoise() {
-				print(noise);
+				print(fluffy ~ " " ~ noise);
 			}
 		}
 
@@ -21,10 +22,10 @@ def Animal = (noise) {
 	return anotherFunc();
 }
 
-var cat = Animal("meow");
+var cat = Animal("meow", "durp");
 cat.makeNoise();
 
-var dog = Animal("woof");
+var dog = Animal("woof", "burp");
 dog.makeNoise();
 
 //cat.makeNoise();
