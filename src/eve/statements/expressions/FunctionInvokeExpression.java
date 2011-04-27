@@ -1,6 +1,7 @@
 package eve.statements.expressions;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
@@ -71,17 +72,19 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 	}
 	
 	@Override
-	public boolean referencesClosure() {
-		return super.analyzeForClosure(identifier);
-	}
-
-	@Override
 	public List<String> getIdentifiers() {
 		ArrayList<String> idents = new ArrayList<String>();
 		for (ExpressionStatement expr : parameters) {
 			idents.addAll(expr.getIdentifiers());
 		}
 		return idents;
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		for (ExpressionStatement expr : parameters) {
+			expr.closureAnalysis(closureList);
+		}
 	}
 
 }

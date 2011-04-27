@@ -1,6 +1,7 @@
 package eve.statements;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveError;
@@ -65,11 +66,6 @@ public class IfStatement extends AbstractStatement implements EveStatement, Cons
 	}
 	
 	@Override
-	public boolean referencesClosure() {
-		return ifExpression.referencesClosure();
-	}
-	
-	@Override
 	public String toString() {
 		return "if (" + ifExpression.toString() + ")";
 	}
@@ -101,6 +97,17 @@ public class IfStatement extends AbstractStatement implements EveStatement, Cons
 		}
 		
 		return idents;
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		for (EveStatement statement : ifBlock) {
+			statement.closureAnalysis(closureList);
+		}
+		
+		if (childIf != null) {
+			childIf.closureAnalysis(closureList);
+		}
 	}
 	
 

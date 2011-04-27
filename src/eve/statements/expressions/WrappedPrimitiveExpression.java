@@ -1,6 +1,7 @@
 package eve.statements.expressions;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveError;
@@ -55,12 +56,7 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 			throw new EveError("unable to assign wrapped primitive");
 		}
 	}
-		
-	@Override
-	public boolean referencesClosure() {
-		return false;
-	}
-	
+			
 	private Object getOp() {
 		if (intOp != null) {
 			return intOp;
@@ -90,6 +86,11 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	@Override
 	public List<String> getIdentifiers() {
 		return new ArrayList<String>(0);
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+	
 	}
 
 }

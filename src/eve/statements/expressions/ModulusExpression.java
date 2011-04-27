@@ -1,6 +1,7 @@
 package eve.statements.expressions;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
@@ -45,12 +46,7 @@ public class ModulusExpression extends ExpressionStatement implements EveStateme
 		
 		return result;
 	}
-	
-	@Override
-	public boolean referencesClosure() {
-		return exp1.referencesClosure() || exp2.referencesClosure();
-	}
-	
+		
 	@Override
 	public String toString() {
 		return exp1.toString() + " % " + exp2.toString();
@@ -61,5 +57,11 @@ public class ModulusExpression extends ExpressionStatement implements EveStateme
 		idents.addAll(exp1.getIdentifiers());
 		idents.addAll(exp2.getIdentifiers());
 		return idents;
+	}
+	
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		exp1.closureAnalysis(closureList);
+		exp2.closureAnalysis(closureList);
 	}
 }

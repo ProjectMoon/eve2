@@ -16,7 +16,6 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	private String name;
 	private List<String> parameters = new ArrayList<String>();
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
-	private boolean isClosureDef = false;
 	private boolean isVarargs = false;
 	private int varargsIndex;
 	
@@ -34,16 +33,10 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	
 	public void addStatement(EveStatement statement) {
 		this.getStatements().add(statement);
-		if (!this.isClosureDef) {
-			this.isClosureDef = analyzeForClosure(statement);
-		}
 	}
 	
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
-		if (!this.isClosureDef) {
-			this.isClosureDef = analyzeForClosure(statements);
-		}
 	}
 
 	public List<EveStatement> getStatements() {
@@ -98,21 +91,13 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		if (isPossibleClosure) {
 			func.setPossibleClosure(true);
 		}
-		
-		/*
-		if (isClosureDef) {
-			func.setClosureStack(ScopeManager.createClosureStack());
-		}
-		*/
-		
-		
-		
+				
 		EveObject eo = new EveObject(func);
 		return eo;
 	}
-	
-	
-	private void closureAnalysis(Deque<List<String>> closureList) {
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
 		//this is if we are calling it from a top-level function.
 		//but this can be ........ problematic for inner functions!
 		if (closureList == null) {
@@ -137,13 +122,7 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 			closureList.push(functionVariables);
 			
 			for (EveStatement statement : getStatements()) {
-				if (statement instanceof InitVariableStatement) {
-					ExpressionStatement expr = ((InitVariableStatement)statement).getExpression();
-					
-					if (expr instanceof FunctionDefExpression) {
-						((FunctionDefExpression)expr).closureAnalysis(closureList);
-					}
-				}
+				statement.closureAnalysis(closureList);
 			}
 			
 			closureList.pop();
@@ -156,28 +135,6 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		return "def + " + name + "(" + getParameters().toString() + ")";
 	}
 	
-	private boolean analyzeForClosure(List<EveStatement> statements) {
-		boolean isClosure = false;
-		
-		for (EveStatement stmt : statements) {
-			isClosure = analyzeForClosure(stmt);
-			if (isClosure) {
-				break;
-			}
-		}
-		
-		return isClosure;
-	}
-	
-	private boolean analyzeForClosure(EveStatement stmt) {
-		return stmt.referencesClosure();
-	}
-	
-	@Override
-	public boolean referencesClosure() {
-		return isClosureDef;
-	}
-
 	@Override
 	public List<String> getIdentifiers() {
 		List<String> idents = new ArrayList<String>(getParameters()); //defensive copy!

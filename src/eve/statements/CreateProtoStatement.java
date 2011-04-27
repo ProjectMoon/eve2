@@ -1,6 +1,7 @@
 package eve.statements;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveError;
@@ -47,19 +48,6 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 		return proto;
 	}
 	
-	public boolean referencesClosure() {
-		if (!referencesClosure) {
-			for (EveStatement stmt : protoBlock) {
-				referencesClosure = stmt.referencesClosure();
-				if (referencesClosure) {
-					break;
-				}
-			}
-		}
-		
-		return referencesClosure;
-	}
-
 	@Override
 	public List<String> getIdentifiers() {
 		ArrayList<String> idents = new ArrayList<String>();
@@ -69,6 +57,13 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 		}
 		
 		return idents;
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		for (EveStatement statement : protoBlock) {
+			statement.closureAnalysis(closureList);
+		}
 	}
 
 }

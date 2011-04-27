@@ -1,5 +1,6 @@
 package eve.statements;
 
+import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
@@ -17,15 +18,15 @@ public class ReturnStatement extends AbstractStatement implements EveStatement {
 		this.pumpValue(expression.execute());
 		return null;
 	}
-	
-	@Override
-	public boolean referencesClosure() {
-		return expression != null && expression.referencesClosure();
-	}
 
 	@Override
 	public List<String> getIdentifiers() {
 		return expression.getIdentifiers();
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		expression.closureAnalysis(closureList);
 	}
 
 }
