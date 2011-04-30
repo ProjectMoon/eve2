@@ -11,6 +11,7 @@ def Animal = AnimalCtor(noise, fluff) {
 	print("we have passed in " ~ noise);
 	var fluffy = clone fluff;
 	def anotherFunc = anotherFunc() {
+		print("fluffy is " ~ fluffy);
 		proto Animal2 {
 			def makeNoise = makeNoise() {
 				print(fluffy ~ " " ~ noise);

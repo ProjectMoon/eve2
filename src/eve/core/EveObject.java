@@ -540,10 +540,6 @@ public class EveObject {
 			}
 		}
 		
-		if (func.getName().equals("AnimalCtor")) {
-			System.out.println("yo");
-		}
-		
 		//Copy function parameters as temp fields.
 		if (actualParameters != null) {
 			for (int c = 0; c < actualParameters.size(); c++) {
