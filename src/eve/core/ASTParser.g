@@ -46,9 +46,7 @@ options {
 	}
 	
 	//Function management
-	private boolean isVarargs = false;
 	FunctionDefExpression currentFuncExpr = null;
-	boolean inFunction = false;
 	
 	private List<ExpressionStatement> actualParamsList = new ArrayList<ExpressionStatement>();
 	private void pushFunctionInvocationParam(ExpressionStatement param) {
@@ -149,7 +147,6 @@ assignFunctionUp
 			//This MUST be a function def, otherwise there's a serious problem.
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
 			AssignmentStatement as = new InitVariableStatement($IDENT.text, expr);
-			isVarargs = false;
 	
 			//we are now back on global (or proto).		
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
