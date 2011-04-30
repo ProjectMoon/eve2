@@ -353,8 +353,18 @@ public class ScopeManager {
 		return globalScopes.get(getNamespace());
 	}
 	
-	public static void setGlobalScope(EveObject scope) {
+	private static void setGlobalScope(EveObject scope) {
 		globalScopes.put(getNamespace(), scope);
+	}
+	
+	public static void createGlobalScope() {
+		if (getGlobalScope() != null) {
+			throw new EveError("global object already exists for namespace " + getNamespace());
+		}
+		
+		EveObject global = EveObject.globalType();
+		setGlobalScope(global);
+		pushScope(global);
 	}
 	
 	public static void setClosureStack(Deque<EveObject> closureScope) {

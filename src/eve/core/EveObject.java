@@ -10,6 +10,7 @@ import java.util.Set;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
+import eve.core.builtins.EveGlobal;
 import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
@@ -155,6 +156,21 @@ public class EveObject {
 	public EveObject(List<EveObject> l, boolean clone) {
 		this();
 		setListValue(l);
+	}
+	
+	public static EveObject globalType() {
+		EveObject global = new EveObject(EveGlobal.getPrototype());
+		
+		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
+		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
+		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
+		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
+		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
+		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
+		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
+		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
+		
+		return global;
 	}
 	
 	public static EveObject javaType(Object o) {

@@ -10,10 +10,9 @@ import eve.eni.NativeHelper;
 import eve.scope.ScopeManager;
 
 public class Java {
-	public static void init(EveObject global) {
+	public static void init() {
 		ScopeManager.setNamespace("java");
-		ScopeManager.setGlobalScope(global);
-		ScopeManager.pushScope(ScopeManager.getGlobalScope());
+		ScopeManager.createGlobalScope();
 		ScopeManager.putVariable("create", javaFunction());
 		ScopeManager.revertNamespace();
 	}

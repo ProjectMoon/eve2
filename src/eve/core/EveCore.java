@@ -33,22 +33,6 @@ import eve.scope.ScopeManager;
 
 public class EveCore {
 	private boolean printSyntaxTree;
-
-	private EveObject initialize() {
-		EveObject global = EveGlobal.getPrototype();
-		
-		//add the built-in prototypes to the global scope.
-		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
-		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
-		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
-		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
-		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
-		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
-		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
-		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
-		
-		return global;
-	}
 	
 	/**
 	 * Parses options and returns the filename to load.
@@ -106,10 +90,8 @@ public class EveCore {
 	public void run(String file) throws RecognitionException, IOException {
 		Script script = getScript(file);
 		ScopeManager.setNamespace(script.getNamespace());
-		ScopeManager.setGlobalScope(initialize());
-		ScopeManager.pushScope(ScopeManager.getGlobalScope());
-		
-		eve.eni.stdlib.Java.init(initialize());
+		ScopeManager.createGlobalScope();
+		eve.eni.stdlib.Java.init();
 		script.execute();
 	}
 	

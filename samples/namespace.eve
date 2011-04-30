@@ -1,2 +1,2 @@
-var j = java::create("java.lang.Integer", 5);
+var j = java::create("eve.core.EveObject", 5, false);
 print(j);

@@ -33,7 +33,7 @@ public class NativeHelper {
 			}
 		}
 		
-		throw new EveError("could not find constructor for " + cl.getName() + " matching " + params);
+		throw new EveError("could not find constructor for " + cl.getName() + " matching " + Arrays.asList(params));
 	}
 	
 	public static Method findMethod(Class<?> cl, EveObject ... params) {
