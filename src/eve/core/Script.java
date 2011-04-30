@@ -11,6 +11,7 @@ import eve.statements.EveStatement;
 
 public class Script implements ConstructionScope {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
+	private String namespace;
 	
 	public Script() {
 		
@@ -55,6 +56,14 @@ public class Script implements ConstructionScope {
 		for (EveStatement statement : statements) {
 			System.out.println(statement);
 		}		
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
+
+	public String getNamespace() {
+		return namespace;
 	}
 	
 }

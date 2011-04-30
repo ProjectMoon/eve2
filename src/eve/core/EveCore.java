@@ -28,7 +28,6 @@ import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
 import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
-import eve.eni.NativeHelper;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
@@ -104,7 +103,7 @@ public class EveCore {
 		System.exit(1);
 	}
 	
-	private void run(String file) throws RecognitionException, IOException {
+	public void run(String file) throws RecognitionException, IOException {
 		File inputFile = new File(file);
 		
 		if (!inputFile.exists()) {
@@ -142,7 +141,9 @@ public class EveCore {
 		}
 			
 		//global is root construction scope.
-		ScopeManager.pushConstructionScope(new Script());
+		Script script = new Script();
+		ScopeManager.setScript(script);
+		ScopeManager.pushConstructionScope(script);
 		CommonTreeNodeStream nodeStream = new CommonTreeNodeStream(main.getTree());
 		ASTParser treeParser = new ASTParser(nodeStream);
 		treeParser.downup(main.tree);
@@ -153,8 +154,7 @@ public class EveCore {
 		
 		//we should be back to global scope after construction phase.
 		ConstructionScope cs = ScopeManager.popConstructionScope();
-		if ((cs instanceof Script)) {
-			Script script = (Script)cs;
+		if (cs instanceof Script) {
 			script.execute();
 		}
 		else {

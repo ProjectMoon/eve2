@@ -94,6 +94,7 @@ topdown
 	|	elseIfStatementDown
 	|	elseStatementDown
 	|	codeStatement
+	|	nsSwitchDown
 	;
 
 bottomup
@@ -104,11 +105,30 @@ bottomup
 	|	elseIfStatementUp
 	|	elseStatementUp
 	|	createPrototypeUp
+	|	nsSwitchUp
 	;
 	
+//namespace declaration and switching
 namespaceStatement
 	:	^(NAMESPACE IDENT) {
-			System.out.println("ns " + $IDENT.text);
+			ScopeManager.getScript().setNamespace($IDENT.text);
+			EveLogger.debug("set namespace for script to " + $IDENT.text);
+		}
+	;
+	
+nsSwitchDown
+	:	^(NS_SWITCH_BLOCK IDENT .*) {
+			NamespaceSwitchBlock expr = new NamespaceSwitchBlock($IDENT.text);
+			expr.setLine($IDENT.getLine());
+			ScopeManager.pushConstructionScope(expr);
+			EveLogger.debug("Switch to namespace " + $IDENT.text);
+		}
+	;
+	
+nsSwitchUp
+	:	^(NS_SWITCH_BLOCK IDENT .*) {
+			NamespaceSwitchBlock expr = (NamespaceSwitchBlock)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(expr);
 		}
 	;
 //Function declarations (not invocations)
@@ -377,6 +397,9 @@ expression returns [ExpressionStatement result]
 	|	^('<=' op1=expression op2=expression) { $result = new LessThanOrEqualToExpression(op1, op2); $result.setLine(op1.getLine()); }
 	
 	//Everything else.
+	|	^(NS_SWITCH_EXPR IDENT e=expression) {
+		System.out.println("Ns switch expr for " + $IDENT.text + "::" + e);
+	}
 	|	^(INVOKE_FUNCTION_EXPR IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
 			List<ExpressionStatement> params = getFunctionInvocationParams();
 			EveLogger.debug("invoking function " + $IDENT.text + " as expression with params " + params);

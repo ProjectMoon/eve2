@@ -10,7 +10,6 @@ import java.util.List;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
-import eve.core.Function;
 import eve.scope.ScopeManager;
 
 public class NativeHelper {

@@ -3,8 +3,10 @@ package eve.scope;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +14,7 @@ import java.util.regex.Pattern;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.Script;
 
 public class ScopeManager {
 	private static EveObject globalScope;
@@ -19,9 +22,13 @@ public class ScopeManager {
 	private static Deque<EveObject> scopeStack = new ArrayDeque<EveObject>();
 	private static Deque<EveObject> closureScope;
 	
+	//namespaces
+	private Map<String, Deque<EveObject>> namespaces = new HashMap<String, Deque<EveObject>>();
+	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
 	private static ConstructionScope lastConstructionScope;
+	private static Script script;
 	
 	//state.
 	private static boolean jumpedScope;
@@ -291,7 +298,6 @@ public class ScopeManager {
 	}
 	
 	public static void putVariable(String name, EveObject eo) {
-		String fullName = name;
 		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 		
@@ -469,5 +475,13 @@ public class ScopeManager {
 
 	public static Deque<EveObject> getScopeStack() {
 		return scopeStack;
+	}
+
+	public static void setScript(Script script) {
+		ScopeManager.script = script;
+	}
+
+	public static Script getScript() {
+		return script;
 	}
 }
