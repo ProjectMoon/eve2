@@ -570,8 +570,7 @@ public class EveObject {
 				}
 			}
 		}
-		
-		
+				
 		if (func.isClosure()) {
 			ScopeManager.setClosureStack(func.getClosureStack());
 		}
@@ -734,6 +733,7 @@ public class EveObject {
 			this.putField(entry.getKey(), entry.getValue());
 		}
 		
+		this.tempFields.clear();
 		this.markFieldsForClone();
 	}
 }
