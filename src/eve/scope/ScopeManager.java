@@ -415,11 +415,23 @@ public class ScopeManager {
 	
 	public static Deque<EveObject> createClosureStack() {
 		Deque<EveObject> closureStack = new ArrayDeque<EveObject>();
+		
+		if (getClosureScope() != null) {
+			Iterator<EveObject> closureDesc = getClosureScope().descendingIterator();
+			
+			while (closureDesc.hasNext()) {
+				EveObject eo = closureDesc.next();
+				EveObject clone = eo.eveClone();
+				clone.transferTempFields();
+				closureStack.push(clone);	
+			}
+		}
+		
 		Iterator<EveObject> desc = getScopeStack().descendingIterator();
 		
 		while (desc.hasNext()) {
 			EveObject eo = desc.next();
-			if (eo.getType() == EveType.FUNCTION) {
+			if (eo.getType() == EveType.FUNCTION && closureStack.contains(eo) == false) {
 				EveObject clone = eo.eveClone();
 				clone.transferTempFields();
 				closureStack.push(clone);

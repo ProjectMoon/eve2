@@ -8,7 +8,6 @@ in functions. Anywhere else will throw a closure scope not present error.
 */
 
 def Animal = AnimalCtor(noise, fluff) {
-	print("we have passed in " ~ noise);
 	var fluffy = clone fluff;
 	def anotherFunc = anotherFunc() {
 		print("fluffy is " ~ fluffy);
@@ -23,7 +22,6 @@ def Animal = AnimalCtor(noise, fluff) {
 
 var cat = Animal("meow", "durp");
 cat = cat();
-print(cat);
 cat.makeNoise();
 
 var dog = Animal("woof", "burp");

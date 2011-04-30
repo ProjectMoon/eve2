@@ -578,14 +578,14 @@ public class EveObject {
 		//switch to function scope and run.
 		ScopeManager.pushScope(this);
 		EveObject retval = func.execute();
-		
-		if (func.isClosure()) {
-			ScopeManager.setClosureStack(null);
-		}
-		
+			
 		//do we have a closure?
 		if (retval != null) {
 			retval.recursePossibleClosures();
+		}
+		
+		if (func.isClosure()) {
+			ScopeManager.setClosureStack(null);
 		}
 		
 		ScopeManager.popScope();
