@@ -308,7 +308,6 @@ elseIfStatementUp
 elseStatementDown
 	:	^(ELSE .*) {
 			//we must be inside of an if statement to append an else if or else.
-			System.out.println("current scope: " + ScopeManager.getCurrentConstructionScope().getClass().getName());
 			if (ScopeManager.getLastConstructionScope() instanceof IfStatement && previousStatement instanceof IfStatement) {
 				EveLogger.debug("Creating else at " + $ELSE.getLine());
 				
@@ -398,8 +397,9 @@ expression returns [ExpressionStatement result]
 	
 	//Everything else.
 	|	^(NS_SWITCH_EXPR IDENT e=expression) {
-		System.out.println("Ns switch expr for " + $IDENT.text + "::" + e);
-	}
+			$result = new NamespacedExpression($IDENT.text, e);
+			$result.setLine($IDENT.getLine());
+		}
 	|	^(INVOKE_FUNCTION_EXPR IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
 			List<ExpressionStatement> params = getFunctionInvocationParams();
 			EveLogger.debug("invoking function " + $IDENT.text + " as expression with params " + params);

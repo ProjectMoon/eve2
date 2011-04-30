@@ -29,17 +29,17 @@ public class ScopeManager {
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
 	private static ConstructionScope lastConstructionScope;
 	private static Script script;
-	
-	//state.
-	private static boolean jumpedScope;
-	private static boolean usingClosureScope;
-	
+		
 	/**
 	 * Initialize the ScopeManager.
 	 */
 	static {
-		namespaces.put("global", new ArrayDeque<EveObject>());
-		setNamespace("global");
+		//global is the referenceable pointer to the global namespace.
+		//_global is the "actual" global namespace.
+		Deque<EveObject> globalScope = new ArrayDeque<EveObject>();
+		namespaces.put("global", globalScope);
+		namespaces.put("_global", globalScope);
+		setNamespace("_global");
 	}
 	
 	public static EveObject getCurrentScope() {
@@ -58,62 +58,6 @@ public class ScopeManager {
 		return prevScope;
 	}
 	
-	/**
-	 * Analyze an identifier to determine if it has a scope operator.
-	 * If it does have one, set the proper scope.
-	 * @param name
-	 * @return the identifier without the scope identifier.
-	 */
-	private static String scopeOperatorAnalysis(String name) {
-		String[] split = name.split("::");
-		if (split.length > 2) {
-			throw new EveError("can only have one scope operator");
-		}
-		
-		if (split.length == 2) {
-			String scope = split[0];
-			if (scope.equals("global")) {
-				pushScope(getGlobalScope());
-				jumpedScope = true;
-				return split[1];
-			}
-			else if (scope.equals("parent")) {
-				if (parentScope == globalScope) {
-					throw new EveError("global scope must be referenced with global::, not parent::");
-				}
-				pushScope(parentScope);
-				jumpedScope = true;
-				return split[1];
-			}
-			else if (scope.equals("closure")) {
-				if (closureScope == null) {
-					throw new EveError("no closure scope present");
-				}
-				usingClosureScope = true;
-				return split[1];
-			}
-			else {
-				throw new EveError("unrecognized scope " + scope);
-			}
-		}
-		else {
-			return name;
-		}
-	}
-	
-	/**
-	 * Fix the scope if and only if we pushed a new scope via :: operator.
-	 */
-	private static void scopeOperatorEnsure() {
-		if (jumpedScope) {
-			popScope();
-			jumpedScope = false;
-		}
-		if (usingClosureScope) {
-			usingClosureScope = false;
-		}
-	}
-	
 	private static EveObject getObject(String name) {
 		EveObject eo = null;
 		if (closureScope != null) {
@@ -126,7 +70,7 @@ public class ScopeManager {
 		}
 			
 		for (EveObject scope : getScopeStack()) {
-			if (scope != globalScope) {
+			if (scope != globalScope || !getNamespace().equals("_global")) {
 				eo = scope.getField(name);
 				if (eo != null) {
 					return eo;
@@ -169,7 +113,6 @@ public class ScopeManager {
 	 * @return "parent" EveObject.
 	 */
 	public static EveObject getParentVariable(String name) {
-		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 		
 		if (split.length > 1) {
@@ -198,17 +141,14 @@ public class ScopeManager {
 				resolvedObj += "." + ident;
 			}
 			
-			scopeOperatorEnsure();
 			return eo;
 		}
 		else {
-			scopeOperatorEnsure();
 			return parentScope;
 		}
 	}
 	
 	public static EveObject getVariable(String name) {
-		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 			
 		if (split.length > 1) {
@@ -237,7 +177,6 @@ public class ScopeManager {
 				resolvedObj += "." + ident;
 			}
 			
-			scopeOperatorEnsure();
 			return eo;
 		}
 		else {
@@ -251,7 +190,6 @@ public class ScopeManager {
 				obj = getObject(name);	
 			}
 
-			scopeOperatorEnsure();
 			return obj;
 		}
 	}
@@ -289,7 +227,6 @@ public class ScopeManager {
 	}
 	
 	public static void putVariable(String name, EveObject eo) {
-		name = scopeOperatorAnalysis(name);
 		String[] split = name.split("\\.");
 		
 		EveObject obj = getCurrentScope();
@@ -390,8 +327,6 @@ public class ScopeManager {
 
 			obj.putField(name, eo);
 		}
-		
-		scopeOperatorEnsure();
 	}
 		
 	public static boolean inFunction() {

@@ -1,3 +1,7 @@
 namespace test;
 
-x::y();
+var lol = "lol";
+def x = () {
+	print(global::lol);
+}
+x();
