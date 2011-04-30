@@ -416,6 +416,7 @@ public class ScopeManager {
 	public static Deque<EveObject> createClosureStack() {
 		Deque<EveObject> closureStack = new ArrayDeque<EveObject>();
 		
+		//first add current closures if they exist.
 		if (getClosureScope() != null) {
 			Iterator<EveObject> closureDesc = getClosureScope().descendingIterator();
 			
