@@ -540,6 +540,10 @@ public class EveObject {
 			}
 		}
 		
+		if (func.getName().equals("AnimalCtor")) {
+			System.out.println("yo");
+		}
+		
 		//Copy function parameters as temp fields.
 		if (actualParameters != null) {
 			for (int c = 0; c < actualParameters.size(); c++) {
@@ -578,6 +582,10 @@ public class EveObject {
 		//switch to function scope and run.
 		ScopeManager.pushScope(this);
 		EveObject retval = func.execute();
+		
+		if (func.isClosure()) {
+			ScopeManager.setClosureStack(null);
+		}
 		
 		//do we have a closure?
 		if (retval != null) {

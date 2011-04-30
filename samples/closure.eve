@@ -10,19 +10,23 @@ in functions. Anywhere else will throw a closure scope not present error.
 def Animal = AnimalCtor(noise, fluff) {
 	print("we have passed in " ~ noise);
 	var fluffy = clone fluff;
-	proto Animal2 {
-		def makeNoise = makeNoise() {
-			print(fluffy ~ " " ~ noise);
+	def anotherFunc = anotherFunc() {
+		proto Animal2 {
+			def makeNoise = makeNoise() {
+				print(fluffy ~ " " ~ noise);
+			}
 		}
 	}
-
-	return Animal2;
+	return anotherFunc;
 }
 
 var cat = Animal("meow", "durp");
+cat = cat();
+print(cat);
 cat.makeNoise();
 
 var dog = Animal("woof", "burp");
+dog = dog();
 dog.makeNoise();
 
 //cat.makeNoise();
