@@ -359,7 +359,7 @@ public class ScopeManager {
 	
 	public static void createGlobalScope() {
 		if (getGlobalScope() != null) {
-			throw new EveError("global object already exists for namespace " + getNamespace());
+			return;
 		}
 		
 		EveObject global = EveObject.globalType();

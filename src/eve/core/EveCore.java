@@ -89,17 +89,25 @@ public class EveCore {
 	
 	public void run(String file) throws RecognitionException, IOException {
 		Script script = getScript(file);
-		ScopeManager.setNamespace(script.getNamespace());
+		ScopeManager.setNamespace("global");
 		ScopeManager.createGlobalScope();
+		
+		if (!script.getNamespace().equals("global")) {
+			ScopeManager.setNamespace(script.getNamespace());
+			ScopeManager.createGlobalScope();
+		}
+		
 		eve.eni.stdlib.Java.init();
+		eve.eni.stdlib.Core.init();
 		script.execute();
+		ScopeManager.revertNamespace();
 	}
 	
 	public Script getScript(String file) throws RecognitionException, IOException {
 		File inputFile = new File(file);
 		
 		if (!inputFile.exists()) {
-			System.err.println("file " + inputFile + " not found. exiting.");
+			System.err.println("file " + inputFile.getAbsolutePath() + " not found. exiting.");
 			System.exit(1);
 		}
 		
