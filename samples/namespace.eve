@@ -1,12 +1,2 @@
-var lol = "lol";
-def x = () {
-	def y = () {
-		print(global::lol);
-	}
-
-	return y;
-}
-
-print(lol);
-var q = x();
-q();
+var j = java::create("java.lang.Integer", 5);
+print(j);
