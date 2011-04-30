@@ -1,0 +1,11 @@
+namespace test;
+
+def x = (a, b, c ...) {
+	print (a ~ b ~ c);
+
+	def y = y(x, y, z) {
+
+	}
+}
+
+x(1, 2, 3);

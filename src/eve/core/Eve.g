@@ -7,6 +7,7 @@ options {
 }
 
 tokens {
+	NAMESPACE;
 	NEGATION;
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
@@ -68,9 +69,13 @@ tokens {
     }
 }
 
-//Statements
+//Top level
 program
-	:	statement*
+	:	namespace? statement*
+	;
+	
+namespace
+	:	'namespace' IDENT ';' -> ^(NAMESPACE IDENT)
 	;
 
 // Statements

@@ -87,7 +87,7 @@ parameters returns [List<String> result]
 	;
 
 topdown
-	:	functionParametersDown
+	:	namespaceStatement
 	|	assignFunctionDown
 	|	updateFunctionDown
 	|	functionNameDown
@@ -100,6 +100,7 @@ topdown
 
 bottomup
 	:	assignFunctionUp
+	|	functionParametersUp
 	|	updateFunctionUp
 	|	ifStatementUp
 	|	elseIfStatementUp
@@ -107,6 +108,11 @@ bottomup
 	|	createPrototypeUp
 	;
 	
+namespaceStatement
+	:	^(NAMESPACE IDENT) {
+			System.out.println("ns " + $IDENT.text);
+		}
+	;
 //Function declarations (not invocations)
 assignFunctionDown
 	:	^(INIT_FUNCTION IDENT .*) {
@@ -161,15 +167,16 @@ updateFunctionUp
 			EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");	
 		}
 	;
-	
-functionParametersDown
-	:	(FUNCTION_PARAMETERS type=. (s=IDENT { pushFunctionParam($s.text); })* (varargs=.* { isVarargs = ($varargs != null && $varargs.getText().equals("...")); }) ) {	
+		
+functionParametersUp
+	:	^(FUNCTION_PARAMETERS (s=IDENT { pushFunctionParam($s.text); })* varargs='...'?) {
 			//This MUST be a function definition, otherwise we have issues.
+			EveLogger.debug("Function parameters for current function");
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
 			List<String> params = getFunctionParams();
 			expr.setParameters(params);
 			
-			if (isVarargs) {
+			if (varargs != null) {
 				expr.setVarargs(true);
 				expr.setVarargsIndex(params.size() - 1);
 			}
