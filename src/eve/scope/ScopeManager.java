@@ -19,11 +19,11 @@ import eve.core.Script;
 public class ScopeManager {
 	private static EveObject globalScope;
 	private static EveObject parentScope; //right below the current scope in the stack.
-	private static Deque<EveObject> scopeStack = new ArrayDeque<EveObject>();
 	private static Deque<EveObject> closureScope;
 	
 	//namespaces
-	private Map<String, Deque<EveObject>> namespaces = new HashMap<String, Deque<EveObject>>();
+	private static Deque<String> namespaceStack = new ArrayDeque<String>();
+	private static Map<String, Deque<EveObject>> namespaces = new HashMap<String, Deque<EveObject>>();
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
@@ -33,6 +33,14 @@ public class ScopeManager {
 	//state.
 	private static boolean jumpedScope;
 	private static boolean usingClosureScope;
+	
+	/**
+	 * Initialize the ScopeManager.
+	 */
+	static {
+		namespaces.put("global", new ArrayDeque<EveObject>());
+		setNamespace("global");
+	}
 	
 	public static EveObject getCurrentScope() {
 		return getScopeStack().peek();
@@ -107,22 +115,6 @@ public class ScopeManager {
 	}
 	
 	private static EveObject getObject(String name) {
-		/*
-		if (!usingClosureScope) {
-			return getCurrentScope().getField(name);
-		}
-		else {
-			EveObject eo = null;
-			for (EveObject closure : closureScope) {
-				eo = closure.getField(name);
-				if (eo != null) {
-					break;
-				}
-			}
-			
-			return eo;
-		}
-		*/
 		EveObject eo = null;
 		if (closureScope != null) {
 			for (EveObject closure : closureScope) {
@@ -133,7 +125,7 @@ public class ScopeManager {
 			}
 		}
 			
-		for (EveObject scope : scopeStack) {
+		for (EveObject scope : getScopeStack()) {
 			if (scope != globalScope) {
 				eo = scope.getField(name);
 				if (eo != null) {
@@ -145,8 +137,7 @@ public class ScopeManager {
 		if (getCurrentScope() == getGlobalScope()) {
 			return getGlobalScope().getField(name);
 		}
-		
-		
+	
 		return null;
 	}
 	
@@ -469,12 +460,14 @@ public class ScopeManager {
 		return lastConstructionScope;
 	}
 
-	public static void setScopeStack(Deque<EveObject> scopeStack) {
-		ScopeManager.scopeStack = scopeStack;
-	}
-
 	public static Deque<EveObject> getScopeStack() {
-		return scopeStack;
+		Deque<EveObject> scope = namespaces.get(namespaceStack.peek());
+		
+		if (scope == null) {
+			throw new EveError("namespace " + namespaceStack.peek() + " is undefined.");
+		}
+		
+		return scope;
 	}
 
 	public static void setScript(Script script) {
@@ -483,5 +476,25 @@ public class ScopeManager {
 
 	public static Script getScript() {
 		return script;
+	}
+
+	public static void setNamespaces(Map<String, Deque<EveObject>> namespaces) {
+		ScopeManager.namespaces = namespaces;
+	}
+
+	public static Map<String, Deque<EveObject>> getNamespaces() {
+		return namespaces;
+	}
+
+	public static void setNamespace(String namespace) {
+		namespaceStack.push(namespace);
+	}
+	
+	public static String getNamespace() {
+		return namespaceStack.peek();
+	}
+	
+	public static String revertNamespace() {
+		return namespaceStack.pop();
 	}
 }

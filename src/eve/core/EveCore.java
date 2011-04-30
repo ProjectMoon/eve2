@@ -114,6 +114,7 @@ public class EveCore {
 		InputStream input = new FileInputStream(file);
 		CharStream stream = new ANTLRInputStream(input);
 		
+		//Set global scope
 		ScopeManager.setGlobalScope(initialize());
 		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 	
