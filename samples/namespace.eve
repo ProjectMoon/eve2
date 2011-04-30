@@ -1,2 +1,0 @@
-var j = java::create("eve.core.EveObject", 5, false);
-print(j);

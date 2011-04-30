@@ -152,7 +152,7 @@ public class Function {
 		
 		for (int c = 0; c < this.getStatements().size(); c++) {
 			EveStatement thisStatement = this.getStatements().get(c);
-			EveStatement otherStatement = this.getStatements().get(c);
+			EveStatement otherStatement = other.getStatements().get(c);
 			if (thisStatement.equals(otherStatement) == false) {
 				return false;
 			}
