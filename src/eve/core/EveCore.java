@@ -104,6 +104,7 @@ public class EveCore {
 	}
 	
 	public void run(String file) throws RecognitionException, IOException {
+		/*
 		File inputFile = new File(file);
 		
 		if (!inputFile.exists()) {
@@ -114,10 +115,6 @@ public class EveCore {
 		InputStream input = new FileInputStream(file);
 		CharStream stream = new ANTLRInputStream(input);
 		
-		//Set global scope
-		ScopeManager.setGlobalScope(initialize());
-		ScopeManager.pushScope(ScopeManager.getGlobalScope());
-	
 		EveLexer lexer = new EveLexer(stream);
 		
 		TokenStream tokenStream = new CommonTokenStream(lexer);
@@ -156,7 +153,68 @@ public class EveCore {
 		//we should be back to global scope after construction phase.
 		ConstructionScope cs = ScopeManager.popConstructionScope();
 		if (cs instanceof Script) {
+			ScopeManager.setGlobalScope(initialize());
+			ScopeManager.pushScope(ScopeManager.getGlobalScope());
+			
 			script.execute();
+		}
+		else {
+			throw new EveError("Did not receive global scope from construction phase.");
+		}
+		*/
+		
+		Script script = getScript(file);
+		ScopeManager.setNamespace(script.getNamespace());
+		ScopeManager.setGlobalScope(initialize());
+		ScopeManager.pushScope(ScopeManager.getGlobalScope());
+		script.execute();
+	}
+	
+	public Script getScript(String file) throws RecognitionException, IOException {
+		File inputFile = new File(file);
+		
+		if (!inputFile.exists()) {
+			System.err.println("file " + inputFile + " not found. exiting.");
+			System.exit(1);
+		}
+		
+		InputStream input = new FileInputStream(file);
+		CharStream stream = new ANTLRInputStream(input);
+	
+		EveLexer lexer = new EveLexer(stream);
+		
+		TokenStream tokenStream = new CommonTokenStream(lexer);
+		EveParser parser = new EveParser(tokenStream);
+		program_return main = null;
+		
+		try {
+			main = parser.program();
+		}
+		catch (EveError e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
+			
+		if (parser.hasErrors()) {
+			handleErrors(parser.getErrors());
+		}
+			
+		//global is root construction scope.
+		Script script = new Script();
+		ScopeManager.setScript(script);
+		ScopeManager.pushConstructionScope(script);
+		CommonTreeNodeStream nodeStream = new CommonTreeNodeStream(main.getTree());
+		ASTParser treeParser = new ASTParser(nodeStream);
+		treeParser.downup(main.tree);
+		
+		if (treeParser.hasErrors()) {
+			handleErrors(parser.getErrors());
+		}
+		
+		//we should be back to global scope after construction phase.
+		ConstructionScope cs = ScopeManager.popConstructionScope();
+		if (cs instanceof Script) {
+			return script;
 		}
 		else {
 			throw new EveError("Did not receive global scope from construction phase.");

@@ -17,13 +17,14 @@ import eve.core.EveObject.EveType;
 import eve.core.Script;
 
 public class ScopeManager {
-	private static EveObject globalScope;
 	private static EveObject parentScope; //right below the current scope in the stack.
 	private static Deque<EveObject> closureScope;
 	
 	//namespaces
+	private static Map<String, EveObject> globalScopes = new HashMap<String, EveObject>();
 	private static Deque<String> namespaceStack = new ArrayDeque<String>();
 	private static Map<String, Deque<EveObject>> namespaces = new HashMap<String, Deque<EveObject>>();
+	private static String previousNamespace; //right below current namespace on namespaceStack
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
@@ -47,7 +48,7 @@ public class ScopeManager {
 	}
 	
 	public static void pushScope(EveObject eo) {
-		parentScope = (!getScopeStack().isEmpty()) ? getCurrentScope() : globalScope; 
+		parentScope = (!getScopeStack().isEmpty()) ? getCurrentScope() : getGlobalScope(); 
 		getScopeStack().push(eo);
 	}
 	
@@ -60,6 +61,13 @@ public class ScopeManager {
 	
 	private static EveObject getObject(String name) {
 		EveObject eo = null;
+		if (getNamespace().equals("module")) {
+			setNamespace(previousNamespace);
+			eo = getGlobalScope().getField(name);
+			revertNamespace();
+			return eo;
+		}
+		
 		if (closureScope != null) {
 			for (EveObject closure : closureScope) {
 				eo = closure.getField(name);
@@ -70,16 +78,24 @@ public class ScopeManager {
 		}
 			
 		for (EveObject scope : getScopeStack()) {
-			if (scope != globalScope || !getNamespace().equals("_global")) {
+			if (scope != getGlobalScope()) {
 				eo = scope.getField(name);
 				if (eo != null) {
 					return eo;
 				}
 			}
+			else {
+				if (getNamespace().equals("global")) {
+					eo = scope.getField(name);
+					if (eo != null) {
+						return eo;
+					}					
+				}
+			}
 		}
 		
-		if (getCurrentScope() == getGlobalScope()) {
-			return getGlobalScope().getField(name);
+		if (getCurrentScope() != null && getCurrentScope() == getGlobalScope()) {
+			return getCurrentScope().getField(name);
 		}
 	
 		return null;
@@ -334,11 +350,11 @@ public class ScopeManager {
 	}
 	
 	public static EveObject getGlobalScope() {
-		return globalScope;
+		return globalScopes.get(getNamespace());
 	}
 	
 	public static void setGlobalScope(EveObject scope) {
-		globalScope = scope;
+		globalScopes.put(getNamespace(), scope);
 	}
 	
 	public static void setClosureStack(Deque<EveObject> closureScope) {
@@ -422,7 +438,12 @@ public class ScopeManager {
 	}
 
 	public static void setNamespace(String namespace) {
+		previousNamespace = namespaceStack.peek();
 		namespaceStack.push(namespace);
+		
+		if (namespaces.get(namespace) == null) {
+			namespaces.put(namespace, new ArrayDeque<EveObject>());
+		}
 	}
 	
 	public static String getNamespace() {
@@ -430,6 +451,10 @@ public class ScopeManager {
 	}
 	
 	public static String revertNamespace() {
-		return namespaceStack.pop();
+		String ns = namespaceStack.pop();
+		//String currNS = namespaceStack.peek();
+		//previousNamespace = namespaceStack.peek();
+		//namespaceStack.push(currNS);
+		return ns;
 	}
 }

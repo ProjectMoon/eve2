@@ -1,7 +1,12 @@
-namespace test;
-
 var lol = "lol";
 def x = () {
-	print(global::lol);
+	def y = () {
+		print(global::lol);
+	}
+
+	return y;
 }
-x();
+
+print(lol);
+var q = x();
+q();

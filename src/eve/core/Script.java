@@ -11,7 +11,7 @@ import eve.statements.EveStatement;
 
 public class Script implements ConstructionScope {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
-	private String namespace;
+	private String namespace = "global";
 	
 	public Script() {
 		
