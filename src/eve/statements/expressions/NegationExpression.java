@@ -1,5 +1,9 @@
 package eve.statements.expressions;
 
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.interpreter.ErrorHandler;
@@ -33,15 +37,22 @@ public class NegationExpression extends ExpressionStatement implements EveStatem
 		
 		return result;
 	}
-	
-	@Override
-	public boolean referencesClosure() {
-		return exp.referencesClosure();
-	}
-	
+		
 	@Override
 	public String toString() {
 		return "-" + exp.toString();
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		idents.addAll(exp.getIdentifiers());
+		return idents;
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		exp.closureAnalysis(closureList);
 	}
 
 }

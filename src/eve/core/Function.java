@@ -23,6 +23,8 @@ public class Function {
 	private Deque<EveObject> closureStack;
 	private boolean isVarargs;
 	private int varargsIndex;
+	private boolean isPossibleClosure = false;
+	private boolean isClosure = false;
 	
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
@@ -150,7 +152,7 @@ public class Function {
 		
 		for (int c = 0; c < this.getStatements().size(); c++) {
 			EveStatement thisStatement = this.getStatements().get(c);
-			EveStatement otherStatement = this.getStatements().get(c);
+			EveStatement otherStatement = other.getStatements().get(c);
 			if (thisStatement.equals(otherStatement) == false) {
 				return false;
 			}
@@ -162,7 +164,24 @@ public class Function {
 
 		
 	public boolean isClosure() {
-		return this.closureStack != null;
+		return this.isClosure;
+	}
+	
+	public void setClosure(boolean isClosure) {
+		this.isClosure = isClosure;
+	}
+	
+	/**
+	 * Returns true if this is a possible closure. Returns false if it closure status has
+	 * been decided (use isClosure() to check for that).
+	 * @return
+	 */
+	public boolean isPossibleClosure() {
+		return this.isPossibleClosure;
+	}
+	
+	public void setPossibleClosure(boolean isPossibleClosure) {
+		this.isPossibleClosure = isPossibleClosure;
 	}
 
 	public void setClosureStack(Deque<EveObject> closureStack) {

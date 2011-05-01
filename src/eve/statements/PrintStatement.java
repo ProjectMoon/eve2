@@ -1,5 +1,8 @@
 package eve.statements;
 
+import java.util.Deque;
+import java.util.List;
+
 import eve.core.EveObject;
 import eve.statements.expressions.ExpressionStatement;
 
@@ -17,8 +20,38 @@ public class PrintStatement extends AbstractStatement implements EveStatement {
 	}
 	
 	@Override
-	public boolean referencesClosure() {
-		return expression.referencesClosure();
+	public List<String> getIdentifiers() {
+		return expression.getIdentifiers();		
 	}
 
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		expression.closureAnalysis(closureList);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((expression == null) ? 0 : expression.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PrintStatement other = (PrintStatement) obj;
+		if (expression == null) {
+			if (other.expression != null)
+				return false;
+		} else if (!expression.equals(other.expression))
+			return false;
+		return true;
+	}
 }

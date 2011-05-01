@@ -11,6 +11,7 @@ import eve.statements.EveStatement;
 
 public class Script implements ConstructionScope {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
+	private String namespace = "global";
 	
 	public Script() {
 		
@@ -40,6 +41,7 @@ public class Script implements ConstructionScope {
 			catch (EveError e) {
 				System.err.println("(line " + statement.getLine() + ") " + e.getMessage());
 				
+				ScopeManager.setNamespace("global");
 				Deque<EveObject> stack = ScopeManager.getScopeStack();
 				
 				while (!stack.isEmpty()) {
@@ -55,6 +57,14 @@ public class Script implements ConstructionScope {
 		for (EveStatement statement : statements) {
 			System.out.println(statement);
 		}		
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
+
+	public String getNamespace() {
+		return namespace;
 	}
 	
 }

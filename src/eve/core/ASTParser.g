@@ -29,7 +29,7 @@ options {
 	//Parameter management.	
 	private StringBuilder currentParameters = new StringBuilder();
 	private List<String> getFunctionParams() {
-		List<String> params = Arrays.asList(currentParameters.toString().trim().split(" "));
+		List<String> params = new ArrayList<String>(Arrays.asList(currentParameters.toString().trim().split(" ")));
 		
 		//Gets rid of "" being put as a single element in the params array.
 		//This means we actually have no parameters declared.
@@ -46,9 +46,7 @@ options {
 	}
 	
 	//Function management
-	private boolean isVarargs = false;
 	FunctionDefExpression currentFuncExpr = null;
-	boolean inFunction = false;
 	
 	private List<ExpressionStatement> actualParamsList = new ArrayList<ExpressionStatement>();
 	private void pushFunctionInvocationParam(ExpressionStatement param) {
@@ -87,7 +85,7 @@ parameters returns [List<String> result]
 	;
 
 topdown
-	:	functionParametersDown
+	:	namespaceStatement
 	|	assignFunctionDown
 	|	updateFunctionDown
 	|	functionNameDown
@@ -96,17 +94,43 @@ topdown
 	|	elseIfStatementDown
 	|	elseStatementDown
 	|	codeStatement
+	|	nsSwitchDown
 	;
 
 bottomup
 	:	assignFunctionUp
+	|	functionParametersUp
 	|	updateFunctionUp
 	|	ifStatementUp
 	|	elseIfStatementUp
 	|	elseStatementUp
 	|	createPrototypeUp
+	|	nsSwitchUp
 	;
 	
+//namespace declaration and switching
+namespaceStatement
+	:	^(NAMESPACE IDENT) {
+			ScopeManager.getScript().setNamespace($IDENT.text);
+			EveLogger.debug("set namespace for script to " + $IDENT.text);
+		}
+	;
+	
+nsSwitchDown
+	:	^(NS_SWITCH_BLOCK IDENT .*) {
+			NamespaceSwitchBlock expr = new NamespaceSwitchBlock($IDENT.text);
+			expr.setLine($IDENT.getLine());
+			ScopeManager.pushConstructionScope(expr);
+			EveLogger.debug("Switch to namespace " + $IDENT.text);
+		}
+	;
+	
+nsSwitchUp
+	:	^(NS_SWITCH_BLOCK IDENT .*) {
+			NamespaceSwitchBlock expr = (NamespaceSwitchBlock)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(expr);
+		}
+	;
 //Function declarations (not invocations)
 assignFunctionDown
 	:	^(INIT_FUNCTION IDENT .*) {
@@ -143,7 +167,6 @@ assignFunctionUp
 			//This MUST be a function def, otherwise there's a serious problem.
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
 			AssignmentStatement as = new InitVariableStatement($IDENT.text, expr);
-			isVarargs = false;
 	
 			//we are now back on global (or proto).		
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
@@ -161,15 +184,16 @@ updateFunctionUp
 			EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");	
 		}
 	;
-	
-functionParametersDown
-	:	(FUNCTION_PARAMETERS type=. (s=IDENT { pushFunctionParam($s.text); })* (varargs=.* { isVarargs = ($varargs != null && $varargs.getText().equals("...")); }) ) {	
+		
+functionParametersUp
+	:	^(FUNCTION_PARAMETERS (s=IDENT { pushFunctionParam($s.text); })* varargs='...'?) {
 			//This MUST be a function definition, otherwise we have issues.
+			EveLogger.debug("Function parameters for current function");
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
 			List<String> params = getFunctionParams();
 			expr.setParameters(params);
 			
-			if (isVarargs) {
+			if (varargs != null) {
 				expr.setVarargs(true);
 				expr.setVarargsIndex(params.size() - 1);
 			}
@@ -284,7 +308,6 @@ elseIfStatementUp
 elseStatementDown
 	:	^(ELSE .*) {
 			//we must be inside of an if statement to append an else if or else.
-			System.out.println("current scope: " + ScopeManager.getCurrentConstructionScope().getClass().getName());
 			if (ScopeManager.getLastConstructionScope() instanceof IfStatement && previousStatement instanceof IfStatement) {
 				EveLogger.debug("Creating else at " + $ELSE.getLine());
 				
@@ -373,6 +396,10 @@ expression returns [ExpressionStatement result]
 	|	^('<=' op1=expression op2=expression) { $result = new LessThanOrEqualToExpression(op1, op2); $result.setLine(op1.getLine()); }
 	
 	//Everything else.
+	|	^(NS_SWITCH_EXPR IDENT e=expression) {
+			$result = new NamespacedExpression($IDENT.text, e);
+			$result.setLine($IDENT.getLine());
+		}
 	|	^(INVOKE_FUNCTION_EXPR IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
 			List<ExpressionStatement> params = getFunctionInvocationParams();
 			EveLogger.debug("invoking function " + $IDENT.text + " as expression with params " + params);

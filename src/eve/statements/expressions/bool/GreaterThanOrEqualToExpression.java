@@ -1,5 +1,9 @@
 package eve.statements.expressions.bool;
 
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.statements.EveStatement;
@@ -39,7 +43,16 @@ public class GreaterThanOrEqualToExpression extends ExpressionStatement implemen
 	}
 	
 	@Override
-	public boolean referencesClosure() {
-		return exp1.referencesClosure() || exp2.referencesClosure();
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		idents.addAll(exp1.getIdentifiers());
+		idents.addAll(exp2.getIdentifiers());
+		return idents;
+	}
+	
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		exp1.closureAnalysis(closureList);
+		exp2.closureAnalysis(closureList);
 	}
 }

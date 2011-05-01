@@ -1,6 +1,7 @@
 package eve.statements.expressions;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
@@ -31,7 +32,13 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 	public EveObject execute() {
 		EveObject result = new EveObject();
 		EveObject funcVariable = ScopeManager.getVariable(identifier);
-		EveObject objContext = ScopeManager.getParentVariable(identifier);
+		
+		//Pass down self for inner functions, and get the parent variable for
+		//top level functions.
+		EveObject objContext = ScopeManager.getVariable("self");
+		if (objContext == null) {
+			objContext = ScopeManager.getParentVariable(identifier);
+		}
 		
 		if (funcVariable != null && funcVariable.getType() == EveType.FUNCTION) {
 			List<EveObject> actualParameters = getActualParameters();
@@ -71,8 +78,19 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 	}
 	
 	@Override
-	public boolean referencesClosure() {
-		return super.analyzeForClosure(identifier);
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		for (ExpressionStatement expr : parameters) {
+			idents.addAll(expr.getIdentifiers());
+		}
+		return idents;
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		for (ExpressionStatement expr : parameters) {
+			expr.closureAnalysis(closureList);
+		}
 	}
 
 }

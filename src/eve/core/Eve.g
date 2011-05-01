@@ -7,6 +7,9 @@ options {
 }
 
 tokens {
+	NAMESPACE;
+	NS_SWITCH_BLOCK;
+	NS_SWITCH_EXPR;
 	NEGATION;
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
@@ -68,14 +71,27 @@ tokens {
     }
 }
 
-//Statements
+//Top level
 program
-	:	statement*
+	:	namespace? statement*
+	;
+	
+namespace
+	:	'namespace' IDENT ';' -> ^(NAMESPACE IDENT)
 	;
 
 // Statements
+scopeStatement
+	:	ns=IDENT '::' scopedStatement -> ^(NS_SWITCH_BLOCK $ns scopedStatement)
+	;
+	
+scopedStatement
+	:	functionInvocationStatement
+	;	
+	
 statement
 	:	codeStatement
+	|	scopeStatement
 	;
 	
 codeStatement //Statements that can appear pretty much anywhere.
@@ -148,6 +164,7 @@ ifStatement
 //Expressions
 term
 	:	IDENT
+	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	|	'('! expression ')'!
 	|	INTEGER
 	|	DOUBLE
@@ -155,6 +172,7 @@ term
 	|	STRING_LITERAL
 	|	LIST_LITERAL
 	|	functionInvocationExpression
+	|	ns=IDENT '::' functionInvocationExpression -> ^(NS_SWITCH_EXPR $ns functionInvocationExpression)
 	|	cloneExpression
 	;
 	
@@ -210,7 +228,7 @@ fragment SCOPE_OP : ':' ':' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
-IDENT : LETTER (SCOPE_OP | DOT | ARRAY_ACCESS | LETTER | DIGIT)*;
+IDENT : LETTER (DOT | ARRAY_ACCESS | LETTER | DIGIT)*;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};

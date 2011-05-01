@@ -10,7 +10,6 @@ import java.util.List;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
-import eve.core.Function;
 import eve.scope.ScopeManager;
 
 public class NativeHelper {
@@ -34,7 +33,7 @@ public class NativeHelper {
 			}
 		}
 		
-		throw new EveError("could not find constructor for " + cl.getName() + " matching " + params);
+		throw new EveError("could not find constructor for " + cl.getName() + " matching " + Arrays.asList(params));
 	}
 	
 	public static Method findMethod(Class<?> cl, EveObject ... params) {

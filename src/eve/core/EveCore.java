@@ -28,28 +28,11 @@ import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
 import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
-import eve.eni.NativeHelper;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
 public class EveCore {
 	private boolean printSyntaxTree;
-
-	private EveObject initialize() {
-		EveObject global = EveGlobal.getPrototype();
-		
-		//add the built-in prototypes to the global scope.
-		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
-		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
-		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
-		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
-		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
-		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
-		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
-		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
-		
-		return global;
-	}
 	
 	/**
 	 * Parses options and returns the filename to load.
@@ -104,19 +87,36 @@ public class EveCore {
 		System.exit(1);
 	}
 	
-	private void run(String file) throws RecognitionException, IOException {
+	public void run(String file) throws RecognitionException, IOException {
+		Script script = getScript(file);
+		run(script);
+	}
+	
+	public void run(Script script) {
+		ScopeManager.setNamespace("global");
+		ScopeManager.createGlobalScope();
+		
+		if (!script.getNamespace().equals("global")) {
+			ScopeManager.setNamespace(script.getNamespace());
+			ScopeManager.createGlobalScope();
+		}
+		
+		eve.eni.stdlib.Java.init();
+		eve.eni.stdlib.Core.init();
+		script.execute();
+		ScopeManager.revertNamespace();
+	}
+	
+	public Script getScript(String file) throws RecognitionException, IOException {
 		File inputFile = new File(file);
 		
 		if (!inputFile.exists()) {
-			System.err.println("file " + inputFile + " not found. exiting.");
+			System.err.println("file " + inputFile.getAbsolutePath() + " not found. exiting.");
 			System.exit(1);
 		}
 		
 		InputStream input = new FileInputStream(file);
 		CharStream stream = new ANTLRInputStream(input);
-		
-		ScopeManager.setGlobalScope(initialize());
-		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 	
 		EveLexer lexer = new EveLexer(stream);
 		
@@ -131,18 +131,15 @@ public class EveCore {
 			System.err.println(e.getMessage());
 			System.exit(1);
 		}
-		
-		if (printSyntaxTree) {
-			System.out.println(main.tree.toStringTree());
-			System.exit(0);
-		}
-		
+			
 		if (parser.hasErrors()) {
 			handleErrors(parser.getErrors());
 		}
 			
 		//global is root construction scope.
-		ScopeManager.pushConstructionScope(new Script());
+		Script script = new Script();
+		ScopeManager.setScript(script);
+		ScopeManager.pushConstructionScope(script);
 		CommonTreeNodeStream nodeStream = new CommonTreeNodeStream(main.getTree());
 		ASTParser treeParser = new ASTParser(nodeStream);
 		treeParser.downup(main.tree);
@@ -153,9 +150,8 @@ public class EveCore {
 		
 		//we should be back to global scope after construction phase.
 		ConstructionScope cs = ScopeManager.popConstructionScope();
-		if ((cs instanceof Script)) {
-			Script script = (Script)cs;
-			script.execute();
+		if (cs instanceof Script) {
+			return script;
 		}
 		else {
 			throw new EveError("Did not receive global scope from construction phase.");

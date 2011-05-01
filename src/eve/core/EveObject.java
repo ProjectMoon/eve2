@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import eve.core.EveParser.returnStatement_return;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
+import eve.core.builtins.EveGlobal;
 import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
@@ -65,6 +65,7 @@ public class EveObject {
 		//Later, assignment statements will change the references for us.
 		this.cloneParent = source;
 		this.fields = new HashMap<String, EveObject>(source.fields); //a new map with the same references.
+		this.tempFields = new HashMap<String, EveObject>(source.tempFields); //a new map with the same references.
 		
 		//prototypes can only exist as base objects. any clone is immediately custom.
 		if (source.getType() == EveType.PROTOTYPE) {
@@ -155,6 +156,21 @@ public class EveObject {
 	public EveObject(List<EveObject> l, boolean clone) {
 		this();
 		setListValue(l);
+	}
+	
+	public static EveObject globalType() {
+		EveObject global = new EveObject(EveGlobal.getPrototype());
+		
+		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
+		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
+		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
+		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
+		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
+		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
+		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
+		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
+		
+		return global;
 	}
 	
 	public static EveObject javaType(Object o) {
@@ -569,21 +585,45 @@ public class EveObject {
 				}
 			}
 		}
-		
+				
 		if (func.isClosure()) {
 			ScopeManager.setClosureStack(func.getClosureStack());
 		}
-		
+				
 		//switch to function scope and run.
 		ScopeManager.pushScope(this);
 		EveObject retval = func.execute();
-		ScopeManager.popScope();
+			
+		//do we have a closure?
+		if (retval != null) {
+			retval.recursePossibleClosures();
+		}
 		
 		if (func.isClosure()) {
 			ScopeManager.setClosureStack(null);
 		}
-
+		
+		ScopeManager.popScope();
+		
 		return retval;
+	}
+	
+	private void recursePossibleClosures() {
+		//first, this one.
+		if (this.getType() == EveType.FUNCTION) {
+			Function func = this.getFunctionValue();
+			if (func.isPossibleClosure()) {
+				func.setClosure(true);
+				func.setClosureStack(ScopeManager.createClosureStack());
+			}
+		}
+		
+		//and now all its fields (and their fields)
+		for (EveObject field : getFields().values()) {
+			if (field.getType() == EveType.FUNCTION) {
+				field.recursePossibleClosures();
+			}
+		}
 	}
 	
 	/**
@@ -705,5 +745,14 @@ public class EveObject {
 	
 	private boolean customTypeEquals(EveObject other) {
 		return true;
+	}
+
+	public void transferTempFields() {
+		for (Map.Entry<String, EveObject> entry : this.tempFields.entrySet()) {
+			this.putField(entry.getKey(), entry.getValue());
+		}
+		
+		this.tempFields.clear();
+		this.markFieldsForClone();
 	}
 }

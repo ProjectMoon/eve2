@@ -1,4 +1,8 @@
 package eve.statements.expressions;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
@@ -26,15 +30,21 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 			throw new EveError(identifier + " not defined at current scope.");
 		}
 	}
-	
-	@Override
-	public boolean referencesClosure() {
-		return super.analyzeForClosure(identifier);
-	}
-	
+		
 	@Override
 	public String toString() {
 		return identifier;
 	}
 
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>(1);
+		idents.add(identifier);
+		return idents;
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		//TODO need to analyze closure scope for IdentExpression.
+	}
 }
