@@ -25,6 +25,12 @@ tokens {
 	IF_STATEMENT;
 	ELSE_IF;
 	ELSE;
+	FOREACH;
+	WHILE;
+	LOOP_BODY;
+	PRINT_EXPR;
+	PRINTLN_EXPR;
+	PRINTLN_EMPTY;
 }
 
 @header {
@@ -80,7 +86,7 @@ namespace
 	:	'namespace' IDENT ';' -> ^(NAMESPACE IDENT)
 	;
 
-// Statements
+// Namespaces
 scopeStatement
 	:	ns=IDENT '::' scopedStatement -> ^(NS_SWITCH_BLOCK $ns scopedStatement)
 	;
@@ -89,6 +95,7 @@ scopedStatement
 	:	functionInvocationStatement
 	;	
 	
+// Statements
 statement
 	:	codeStatement
 	|	scopeStatement
@@ -101,6 +108,8 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	initVariableStatement
 	|	functionInvocationStatement
 	|	ifStatement
+	|	foreachLoop
+	|	whileLoop
 	|	protoStatement
 	;
 	
@@ -109,7 +118,9 @@ returnStatement
 	;
 	
 printStatement
-	:	'print'^ '('! expression ')'! ';'!
+	:	'print' '(' expression ')' ';' -> ^(PRINT_EXPR expression)
+	|	'println' '(' expression ')' ';' -> ^(PRINTLN_EXPR expression)
+	|	'println' '(' ')' ';' -> ^(PRINTLN_EMPTY)
 	;
 	
 assignmentStatement
@@ -129,6 +140,15 @@ protoStatement
 functionInvocationStatement
 	:	IDENT '(' functionInvocationParameters ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT functionInvocationParameters)
 	|	IDENT '(' ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT)
+	;
+
+//Loops
+foreachLoop
+	:	'for' '(' i1=IDENT ':' i2=IDENT ')' '{' codeStatement* '}' ';'? -> ^(FOREACH $i1 $i2 ^(LOOP_BODY codeStatement*))
+	;
+
+whileLoop
+	:	'while' '(' expression ')' '{' codeStatement* '}' ';'? -> ^(WHILE expression ^(LOOP_BODY codeStatement*))
 	;
 
 //Prototype cloning

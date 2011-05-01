@@ -14,6 +14,7 @@ options {
 	import eve.statements.assignment.*;
 	import eve.statements.expressions.*;
 	import eve.statements.expressions.bool.*;
+	import eve.statements.loop.*;
 	import eve.scope.ScopeManager;
 	import java.util.Queue;
 	import java.util.Set;
@@ -95,6 +96,8 @@ topdown
 	|	elseStatementDown
 	|	codeStatement
 	|	nsSwitchDown
+	|	foreachLoopDown
+	|	whileLoopDown
 	;
 
 bottomup
@@ -106,6 +109,8 @@ bottomup
 	|	elseStatementUp
 	|	createPrototypeUp
 	|	nsSwitchUp
+	|	foreachLoopUp
+	|	whileLoopUp
 	;
 	
 //namespace declaration and switching
@@ -232,12 +237,28 @@ codeStatement
 	;
 
 printStatement
-	:	^('print' e=expression) {
+	:	^(PRINT_EXPR e=expression) {
 			PrintStatement ps = new PrintStatement(e);
 			ps.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ps);
 			previousStatement = ps;
 			EveLogger.debug("print statement");
+		}
+	|	^(PRINTLN_EXPR e=expression) {
+			PrintStatement ps = new PrintStatement(e);
+			ps.setPrintNewline(true);
+			ps.setLine(e.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(ps);
+			previousStatement = ps;
+			EveLogger.debug("println statement");			
+		}
+	|	^(PRINTLN_EMPTY .*) {
+			PrintStatement ps = new PrintStatement(null);
+			ps.setPrintNewline(true);
+			ps.setLine($PRINTLN_EMPTY.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(ps);
+			previousStatement = ps;
+			EveLogger.debug("empty println statement");
 		}
 	;
 	
@@ -374,10 +395,47 @@ invokeFunctionStatement
 		}
 	;
 	
+//Loops
+foreachLoopDown
+	:	^(FOREACH variable=IDENT of=IDENT .*) {
+			ForEachLoop loop = new ForEachLoop($variable.text, $of.text);
+			loop.setLine($variable.getLine());
+			ScopeManager.pushConstructionScope(loop);
+			previousStatement = loop;
+			EveLogger.debug("creating for (" + $variable.text + " : " + $of.text + ")");
+		}
+	;
+	
+foreachLoopUp
+	:	^(FOREACH variable=IDENT of=IDENT .*) {
+			ForEachLoop loop = (ForEachLoop)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(loop);
+			EveLogger.debug("completed for (" + $variable.text + " : " + $of.text + ")");
+		}
+	;
+	
+whileLoopDown
+	:	^(WHILE e=expression .*) {
+			WhileLoop loop = new WhileLoop(e);
+			loop.setLine($WHILE.getLine());
+			ScopeManager.pushConstructionScope(loop);
+			previousStatement = loop;
+			EveLogger.debug("while loop (" + e + ")");
+		}
+	;
+	
+whileLoopUp
+	:	^(WHILE e=expression .*) {
+			WhileLoop loop = (WhileLoop)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(loop);
+			EveLogger.debug("completed while (" + e +")");
+		}
+	;
+	
 //Expressions
 expression returns [ExpressionStatement result]
 	//Operators
-	:	^('~' op1=expression op2=expression) {$result = new ConcatExpression(op1, op2); $result.setLine(op1.getLine()); }
+	:	^('~' op1=expression op2=expression) { $result = new ConcatExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('-' op1=expression op2=expression) { $result = new MinusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('*' op1=expression op2=expression) { $result = new MultiplicationExpression(op1, op2); $result.setLine(op1.getLine()); }

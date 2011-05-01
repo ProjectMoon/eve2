@@ -1,0 +1,66 @@
+/*
+loops.eve
+
+Demonstration of loop structures in Eve. Here we see looping through a string,
+an array, and a regular object. When a string is looped through, the variable
+passed is the character. The characters of the string are passed in order. For
+arrays, the values are passed in order. For other objects, all properties are
+iterated, although order is not guaranteed.
+*/
+
+//Demonstration of looping through a string and nested loops.
+println("---string and nested looping---");
+var str = "hello";
+var str2 = "bye";
+
+for (char : str) {
+	for (c : str2) {
+		print(c);
+	}
+	println();
+}
+
+//Note that there is no block level scope in Eve. The variables from the loops
+//continue to exist after the loop is finished. 
+println("char is "  ~ char);
+println("c is " ~ c);
+
+//Demonstration of looping through an array.
+//Eventually, indices will be passed in instead.
+println("---array looping---");
+var l = [];
+l[0] = "h";
+l[2] = "e";
+l[50] = "l";
+l[51] = "l";
+l[100] = "o";
+
+for (value : l) {
+	print(value);
+}
+
+println();
+
+println("---object looping---");
+//Demonstration of looping through an object's properties. Note that values
+//are passed in, not their identifiers (as in JavaScript's for-in loop). This
+//will probably change in a future version. Also note that order is not
+//guaranteed.
+proto obj {
+	var x = 5;
+	var y = 10;
+	var z = "hello";
+}
+
+for (value : obj) {
+	println(value);
+}
+
+//Demonstration of while loops. As with for loops, and variables created by
+//the loop will be available after the loop is done.
+println("---while loop demonstration---");
+var i = 5;
+while (i >= 0) {
+	println("loopy");
+	i = i - 1;
+}
