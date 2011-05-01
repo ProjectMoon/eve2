@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDouble;
@@ -32,7 +33,7 @@ public class EveObject {
 	private Boolean booleanValue;
 	private Function functionValue;
 	private Object javaValue;
-	private Map<Integer, EveObject> listValues;
+	private TreeMap<Integer, EveObject> listValues;
 	
 	private String typeName;
 	
@@ -87,7 +88,7 @@ public class EveObject {
 		this.stringValue = source.stringValue;
 		this.doubleValue = source.doubleValue;
 		this.booleanValue = source.booleanValue;
-		this.listValues = (source.listValues != null) ? new HashMap<Integer, EveObject>(source.listValues) : null;		
+		this.listValues = (source.listValues != null) ? new TreeMap<Integer, EveObject>(source.listValues) : null;		
 		
 		HookManager.callCloneHooks(this);
 		
@@ -271,7 +272,7 @@ public class EveObject {
 
 	public void setListValue(List<EveObject> listValue) {
 		this.setType(EveType.LIST);
-		this.listValues = new HashMap<Integer, EveObject>();
+		this.listValues = new TreeMap<Integer, EveObject>();
 		
 		for (int c = 0; c < listValue.size(); c++) {
 			this.listValues.put(c, listValue.get(c));

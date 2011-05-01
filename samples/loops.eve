@@ -1,5 +1,16 @@
 var str = "hello";
 
 for (char : str) {
-	print(char);
+	//print(char);
+}
+
+var l = [];
+l[0] = "h";
+l[2] = "e";
+l[50] = "l";
+l[51] = "l";
+l[100] = "o";
+
+for (index : l) {
+	print(index);
 }
