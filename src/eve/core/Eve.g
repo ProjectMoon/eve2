@@ -25,6 +25,8 @@ tokens {
 	IF_STATEMENT;
 	ELSE_IF;
 	ELSE;
+	FOREACH;
+	LOOP_BODY;
 }
 
 @header {
@@ -80,7 +82,7 @@ namespace
 	:	'namespace' IDENT ';' -> ^(NAMESPACE IDENT)
 	;
 
-// Statements
+// Namespaces
 scopeStatement
 	:	ns=IDENT '::' scopedStatement -> ^(NS_SWITCH_BLOCK $ns scopedStatement)
 	;
@@ -89,6 +91,7 @@ scopedStatement
 	:	functionInvocationStatement
 	;	
 	
+// Statements
 statement
 	:	codeStatement
 	|	scopeStatement
@@ -101,6 +104,7 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	initVariableStatement
 	|	functionInvocationStatement
 	|	ifStatement
+	|	foreachLoop
 	|	protoStatement
 	;
 	
@@ -129,6 +133,11 @@ protoStatement
 functionInvocationStatement
 	:	IDENT '(' functionInvocationParameters ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT functionInvocationParameters)
 	|	IDENT '(' ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT)
+	;
+
+//Loops
+foreachLoop
+	:	'for' '(' i1=IDENT ':' i2=IDENT ')' '{' codeStatement* '}' ';'? -> ^(FOREACH $i1 $i2 ^(LOOP_BODY codeStatement*))
 	;
 
 //Prototype cloning

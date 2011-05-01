@@ -1,6 +1,7 @@
 package eve.core;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -158,9 +159,47 @@ public class EveCore {
 		}		
 	}
 	
+	private void printTree(String file) throws IOException, RecognitionException {
+		File inputFile = new File(file);
+		
+		if (!inputFile.exists()) {
+			System.err.println("file " + inputFile.getAbsolutePath() + " not found. exiting.");
+			System.exit(1);
+		}
+		
+		InputStream input = new FileInputStream(file);
+		CharStream stream = new ANTLRInputStream(input);
+	
+		EveLexer lexer = new EveLexer(stream);
+		
+		TokenStream tokenStream = new CommonTokenStream(lexer);
+		EveParser parser = new EveParser(tokenStream);
+		program_return main = null;
+		
+		try {
+			main = parser.program();
+		}
+		catch (EveError e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
+			
+		if (parser.hasErrors()) {
+			handleErrors(parser.getErrors());
+		}
+							
+		System.out.println(main.tree.toStringTree());
+	}
+	
 	public static void main(String[] args) throws RecognitionException, IOException {
 		EveCore eve = new EveCore();
 		String file = eve.parseOptions(args);
-		eve.run(file);
+		
+		if (eve.printSyntaxTree) {
+			eve.printTree(file);
+		}
+		else {
+			eve.run(file);
+		}
 	}
 }

@@ -158,6 +158,16 @@ public class EveObject {
 		setListValue(l);
 	}
 	
+	public EveObject(char c) {
+		this(EveString.getPrototype());
+		setStringValue(Character.toString(c));
+	}
+	
+	public EveObject(char c, boolean clone) {
+		this();
+		setStringValue(Character.toString(c));
+	}
+
 	public static EveObject globalType() {
 		EveObject global = new EveObject(EveGlobal.getPrototype());
 		
@@ -279,6 +289,14 @@ public class EveObject {
 		}
 		
 		return results;
+	}
+	
+	public Map<Integer, EveObject> getListMap() {
+		if (this.getType() != EveType.LIST){
+			throw new EveError(this + " is not a list!");
+		}
+		
+		return this.listValues;
 	}
 	
 	public void setObjectValue(Object objectValue) {

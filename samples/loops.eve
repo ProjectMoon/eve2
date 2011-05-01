@@ -1,0 +1,5 @@
+var str = "hello";
+
+for (char : str) {
+	print(char);
+}

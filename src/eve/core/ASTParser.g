@@ -14,6 +14,7 @@ options {
 	import eve.statements.assignment.*;
 	import eve.statements.expressions.*;
 	import eve.statements.expressions.bool.*;
+	import eve.statements.loop.*;
 	import eve.scope.ScopeManager;
 	import java.util.Queue;
 	import java.util.Set;
@@ -95,6 +96,7 @@ topdown
 	|	elseStatementDown
 	|	codeStatement
 	|	nsSwitchDown
+	|	foreachLoopDown
 	;
 
 bottomup
@@ -106,6 +108,7 @@ bottomup
 	|	elseStatementUp
 	|	createPrototypeUp
 	|	nsSwitchUp
+	|	foreachLoopUp
 	;
 	
 //namespace declaration and switching
@@ -374,10 +377,29 @@ invokeFunctionStatement
 		}
 	;
 	
+//Loops
+foreachLoopDown
+	:	^(FOREACH variable=IDENT of=IDENT .*) {
+			ForEachLoop loop = new ForEachLoop($variable.text, $of.text);
+			loop.setLine($variable.getLine());
+			ScopeManager.pushConstructionScope(loop);
+			previousStatement = loop;
+			EveLogger.debug("creating for (" + $variable.text + " : " + $of.text + ")");
+		}
+	;
+	
+foreachLoopUp
+	:	^(FOREACH variable=IDENT of=IDENT .*) {
+			ForEachLoop loop = (ForEachLoop)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(loop);
+			EveLogger.debug("completed for (" + $variable.text + " : " + $of.text + ")");
+		}
+	;
+	
 //Expressions
 expression returns [ExpressionStatement result]
 	//Operators
-	:	^('~' op1=expression op2=expression) {$result = new ConcatExpression(op1, op2); $result.setLine(op1.getLine()); }
+	:	^('~' op1=expression op2=expression) { $result = new ConcatExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('-' op1=expression op2=expression) { $result = new MinusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('*' op1=expression op2=expression) { $result = new MultiplicationExpression(op1, op2); $result.setLine(op1.getLine()); }
