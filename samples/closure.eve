@@ -22,7 +22,12 @@ var dog = Animal("woof");
 cat.makeNoise();
 dog.makeNoise();
 
-//You can even use closure:: to refer to the object holding the function.
+/*
+While not strictly a closure, you can use the special "self" variable inside
+inner functions. Note that the self variable will NOT be preserved in a
+closure at this time. If the function z was returned, it would crash when
+called because "self" does not exist at the closure scope.
+*/
 proto obj {
 	var aProp = 10;
 
@@ -31,7 +36,7 @@ proto obj {
 		def z = () {
 			print(self.aProp);
 		}
-
+		
 		z();
 	}
 }

@@ -99,7 +99,6 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	@Override
 	public void closureAnalysis(Deque<List<String>> closureList) {
 		//this is if we are calling it from a top-level function.
-		//but this can be ........ problematic for inner functions!
 		if (closureList == null) {
 			closureList = new ArrayDeque<List<String>>();
 		}
