@@ -55,3 +55,12 @@ proto obj {
 for (value : obj) {
 	println(value);
 }
+
+//Demonstration of while loops. As with for loops, and variables created by
+//the loop will be available after the loop is done.
+println("---while loop demonstration---");
+var i = 5;
+while (i >= 0) {
+	println("loopy");
+	i = i - 1;
+}

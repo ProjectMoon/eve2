@@ -97,6 +97,7 @@ topdown
 	|	codeStatement
 	|	nsSwitchDown
 	|	foreachLoopDown
+	|	whileLoopDown
 	;
 
 bottomup
@@ -109,6 +110,7 @@ bottomup
 	|	createPrototypeUp
 	|	nsSwitchUp
 	|	foreachLoopUp
+	|	whileLoopUp
 	;
 	
 //namespace declaration and switching
@@ -409,6 +411,24 @@ foreachLoopUp
 			ForEachLoop loop = (ForEachLoop)ScopeManager.popConstructionScope();
 			ScopeManager.getCurrentConstructionScope().addStatement(loop);
 			EveLogger.debug("completed for (" + $variable.text + " : " + $of.text + ")");
+		}
+	;
+	
+whileLoopDown
+	:	^(WHILE e=expression .*) {
+			WhileLoop loop = new WhileLoop(e);
+			loop.setLine($WHILE.getLine());
+			ScopeManager.pushConstructionScope(loop);
+			previousStatement = loop;
+			EveLogger.debug("while loop (" + e + ")");
+		}
+	;
+	
+whileLoopUp
+	:	^(WHILE e=expression .*) {
+			WhileLoop loop = (WhileLoop)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(loop);
+			EveLogger.debug("completed while (" + e +")");
 		}
 	;
 	

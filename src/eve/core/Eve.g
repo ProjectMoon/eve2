@@ -26,6 +26,7 @@ tokens {
 	ELSE_IF;
 	ELSE;
 	FOREACH;
+	WHILE;
 	LOOP_BODY;
 	PRINT_EXPR;
 	PRINTLN_EXPR;
@@ -108,6 +109,7 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	functionInvocationStatement
 	|	ifStatement
 	|	foreachLoop
+	|	whileLoop
 	|	protoStatement
 	;
 	
@@ -143,6 +145,10 @@ functionInvocationStatement
 //Loops
 foreachLoop
 	:	'for' '(' i1=IDENT ':' i2=IDENT ')' '{' codeStatement* '}' ';'? -> ^(FOREACH $i1 $i2 ^(LOOP_BODY codeStatement*))
+	;
+
+whileLoop
+	:	'while' '(' expression ')' '{' codeStatement* '}' ';'? -> ^(WHILE expression ^(LOOP_BODY codeStatement*))
 	;
 
 //Prototype cloning
