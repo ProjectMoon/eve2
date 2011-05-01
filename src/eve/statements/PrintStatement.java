@@ -8,6 +8,7 @@ import eve.statements.expressions.ExpressionStatement;
 
 public class PrintStatement extends AbstractStatement implements EveStatement {
 	private ExpressionStatement expression;
+	private boolean printNewline = false;
 
 	public PrintStatement(ExpressionStatement expression) {
 		this.expression = expression;
@@ -15,7 +16,17 @@ public class PrintStatement extends AbstractStatement implements EveStatement {
 	
 	@Override
 	public EveObject execute() {
-		System.out.println(expression.execute());
+		if (printNewline) {
+			if (expression != null) {
+				System.out.println(expression.execute());
+			}
+			else {
+				System.out.println();
+			}
+		}
+		else {
+			System.out.print(expression.execute());
+		}
 		return null;
 	}
 	
@@ -53,5 +64,13 @@ public class PrintStatement extends AbstractStatement implements EveStatement {
 		} else if (!expression.equals(other.expression))
 			return false;
 		return true;
+	}
+
+	public void setPrintNewline(boolean printNewline) {
+		this.printNewline = printNewline;
+	}
+
+	public boolean isPrintNewline() {
+		return printNewline;
 	}
 }

@@ -51,7 +51,12 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 	}
 
 	private void executeLoop(EveObject eo) {
+		Map<String, EveObject> props = eo.getFields();
 		
+		for (Map.Entry<String, EveObject> entry : props.entrySet()) {
+			ScopeManager.putVariable(variable, entry.getValue());
+			loop();
+		}
 	}
 
 	private void executeForString(EveObject eo) {

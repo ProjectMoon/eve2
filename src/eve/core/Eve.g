@@ -27,6 +27,9 @@ tokens {
 	ELSE;
 	FOREACH;
 	LOOP_BODY;
+	PRINT_EXPR;
+	PRINTLN_EXPR;
+	PRINTLN_EMPTY;
 }
 
 @header {
@@ -113,7 +116,9 @@ returnStatement
 	;
 	
 printStatement
-	:	'print'^ '('! expression ')'! ';'!
+	:	'print' '(' expression ')' ';' -> ^(PRINT_EXPR expression)
+	|	'println' '(' expression ')' ';' -> ^(PRINTLN_EXPR expression)
+	|	'println' '(' ')' ';' -> ^(PRINTLN_EMPTY)
 	;
 	
 assignmentStatement

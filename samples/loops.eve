@@ -1,7 +1,11 @@
 var str = "hello";
+var str2 = "bye";
 
 for (char : str) {
-	//print(char);
+	for (c : str2) {
+		print(c);
+	}
+	println();
 }
 
 var l = [];
@@ -12,5 +16,5 @@ l[51] = "l";
 l[100] = "o";
 
 for (index : l) {
-	print(index);
+	//print(index);
 }

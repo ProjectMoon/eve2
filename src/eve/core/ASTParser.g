@@ -235,12 +235,28 @@ codeStatement
 	;
 
 printStatement
-	:	^('print' e=expression) {
+	:	^(PRINT_EXPR e=expression) {
 			PrintStatement ps = new PrintStatement(e);
 			ps.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ps);
 			previousStatement = ps;
 			EveLogger.debug("print statement");
+		}
+	|	^(PRINTLN_EXPR e=expression) {
+			PrintStatement ps = new PrintStatement(e);
+			ps.setPrintNewline(true);
+			ps.setLine(e.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(ps);
+			previousStatement = ps;
+			EveLogger.debug("println statement");			
+		}
+	|	^(PRINTLN_EMPTY .*) {
+			PrintStatement ps = new PrintStatement(null);
+			ps.setPrintNewline(true);
+			ps.setLine($PRINTLN_EMPTY.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(ps);
+			previousStatement = ps;
+			EveLogger.debug("empty println statement");
 		}
 	;
 	
