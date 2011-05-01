@@ -61,7 +61,7 @@ public class ScopeManager {
 	
 	private static EveObject getObject(String name) {
 		EveObject eo = null;
-		if (getNamespace().equals("module")) {
+ 		if (getNamespace().equals("module")) {
 			setNamespace(previousNamespace);
 			eo = getGlobalScope().getField(name);
 			revertNamespace();

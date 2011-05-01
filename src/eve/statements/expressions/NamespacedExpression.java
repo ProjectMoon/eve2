@@ -3,6 +3,7 @@ package eve.statements.expressions;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
@@ -23,10 +24,15 @@ public class NamespacedExpression extends ExpressionStatement implements EveStat
 
 	@Override
 	public EveObject execute() {
-		ScopeManager.setNamespace(namespace);
-		EveObject eo = expression.execute();
-		ScopeManager.revertNamespace();
-		return eo;
+		try {
+			ScopeManager.setNamespace(namespace);
+			EveObject eo = expression.execute();
+			ScopeManager.revertNamespace();
+			return eo;
+		}
+		catch (EveError e) {
+			throw new EveError(namespace + "::" + e.getMessage());
+		}	
 	}
 
 	@Override

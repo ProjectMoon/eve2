@@ -89,6 +89,10 @@ public class EveCore {
 	
 	public void run(String file) throws RecognitionException, IOException {
 		Script script = getScript(file);
+		run(script);
+	}
+	
+	public void run(Script script) {
 		ScopeManager.setNamespace("global");
 		ScopeManager.createGlobalScope();
 		

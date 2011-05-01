@@ -2,26 +2,22 @@
 proto.eve
 
 Demonstrating the basic usage of the proto statement. The proto statement is
-Eve's object literal, and allows you to create objects "ex nihilo." 
+Eve's object literal, and allows you to create objects "ex nihilo." Also note
+the clone statement, which allows you to efficiently deep copy objects.
 */
-proto X {
+proto obj1 {
 	var y = 5;
 	def g = () {
-		def h = () {
-			print("inner function");
-		}
-		var q = 6;
-		print("q is " ~ q);
-		self.y = 10;
-		print("y is " ~ self.y);
-		h();
+		print("y is: " ~ self.y);
 	}
 }
 
-var x = clone X;
-x.g();
-print("global x.y is " ~ x.y);
+var obj2 = clone obj1;
+obj2.y = 10;
 
-var d = 5.0;
-d = d + 1.5;
-print("d is " ~ d);
+obj2.g = () {
+	print("a different function printing y: " ~ self.y);
+}
+
+obj1.g();
+obj2.g();

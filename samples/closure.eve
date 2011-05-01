@@ -7,28 +7,21 @@ return the first identifier it finds, so don't shadow! closure:: only works
 in functions. Anywhere else will throw a closure scope not present error.
 */
 
-def Animal = AnimalCtor(noise, fluff) {
-	var fluffy = clone fluff;
-	def anotherFunc = anotherFunc() {
-		print("fluffy is " ~ fluffy);
-		proto Animal2 {
-			def makeNoise = makeNoise() {
-				print(fluffy ~ " " ~ noise);
-			}
+def Animal = AnimalCtor(noise) {
+	proto Animal2 {
+		def makeNoise = makeNoise() {
+			print(noise);
 		}
 	}
-	return anotherFunc;
+	
+	return Animal2;
 }
 
-var cat = Animal("meow", "durp");
-cat = cat();
+var cat = Animal("meow");
+var dog = Animal("woof");
 cat.makeNoise();
-
-var dog = Animal("woof", "burp");
-dog = dog();
 dog.makeNoise();
 
-//cat.makeNoise();
 //You can even use closure:: to refer to the object holding the function.
 proto obj {
 	var aProp = 10;
@@ -43,4 +36,4 @@ proto obj {
 	}
 }
 
-//obj.demonstrate();
+obj.demonstrate();

@@ -6,6 +6,7 @@ import org.antlr.runtime.RecognitionException;
 
 import eve.core.EveCore;
 import eve.core.EveObject;
+import eve.core.Script;
 import eve.eni.NativeCode;
 import eve.eni.NativeFunction;
 import eve.scope.ScopeManager;
@@ -25,7 +26,24 @@ public class Core {
 				
 				EveCore core = new EveCore();
 				try {
-					core.run(file);
+					Script script = core.getScript(file);
+					ScopeManager.setNamespace("global");
+					ScopeManager.pushScope(ScopeManager.getGlobalScope());
+
+					if (!script.getNamespace().equals("global")) {
+						ScopeManager.setNamespace(script.getNamespace());
+						ScopeManager.createGlobalScope();
+					}
+					
+					eve.eni.stdlib.Java.init();
+					eve.eni.stdlib.Core.init();
+					script.execute();
+					ScopeManager.revertNamespace();
+					
+					if (!script.getNamespace().equals("global")) {
+						ScopeManager.revertNamespace();
+					}
+					
 				} catch (RecognitionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
