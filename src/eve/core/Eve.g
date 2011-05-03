@@ -31,6 +31,9 @@ tokens {
 	PRINT_EXPR;
 	PRINTLN_EXPR;
 	PRINTLN_EMPTY;
+	ARRAY_ACCESS;
+	ARRAY_IDENT;
+	PROPERTY;
 }
 
 @header {
@@ -49,10 +52,10 @@ tokens {
         String msg = getErrorMessage(e, tokenNames);
         throw new EveError(hdr + " " + msg);
     }
-    
-    public void recover(RecognitionException e) {
- 	    String hdr = getErrorHeader(e);
-        throw new EveError(hdr + " " + e.getMessage());
+        
+    public void reportError(RecognitionException e) {
+    	String hdr = getErrorHeader(e);
+    	throw new EveError(hdr + " " + e.toString());
     }
 }
 
@@ -172,6 +175,8 @@ parameters
 functionInvocationExpression
 	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
 	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
+	//:	expression '(' ')' -> ^(INVOKE_FUNCTION_EXPR expression)
+	//|	expression '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
 	;
 
 //If statements
@@ -182,6 +187,14 @@ ifStatement
 	;
 
 //Expressions
+arrayExpression
+	:	'[' expression ']' -> ^(ARRAY_ACCESS expression)
+	;
+	
+subprop
+	:	('.' IDENT)* -> IDENT*
+	;
+	
 term
 	:	IDENT
 	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
@@ -193,6 +206,8 @@ term
 	|	LIST_LITERAL
 	|	functionInvocationExpression
 	|	ns=IDENT '::' functionInvocationExpression -> ^(NS_SWITCH_EXPR $ns functionInvocationExpression)
+	|	IDENT arrayExpression+ -> ^(ARRAY_IDENT IDENT arrayExpression+)
+	|	parent=IDENT '.' prop=IDENT subprop-> ^(PROPERTY $parent $prop subprop)
 	|	cloneExpression
 	;
 	
@@ -242,13 +257,11 @@ LIST_LITERAL
 
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
-fragment DOT : '.' ;
-fragment ARRAY_ACCESS : '[' DIGIT+ ']' ;
 fragment SCOPE_OP : ':' ':' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
-IDENT : LETTER (DOT | ARRAY_ACCESS | LETTER | DIGIT)*;
+IDENT : LETTER ( LETTER | DIGIT)*;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};
