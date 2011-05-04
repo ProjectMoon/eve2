@@ -175,8 +175,6 @@ parameters
 functionInvocationExpression
 	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
 	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
-	//:	expression '(' ')' -> ^(INVOKE_FUNCTION_EXPR expression)
-	//|	expression '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
 	;
 
 //If statements
@@ -187,28 +185,29 @@ ifStatement
 	;
 
 //Expressions
-arrayExpression
-	:	'[' expression ']' -> ^(ARRAY_ACCESS expression)
-	;
-	
-subprop
-	:	('.' IDENT)* -> IDENT*
-	;
-	
-term
+atom
 	:	IDENT
-	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	|	'('! expression ')'!
-	|	INTEGER
-	|	DOUBLE
+ 	|	INTEGER
+ 	|	DOUBLE
 	|	BOOLEAN
 	|	STRING_LITERAL
 	|	LIST_LITERAL
-	|	functionInvocationExpression
-	|	ns=IDENT '::' functionInvocationExpression -> ^(NS_SWITCH_EXPR $ns functionInvocationExpression)
-	|	IDENT arrayExpression+ -> ^(ARRAY_IDENT IDENT arrayExpression+)
-	|	parent=IDENT '.' prop=IDENT subprop-> ^(PROPERTY $parent $prop subprop)
-	|	cloneExpression
+	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
+	;
+
+term
+	:	(atom -> atom) ( suffix[$term.tree] -> suffix )*
+	;
+	
+modifiers 
+	:	expression (','! expression)*
+	;
+
+suffix [CommonTree term]
+	:	( x='(' modifiers? ')' -> ^(INVOKE_FUNCTION_EXPR {$term} ^(FUNCTION_PARAMETERS modifiers)? ))
+	|	( x='[' modifiers  ']' -> ^(ARRAY_IDENT {$term} modifiers) )
+	|	( x='.' (p=IDENT|p=INTEGER) -> ^(PROPERTY {$term} $p) )
 	;
 	
 boolNegation
