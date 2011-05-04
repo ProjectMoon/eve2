@@ -89,19 +89,10 @@ namespace
 	:	'namespace' IDENT ';' -> ^(NAMESPACE IDENT)
 	;
 
-// Namespaces
-scopeStatement
-	:	ns=IDENT '::' scopedStatement -> ^(NS_SWITCH_BLOCK $ns scopedStatement)
-	;
-	
-scopedStatement
-	:	functionInvocationStatement
-	;	
-	
 // Statements
 statement
 	:	codeStatement
-	|	scopeStatement
+	//|	scopeStatement
 	;
 	
 codeStatement //Statements that can appear pretty much anywhere.
@@ -109,13 +100,18 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	returnStatement
 	|	assignmentStatement
 	|	initVariableStatement
-	|	functionInvocationStatement
+	//|	functionInvocationStatement
 	|	ifStatement
 	|	foreachLoop
 	|	whileLoop
 	|	protoStatement
+	|	expressionStatement
 	;
 	
+expressionStatement
+	:	';'!
+	|	expression ';'!
+	;
 returnStatement
 	:	'return'^ expression ';'!
 	;
@@ -128,30 +124,25 @@ printStatement
 	
 assignmentStatement
 	:	IDENT '=' expression ';' -> ^(UPDATE_VARIABLE IDENT expression)
-	|	prop=IDENT '=' name=IDENT? function ';'? -> ^(UPDATE_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
+	|	prop=IDENT '=' name=IDENT? function -> ^(UPDATE_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 	
 initVariableStatement
 	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
-	|	'def' prop=IDENT '=' name=IDENT? function ';'? -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
+	|	'def' prop=IDENT '=' name=IDENT? function -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 
 protoStatement
-	: 'proto' IDENT '{' codeStatement* '}' ';'? -> ^(INIT_PROTO IDENT codeStatement*)
+	: 'proto' IDENT '{' codeStatement* '}' -> ^(INIT_PROTO IDENT codeStatement*)
 	;
 	
-functionInvocationStatement
-	:	IDENT '(' functionInvocationParameters ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT functionInvocationParameters)
-	|	IDENT '(' ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT)
-	;
-
 //Loops
 foreachLoop
-	:	'for' '(' i1=IDENT ':' i2=IDENT ')' '{' codeStatement* '}' ';'? -> ^(FOREACH $i1 $i2 ^(LOOP_BODY codeStatement*))
+	:	'for' '(' i1=IDENT ':' i2=IDENT ')' '{' codeStatement* '}' -> ^(FOREACH $i1 $i2 ^(LOOP_BODY codeStatement*))
 	;
 
 whileLoop
-	:	'while' '(' expression ')' '{' codeStatement* '}' ';'? -> ^(WHILE expression ^(LOOP_BODY codeStatement*))
+	:	'while' '(' expression ')' '{' codeStatement* '}' -> ^(WHILE expression ^(LOOP_BODY codeStatement*))
 	;
 
 //Prototype cloning
@@ -168,15 +159,6 @@ function
 	:	'(' (IDENT (',' IDENT)*)* '...'? ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT* '...'?) ^(FUNCTION_BODY codeStatement*)
 	;
 	
-parameters
-	:	'(' IDENT (',' IDENT)* ')' -> ^(FUNCTION_PARAMETERS IDENT*)
-	;
-	
-functionInvocationExpression
-	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
-	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
-	;
-
 //If statements
 ifStatement
 	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
@@ -204,10 +186,10 @@ modifiers
 	:	expression (','! expression)*
 	;
 
-suffix [CommonTree term]
-	:	( x='(' modifiers? ')' -> ^(INVOKE_FUNCTION_EXPR {$term} ^(FUNCTION_PARAMETERS modifiers)? ))
-	|	( x='[' modifiers  ']' -> ^(ARRAY_IDENT {$term} modifiers) )
-	|	( x='.' (p=IDENT|p=INTEGER) -> ^(PROPERTY {$term} $p) )
+suffix [CommonTree t]
+	:	( x='(' modifiers? ')' -> ^(INVOKE_FUNCTION_EXPR {$t} ^(FUNCTION_PARAMETERS modifiers)? ))
+	|	( x='[' modifiers  ']' -> ^(ARRAY_IDENT {$t} modifiers) )
+	|	( x='.' (p=IDENT|p=INTEGER) -> ^(PROPERTY {$t} $p) )
 	;
 	
 boolNegation
