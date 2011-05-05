@@ -36,7 +36,8 @@ public class ScopeManager {
 	 */
 	static {
 		//global is the referenceable pointer to the global namespace.
-		//_global is the "actual" global namespace.
+		//_global is the default namespace. This allows getObject to enforce
+		//use of global:: for finding global variables.
 		Deque<EveObject> globalScope = new ArrayDeque<EveObject>();
 		namespaces.put("global", globalScope);
 		namespaces.put("_global", globalScope);
@@ -165,49 +166,7 @@ public class ScopeManager {
 	}
 	
 	public static EveObject getVariable(String name) {
-		String[] split = name.split("\\.");
-			
-		if (split.length > 1) {
-			String resolvedObj = split[0];
-			
-			EveObject eo = getObject(resolvedObj);
-			if (eo == null) {
-				throw new EveError(resolvedObj + " is undefined");
-			}
-			
-			for (int c = 1; c < split.length; c++) {
-				String ident = split[c];
-				List<Integer> indices = indexOperatorAnalysis(ident);
-				if (indices != null) {
-					eo = eo.getField(stripIndices(ident));
-					eo = getByIndex(eo, indices);
-				}
-				else {
-					eo = eo.getField(ident);
-				}
-				
-				if (eo == null && c != split.length - 1) {
-					throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
-				}
-				
-				resolvedObj += "." + ident;
-			}
-			
-			return eo;
-		}
-		else {
-			EveObject obj = null;
-			List<Integer> indices = indexOperatorAnalysis(name);
-			if (indices != null) {
-				obj = getObject(stripIndices(name));
-				obj = getByIndex(obj, indices);
-			}
-			else {
-				obj = getObject(name);	
-			}
-
-			return obj;
-		}
+		return getObject(name);	
 	}
 	
 	/**
@@ -243,106 +202,7 @@ public class ScopeManager {
 	}
 	
 	public static void putVariable(String name, EveObject eo) {
-		String[] split = name.split("\\.");
-		
-		EveObject obj = getCurrentScope();
-		
-		//can either be property (dot) assignment, or simple assignment.
-		if (split.length > 1) {
-			String resolvedObj = split[0];
-			obj = obj.getField(split[0]);
-			if (obj == null) {
-				throw new EveError(resolvedObj + " is undefined");
-			}
-
-			//resolve down to the object to the property before the one we want.
-			Integer index = null; //only used if we find out that we need to assign an indexed prop.
-			for (int c = 1; c < split.length; c++) {
-				name = split[c];
-				index = null;
-				
-				//do this instead of looping to length - 1
-				//so name can be assigned at least once.
-				if (c == split.length - 1) {
-					//might have an index access on our hands...
-					List<Integer> indices = indexOperatorAnalysis(name);
-					if (indices != null) {
-						obj = obj.getField(stripIndices(name));
-						obj = getParentByIndex(obj, indices);
-						index = indices.get(indices.size() - 1);
-					}
-					break;
-				}
-
-				List<Integer> indices = indexOperatorAnalysis(name);
-				if (indices != null) {
-					obj = obj.getField(stripIndices(name));
-					obj = getByIndex(obj, indices);
-					index = indices.get(indices.size() - 1);
-				}
-				else {
-					obj = obj.getField(name);
-				}
-					
-				//allow undefined properties at the end, but not
-				//during resolution.
-				if (obj == null && c != split.length - 1) {
-					throw new EveError("property " + name + " of " + resolvedObj + " is undefined");
-				}
-					
-				resolvedObj += "." + name;
-			}
-			
-			if (obj == null) {
-				throw new EveError(resolvedObj + " is undefined in current scope");
-			}
-			
-			//create a clone if we need to. 
-			if (obj.isMarkedForClone()) {
-				EveObject parent = null;
-				if (resolvedObj.contains(".")) {
-					parent = getParentVariable(resolvedObj);
-				}
-				else {
-					parent = getVariable(resolvedObj);
-				}
-				String[] propSplit = resolvedObj.split("\\.");
-				String prop = "";
-				
-				if (propSplit.length > 1) {
-					prop = stripIndices(propSplit[propSplit.length - 1]);
-				}
-				else {
-					prop = stripIndices(name);
-				}
-				
-				obj = obj.eveClone();
-				parent.putField(prop, obj);
-			}
-			
-			//indexed property assignment vs regular property assignment.
-			if (index != null) {
-				obj.setIndexedProperty(index, eo);
-			}
-			else {
-				obj.putField(name, eo);
-			}
-		}
-		else {
-			//simple non-property assignment.
-			List<Integer> indices = indexOperatorAnalysis(name);
-			if (indices != null) {
-				obj = obj.getField(stripIndices(name));
-				
-				if (indices.size() > 1) {
-					obj = getParentByIndex(obj, indices);
-				}
-				
-				obj.setIndexedProperty(indices.get(indices.size() - 1), eo);
-			}
-
-			obj.putField(name, eo);
-		}
+		getCurrentScope().putField(name, eo);
 	}
 		
 	public static boolean inFunction() {

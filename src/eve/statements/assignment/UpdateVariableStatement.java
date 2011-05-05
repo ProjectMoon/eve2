@@ -1,27 +1,56 @@
 package eve.statements.assignment;
 
+import java.util.Deque;
+import java.util.List;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
+import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
+import eve.statements.expressions.IdentExpression;
+import eve.statements.expressions.IndexedAccess;
+import eve.statements.expressions.PropertyResolution;
 
-public class UpdateVariableStatement extends AssignmentStatement implements EveStatement {
+public class UpdateVariableStatement extends AbstractStatement implements EveStatement {
+	private ExpressionStatement assignmentExpr, valueExpr;
 	
-	public UpdateVariableStatement(String identifier, ExpressionStatement expression) {
-		super(identifier, expression);
+	public UpdateVariableStatement(ExpressionStatement assignmentExpr, ExpressionStatement valueExpr) {
+		this.assignmentExpr = assignmentExpr;
+		this.valueExpr = valueExpr;
 	}
 	
 	@Override
 	public EveObject execute() {
-		//Verify that stuff exists.
-		String identifier = this.getIdentifier();
-		EveObject eo = ScopeManager.getVariable(identifier);
+		EveObject value = valueExpr.execute();
 		
-		if (eo == null && !identifier.contains(".") && !identifier.matches(".+\\[[0-9]+\\]*")) {
-			throw new EveError("variable " + identifier + " does not exist in the current scope.");
+		if (assignmentExpr instanceof IdentExpression) {
+			ScopeManager.putVariable(((IdentExpression)assignmentExpr).getIdentifier(), value);
 		}
+		else if (assignmentExpr instanceof PropertyResolution) {
+			EveObject eo = ((PropertyResolution)assignmentExpr).getExpression().execute();
+			String ident = ((PropertyResolution)assignmentExpr).getIdentifier();
+			eo.putField(ident, value);
+		}
+		else if (assignmentExpr instanceof IndexedAccess) {
+			EveObject eo = ((IndexedAccess)assignmentExpr).getObjExpression().execute();
+			EveObject index = ((IndexedAccess)assignmentExpr).getAccessExpression().execute();
+			eo.setIndexedProperty(index.getIntValue(), value);
+		}
+	
+		return null;
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		// TODO Auto-generated method stub
 		
-		return super.execute();
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

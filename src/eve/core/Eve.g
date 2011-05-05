@@ -99,7 +99,6 @@ statement
 codeStatement //Statements that can appear pretty much anywhere.
 	:	printStatement
 	|	returnStatement
-	|	assignmentStatement
 	|	initVariableStatement
 	|	ifStatement
 	|	foreachLoop
@@ -121,12 +120,7 @@ printStatement
 	|	'println' '(' expression ')' ';' -> ^(PRINTLN_EXPR expression)
 	|	'println' '(' ')' ';' -> ^(PRINTLN_EMPTY)
 	;
-	
-assignmentStatement
-	:	IDENT '=' expression ';' -> ^(UPDATE_VARIABLE IDENT expression)
-	|	prop=IDENT '=' name=IDENT? function -> ^(UPDATE_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
-	;
-	
+		
 initVariableStatement
 	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
 	|	'def' prop=IDENT '=' name=IDENT? function -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
@@ -213,7 +207,11 @@ add
 	;
 
 relation
-	:	add (('=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
+	:	add ((assignment^ | '=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
+	;
+	
+assignment
+	:	'=' -> UPDATE_VARIABLE
 	;
 	
 expression

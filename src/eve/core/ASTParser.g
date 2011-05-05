@@ -182,11 +182,11 @@ assignFunctionUp
 updateFunctionUp
 	:	^(UPDATE_FUNCTION IDENT .*) {
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
-			AssignmentStatement as = new UpdateVariableStatement($IDENT.text, expr);
+			//AssignmentStatement as = new UpdateVariableStatement($IDENT.text, expr);
 	
 			//we are now back on global (or proto).		
-			ScopeManager.getCurrentConstructionScope().addStatement(as);
-			EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");	
+			//ScopeManager.getCurrentConstructionScope().addStatement(as);
+			//EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");	
 		}
 	;
 		
@@ -375,12 +375,16 @@ initVariableStatement
 	;
 
 updateVariableStatement
-	:	^(UPDATE_VARIABLE IDENT e=expression) {
-			EveLogger.debug("Update variable " + $IDENT.text + " to " + e);
-			AssignmentStatement as = new UpdateVariableStatement($IDENT.text, e);
-			as.setLine($IDENT.getLine());
-			ScopeManager.getCurrentConstructionScope().addStatement(as);
-			previousStatement = as;
+	:	^(UPDATE_VARIABLE e1=expression e2=expression) {
+			EveLogger.debug("Update variable " + e1 + " to " + e2);
+			UpdateVariableStatement uv = new UpdateVariableStatement(e1, e2);
+			uv.setLine($UPDATE_VARIABLE.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(uv);
+			previousStatement = uv;
+			//AssignmentStatement as = new UpdateVariableStatement($IDENT.text, e);
+			//as.setLine($IDENT.getLine());
+			//ScopeManager.getCurrentConstructionScope().addStatement(as);
+			//previousStatement = as;
 		}
 	;
 
@@ -446,16 +450,12 @@ whileLoopUp
 expression returns [ExpressionStatement result]
 	//Array access and properties.
 	:	^(PROPERTY e=expression prop=IDENT) {
-			PropertyResolution res = new PropertyResolution(e, prop.getText());
-			ScopeManager.getCurrentConstructionScope().addStatement(res);
-			res.setLine($PROPERTY.getLine());
-			previousStatement = res;
+			$result = new PropertyResolution(e, prop.getText());
+			$result.setLine($PROPERTY.getLine());
 		}
 	|	^(ARRAY_IDENT e=expression access=expression) {
-			IndexedAccess ia = new IndexedAccess(e, access);
-			ScopeManager.getCurrentConstructionScope().addStatement(ia);
-			ia.setLine($ARRAY_IDENT.getLine());
-			previousStatement = ia;
+			$result = new IndexedAccess(e, access);
+			$result.setLine($ARRAY_IDENT.getLine());
 		}
 	
 	//Operators
