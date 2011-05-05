@@ -170,6 +170,7 @@ atom
 	|	STRING_LITERAL
 	|	LIST_LITERAL
 	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
+	|	cloneExpression
 	;
 
 term
