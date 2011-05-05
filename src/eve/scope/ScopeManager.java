@@ -1,15 +1,11 @@
 package eve.scope;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import eve.core.EveError;
 import eve.core.EveObject;
@@ -101,106 +97,17 @@ public class ScopeManager {
 	
 		return null;
 	}
-	
-	private static List<Integer> indexOperatorAnalysis(String name) {
-		if (name != null && name.matches(".+\\[[0-9]+\\]*")) {
-			List<Integer> indices = new ArrayList<Integer>();
-			Pattern pattern = Pattern.compile("\\[[0-9]+\\]");
-			Matcher matcher = pattern.matcher(name);
-			
-			while (matcher.find()) {
-				String indexStr = matcher.group();
-				int start = indexStr.indexOf("[") + 1;
-				int end = indexStr.indexOf("]");
-				String index = indexStr.substring(start, end);
-				indices.add(new Integer(index));
-			}
-			
-			return indices;
-		}
-		else {
-			return null;
-		}
-	}
-	/**
-	 * Gets the "parent" variable of a property in the current scope. When given
-	 * a name such as "x.y.z", x.y will be returned. If there is no dot, then the
-	 * scope above the current scope is returned. 
-	 * @param name a valid identifier. e.g "x", "x.y".
-	 * @return "parent" EveObject.
-	 */
-	public static EveObject getParentVariable(String name) {
-		String[] split = name.split("\\.");
 		
-		if (split.length > 1) {
-			String resolvedObj = split[0];
-			
-			EveObject eo = getObject(resolvedObj);
-			if (eo == null) {
-				throw new EveError(resolvedObj + " is undefined");
-			}
-			
-			for (int c = 1; c < split.length - 1; c++) {
-				String ident = split[c];
-				List<Integer> indices = indexOperatorAnalysis(ident);
-				if (indices != null) {
-					eo = eo.getField(stripIndices(ident));
-					eo = getByIndex(eo, indices);
-				}
-				else {
-					eo = eo.getField(ident);
-				}
-				
-				if (eo == null) {
-					throw new EveError("property " + ident + " of " + resolvedObj + " is undefined");
-				}
-				
-				resolvedObj += "." + ident;
-			}
-			
-			return eo;
-		}
-		else {
-			return parentScope;
-		}
-	}
-	
 	public static EveObject getVariable(String name) {
 		return getObject(name);	
 	}
 	
 	/**
-	 * Removes [index]s from the given identifier. The name is assumed to be
-	 * in the correct format. If there are no index accessors, it just returns
-	 * the name that was passed in.
-	 * @param name
-	 * @return The name without any index properties.
+	 * Places a variable at the current scope. The name passed in must be a valid
+	 * identifier.
+	 * @param name The identifier to place at the current scope.
+	 * @param eo The value to place at the current scope.
 	 */
-	private static String stripIndices(String name) {
-		if (name.contains("[")) {
-			return name.substring(0, name.indexOf("["));
-		}
-		else {
-			return name;
-		}
-	}
-	
-	private static EveObject getByIndex(EveObject obj, List<Integer> indices) {
-		for (int index : indices) {
-			obj = obj.getIndexedProperty(index);
-		}
-		
-		return obj;
-	}
-	
-	private static EveObject getParentByIndex(EveObject obj, List<Integer> indices) {
-		for (int c = 0; c < indices.size() - 1; c++) {
-			obj = obj.getIndexedProperty(indices.get(c));
-		}
-		
-		return obj;
-	}
-	
 	public static void putVariable(String name, EveObject eo) {
 		getCurrentScope().putField(name, eo);
 	}

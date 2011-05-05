@@ -26,7 +26,8 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 		EveObject value = valueExpr.execute();
 		
 		if (assignmentExpr instanceof IdentExpression) {
-			ScopeManager.putVariable(((IdentExpression)assignmentExpr).getIdentifier(), value);
+			String ident = ((IdentExpression)assignmentExpr).getIdentifier();
+			ScopeManager.putVariable(ident, value);
 		}
 		else if (assignmentExpr instanceof PropertyResolution) {
 			EveObject eo = ((PropertyResolution)assignmentExpr).getExpression().execute();
