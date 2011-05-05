@@ -494,9 +494,9 @@ expression returns [ExpressionStatement result]
 			$result = new FunctionInvokeExpression(i);
 			$result.setLine($INVOKE_FUNCTION_EXPR.getLine());
 		}
-	|	^(CLONE_PROTO IDENT) {
-			$result = new CloneExpression($IDENT.text);
-			$result.setLine($IDENT.getLine());				
+	|	^(CLONE e=expression) {
+			$result = new CloneExpression(e);
+			$result.setLine($CLONE.getLine());				
 		}
 	|	IDENT {
 			$result = new IdentExpression($IDENT.text);

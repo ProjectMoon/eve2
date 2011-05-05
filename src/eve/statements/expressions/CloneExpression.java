@@ -10,17 +10,17 @@ import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
 public class CloneExpression extends ExpressionStatement implements EveStatement {
-	private String identifier;
+	private ExpressionStatement expression;
 	
-	public CloneExpression(String identifier) {
-		this.identifier = identifier;
+	public CloneExpression(ExpressionStatement expression) {
+		this.expression = expression;
 	}
 
 	@Override
 	public EveObject execute() {
-		EveObject proto = ScopeManager.getVariable(identifier);
-		if (proto != null && proto.isCloneable()) {
-			return proto.eveClone();
+		EveObject eo = expression.execute();
+		if (eo != null && eo.isCloneable()) {
+			return eo.eveClone();
 		}
 		else {
 			throw new EveError("prototype is undefined or uncloneable");
@@ -29,13 +29,13 @@ public class CloneExpression extends ExpressionStatement implements EveStatement
 	
 	@Override
 	public String toString() {
-		return "clone " + identifier;
+		return "clone " + expression.toString();
 	}
 
 	@Override
 	public List<String> getIdentifiers() {
-		ArrayList<String> idents = new ArrayList<String>(1);
-		idents.add(identifier);
+		ArrayList<String> idents = new ArrayList<String>();
+		idents.addAll(expression.getIdentifiers());
 		return idents;
 	}
 

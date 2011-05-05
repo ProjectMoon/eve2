@@ -21,7 +21,7 @@ tokens {
 	INVOKE_FUNCTION_STMT;
 	INVOKE_FUNCTION_EXPR;
 	INIT_PROTO;
-	CLONE_PROTO;
+	CLONE;
 	IF_STATEMENT;
 	ELSE_IF;
 	ELSE;
@@ -139,11 +139,6 @@ whileLoop
 	:	'while' '(' expression ')' '{' codeStatement* '}' -> ^(WHILE expression ^(LOOP_BODY codeStatement*))
 	;
 
-//Prototype cloning
-cloneExpression
-	:	'clone' IDENT -> ^(CLONE_PROTO IDENT)
-	;
-
 //Function related stuff
 functionInvocationParameters
 	:	expression (',' expression)* -> (expression)* //apparently this somehow rewrites the entire thing to "p1 p2 p3 ..."
@@ -219,7 +214,7 @@ andOr
 	;
 	
 expression
-	:	'clone' andOr -> ^(CLONE_PROTO andOr)
+	:	'clone' andOr -> ^(CLONE andOr)
 	|	andOr
 	;
 	
