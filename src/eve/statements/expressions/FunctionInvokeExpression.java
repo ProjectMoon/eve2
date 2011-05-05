@@ -4,49 +4,50 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
 public class FunctionInvokeExpression extends ExpressionStatement implements EveStatement {
-	private String identifier;
+	public ExpressionStatement funcExpr;
 	private List<ExpressionStatement> parameters = new ArrayList<ExpressionStatement>();
 	
-	public FunctionInvokeExpression(String identifier, List<ExpressionStatement> parameters) {
-		this.identifier = identifier;
+	public FunctionInvokeExpression(ExpressionStatement funcExpr, List<ExpressionStatement> parameters) {
+		this.funcExpr = funcExpr;
 		this.parameters = parameters;
 	}
 	
-	public FunctionInvokeExpression(String identifier, ExpressionStatement parameter) {
-		this.identifier = identifier;
+	public FunctionInvokeExpression(ExpressionStatement funcExpr, ExpressionStatement parameter) {
+		this.funcExpr = funcExpr;
 		this.parameters.add(parameter);
 	}
 	
-	public FunctionInvokeExpression(String identifier) {
-		this.identifier = identifier;
+	public FunctionInvokeExpression(ExpressionStatement funcExpr) {
+		this.funcExpr = funcExpr;
 		this.parameters = null;
 	}
 	
 	@Override
 	public EveObject execute() {
-		EveObject result = new EveObject();
-		EveObject funcVariable = ScopeManager.getVariable(identifier);
+		EveObject funcVariable = funcExpr.execute();
+		
+		if (funcVariable == null || funcVariable.getType() != EveType.FUNCTION) {
+			throw new EveError(funcVariable + " is not a function.");
+		}
 		
 		//Pass down self for inner functions, and get the parent variable for
 		//top level functions.
 		EveObject objContext = ScopeManager.getVariable("self");
 		if (objContext == null) {
-			objContext = ScopeManager.getParentVariable(identifier);
+			//get parent scope somehow.
+			objContext = ScopeManager.getCurrentScope();
 		}
 		
-		if (funcVariable != null && funcVariable.getType() == EveType.FUNCTION) {
-			List<EveObject> actualParameters = getActualParameters();
-			funcVariable.putTempField("self", objContext);
-			result = funcVariable.invoke(actualParameters);
-		}
-		
-		return result;
+		List<EveObject> actualParameters = getActualParameters();
+		funcVariable.putTempField("self", objContext);
+		return funcVariable.invoke(actualParameters);
 	}
 	
 	private List<EveObject> getActualParameters() {
@@ -65,7 +66,7 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 	
 	@Override
 	public String toString() {
-		String res = identifier + "(";
+		String res = funcExpr.toString() + "(";
 		for (ExpressionStatement statement : parameters) {
 			res += statement.toString() + ",";
 		}

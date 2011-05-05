@@ -233,7 +233,15 @@ codeStatement
 	|	returnStatement
 	|	initVariableStatement
 	|	updateVariableStatement
-	|	invokeFunctionStatement
+	|	expressionStatement
+	;
+	
+expressionStatement
+	:	^(EXPR_STATEMENT e=expression) {
+			e.setLine($EXPR_STATEMENT.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(e);
+			previousStatement = e;
+		}
 	;
 
 printStatement
@@ -375,7 +383,8 @@ updateVariableStatement
 			previousStatement = as;
 		}
 	;
-	
+
+/*	
 invokeFunctionStatement
 	:	^(INVOKE_FUNCTION_STMT IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
 			//args invocation
@@ -394,6 +403,7 @@ invokeFunctionStatement
 			previousStatement = expr;
 		}
 	;
+*/
 	
 //Loops
 foreachLoopDown
@@ -434,8 +444,22 @@ whileLoopUp
 	
 //Expressions
 expression returns [ExpressionStatement result]
+	//Array access and properties.
+	:	^(PROPERTY e=expression prop=IDENT) {
+			PropertyResolution res = new PropertyResolution(e, prop.getText());
+			ScopeManager.getCurrentConstructionScope().addStatement(res);
+			res.setLine($PROPERTY.getLine());
+			previousStatement = res;
+		}
+	|	^(ARRAY_IDENT e=expression access=expression) {
+			IndexedAccess ia = new IndexedAccess(e, access);
+			ScopeManager.getCurrentConstructionScope().addStatement(ia);
+			ia.setLine($ARRAY_IDENT.getLine());
+			previousStatement = ia;
+		}
+	
 	//Operators
-	:	^('~' op1=expression op2=expression) { $result = new ConcatExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('~' op1=expression op2=expression) { $result = new ConcatExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('-' op1=expression op2=expression) { $result = new MinusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('*' op1=expression op2=expression) { $result = new MultiplicationExpression(op1, op2); $result.setLine(op1.getLine()); }
@@ -458,15 +482,17 @@ expression returns [ExpressionStatement result]
 			$result = new NamespacedExpression($IDENT.text, e);
 			$result.setLine($IDENT.getLine());
 		}
-	|	^(INVOKE_FUNCTION_EXPR IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
+	//for these next 2, need to replace IDENT with an expression.
+	|	^(INVOKE_FUNCTION_EXPR i=expression (e=expression { pushFunctionInvocationParam(e); })*) {
 			List<ExpressionStatement> params = getFunctionInvocationParams();
-			EveLogger.debug("invoking function " + $IDENT.text + " as expression with params " + params);
-			$result = new FunctionInvokeExpression($IDENT.text, params);
-			$result.setLine($IDENT.getLine());
+			EveLogger.debug("invoking function " + i + " as expression with params " + params);
+			$result = new FunctionInvokeExpression(i, params);
+			$result.setLine($INVOKE_FUNCTION_EXPR.getLine());
 		}
-	|	^(INVOKE_FUNCTION_EXPR IDENT) {
-			$result = new FunctionInvokeExpression($IDENT.text);
-			$result.setLine($IDENT.getLine());
+	|	^(INVOKE_FUNCTION_EXPR i=expression) {
+			System.out.println("invoke function expr " + i);
+			$result = new FunctionInvokeExpression(i);
+			$result.setLine($INVOKE_FUNCTION_EXPR.getLine());
 		}
 	|	^(CLONE_PROTO IDENT) {
 			$result = new CloneExpression($IDENT.text);

@@ -34,6 +34,7 @@ tokens {
 	ARRAY_ACCESS;
 	ARRAY_IDENT;
 	PROPERTY;
+	EXPR_STATEMENT;
 }
 
 @header {
@@ -100,7 +101,6 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	returnStatement
 	|	assignmentStatement
 	|	initVariableStatement
-	//|	functionInvocationStatement
 	|	ifStatement
 	|	foreachLoop
 	|	whileLoop
@@ -110,7 +110,7 @@ codeStatement //Statements that can appear pretty much anywhere.
 	
 expressionStatement
 	:	';'!
-	|	expression ';'!
+	|	expression ';' -> ^(EXPR_STATEMENT expression)
 	;
 returnStatement
 	:	'return'^ expression ';'!
@@ -187,9 +187,9 @@ modifiers
 	;
 
 suffix [CommonTree t]
-	:	( x='(' modifiers? ')' -> ^(INVOKE_FUNCTION_EXPR {$t} ^(FUNCTION_PARAMETERS modifiers)? ))
+	:	( x='(' modifiers? ')' -> ^(INVOKE_FUNCTION_EXPR {$t} modifiers? ))
 	|	( x='[' modifiers  ']' -> ^(ARRAY_IDENT {$t} modifiers) )
-	|	( x='.' (p=IDENT|p=INTEGER) -> ^(PROPERTY {$t} $p) )
+	|	( x='.' (p=IDENT) -> ^(PROPERTY {$t} $p) )
 	;
 	
 boolNegation
