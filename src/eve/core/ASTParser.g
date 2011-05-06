@@ -15,7 +15,7 @@ options {
 	import eve.statements.expressions.*;
 	import eve.statements.expressions.bool.*;
 	import eve.statements.loop.*;
-	import eve.scope.ScopeManager;
+	import eve.scope.*;
 	import java.util.Queue;
 	import java.util.Set;
 	import java.util.LinkedList;
@@ -98,6 +98,7 @@ topdown
 	|	nsSwitchDown
 	|	foreachLoopDown
 	|	whileLoopDown
+	|	functionBodyDown
 	;
 
 bottomup
@@ -111,6 +112,7 @@ bottomup
 	|	nsSwitchUp
 	|	foreachLoopUp
 	|	whileLoopUp
+	|	functionBodyUp
 	;
 	
 //namespace declaration and switching
@@ -142,7 +144,8 @@ assignFunctionDown
 			//Create new FunctionExpression.
 			FunctionDefExpression expr = new FunctionDefExpression();
 			expr.setLine($IDENT.getLine());
-			ScopeManager.pushConstructionScope(expr);
+			//ScopeManager.pushConstructionScope(expr);
+			currentFuncExpr = expr;
 			EveLogger.debug("Creating new function expression for " + $IDENT.text);
 	}
 	;
@@ -160,8 +163,8 @@ updateFunctionDown
 functionNameDown
 	:	^(FUNCTION_NAME IDENT .*) {
 			//we have to be in a function definition!
-			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
-			expr.setName($IDENT.text);
+			//FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
+			currentFuncExpr.setName($IDENT.text);
 			EveLogger.debug("named function expression " + $IDENT.text);
 		}
 	;
@@ -170,15 +173,32 @@ assignFunctionUp
 	:	^(INIT_FUNCTION IDENT .*) {
 			//Create new Assignment statement.
 			//This MUST be a function def, otherwise there's a serious problem.
-			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
-			AssignmentStatement as = new InitVariableStatement($IDENT.text, expr);
+			//FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
+			AssignmentStatement as = new InitVariableStatement($IDENT.text, currentFuncExpr);
 	
 			//we are now back on global (or proto).		
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
 			EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");
-	}
+		}
 	;
-		
+
+functionBodyDown
+	:	^(FUNCTION_BODY .*) {
+			EveLogger.debug("pushing " + currentFuncExpr);
+			ScopeManager.pushConstructionScope(currentFuncExpr);
+		}
+	;
+	
+functionBodyUp
+	:	^(FUNCTION_BODY .*) {
+			ConstructionScope cs = ScopeManager.getCurrentConstructionScope();
+			if (cs instanceof FunctionDefExpression) {
+				EveLogger.debug("popping current func expr " + cs);
+				currentFuncExpr = (FunctionDefExpression)cs;
+				ScopeManager.popConstructionScope();
+			}
+		}
+	;		
 updateFunctionUp
 	:	^(UPDATE_FUNCTION IDENT .*) {
 			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
@@ -194,13 +214,13 @@ functionParametersUp
 	:	^(FUNCTION_PARAMETERS (s=IDENT { pushFunctionParam($s.text); })* varargs='...'?) {
 			//This MUST be a function definition, otherwise we have issues.
 			EveLogger.debug("Function parameters for current function");
-			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
+			//FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.getCurrentConstructionScope();
 			List<String> params = getFunctionParams();
-			expr.setParameters(params);
+			currentFuncExpr.setParameters(params);
 			
 			if (varargs != null) {
-				expr.setVarargs(true);
-				expr.setVarargsIndex(params.size() - 1);
+				currentFuncExpr.setVarargs(true);
+				currentFuncExpr.setVarargsIndex(params.size() - 1);
 			}
 		}
 	;
@@ -327,7 +347,6 @@ elseIfStatementUp
 	:	^(ELSE_IF expression .*) {
 			IfStatement ifStatement = (IfStatement)ScopeManager.popConstructionScope();
 			previousStatement = ifStatement;
-			//ScopeManager.getCurrentConstructionScope().addStatement(ifStatement);
 			//current construction scope would not be the if statement, so we do not add here.
 			//that is taken care of going down.
 			EveLogger.debug("Finished creating else-if statement at " + ScopeManager.getCurrentConstructionScope());	
@@ -357,7 +376,6 @@ elseStatementUp
 	:	^(ELSE .*) {
 			IfStatement elseStatement = (IfStatement)ScopeManager.popConstructionScope();
 			previousStatement = elseStatement;
-			//ScopeManager.getCurrentConstructionScope().addStatement(elseStatement);
 			//current construction scope is not the if statmeent, so we do not add here.
 			//that is taken care of going down.
 			EveLogger.debug("Finished creating else statement at " + ScopeManager.getCurrentConstructionScope());	
@@ -376,38 +394,13 @@ initVariableStatement
 
 updateVariableStatement
 	:	^(UPDATE_VARIABLE e1=expression e2=expression) {
-			EveLogger.debug("Update variable " + e1 + " to " + e2);
+			EveLogger.debug("Update variable " + e1 + " to " + e2 + " in " + ScopeManager.getCurrentConstructionScope());
 			UpdateVariableStatement uv = new UpdateVariableStatement(e1, e2);
 			uv.setLine($UPDATE_VARIABLE.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(uv);
 			previousStatement = uv;
-			//AssignmentStatement as = new UpdateVariableStatement($IDENT.text, e);
-			//as.setLine($IDENT.getLine());
-			//ScopeManager.getCurrentConstructionScope().addStatement(as);
-			//previousStatement = as;
 		}
 	;
-
-/*	
-invokeFunctionStatement
-	:	^(INVOKE_FUNCTION_STMT IDENT (e=expression { pushFunctionInvocationParam(e); })*) {
-			//args invocation
-			List<ExpressionStatement> params = getFunctionInvocationParams();
-			EveLogger.debug("invoking function " + $IDENT.text + " as expression with params " + params);
-			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text, params);
-			expr.setLine($IDENT.getLine());
-			ScopeManager.getCurrentConstructionScope().addStatement(expr);
-			previousStatement = expr;
-		}
-	|	^(INVOKE_FUNCTION_STMT IDENT) {
-			//no-args invocation
-			FunctionInvokeExpression expr = new FunctionInvokeExpression($IDENT.text);
-			expr.setLine($IDENT.getLine());
-			ScopeManager.getCurrentConstructionScope().addStatement(expr);
-			previousStatement = expr;
-		}
-	;
-*/
 	
 //Loops
 foreachLoopDown
@@ -482,7 +475,14 @@ expression returns [ExpressionStatement result]
 			$result = new NamespacedExpression($IDENT.text, e);
 			$result.setLine($IDENT.getLine());
 		}
-	//for these next 2, need to replace IDENT with an expression.
+	|	^(INIT_FUNCTION .*) {
+			FunctionDefExpression funcExpr = new FunctionDefExpression();
+			funcExpr.setLine($INIT_FUNCTION.getLine());
+			//ScopeManager.pushConstructionScope(funcExpr);
+			currentFuncExpr = funcExpr;
+			EveLogger.debug("pushing func expr " + funcExpr);
+			$result = funcExpr;	
+		}
 	|	^(INVOKE_FUNCTION_EXPR i=expression (e=expression { pushFunctionInvocationParam(e); })*) {
 			List<ExpressionStatement> params = getFunctionInvocationParams();
 			EveLogger.debug("invoking function " + i + " as expression with params " + params);

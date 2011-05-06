@@ -129,7 +129,7 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	@Override
 	public String toString() {
 		String name = (getName() != null) ? getName() : "function";
-		return "def + " + name + "(" + getParameters().toString() + ")";
+		return name + "(" + getParameters().toString() + ")";
 	}
 	
 	@Override

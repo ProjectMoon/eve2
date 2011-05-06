@@ -50,5 +50,10 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 	public ExpressionStatement getExpression() {
 		return expression;
 	}
+	
+	@Override
+	public String toString() {
+		return expression.toString() + "." + identifier;
+	}
 
 }
