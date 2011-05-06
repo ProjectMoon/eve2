@@ -1,7 +1,6 @@
 package eve.core;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -20,15 +19,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import eve.core.EveParser.program_return;
-import eve.core.builtins.EveBoolean;
-import eve.core.builtins.EveDouble;
-import eve.core.builtins.EveFunction;
-import eve.core.builtins.EveGlobal;
-import eve.core.builtins.EveInteger;
-import eve.core.builtins.EveJava;
-import eve.core.builtins.EveList;
-import eve.core.builtins.EveObjectPrototype;
-import eve.core.builtins.EveString;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
@@ -94,10 +84,10 @@ public class EveCore {
 	}
 	
 	public void run(Script script) {
-		ScopeManager.setNamespace("global");
+		ScopeManager.setNamespace("_global");
 		ScopeManager.createGlobalScope();
 		
-		if (!script.getNamespace().equals("global")) {
+		if (!script.getNamespace().equals("_global")) {
 			ScopeManager.setNamespace(script.getNamespace());
 			ScopeManager.createGlobalScope();
 		}

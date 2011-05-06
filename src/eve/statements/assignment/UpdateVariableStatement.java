@@ -39,6 +39,9 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 			EveObject index = ((IndexedAccess)assignmentExpr).getAccessExpression().execute();
 			eo.setIndexedProperty(index.getIntValue(), value);
 		}
+		else {
+			throw new EveError("invalid left side of assignment statement.");
+		}
 	
 		return null;
 	}

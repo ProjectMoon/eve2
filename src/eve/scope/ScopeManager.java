@@ -13,7 +13,6 @@ import eve.core.EveObject.EveType;
 import eve.core.Script;
 
 public class ScopeManager {
-	private static EveObject parentScope; //right below the current scope in the stack.
 	private static Deque<EveObject> closureScope;
 	
 	//namespaces
@@ -37,7 +36,7 @@ public class ScopeManager {
 		Deque<EveObject> globalScope = new ArrayDeque<EveObject>();
 		namespaces.put("global", globalScope);
 		namespaces.put("_global", globalScope);
-		setNamespace("_global");
+		//setNamespace("_global");
 	}
 	
 	public static EveObject getCurrentScope() {
@@ -45,13 +44,11 @@ public class ScopeManager {
 	}
 	
 	public static void pushScope(EveObject eo) {
-		parentScope = (!getScopeStack().isEmpty()) ? getCurrentScope() : getGlobalScope(); 
 		getScopeStack().push(eo);
 	}
 	
 	public static EveObject popScope() {
 		EveObject prevScope = getScopeStack().pop();
-		parentScope = getScopeStack().peek();
 		prevScope.deleteTempFields();
 		return prevScope;
 	}
