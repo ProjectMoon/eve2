@@ -88,7 +88,6 @@ parameters returns [List<String> result]
 topdown
 	:	namespaceStatement
 	|	assignFunctionDown
-	|	updateFunctionDown
 	|	functionNameDown
 	|	createPrototypeDown
 	|	ifStatementDown
@@ -104,7 +103,6 @@ topdown
 bottomup
 	:	assignFunctionUp
 	|	functionParametersUp
-	|	updateFunctionUp
 	|	ifStatementUp
 	|	elseIfStatementUp
 	|	elseStatementUp
@@ -150,16 +148,6 @@ assignFunctionDown
 	}
 	;
 	
-updateFunctionDown
-	:	^(UPDATE_FUNCTION IDENT .*) {
-			//Create new FunctionExpression.
-			FunctionDefExpression expr = new FunctionDefExpression();
-			expr.setLine($IDENT.getLine());
-			ScopeManager.pushConstructionScope(expr);
-			EveLogger.debug("Creating new function update expression for " + $IDENT.text);	
-		}
-	;
-	
 functionNameDown
 	:	^(FUNCTION_NAME IDENT .*) {
 			//we have to be in a function definition!
@@ -199,16 +187,6 @@ functionBodyUp
 			}
 		}
 	;		
-updateFunctionUp
-	:	^(UPDATE_FUNCTION IDENT .*) {
-			FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
-			//AssignmentStatement as = new UpdateVariableStatement($IDENT.text, expr);
-	
-			//we are now back on global (or proto).		
-			//ScopeManager.getCurrentConstructionScope().addStatement(as);
-			//EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");	
-		}
-	;
 		
 functionParametersUp
 	:	^(FUNCTION_PARAMETERS (s=IDENT { pushFunctionParam($s.text); })* varargs='...'?) {

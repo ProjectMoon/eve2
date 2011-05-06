@@ -14,8 +14,6 @@ tokens {
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
 	INIT_FUNCTION;
-	//FUNCTION_EXPR;
-	UPDATE_FUNCTION;
 	FUNCTION_NAME;
 	FUNCTION_PARAMETERS;
 	FUNCTION_BODY;
@@ -165,7 +163,6 @@ atom
 	|	BOOLEAN
 	|	STRING_LITERAL
 	|	LIST_LITERAL
-	//|Re-enable function assignment (don't forget named functions). Also, see if there's a way to get rid of the semi colon.
 	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
 	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	;
