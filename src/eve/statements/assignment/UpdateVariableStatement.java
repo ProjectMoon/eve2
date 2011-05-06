@@ -1,5 +1,6 @@
 package eve.statements.assignment;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
@@ -48,13 +49,15 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 
 	@Override
 	public void closureAnalysis(Deque<List<String>> closureList) {
-		// TODO Auto-generated method stub
-		
+		assignmentExpr.closureAnalysis(closureList);
+		valueExpr.closureAnalysis(closureList);
 	}
 
 	@Override
 	public List<String> getIdentifiers() {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> idents = new ArrayList<String>();
+		idents.addAll(assignmentExpr.getIdentifiers());
+		idents.addAll(valueExpr.getIdentifiers());
+		return idents;
 	}
 }
