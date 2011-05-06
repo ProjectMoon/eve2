@@ -164,6 +164,7 @@ atom
 	|	BOOLEAN
 	|	STRING_LITERAL
 	|	LIST_LITERAL
+	//|Re-enable function assignment (don't forget named functions). Also, see if there's a way to get rid of the semi colon.
 	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	;
 
