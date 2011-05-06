@@ -9,8 +9,6 @@ import eve.core.EveObject;
 import eve.core.Function;
 import eve.scope.ConstructionScope;
 import eve.statements.EveStatement;
-import eve.statements.IfStatement;
-import eve.statements.assignment.InitVariableStatement;
 
 public class FunctionDefExpression extends ExpressionStatement implements EveStatement, ConstructionScope {
 	private String name;
