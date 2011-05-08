@@ -378,6 +378,13 @@ updateVariableStatement
 			ScopeManager.getCurrentConstructionScope().addStatement(uv);
 			previousStatement = uv;
 		}
+	|	^(PUSH_VARIABLE from=expression to=expression) {
+			EveLogger.debug("push variable statement " + from + " to " + to);
+			PushExpression push = new PushExpression(from, to);
+			push.setLine($PUSH_VARIABLE.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(push);
+			previousStatement = push;
+		}
 	;
 	
 //Loops

@@ -13,6 +13,7 @@ tokens {
 	NEGATION;
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
+	PUSH_VARIABLE;
 	INIT_FUNCTION;
 	FUNCTION_NAME;
 	FUNCTION_PARAMETERS;
@@ -207,6 +208,7 @@ relation
 	
 assignment
 	:	'=' -> UPDATE_VARIABLE
+	|	'=>' -> PUSH_VARIABLE
 	;
 	
 andOr

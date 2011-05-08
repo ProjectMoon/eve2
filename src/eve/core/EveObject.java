@@ -53,11 +53,15 @@ public class EveObject {
 	 */
 	public EveObject() {}
 	
+	public EveObject(EveObject source) {
+		this(source, true);
+	}
+	
 	/**
 	 * Copy constructor. Used for cloning.
 	 * @param source The object to clone.
 	 */
-	public EveObject(EveObject source) {
+	public EveObject(EveObject source, boolean onClone) {
 		if (!source.isCloneable()) {
 			throw new EveError("attempting to clone uncloneable prototype");
 		}
@@ -93,7 +97,7 @@ public class EveObject {
 		HookManager.callCloneHooks(this);
 		
 		//onClone special function.
-		if (source.hasField(SpecialFunctions.ON_CLONE)) {
+		if (onClone && source.hasField(SpecialFunctions.ON_CLONE)) {
 			source.getField(SpecialFunctions.ON_CLONE).putTempField("self", source);
 			source.getField(SpecialFunctions.ON_CLONE).invoke(this);
 		}
@@ -421,6 +425,10 @@ public class EveObject {
 		return eo;
 	}
 	
+	public boolean deleteField(String name) {
+		return this.fields.remove(name) != null;
+	}
+	
 	/**
 	 * Called by ScopeManager.
 	 */
@@ -651,7 +659,11 @@ public class EveObject {
 	 * @return A clone of this EveObject.
 	 */
 	public EveObject eveClone() {
-		return new EveObject(this);
+		return new EveObject(this, true);
+	}
+	
+	public EveObject eventlessClone() {
+		return new EveObject(this, false);
 	}
 	
 	private void markFieldsForClone() {

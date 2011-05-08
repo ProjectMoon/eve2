@@ -41,8 +41,12 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 		//top level functions.
 		EveObject objContext = ScopeManager.getVariable("self");
 		if (objContext == null) {
-			//get parent scope somehow.
-			objContext = ScopeManager.getCurrentScope();
+			if (funcExpr instanceof PropertyResolution) {
+				objContext = ((PropertyResolution)funcExpr).getExpression().execute();
+			}
+			else {
+				objContext = ScopeManager.getCurrentScope();
+			}
 		}
 		
 		List<EveObject> actualParameters = getActualParameters();
