@@ -72,7 +72,7 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 		Map<Integer, EveObject> list = eo.getListMap();
 		
 		for (Map.Entry<Integer, EveObject> entry : list.entrySet()) {
-			ScopeManager.putVariable(variable, entry.getValue());
+			ScopeManager.putVariable(variable, new EveObject(entry.getKey()));
 			loop();
 		}
 	}
