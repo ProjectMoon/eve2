@@ -14,14 +14,13 @@ tokens {
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
 	INIT_FUNCTION;
-	UPDATE_FUNCTION;
 	FUNCTION_NAME;
 	FUNCTION_PARAMETERS;
 	FUNCTION_BODY;
 	INVOKE_FUNCTION_STMT;
 	INVOKE_FUNCTION_EXPR;
 	INIT_PROTO;
-	CLONE_PROTO;
+	CLONE;
 	IF_STATEMENT;
 	ELSE_IF;
 	ELSE;
@@ -31,6 +30,10 @@ tokens {
 	PRINT_EXPR;
 	PRINTLN_EXPR;
 	PRINTLN_EMPTY;
+	ARRAY_ACCESS;
+	ARRAY_IDENT;
+	PROPERTY;
+	EXPR_STATEMENT;
 }
 
 @header {
@@ -49,10 +52,10 @@ tokens {
         String msg = getErrorMessage(e, tokenNames);
         throw new EveError(hdr + " " + msg);
     }
-    
-    public void recover(RecognitionException e) {
- 	    String hdr = getErrorHeader(e);
-        throw new EveError(hdr + " " + e.getMessage());
+        
+    public void reportError(RecognitionException e) {
+    	String hdr = getErrorHeader(e);
+    	throw new EveError(hdr + " " + e.toString());
     }
 }
 
@@ -86,33 +89,27 @@ namespace
 	:	'namespace' IDENT ';' -> ^(NAMESPACE IDENT)
 	;
 
-// Namespaces
-scopeStatement
-	:	ns=IDENT '::' scopedStatement -> ^(NS_SWITCH_BLOCK $ns scopedStatement)
-	;
-	
-scopedStatement
-	:	functionInvocationStatement
-	;	
-	
 // Statements
 statement
 	:	codeStatement
-	|	scopeStatement
+	//|	scopeStatement
 	;
 	
 codeStatement //Statements that can appear pretty much anywhere.
 	:	printStatement
 	|	returnStatement
-	|	assignmentStatement
 	|	initVariableStatement
-	|	functionInvocationStatement
 	|	ifStatement
 	|	foreachLoop
 	|	whileLoop
 	|	protoStatement
+	|	expressionStatement
 	;
 	
+expressionStatement
+	:	';'!
+	|	expression ';' -> ^(EXPR_STATEMENT expression)
+	;
 returnStatement
 	:	'return'^ expression ';'!
 	;
@@ -122,38 +119,23 @@ printStatement
 	|	'println' '(' expression ')' ';' -> ^(PRINTLN_EXPR expression)
 	|	'println' '(' ')' ';' -> ^(PRINTLN_EMPTY)
 	;
-	
-assignmentStatement
-	:	IDENT '=' expression ';' -> ^(UPDATE_VARIABLE IDENT expression)
-	|	prop=IDENT '=' name=IDENT? function ';'? -> ^(UPDATE_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
-	;
-	
+		
 initVariableStatement
 	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
-	|	'def' prop=IDENT '=' name=IDENT? function ';'? -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
+	|	'def' prop=IDENT '=' name=IDENT? function -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 
 protoStatement
-	: 'proto' IDENT '{' codeStatement* '}' ';'? -> ^(INIT_PROTO IDENT codeStatement*)
+	: 'proto' IDENT '{' codeStatement* '}' -> ^(INIT_PROTO IDENT codeStatement*)
 	;
 	
-functionInvocationStatement
-	:	IDENT '(' functionInvocationParameters ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT functionInvocationParameters)
-	|	IDENT '(' ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT)
-	;
-
 //Loops
 foreachLoop
-	:	'for' '(' i1=IDENT ':' i2=IDENT ')' '{' codeStatement* '}' ';'? -> ^(FOREACH $i1 $i2 ^(LOOP_BODY codeStatement*))
+	:	'for' '(' i1=IDENT ':' i2=IDENT ')' '{' codeStatement* '}' -> ^(FOREACH $i1 $i2 ^(LOOP_BODY codeStatement*))
 	;
 
 whileLoop
-	:	'while' '(' expression ')' '{' codeStatement* '}' ';'? -> ^(WHILE expression ^(LOOP_BODY codeStatement*))
-	;
-
-//Prototype cloning
-cloneExpression
-	:	'clone' IDENT -> ^(CLONE_PROTO IDENT)
+	:	'while' '(' expression ')' '{' codeStatement* '}' -> ^(WHILE expression ^(LOOP_BODY codeStatement*))
 	;
 
 //Function related stuff
@@ -165,15 +147,6 @@ function
 	:	'(' (IDENT (',' IDENT)*)* '...'? ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT* '...'?) ^(FUNCTION_BODY codeStatement*)
 	;
 	
-parameters
-	:	'(' IDENT (',' IDENT)* ')' -> ^(FUNCTION_PARAMETERS IDENT*)
-	;
-	
-functionInvocationExpression
-	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
-	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
-	;
-
 //If statements
 ifStatement
 	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
@@ -182,18 +155,30 @@ ifStatement
 	;
 
 //Expressions
-term
+atom
 	:	IDENT
-	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	|	'('! expression ')'!
-	|	INTEGER
-	|	DOUBLE
+ 	|	INTEGER
+ 	|	DOUBLE
 	|	BOOLEAN
 	|	STRING_LITERAL
 	|	LIST_LITERAL
-	|	functionInvocationExpression
-	|	ns=IDENT '::' functionInvocationExpression -> ^(NS_SWITCH_EXPR $ns functionInvocationExpression)
-	|	cloneExpression
+	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
+	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
+	;
+
+term
+	:	(atom -> atom) ( suffix[$term.tree] -> suffix )*
+	;
+	
+modifiers 
+	:	expression (','! expression)*
+	;
+
+suffix [CommonTree t]
+	:	( x='(' modifiers? ')' -> ^(INVOKE_FUNCTION_EXPR {$t} modifiers? ))
+	|	( x='[' modifiers  ']' -> ^(ARRAY_IDENT {$t} modifiers) )
+	|	( x='.' (p=IDENT) -> ^(PROPERTY {$t} $p) )
 	;
 	
 boolNegation
@@ -217,11 +202,20 @@ add
 	;
 
 relation
-	:	add (('=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
+	:	add ((assignment^ | '=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
+	;
+	
+assignment
+	:	'=' -> UPDATE_VARIABLE
+	;
+	
+andOr
+	:	relation (('&&'^ | '||'^) relation)*
 	;
 	
 expression
-	:	relation (('&&'^ | '||'^) relation)*
+	:	'clone' andOr -> ^(CLONE andOr)
+	|	andOr
 	;
 	
 // Tokens
@@ -242,13 +236,11 @@ LIST_LITERAL
 
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
-fragment DOT : '.' ;
-fragment ARRAY_ACCESS : '[' DIGIT+ ']' ;
 fragment SCOPE_OP : ':' ':' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
-IDENT : LETTER (DOT | ARRAY_ACCESS | LETTER | DIGIT)*;
+IDENT : LETTER ( LETTER | DIGIT)*;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};
