@@ -25,7 +25,7 @@
 			</java>
 		</sequential>
 	</macrodef>
-	
+		
 	<!-- resolve all dependencies via Ivy -->
     <target name="dependencies" description="--> retrieve dependencies with ivy">
         <ivy:retrieve />
@@ -51,7 +51,7 @@
 	<!-- compile code -->
 	<target name="compile" depends="antlr" description="--> build eve">
 		<mkdir dir="${build}" />
-		<javac srcdir="${src};${antlr-generated}" destdir="${build}" deprecation="Yes" includeantruntime="false">
+		<javac srcdir="${src};${antlr-generated}" listfiles="true" destdir="${build}" deprecation="Yes" includeantruntime="false">
 			<classpath>
 				<fileset dir="lib/" includes="*.jar" />
 			</classpath>
