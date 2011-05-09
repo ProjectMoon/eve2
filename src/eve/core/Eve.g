@@ -36,6 +36,7 @@ tokens {
 	PROPERTY;
 	EXPR_STATEMENT;
 	PROP_COLLECTION;
+	PROP_COLLECTION_ALL;
 }
 
 @header {
@@ -204,6 +205,7 @@ add
 	:	mult (('+'^ | '-'^ | '~'^) mult)*
 	//object collections here, because assignment takes precedence!
 	|	'{'	p+=IDENT (',' p+=IDENT)* '}' 'of' mult -> ^(PROP_COLLECTION mult $p+)
+	|	'all' 'of' mult -> ^(PROP_COLLECTION_ALL mult)
 	;
 
 relation

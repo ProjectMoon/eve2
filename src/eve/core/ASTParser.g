@@ -467,6 +467,11 @@ expression returns [ExpressionStatement result]
 			$result.setLine($PROP_COLLECTION.getLine());
 			EveLogger.debug("obj collection " + e + " with " + $p);
 		}
+	|	^(PROP_COLLECTION_ALL e=expression) {
+			$result = new PropertyCollectionExpression(e);
+			$result.setLine($PROP_COLLECTION_ALL.getLine());
+			EveLogger.debug("obj collection " + e + " with all props");
+		}
 	|	^(NS_SWITCH_EXPR IDENT e=expression) {
 			$result = new NamespacedExpression($IDENT.text, e);
 			$result.setLine($IDENT.getLine());
