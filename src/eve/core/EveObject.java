@@ -506,6 +506,11 @@ public class EveObject {
 			eo = this.tempFields.get(name);
 		}
 		
+		//accessor method functionality.
+		if (eo != null && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
+			eo = eo.getField("get").invoke();
+		}
+		
 		return eo;
 	}
 	
@@ -737,9 +742,7 @@ public class EveObject {
 		
 		//and now all its fields (and their fields)
 		for (EveObject field : getFields().values()) {
-			if (field.getType() == EveType.FUNCTION) {
-				field.recursePossibleClosures();
-			}
+			field.recursePossibleClosures();
 		}
 	}
 	

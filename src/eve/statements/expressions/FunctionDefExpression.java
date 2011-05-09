@@ -106,11 +106,13 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 			
 			List<String> functionVariables = getIdentifiers();
 			
+			outer:
 			for (List<String> variables : closureList) {
 				for (String variable : variables) {
 					if (functionVariables.contains(variable)) {
 						//this function is possibly a closure!
 						this.isPossibleClosure = true;
+						break outer;
 					}
 				}
 			}
