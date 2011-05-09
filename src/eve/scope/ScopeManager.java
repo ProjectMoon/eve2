@@ -94,6 +94,48 @@ public class ScopeManager {
 	
 		return null;
 	}
+	
+	private static EveObject getScopeForVariable(String name) {
+		EveObject eo = null;
+ 		if (getNamespace().equals("module")) {
+			setNamespace(previousNamespace);
+			eo = getGlobalScope();
+			revertNamespace();
+			return eo;
+		}
+		
+		if (closureScope != null) {
+			for (EveObject closure : closureScope) {
+				eo = closure.getField(name);
+				if (eo != null) {
+					return closure;
+				}
+			}
+		}
+			
+		for (EveObject scope : getScopeStack()) {
+			if (scope != getGlobalScope()) {
+				eo = scope.getField(name);
+				if (eo != null) {
+					return scope;
+				}
+			}
+			else {
+				if (getNamespace().equals("global")) {
+					eo = scope.getField(name);
+					if (eo != null) {
+						return scope;
+					}					
+				}
+			}
+		}
+		
+		if (getCurrentScope() != null && getCurrentScope() == getGlobalScope()) {
+			return getCurrentScope();
+		}
+	
+		return null;
+	}
 		
 	public static EveObject getVariable(String name) {
 		return getObject(name);	
@@ -106,7 +148,8 @@ public class ScopeManager {
 	 * @param eo The value to place at the current scope.
 	 */
 	public static void putVariable(String name, EveObject eo) {
-		getCurrentScope().putField(name, eo);
+		EveObject scope = getScopeForVariable(name);
+		scope.putField(name, eo); 
 	}
 		
 	public static boolean inFunction() {
