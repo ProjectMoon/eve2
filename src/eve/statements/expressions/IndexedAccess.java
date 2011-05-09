@@ -28,17 +28,31 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement {
 	public EveObject execute() {
 		EveObject eo = getObjExpression().execute();
 		
-		if (eo.getType() != EveType.LIST && eo.getType() != EveType.STRING) {
+		if (eo.getType() != EveType.LIST && eo.getType() != EveType.STRING && eo.getType() != EveType.DICT) {
 			throw new EveError(eo + " is not an indexed object.");			
 		}
 		
-		EveObject index = getAccessExpression().execute();
-		
-		if (index.getType() != EveType.INTEGER) {
-			throw new EveError("cannot use " + index + " to access " + eo);
+		if (eo.getType() == EveType.LIST || eo.getType() == EveType.STRING) {
+			EveObject index = getAccessExpression().execute();
+			
+			if (index.getType() != EveType.INTEGER) {
+				throw new EveError("cannot use " + index + " to access " + eo);
+			}
+			
+			return eo.getIndexedProperty(index.getIntValue());
 		}
-		
-		return eo.getIndexedProperty(index.getIntValue());
+		else if (eo.getType() == EveType.DICT) {
+			EveObject key = getAccessExpression().execute();
+			
+			if (key.getType() != EveType.STRING) {
+				throw new EveError("cannot use " + key + " to access " + eo);
+			}
+			
+			return eo.getDictValue(key.getStringValue());
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override

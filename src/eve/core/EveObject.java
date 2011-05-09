@@ -5,10 +5,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeMap;
 
+import eve.core.EveParser.returnStatement_return;
 import eve.core.builtins.EveBoolean;
+import eve.core.builtins.EveDictionary;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveGlobal;
@@ -21,7 +24,7 @@ import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
 public class EveObject {
-	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, JAVA };
+	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA };
 	
 	//the type of this object.
 	private EveType type;
@@ -34,6 +37,7 @@ public class EveObject {
 	private Function functionValue;
 	private Object javaValue;
 	private TreeMap<Integer, EveObject> listValues;
+	private Map<String, EveObject> dictionaryValues;
 	
 	private String typeName;
 	
@@ -53,11 +57,15 @@ public class EveObject {
 	 */
 	public EveObject() {}
 	
+	public EveObject(EveObject source) {
+		this(source, true);
+	}
+	
 	/**
 	 * Copy constructor. Used for cloning.
 	 * @param source The object to clone.
 	 */
-	public EveObject(EveObject source) {
+	public EveObject(EveObject source, boolean onClone) {
 		if (!source.isCloneable()) {
 			throw new EveError("attempting to clone uncloneable prototype");
 		}
@@ -88,12 +96,13 @@ public class EveObject {
 		this.stringValue = source.stringValue;
 		this.doubleValue = source.doubleValue;
 		this.booleanValue = source.booleanValue;
-		this.listValues = (source.listValues != null) ? new TreeMap<Integer, EveObject>(source.listValues) : null;		
+		this.listValues = (source.listValues != null) ? new TreeMap<Integer, EveObject>(source.listValues) : null;
+		this.dictionaryValues = (source.dictionaryValues != null) ? new HashMap<String, EveObject>(source.dictionaryValues) : null;
 		
 		HookManager.callCloneHooks(this);
 		
 		//onClone special function.
-		if (source.hasField(SpecialFunctions.ON_CLONE)) {
+		if (onClone && source.hasField(SpecialFunctions.ON_CLONE)) {
 			source.getField(SpecialFunctions.ON_CLONE).putTempField("self", source);
 			source.getField(SpecialFunctions.ON_CLONE).invoke(this);
 		}
@@ -168,6 +177,16 @@ public class EveObject {
 		this();
 		setStringValue(Character.toString(c));
 	}
+	
+	public EveObject(Map<String, EveObject> d) {
+		this(EveDictionary.getPrototype());
+		setDictionaryValue(d);
+	}
+	
+	public EveObject(Map<String, EveObject> d, boolean clone) {
+		this();
+		setDictionaryValue(d);
+	}
 
 	public static EveObject globalType() {
 		EveObject global = new EveObject(EveGlobal.getPrototype());
@@ -180,6 +199,7 @@ public class EveObject {
 		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
 		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
 		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
+		global.putField(EveDictionary.getPrototype().getTypeName(), EveDictionary.getPrototype());
 		
 		return global;
 	}
@@ -188,7 +208,7 @@ public class EveObject {
 		EveObject eo = new EveObject(EveJava.getPrototype());
 		eo.setType(EveType.JAVA);
 		eo.setTypeName(o.getClass().getName());
-		eo.setObjectValue(o);
+		eo.setJavaValue(o);
 		return eo;
 	}
 		
@@ -299,13 +319,34 @@ public class EveObject {
 		
 		return this.listValues;
 	}
-	
-	public void setObjectValue(Object objectValue) {
+			
+	public void setJavaValue(Object objectValue) {
 		this.javaValue = objectValue;
 	}
 
 	public Object getJavaValue() {
 		return javaValue;
+	}
+	
+	public void setDictionaryValue(Map<String, EveObject> dictionaryValues) {
+		this.setType(EveType.DICT);
+		this.dictionaryValues = dictionaryValues;
+	}
+
+	public Map<String, EveObject> getDictionaryValue() {
+		if (this.getType() != EveType.DICT) {
+			throw new EveError(this + " is not a dict!");
+		}
+		
+		return dictionaryValues;
+	}
+	
+	public EveObject getDictValue(String key) {
+		return getDictionaryValue().get(key);
+	}
+	
+	public void putDictValue(String key, EveObject value) {
+		getDictionaryValue().put(key, value);
 	}
 	
 	/**
@@ -332,6 +373,8 @@ public class EveObject {
 			return this;
 		case JAVA:
 			return this.getJavaValue();
+		case DICT:
+			return this.getDictionaryValue();
 		}
 	
 		throw new EveError("unrecognized type " + getType() + " for getObjectValue()");		
@@ -379,6 +422,41 @@ public class EveObject {
 		}
 	}
 	
+	private int getIndexedLength() {
+		if (getType() == EveType.STRING) {
+			return this.stringValue.length();
+		}
+		else if (getType() == EveType.LIST) { 
+			PriorityQueue<Integer> pq = new PriorityQueue<Integer>(this.listValues.keySet());
+			if (!pq.isEmpty()) {
+				return pq.peek();
+			}
+			else {
+				return 0;
+			}
+		}
+		else {
+			throw new EveError("getIndexedLength only works on lists and strings");
+		}
+	}
+	
+	public void addIndexedValue(EveObject eo) {
+		if (getType() == EveType.STRING) {
+			if (eo.getType() != EveType.STRING) {
+				throw new EveError("can't insert a non-string into a string");
+			}
+			if (eo.getStringValue().length() > 1) {
+				throw new EveError("can only insert one character at last index");
+			}
+			
+			this.stringValue += eo.getStringValue();
+		}
+		else if (getType() == EveType.LIST) {
+			int index = getIndexedLength() + 1;
+			this.listValues.put(index, eo);
+		}
+	}
+	
 	public boolean isIndexed() {
 		return this.getType() == EveType.LIST || this.getType() == EveType.STRING;
 	}
@@ -410,6 +488,16 @@ public class EveObject {
 		this.tempFields.put(name, eo);
 	}
 	
+	public List<String> getFieldNames() {
+		List<String> fieldNames = new ArrayList<String>(fields.size());
+		
+		for (Map.Entry<String, EveObject> entry : fields.entrySet()) {
+			fieldNames.add(entry.getKey());
+		}
+		
+		return fieldNames;
+	}
+	
 	public EveObject getField(String name) {
 		EveObject eo = this.fields.get(name);
 		
@@ -419,6 +507,10 @@ public class EveObject {
 		}
 		
 		return eo;
+	}
+	
+	public boolean deleteField(String name) {
+		return this.fields.remove(name) != null;
 	}
 	
 	/**
@@ -456,6 +548,8 @@ public class EveObject {
 				return this.typeName;
 			case JAVA:
 				return this.typeName;
+			case DICT:
+				return "dict";
 		}
 		
 		throw new EveError("unrecognized type " + getType() + " for getTypeName()");
@@ -479,6 +573,8 @@ public class EveObject {
 			return Function.class;
 		case JAVA:
 			return this.getJavaValue().getClass();
+		case DICT:
+			return Map.class;
 		}
 		
 		throw new EveError("unrecognized type " + getType() + " for getTypeClass()");
@@ -532,6 +628,8 @@ public class EveObject {
 				return "[prototype " + this.getTypeName() + "]";
 			case JAVA:
 				return this.getJavaValue().toString();
+			case DICT:
+				return this.getDictionaryValue().toString();
 		}
 		
 		return "[unknown]";
@@ -651,7 +749,11 @@ public class EveObject {
 	 * @return A clone of this EveObject.
 	 */
 	public EveObject eveClone() {
-		return new EveObject(this);
+		return new EveObject(this, true);
+	}
+	
+	public EveObject eventlessClone() {
+		return new EveObject(this, false);
 	}
 	
 	private void markFieldsForClone() {
@@ -722,6 +824,12 @@ public class EveObject {
 		else if (this.getType() == EveType.FUNCTION && other.getType() == EveType.FUNCTION) {
 			return functionEquals(other);
 		}
+		else if (this.getType() == EveType.LIST && other.getType() == EveType.LIST) {
+			return this.getListMap().equals(other.getListMap());
+		}
+		else if (this.getType() == EveType.DICT && other.getType() == EveType.DICT) {
+			return this.getDictionaryValue().equals(other.getDictionaryValue());
+		}
 		else if (this.getType() == EveType.PROTOTYPE && other.getType() == EveType.PROTOTYPE) {
 			return prototypeEquals(other);
 		}
@@ -732,7 +840,7 @@ public class EveObject {
 		else if (this.getType() == EveType.INTEGER && other.getType() == EveType.DOUBLE) {
 			return this.getIntValue().equals(other.getDoubleValue());
 		}
-		else if (this.getType() == EveType.DOUBLE && other.getType() == EveType.INTEGER){
+		else if (this.getType() == EveType.DOUBLE && other.getType() == EveType.INTEGER) {
 			return this.getDoubleValue().equals(other.getIntValue());
 		}
 		else {
@@ -759,10 +867,12 @@ public class EveObject {
 	}
 	
 	private boolean prototypeEquals(EveObject other) {
+		//TODO: implement prototype equals.
 		return true;
 	}
 	
 	private boolean customTypeEquals(EveObject other) {
+		//TODO: implement custom equals		
 		return true;
 	}
 

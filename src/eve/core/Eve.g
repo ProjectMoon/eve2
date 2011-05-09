@@ -13,6 +13,7 @@ tokens {
 	NEGATION;
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
+	PUSH_VARIABLE;
 	INIT_FUNCTION;
 	FUNCTION_NAME;
 	FUNCTION_PARAMETERS;
@@ -34,6 +35,8 @@ tokens {
 	ARRAY_IDENT;
 	PROPERTY;
 	EXPR_STATEMENT;
+	PROP_COLLECTION;
+	PROP_COLLECTION_ALL;
 }
 
 @header {
@@ -163,6 +166,7 @@ atom
 	|	BOOLEAN
 	|	STRING_LITERAL
 	|	LIST_LITERAL
+	|	DICT_LITERAL
 	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
 	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	;
@@ -199,6 +203,9 @@ mult
 	
 add
 	:	mult (('+'^ | '-'^ | '~'^) mult)*
+	//object collections here, because assignment takes precedence!
+	|	'{'	p+=IDENT (',' p+=IDENT)* '}' 'of' mult -> ^(PROP_COLLECTION mult $p+)
+	|	'all' 'of' mult -> ^(PROP_COLLECTION_ALL mult)
 	;
 
 relation
@@ -207,6 +214,7 @@ relation
 	
 assignment
 	:	'=' -> UPDATE_VARIABLE
+	|	'=>' -> PUSH_VARIABLE
 	;
 	
 andOr
@@ -233,6 +241,9 @@ STRING_LITERAL
 	
 LIST_LITERAL
 	:	'[' ']' ;
+	
+DICT_LITERAL
+	:	'{' '}' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
@@ -242,5 +253,5 @@ DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
 IDENT : LETTER ( LETTER | DIGIT)*;
 
-WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
-COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};
+WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN; };
+COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN; };

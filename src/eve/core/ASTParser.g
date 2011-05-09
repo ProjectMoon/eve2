@@ -378,6 +378,13 @@ updateVariableStatement
 			ScopeManager.getCurrentConstructionScope().addStatement(uv);
 			previousStatement = uv;
 		}
+	|	^(PUSH_VARIABLE from=expression to=expression) {
+			EveLogger.debug("push variable statement " + from + " to " + to);
+			PushExpression push = new PushExpression(from, to);
+			push.setLine($PUSH_VARIABLE.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(push);
+			previousStatement = push;
+		}
 	;
 	
 //Loops
@@ -449,6 +456,22 @@ expression returns [ExpressionStatement result]
 	|	^('<=' op1=expression op2=expression) { $result = new LessThanOrEqualToExpression(op1, op2); $result.setLine(op1.getLine()); }
 	
 	//Everything else.
+	|	^(PROP_COLLECTION e=expression p+=IDENT (p+=IDENT)*) {
+			List<String> props = new ArrayList<String>($p.size());
+			
+			for (Object field : $p) {
+				props.add(field.toString());
+			}
+			
+			$result = new PropertyCollectionExpression(e, props);
+			$result.setLine($PROP_COLLECTION.getLine());
+			EveLogger.debug("obj collection " + e + " with " + $p);
+		}
+	|	^(PROP_COLLECTION_ALL e=expression) {
+			$result = new PropertyCollectionExpression(e);
+			$result.setLine($PROP_COLLECTION_ALL.getLine());
+			EveLogger.debug("obj collection " + e + " with all props");
+		}
 	|	^(NS_SWITCH_EXPR IDENT e=expression) {
 			$result = new NamespacedExpression($IDENT.text, e);
 			$result.setLine($IDENT.getLine());
@@ -499,5 +522,9 @@ expression returns [ExpressionStatement result]
 	|	LIST_LITERAL {
 			$result = new WrappedPrimitiveExpression(new ArrayList<EveObject>());
 			$result.setLine($LIST_LITERAL.getLine());
+		}
+	|	DICT_LITERAL {
+			$result = new WrappedPrimitiveExpression(new HashMap<String, EveObject>());
+			$result.setLine($DICT_LITERAL.getLine());
 		}
 	;	
