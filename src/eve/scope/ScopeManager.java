@@ -130,11 +130,10 @@ public class ScopeManager {
 			}
 		}
 		
-		if (getCurrentScope() != null && getCurrentScope() == getGlobalScope()) {
-			return getCurrentScope();
-		}
-	
-		return null;
+		//if all else fails, return the current scope.
+		//this allows us to assign new variables.
+		//it also covers the global scope
+		return getCurrentScope();
 	}
 		
 	public static EveObject getVariable(String name) {
