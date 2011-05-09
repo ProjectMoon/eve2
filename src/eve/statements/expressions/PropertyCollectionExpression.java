@@ -29,7 +29,6 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 
 	@Override
 	public EveObject execute() {
-		//Create a list of key-value pairs.
 		EveObject dict = new EveObject(new HashMap<String, EveObject>());
 		EveObject eo = objExpr.execute();
 	
