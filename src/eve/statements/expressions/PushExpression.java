@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
@@ -27,17 +28,35 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		EveObject value = from.execute();
 		value = value.eventlessClone();
 		
-		if (to instanceof PropertyResolution) {
-			EveObject eo = ((PropertyResolution)to).getExpression().execute();
-			String ident = ((PropertyResolution)to).getIdentifier();
-			eo.putField(ident, value);
+		if (from instanceof PropertyCollectionExpression) {
+			executeForPropertyCollection(value);
 		}
-		else if (to instanceof IdentExpression) {
-			String ident = ((IdentExpression)to).getIdentifier();
-			ScopeManager.putVariable(ident, value);
+		else {
+			if (to instanceof PropertyResolution) {
+				EveObject eo = ((PropertyResolution)to).getExpression().execute();
+				String ident = ((PropertyResolution)to).getIdentifier();
+				eo.putField(ident, value);
+			}
+			else if (to instanceof IdentExpression) {
+				String ident = ((IdentExpression)to).getIdentifier();
+				ScopeManager.putVariable(ident, value);
+			}
+			else {
+				throw new EveError("invalid right hand of push statement");
+			}
 		}
 		
 		return null;
+	}
+	
+	private void executeForPropertyCollection(EveObject clonedPropCollection) {
+		EveObject eo = to.execute();
+		
+		for (EveObject entry : clonedPropCollection.getListValue()) {
+			String prop = entry.getField("key").toString();
+			EveObject value = entry.getField("value");
+			eo.putField(prop, value);
+		}
 	}
 
 	@Override

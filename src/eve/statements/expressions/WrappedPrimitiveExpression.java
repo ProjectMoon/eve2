@@ -3,6 +3,7 @@ package eve.statements.expressions;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 
 import eve.core.EveError;
 import eve.core.EveObject;
@@ -14,6 +15,7 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	private Double doubleOp;
 	private Boolean booleanOp;
 	private List<EveObject> listOp;
+	private Map<String, EveObject> dictOp;
 	
 	public WrappedPrimitiveExpression(Integer op) {
 		this.intOp = op;
@@ -35,6 +37,10 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		this.listOp = op;
 	}
 	
+	public WrappedPrimitiveExpression(Map<String, EveObject> op) {
+		this.dictOp = op;
+	}
+	
 	@Override
 	public EveObject execute() {	
 		if (intOp != null) {
@@ -51,6 +57,9 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		}
 		else if (listOp != null) {
 			return new EveObject(listOp);
+		}
+		else if (dictOp != null) {
+			return new EveObject(dictOp);
 		}
 		else {
 			throw new EveError("unable to assign wrapped primitive");
@@ -72,6 +81,9 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		}
 		else if (listOp != null) {
 			return listOp;
+		}
+		else if (dictOp != null) {
+			return dictOp;
 		}
 		else {
 			throw new EveError("unable to find operator");

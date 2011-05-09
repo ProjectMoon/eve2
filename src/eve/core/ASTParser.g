@@ -456,6 +456,17 @@ expression returns [ExpressionStatement result]
 	|	^('<=' op1=expression op2=expression) { $result = new LessThanOrEqualToExpression(op1, op2); $result.setLine(op1.getLine()); }
 	
 	//Everything else.
+	|	^(PROP_COLLECTION e=expression p+=IDENT (p+=IDENT)*) {
+			List<String> props = new ArrayList<String>($p.size());
+			
+			for (Object field : $p) {
+				props.add(field.toString());
+			}
+			
+			$result = new PropertyCollectionExpression(e, props);
+			$result.setLine($PROP_COLLECTION.getLine());
+			EveLogger.debug("obj collection " + e + " with " + $p);
+		}
 	|	^(NS_SWITCH_EXPR IDENT e=expression) {
 			$result = new NamespacedExpression($IDENT.text, e);
 			$result.setLine($IDENT.getLine());
@@ -506,5 +517,9 @@ expression returns [ExpressionStatement result]
 	|	LIST_LITERAL {
 			$result = new WrappedPrimitiveExpression(new ArrayList<EveObject>());
 			$result.setLine($LIST_LITERAL.getLine());
+		}
+	|	DICT_LITERAL {
+			$result = new WrappedPrimitiveExpression(new HashMap<String, EveObject>());
+			$result.setLine($DICT_LITERAL.getLine());
 		}
 	;	

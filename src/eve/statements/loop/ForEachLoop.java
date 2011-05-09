@@ -43,6 +43,9 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 		else if (eo.getType() == EveType.STRING) {
 			executeForString(eo);
 		}
+		else if (eo.getType() == EveType.DICT) {
+			executeForDict(eo);
+		}
 		else {
 			executeLoop(eo);
 		}
@@ -72,6 +75,15 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 		Map<Integer, EveObject> list = eo.getListMap();
 		
 		for (Map.Entry<Integer, EveObject> entry : list.entrySet()) {
+			ScopeManager.putVariable(variable, new EveObject(entry.getKey()));
+			loop();
+		}
+	}
+	
+	private void executeForDict(EveObject eo) {
+		Map<String, EveObject> dict = eo.getDictionaryValue();
+		
+		for (Map.Entry<String, EveObject> entry : dict.entrySet()) {
 			ScopeManager.putVariable(variable, new EveObject(entry.getKey()));
 			loop();
 		}

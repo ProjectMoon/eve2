@@ -6,6 +6,7 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
@@ -38,7 +39,16 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 		else if (assignmentExpr instanceof IndexedAccess) {
 			EveObject eo = ((IndexedAccess)assignmentExpr).getObjExpression().execute();
 			EveObject index = ((IndexedAccess)assignmentExpr).getAccessExpression().execute();
-			eo.setIndexedProperty(index.getIntValue(), value);
+			
+			if (index.getType() == EveType.INTEGER) {
+				eo.setIndexedProperty(index.getIntValue(), value);
+			}
+			else if (index.getType() == EveType.STRING) {
+				eo.putDictValue(index.getStringValue(), value);
+			}
+			else {
+				throw new EveError("invalid indexed accessor type");
+			}
 		}
 		else {
 			throw new EveError("invalid left side of assignment statement.");
