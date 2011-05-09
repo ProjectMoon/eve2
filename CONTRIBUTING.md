@@ -40,7 +40,7 @@ plugins:
 
 * IvyDE: <http://ant.apache.org/ivy/ivyde/>
 
-You will need to set up your development to use an Ant Builder. Disable the
+You will need to set up your environment to use an Ant Builder. Disable the
 Java and Script builders for the project, and add build.xml as a new Ant build.
 If you are setting up run configurations, don't forget to put the built jar on
 the classpath. It should be added under the Classpath tab of the run
