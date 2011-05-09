@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.core.builtins.EveDictionary;
@@ -28,6 +29,10 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 	public EveObject execute() {
 		EveObject obj = getExpression().execute();
 		EveObject eo = obj.getField(getIdentifier());
+		
+		if (eo == null) {
+			throw new EveError("property " + getIdentifier() + " of " + getExpression().toString() + " is undefined");
+		}
 		
 		//getter functionality.
 		if (eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
