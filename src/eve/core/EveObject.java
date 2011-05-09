@@ -2,6 +2,7 @@ package eve.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -713,7 +714,7 @@ public class EveObject {
 			
 		//do we have a closure?
 		if (retval != null) {
-			retval.recursePossibleClosures();
+			retval.recursePossibleClosures(null);
 		}
 		
 		if (func.isClosure()) {
@@ -725,20 +726,25 @@ public class EveObject {
 		return retval;
 	}
 	
-	private void recursePossibleClosures() {
+	private Deque<EveObject> recursePossibleClosures(Deque<EveObject> closureStack) {
 		//first, this one.
 		if (this.getType() == EveType.FUNCTION) {
 			Function func = this.getFunctionValue();
 			if (func.isPossibleClosure()) {
 				func.setClosure(true);
-				func.setClosureStack(ScopeManager.createClosureStack());
+				if (closureStack == null) {
+					closureStack = ScopeManager.createClosureStack();
+				}
+				func.setClosureStack(closureStack);
 			}
 		}
 		
 		//and now all its fields (and their fields)
 		for (EveObject field : getFields().values()) {
-			field.recursePossibleClosures();
+			closureStack = field.recursePossibleClosures(closureStack);
 		}
+		
+		return closureStack;
 	}
 	
 	/**

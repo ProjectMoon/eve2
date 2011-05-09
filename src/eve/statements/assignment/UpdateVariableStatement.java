@@ -32,9 +32,7 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 			ScopeManager.putVariable(ident, value);
 		}
 		else if (assignmentExpr instanceof PropertyResolution) {
-			EveObject eo = ((PropertyResolution)assignmentExpr).getExpression().execute();
-			String ident = ((PropertyResolution)assignmentExpr).getIdentifier();
-			eo.putField(ident, value);
+			executeForPropertyResolution((PropertyResolution)assignmentExpr, value);
 		}
 		else if (assignmentExpr instanceof IndexedAccess) {
 			EveObject eo = ((IndexedAccess)assignmentExpr).getObjExpression().execute();
@@ -55,6 +53,20 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 		}
 	
 		return null;
+	}
+
+	private void executeForPropertyResolution(PropertyResolution propertyResolution, EveObject value) {
+		EveObject eo = propertyResolution.getExpression().execute();
+		String ident = propertyResolution.getIdentifier();
+		
+		//setter functionality.
+		EveObject existingField = eo.getField(ident);
+		if (existingField != null && existingField.hasField("set") && existingField.getField("set").getType() == EveType.FUNCTION) {
+			existingField.getField("set").invoke(value);
+		}
+		else {
+			eo.putField(ident, value);
+		}
 	}
 
 	@Override

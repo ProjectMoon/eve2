@@ -5,6 +5,8 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
+import eve.core.builtins.EveDictionary;
 import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
 
@@ -25,7 +27,15 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 	@Override
 	public EveObject execute() {
 		EveObject obj = getExpression().execute();
-		return obj.getField(getIdentifier());
+		EveObject eo = obj.getField(getIdentifier());
+		
+		//getter functionality.
+		if (eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
+			return eo.getField("get").invoke();
+		}
+		else {
+			return eo;
+		}
 	}
 
 	@Override
