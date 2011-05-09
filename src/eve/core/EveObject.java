@@ -506,11 +506,6 @@ public class EveObject {
 			eo = this.tempFields.get(name);
 		}
 		
-		//accessor method functionality.
-		if (eo != null && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
-			eo = eo.getField("get").invoke();
-		}
-		
 		return eo;
 	}
 	
