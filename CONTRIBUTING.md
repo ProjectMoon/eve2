@@ -39,8 +39,11 @@ the IDE recommended. To set up Eclipse for Eve development, use the following
 plugins:
 
 * IvyDE: <http://ant.apache.org/ivy/ivyde/>
-* ANTLR IDE: <http://antlrv3ide.sourceforge.net/>
-   * Under the Code Generator settings, check 'Append Java package to output
-     folder'. This preserves package hierarchy.
-   * This will also require an ANTLR 3 installation. Get the complete version
-     from <http://www.antlr.org>.
+
+You will need to set up your development to use an Ant Builder. Disable the
+Java and Script builders for the project, and add build.xml as a new Ant build.
+If you are setting up run configurations, don't forget to put the built jar on
+the classpath. It should be added under the Classpath tab of the run
+configuration, and must be ABOVE the project folder under user entries. Do not
+DELETE the project, as that is needed for the debugger to follow the source
+code.
