@@ -10,8 +10,10 @@ import eve.core.EveObject.EveType;
 import eve.core.builtins.EveDictionary;
 import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
+import eve.statements.VariableFindingStatement;
+import eve.statements.assignment.Updateable;
 
-public class PointerResolution extends ExpressionStatement implements EveStatement {
+public class PointerResolution extends ExpressionStatement implements EveStatement, Updateable, VariableFindingStatement {
 	private ExpressionStatement expression;
 	private String identifier;
 	
@@ -27,7 +29,13 @@ public class PointerResolution extends ExpressionStatement implements EveStateme
 
 	@Override
 	public EveObject execute() {
-		EveObject obj = getExpression().execute();
+		if (!(getExpression() instanceof VariableFindingStatement)) {
+			throw new EveError(getExpression() + " is not valid for pointer resolution");
+		}
+		
+		VariableFindingStatement vfinder = (VariableFindingStatement)getExpression();
+		vfinder.setUsingMutatorAccessor(false);
+		EveObject obj = vfinder.execute();
 		EveObject eo = obj.getField(getIdentifier());
 		
 		if (eo == null) {
@@ -62,7 +70,31 @@ public class PointerResolution extends ExpressionStatement implements EveStateme
 	
 	@Override
 	public String toString() {
-		return expression.toString() + "." + identifier;
+		return expression.toString() + "->" + identifier;
+	}
+
+	@Override
+	public void updateVariable(EveObject value) {
+		if (!(getExpression() instanceof VariableFindingStatement)) {
+			throw new EveError(getExpression() + " is not valid for pointer resolution");
+		}
+		
+		VariableFindingStatement vfinder = (VariableFindingStatement)getExpression();
+		vfinder.setUsingMutatorAccessor(false);
+		
+		EveObject eo = vfinder.execute();
+		String ident = getIdentifier();
+		eo.putField(ident, value);
+	}
+
+	@Override
+	public boolean isUsingMutatorAccessor() {
+		return false;
+	}
+
+	@Override
+	public void setUsingMutatorAccessor(boolean using) {
+		//Do nothing. PointerResolution never uses mutators and accessors.
 	}
 
 }

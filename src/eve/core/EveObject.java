@@ -648,6 +648,21 @@ public class EveObject {
 		return invoke0(actualParameters);
 	}
 	
+	public EveObject invokeSelf(EveObject self) {
+		this.putTempField("self", self);
+		return invoke0(null);
+	}
+	
+	public EveObject invokeSelf(EveObject self, EveObject ... actualParameters) {
+		this.putTempField("self", self);
+		return invoke0(Arrays.asList(actualParameters));
+	}
+	
+	public EveObject invokeSelf(EveObject self, List<EveObject> actualParameters) {
+		this.putTempField("self", self);
+		return invoke0(actualParameters);
+	}
+	
 	private EveObject invoke0(List<EveObject> actualParameters) {
 		if (this.getType() != EveType.FUNCTION) {
 			throw new EveError(this + " is not a function.");

@@ -9,8 +9,9 @@ import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
+import eve.statements.assignment.Updateable;
 
-public class IndexedAccess extends ExpressionStatement implements EveStatement {
+public class IndexedAccess extends ExpressionStatement implements EveStatement, Updateable {
 	private ExpressionStatement objExpression, accessExpression;
 	
 	public IndexedAccess(ExpressionStatement objExpr, ExpressionStatement accessExpr) {
@@ -77,6 +78,22 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement {
 
 	public ExpressionStatement getObjExpression() {
 		return objExpression;
+	}
+
+	@Override
+	public void updateVariable(EveObject value) {
+		EveObject eo = getObjExpression().execute();
+		EveObject index = getAccessExpression().execute();
+		
+		if (index.getType() == EveType.INTEGER) {
+			eo.setIndexedProperty(index.getIntValue(), value);
+		}
+		else if (index.getType() == EveType.STRING) {
+			eo.putDictValue(index.getStringValue(), value);
+		}
+		else {
+			throw new EveError("invalid indexed accessor type");
+		}		
 	}
 
 }

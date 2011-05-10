@@ -38,6 +38,7 @@ tokens {
 	PROP_COLLECTION;
 	PROP_COLLECTION_ALL;
 	POINTER;
+	DEREF;
 }
 
 @header {
@@ -161,6 +162,7 @@ ifStatement
 //Expressions
 atom
 	:	IDENT
+	|	'*' IDENT -> ^(DEREF IDENT)
 	|	'('! expression ')'!
  	|	INTEGER
  	|	DOUBLE

@@ -10,10 +10,13 @@ import eve.core.EveObject.EveType;
 import eve.core.builtins.EveDictionary;
 import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
+import eve.statements.VariableFindingStatement;
+import eve.statements.assignment.Updateable;
 
-public class PropertyResolution extends ExpressionStatement implements EveStatement {
+public class PropertyResolution extends ExpressionStatement implements EveStatement, VariableFindingStatement, Updateable {
 	private ExpressionStatement expression;
 	private String identifier;
+	private boolean usingMutatorAccessor = true;
 	
 	public PropertyResolution(ExpressionStatement expr, String identifier) {
 		this.setExpression(expr);
@@ -35,12 +38,28 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		}
 		
 		//getter functionality.
-		if (eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
-			return eo.getField("get").invoke();
+		if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
+			return eo.getField("get").invokeSelf(eo);
 		}
 		else {
 			return eo;
 		}
+	}
+	
+	@Override
+	public void updateVariable(EveObject value) {
+		EveObject eo = getExpression().execute();
+		String ident = getIdentifier();
+		
+		//setter functionality.
+		EveObject existingField = eo.getField(ident);
+		if (isUsingMutatorAccessor() && existingField != null && existingField.hasField("set") &&
+				existingField.getField("set").getType() == EveType.FUNCTION) {
+			existingField.getField("set").invokeSelf(existingField, value);
+		}
+		else {
+			eo.putField(ident, value);
+		}	
 	}
 
 	@Override
@@ -71,4 +90,13 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		return expression.toString() + "." + identifier;
 	}
 
+	@Override
+	public boolean isUsingMutatorAccessor() {
+		return usingMutatorAccessor;
+	}
+
+	@Override
+	public void setUsingMutatorAccessor(boolean using) {
+		usingMutatorAccessor = using;
+	}
 }

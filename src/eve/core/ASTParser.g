@@ -510,6 +510,12 @@ expression returns [ExpressionStatement result]
 			$result = new IdentExpression($IDENT.text);
 			$result.setLine($IDENT.getLine());
 		}
+	|	^(DEREF IDENT) {
+			IdentExpression deref = new IdentExpression($IDENT.text);
+			deref.setUsingMutatorAccessor(false);
+			$result = deref;
+			$result.setLine($IDENT.getLine());
+		}
 	|	INTEGER {
 			$result = new WrappedPrimitiveExpression(new Integer($INTEGER.text));
 			$result.setLine($INTEGER.getLine());

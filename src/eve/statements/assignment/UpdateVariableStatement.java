@@ -28,55 +28,14 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 	public EveObject execute() {
 		EveObject value = valueExpr.execute();
 		
-		if (assignmentExpr instanceof IdentExpression) {
-			String ident = ((IdentExpression)assignmentExpr).getIdentifier();
-			ScopeManager.putVariable(ident, value);
-		}
-		else if (assignmentExpr instanceof PropertyResolution) {
-			executeForPropertyResolution((PropertyResolution)assignmentExpr, value);
-		}
-		else if (assignmentExpr instanceof PointerResolution) {
-			executeForPointerResolution((PointerResolution)assignmentExpr, value);
-		}
-		else if (assignmentExpr instanceof IndexedAccess) {
-			EveObject eo = ((IndexedAccess)assignmentExpr).getObjExpression().execute();
-			EveObject index = ((IndexedAccess)assignmentExpr).getAccessExpression().execute();
-			
-			if (index.getType() == EveType.INTEGER) {
-				eo.setIndexedProperty(index.getIntValue(), value);
-			}
-			else if (index.getType() == EveType.STRING) {
-				eo.putDictValue(index.getStringValue(), value);
-			}
-			else {
-				throw new EveError("invalid indexed accessor type");
-			}
-		}
-		else {
+		if (!(assignmentExpr instanceof Updateable)) {
 			throw new EveError("invalid left side of assignment statement.");
 		}
-	
-		return null;
-	}
-
-	private void executeForPropertyResolution(PropertyResolution propertyResolution, EveObject value) {
-		EveObject eo = propertyResolution.getExpression().execute();
-		String ident = propertyResolution.getIdentifier();
 		
-		//setter functionality.
-		EveObject existingField = eo.getField(ident);
-		if (existingField != null && existingField.hasField("set") && existingField.getField("set").getType() == EveType.FUNCTION) {
-			existingField.getField("set").invoke(value);
-		}
-		else {
-			eo.putField(ident, value);
-		}
-	}
-	
-	private void executeForPointerResolution(PointerResolution propertyResolution, EveObject value) {
-		EveObject eo = propertyResolution.getExpression().execute();
-		String ident = propertyResolution.getIdentifier();
-		eo.putField(ident, value);
+		((Updateable)assignmentExpr).updateVariable(value);
+		
+			
+		return null;
 	}
 
 	@Override
