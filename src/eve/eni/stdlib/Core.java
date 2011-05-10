@@ -13,7 +13,7 @@ import eve.scope.ScopeManager;
 
 public class Core {
 	public static void init() {
-		ScopeManager.setNamespace("global");
+		ScopeManager.setNamespace("_global");
 		ScopeManager.putVariable("import", importFunction());
 		ScopeManager.revertNamespace();
 	}
@@ -27,10 +27,10 @@ public class Core {
 				EveCore core = new EveCore();
 				try {
 					Script script = core.getScript(file);
-					ScopeManager.setNamespace("global");
+					ScopeManager.setNamespace("_global");
 					ScopeManager.pushScope(ScopeManager.getGlobalScope());
 
-					if (!script.getNamespace().equals("global")) {
+					if (!script.getNamespace().equals("_global")) {
 						ScopeManager.setNamespace(script.getNamespace());
 						ScopeManager.createGlobalScope();
 					}
@@ -40,7 +40,7 @@ public class Core {
 					script.execute();
 					ScopeManager.revertNamespace();
 					
-					if (!script.getNamespace().equals("global")) {
+					if (!script.getNamespace().equals("_global")) {
 						ScopeManager.revertNamespace();
 					}
 					

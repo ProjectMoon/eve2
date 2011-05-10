@@ -13,12 +13,11 @@ import eve.statements.EveStatement;
 import eve.statements.VariableFindingStatement;
 import eve.statements.assignment.Updateable;
 
-public class PropertyResolution extends ExpressionStatement implements EveStatement, VariableFindingStatement, Updateable {
+public class PointerResolution extends ExpressionStatement implements EveStatement, Updateable, VariableFindingStatement {
 	private ExpressionStatement expression;
 	private String identifier;
-	private boolean usingMutatorAccessor = true;
 	
-	public PropertyResolution(ExpressionStatement expr, String identifier) {
+	public PointerResolution(ExpressionStatement expr, String identifier) {
 		this.setExpression(expr);
 		this.setIdentifier(identifier);
 	}
@@ -30,36 +29,20 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 
 	@Override
 	public EveObject execute() {
-		EveObject obj = getExpression().execute();
+		if (!(getExpression() instanceof VariableFindingStatement)) {
+			throw new EveError(getExpression() + " is not valid for pointer resolution");
+		}
+		
+		VariableFindingStatement vfinder = (VariableFindingStatement)getExpression();
+		vfinder.setUsingMutatorAccessor(false);
+		EveObject obj = vfinder.execute();
 		EveObject eo = obj.getField(getIdentifier());
 		
 		if (eo == null) {
 			throw new EveError("property " + getIdentifier() + " of " + getExpression().toString() + " is undefined");
 		}
 		
-		//getter functionality.
-		if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
-			return eo.getField("get").invokeSelf(eo);
-		}
-		else {
-			return eo;
-		}
-	}
-	
-	@Override
-	public void updateVariable(EveObject value) {
-		EveObject eo = getExpression().execute();
-		String ident = getIdentifier();
-		
-		//setter functionality.
-		EveObject existingField = eo.getField(ident);
-		if (isUsingMutatorAccessor() && existingField != null && existingField.hasField("set") &&
-				existingField.getField("set").getType() == EveType.FUNCTION) {
-			existingField.getField("set").invokeSelf(existingField, value);
-		}
-		else {
-			eo.putField(ident, value);
-		}	
+		return eo;
 	}
 
 	@Override
@@ -87,16 +70,31 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 	
 	@Override
 	public String toString() {
-		return expression.toString() + "." + identifier;
+		return expression.toString() + "->" + identifier;
+	}
+
+	@Override
+	public void updateVariable(EveObject value) {
+		if (!(getExpression() instanceof VariableFindingStatement)) {
+			throw new EveError(getExpression() + " is not valid for pointer resolution");
+		}
+		
+		VariableFindingStatement vfinder = (VariableFindingStatement)getExpression();
+		vfinder.setUsingMutatorAccessor(false);
+		
+		EveObject eo = vfinder.execute();
+		String ident = getIdentifier();
+		eo.putField(ident, value);
 	}
 
 	@Override
 	public boolean isUsingMutatorAccessor() {
-		return usingMutatorAccessor;
+		return false;
 	}
 
 	@Override
 	public void setUsingMutatorAccessor(boolean using) {
-		usingMutatorAccessor = using;
+		//Do nothing. PointerResolution never uses mutators and accessors.
 	}
+
 }
