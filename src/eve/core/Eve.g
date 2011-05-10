@@ -37,6 +37,7 @@ tokens {
 	EXPR_STATEMENT;
 	PROP_COLLECTION;
 	PROP_COLLECTION_ALL;
+	POINTER;
 }
 
 @header {
@@ -183,6 +184,7 @@ suffix [CommonTree t]
 	:	( x='(' modifiers? ')' -> ^(INVOKE_FUNCTION_EXPR {$t} modifiers? ))
 	|	( x='[' modifiers  ']' -> ^(ARRAY_IDENT {$t} modifiers) )
 	|	( x='.' (p=IDENT) -> ^(PROPERTY {$t} $p) )
+	|	( '-' '>' (p=IDENT) -> ^(POINTER {t} $p) )
 	;
 	
 boolNegation

@@ -5,6 +5,7 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
@@ -24,7 +25,12 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 	public EveObject execute() {
 		EveObject eo = ScopeManager.getVariable(identifier);
 		if (eo != null) {
-			return eo;
+			if (eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
+				return eo.getField("get").invoke();
+			}
+			else {
+				return eo;
+			}
 		}
 		else {
 			throw new EveError(identifier + " not defined at current scope.");

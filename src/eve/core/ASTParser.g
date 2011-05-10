@@ -430,10 +430,17 @@ expression returns [ExpressionStatement result]
 	:	^(PROPERTY e=expression prop=IDENT) {
 			$result = new PropertyResolution(e, prop.getText());
 			$result.setLine($PROPERTY.getLine());
+			previousStatement = $result;
+		}
+	|	^(POINTER e=expression prop=IDENT) {
+			$result = new PointerResolution(e, prop.getText());
+			$result.setLine($POINTER.getLine());
+			previousStatement = $result;
 		}
 	|	^(ARRAY_IDENT e=expression access=expression) {
 			$result = new IndexedAccess(e, access);
 			$result.setLine($ARRAY_IDENT.getLine());
+			previousStatement = $result;
 		}
 	
 	//Operators

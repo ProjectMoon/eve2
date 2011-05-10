@@ -3,9 +3,11 @@ package eve.statements.expressions;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
@@ -27,6 +29,11 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 	public EveObject execute() {
 		EveObject value = from.execute();
 		value = value.eventlessClone();
+		
+		if (value.getType() == EveType.DICT) {
+			executeForPropertyCollection(value);
+			return null;
+		}
 		
 		if (from instanceof PropertyCollectionExpression) {
 			executeForPropertyCollection(value);
@@ -52,10 +59,8 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 	private void executeForPropertyCollection(EveObject clonedPropCollection) {
 		EveObject eo = to.execute();
 		
-		for (EveObject entry : clonedPropCollection.getListValue()) {
-			String prop = entry.getField("key").toString();
-			EveObject value = entry.getField("value");
-			eo.putField(prop, value);
+		for (Map.Entry<String, EveObject> entry : clonedPropCollection.getDictionaryValue().entrySet()) {
+			eo.putField(entry.getKey(), entry.getValue());
 		}
 	}
 

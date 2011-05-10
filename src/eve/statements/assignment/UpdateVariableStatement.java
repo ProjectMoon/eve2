@@ -13,6 +13,7 @@ import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
 import eve.statements.expressions.IdentExpression;
 import eve.statements.expressions.IndexedAccess;
+import eve.statements.expressions.PointerResolution;
 import eve.statements.expressions.PropertyResolution;
 
 public class UpdateVariableStatement extends AbstractStatement implements EveStatement {
@@ -33,6 +34,9 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 		}
 		else if (assignmentExpr instanceof PropertyResolution) {
 			executeForPropertyResolution((PropertyResolution)assignmentExpr, value);
+		}
+		else if (assignmentExpr instanceof PointerResolution) {
+			executeForPointerResolution((PointerResolution)assignmentExpr, value);
 		}
 		else if (assignmentExpr instanceof IndexedAccess) {
 			EveObject eo = ((IndexedAccess)assignmentExpr).getObjExpression().execute();
@@ -67,6 +71,12 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 		else {
 			eo.putField(ident, value);
 		}
+	}
+	
+	private void executeForPointerResolution(PointerResolution propertyResolution, EveObject value) {
+		EveObject eo = propertyResolution.getExpression().execute();
+		String ident = propertyResolution.getIdentifier();
+		eo.putField(ident, value);
 	}
 
 	@Override
