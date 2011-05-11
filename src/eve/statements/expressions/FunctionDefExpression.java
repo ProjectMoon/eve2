@@ -8,6 +8,7 @@ import java.util.List;
 import eve.core.EveObject;
 import eve.core.Function;
 import eve.scope.ConstructionScope;
+import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
 public class FunctionDefExpression extends ExpressionStatement implements EveStatement, ConstructionScope {
@@ -89,7 +90,14 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		if (isPossibleClosure) {
 			func.setPossibleClosure(true);
 		}
-				
+
+		//with statement scope?
+		if (ScopeManager.getCurrentScope().getTypeName().equals(EveObject.WITH_STATEMENT_TYPENAME)) {
+			EveObject with = ScopeManager.getCurrentScope();
+			func.setWithScope(with);
+			func.setClosure(true);
+		}
+		
 		EveObject eo = new EveObject(func);
 		return eo;
 	}

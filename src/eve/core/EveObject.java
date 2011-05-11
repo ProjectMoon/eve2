@@ -26,6 +26,7 @@ import eve.scope.ScopeManager;
 
 public class EveObject {
 	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA };
+	public static final String WITH_STATEMENT_TYPENAME = "with-statement";
 	
 	//the type of this object.
 	private EveType type;
@@ -84,11 +85,6 @@ public class EveObject {
 		else {
 			this.setType(source.getType());
 		}
-		
-		//mark all fields as cloned recursively, so that we will know to clone them later
-		//when modifications come in
-		this.markFieldsForClone();
-		this.isMarkedForClone = false;
 		
 		this.setTypeName(source.getTypeName());
 		this.cloneable = source.cloneable;
@@ -224,6 +220,13 @@ public class EveObject {
 		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
 		eo.setType(EveType.PROTOTYPE);
 		eo.setTypeName(typeName);
+		return eo;
+	}
+	
+	public static EveObject withStatementType() {
+		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
+		eo.setType(EveType.CUSTOM);
+		eo.setTypeName(WITH_STATEMENT_TYPENAME);
 		return eo;
 	}
 		
@@ -479,9 +482,6 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
-		if (this.isMarkedForClone()) {
-			
-		}
 		this.fields.put(name, eo);
 	}
 	
@@ -581,14 +581,6 @@ public class EveObject {
 		throw new EveError("unrecognized type " + getType() + " for getTypeClass()");
 	}
 	
-	public void setMarkedForClone(boolean markedForClone) {
-		this.isMarkedForClone = markedForClone;
-	}
-
-	public boolean isMarkedForClone() {
-		return isMarkedForClone;
-	}
-
 	public String toString() {
 		//Utilize custom toString() if present.
 		if (hasField("toString")) {
@@ -750,7 +742,7 @@ public class EveObject {
 				if (closureStack == null) {
 					closureStack = ScopeManager.createClosureStack();
 				}
-				func.setClosureStack(closureStack);
+				func.pushClosures(closureStack);
 			}
 		}
 		else if (this.getType() == EveType.LIST) {
@@ -784,15 +776,6 @@ public class EveObject {
 	
 	public EveObject eventlessClone() {
 		return new EveObject(this, false);
-	}
-	
-	private void markFieldsForClone() {
-		Set<Map.Entry<String, EveObject>> entries = this.fields.entrySet();
-		
-		for (Map.Entry<String, EveObject> entry : entries) {
-			entry.getValue().setMarkedForClone(true);
-			entry.getValue().markFieldsForClone();
-		}
 	}
 		
 	@Override
@@ -912,6 +895,5 @@ public class EveObject {
 		}
 		
 		this.tempFields.clear();
-		this.markFieldsForClone();
 	}
 }

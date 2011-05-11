@@ -39,6 +39,8 @@ tokens {
 	PROP_COLLECTION_ALL;
 	POINTER;
 	DEREF;
+	WITH;
+	WITH_BODY;
 }
 
 @header {
@@ -97,7 +99,6 @@ namespace
 // Statements
 statement
 	:	codeStatement
-	//|	scopeStatement
 	;
 	
 codeStatement //Statements that can appear pretty much anywhere.
@@ -109,8 +110,14 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	whileLoop
 	|	protoStatement
 	|	expressionStatement
+	|	withStatement
 	;
-	
+
+withStatement
+	:	'with' '(' idents+=IDENT (',' idents+=IDENT)* ')' '{' codeStatement* '}'
+		-> ^(WITH $idents+ ^(WITH_BODY codeStatement*))
+	;
+		
 expressionStatement
 	:	';'!
 	|	expression ';' -> ^(EXPR_STATEMENT expression)

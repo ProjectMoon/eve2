@@ -49,6 +49,12 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 			}
 		}
 		
+		//Cannot have global as "self". Otherwise passing self into closures
+		//gets screwed up.
+		if (objContext == ScopeManager.getGlobalScope()) {
+			objContext = null;
+		}
+		
 		List<EveObject> actualParameters = getActualParameters();
 		funcVariable.putTempField("self", objContext);
 		return funcVariable.invoke(actualParameters);
