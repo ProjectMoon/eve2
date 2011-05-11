@@ -126,6 +126,12 @@ public class EveCore {
 		if (parser.hasErrors()) {
 			handleErrors(parser.getErrors());
 		}
+		
+		//If the file is empty, the tree will be null.
+		//Thus, we have an empty script.
+		if (main.tree == null) {
+			return new Script();
+		}
 			
 		//global is root construction scope.
 		Script script = new Script();
