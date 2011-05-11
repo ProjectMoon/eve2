@@ -753,11 +753,22 @@ public class EveObject {
 				func.setClosureStack(closureStack);
 			}
 		}
+		else if (this.getType() == EveType.LIST) {
+			for (EveObject value : getListValue()) {
+				closureStack = value.recursePossibleClosures(closureStack);
+			}
+		}
+		else if (this.getType() == EveType.DICT) {
+			for (Map.Entry<String, EveObject> entry : getDictionaryValue().entrySet()) {
+				closureStack = entry.getValue().recursePossibleClosures(closureStack);
+			}
+		}
 		
 		//and now all its fields (and their fields)
 		for (EveObject field : getFields().values()) {
 			closureStack = field.recursePossibleClosures(closureStack);
 		}
+		
 		
 		return closureStack;
 	}
