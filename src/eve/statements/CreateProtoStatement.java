@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
@@ -28,6 +29,7 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 	
 	@Override
 	public EveObject execute() {
+		verifyNoReturns();
 		EveObject proto = EveObject.prototypeType(protoName);
 		
 		ScopeManager.pushScope(proto);
@@ -38,6 +40,14 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 		return proto;
 	}
 	
+	private void verifyNoReturns() {
+		for (EveStatement statement : protoBlock) {
+			if (statement instanceof ReturnStatement) {
+				throw new EveError("return statements not allowed in proto creation block"); 
+			}
+		}
+	}
+
 	@Override
 	public List<String> getIdentifiers() {
 		ArrayList<String> idents = new ArrayList<String>();
