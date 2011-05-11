@@ -87,6 +87,7 @@ parameters returns [List<String> result]
 
 topdown
 	:	namespaceStatement
+	|	withStatementDown
 	|	assignFunctionDown
 	|	functionNameDown
 	|	createPrototypeDown
@@ -101,7 +102,8 @@ topdown
 	;
 
 bottomup
-	:	assignFunctionUp
+	:	withStatementUp
+	|	assignFunctionUp
 	|	functionParametersUp
 	|	ifStatementUp
 	|	elseIfStatementUp
@@ -112,7 +114,31 @@ bottomup
 	|	whileLoopUp
 	|	functionBodyUp
 	;
+
+//with statement
+withStatementDown
+	:	^(WITH identifiers+=IDENT+ .*) {
+			List<String> idents = new ArrayList<String>($identifiers.size());
+			
+			for (Object ident : $identifiers) {
+				idents.add(ident.toString());
+			}
+			
+			WithStatement with = new WithStatement(idents);
+			with.setLine($WITH.getLine());
+			ScopeManager.pushConstructionScope(with);
+			EveLogger.debug("pushing with statement " + with);
+		}
+	;
 	
+withStatementUp
+	:	^(WITH IDENT+ .*) {
+			WithStatement with = (WithStatement)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(with);
+			EveLogger.debug("popping with statement " + with);
+		}
+	;
+
 //namespace declaration and switching
 namespaceStatement
 	:	^(NAMESPACE IDENT) {
