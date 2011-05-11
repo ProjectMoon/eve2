@@ -38,59 +38,77 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 		EveObject eo = ScopeManager.getVariable(of);
 		
 		if (eo.getType() == EveType.LIST) {
-			executeForList(eo);
+			return executeForList(eo);
 		}
 		else if (eo.getType() == EveType.STRING) {
-			executeForString(eo);
+			return executeForString(eo);
 		}
 		else if (eo.getType() == EveType.DICT) {
-			executeForDict(eo);
+			return executeForDict(eo);
 		}
 		else {
-			executeLoop(eo);
+			return executeLoop(eo);
+		}
+	}
+
+	private EveObject executeLoop(EveObject eo) {
+		Map<String, EveObject> props = eo.getFields();
+		
+		for (Map.Entry<String, EveObject> entry : props.entrySet()) {
+			ScopeManager.putVariable(variable, entry.getValue());
+			EveObject retval = loop();
+			if (retval != null) {
+				return retval;
+			}
 		}
 		
 		return null;
 	}
 
-	private void executeLoop(EveObject eo) {
-		Map<String, EveObject> props = eo.getFields();
-		
-		for (Map.Entry<String, EveObject> entry : props.entrySet()) {
-			ScopeManager.putVariable(variable, entry.getValue());
-			loop();
-		}
-	}
-
-	private void executeForString(EveObject eo) {
+	private EveObject executeForString(EveObject eo) {
 		char[] values = eo.getStringValue().toCharArray();
 		
 		for (char val : values) {
 			ScopeManager.putVariable(variable, new EveObject(val));
-			loop();
+			EveObject retval = loop();
+			if (retval != null) {
+				return retval;
+			}
 		}
+		
+		return null;
 	}
 
-	private void executeForList(EveObject eo) {
+	private EveObject executeForList(EveObject eo) {
 		Map<Integer, EveObject> list = eo.getListMap();
 		
 		for (Map.Entry<Integer, EveObject> entry : list.entrySet()) {
 			ScopeManager.putVariable(variable, new EveObject(entry.getValue()));
-			loop();
+			EveObject retval = loop();
+			if (retval != null) {
+				return retval;
+			}
 		}
+		
+		return null;
 	}
 	
-	private void executeForDict(EveObject eo) {
+	private EveObject executeForDict(EveObject eo) {
 		Map<String, EveObject> dict = eo.getDictionaryValue();
 		
 		for (Map.Entry<String, EveObject> entry : dict.entrySet()) {
 			ScopeManager.putVariable(variable, new EveObject(entry.getKey()));
-			loop();
+			EveObject retval = loop();
+			if (retval != null) {
+				return retval;
+			}
 		}
+		
+		return null;
 	}
 	
-	private void loop() {
-		new Interpreter().executeStatements(getStatements());
+	private EveObject loop() {
+		return new Interpreter().executeStatements(getStatements());
 	}
 
 	@Override
