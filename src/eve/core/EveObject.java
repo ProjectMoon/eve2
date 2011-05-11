@@ -710,9 +710,15 @@ public class EveObject {
 				}
 			}
 		}
-				
+		
+		//are we a closure?
 		if (func.isClosure()) {
 			ScopeManager.setClosureStack(func.getClosureStack());
+		}
+		
+		//named function expression?
+		if (func.getName() != null) {
+			this.putTempField(func.getName(), this);
 		}
 				
 		//switch to function scope and run.
