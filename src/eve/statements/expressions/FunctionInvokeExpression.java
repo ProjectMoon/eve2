@@ -56,8 +56,7 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 		}
 		
 		List<EveObject> actualParameters = getActualParameters();
-		funcVariable.putTempField("self", objContext);
-		return funcVariable.invoke(actualParameters);
+		return funcVariable.invokeSelf(objContext, actualParameters);
 	}
 	
 	private List<EveObject> getActualParameters() {
