@@ -220,7 +220,7 @@ add
 	;
 
 relation
-	:	add ((assignment^ | '=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
+	:	add ((assignment^ | '=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^ | 'in'^) add)*
 	;
 	
 assignment

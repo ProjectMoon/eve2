@@ -488,6 +488,7 @@ expression returns [ExpressionStatement result]
 	|	^('<' op1=expression op2=expression) { $result = new LessThanExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('>=' op1=expression op2=expression) { $result = new GreaterThanOrEqualToExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('<=' op1=expression op2=expression) { $result = new LessThanOrEqualToExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('in' op1=expression op2=expression) { $result = new InExpression(op1, op2); $result.setLine(op1.getLine()); }
 	
 	//Everything else.
 	|	^(PROP_COLLECTION e=expression (p=expression { pushFunctionInvocationParam(p); })*) {
