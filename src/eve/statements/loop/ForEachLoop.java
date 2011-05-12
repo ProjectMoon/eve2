@@ -11,23 +11,26 @@ import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
+import eve.statements.expressions.ExpressionStatement;
 
 public class ForEachLoop extends LoopStatement implements EveStatement, ConstructionScope {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
-	private String variable, of;
+	private String variable;
+	private ExpressionStatement of;
 	
-	public ForEachLoop(String variable, String of) {
+	public ForEachLoop(String variable, ExpressionStatement of) {
 		this.setVariable(variable);
 		this.setOf(of);
 	}
 	
-	public ForEachLoop(String variable, String of, List<EveStatement> statements) {
+	public ForEachLoop(String variable, ExpressionStatement of, List<EveStatement> statements) {
 		this(variable, of);
 		this.setStatements(statements);
 	}
 	
 	@Override
 	public void closureAnalysis(Deque<List<String>> closureList) {
+		of.closureAnalysis(closureList);
 		for (EveStatement statement : getStatements()) {
 			statement.closureAnalysis(closureList);
 		}
@@ -35,7 +38,7 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 
 	@Override
 	public EveObject execute() {
-		EveObject eo = ScopeManager.getVariable(of);
+		EveObject eo = getOf().execute();
 		
 		if (eo.getType() == EveType.LIST) {
 			return executeForList(eo);
@@ -114,7 +117,7 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 	@Override
 	public List<String> getIdentifiers() {
 		List<String> idents = new ArrayList<String>();
-		idents.add(of);
+		idents.addAll(of.getIdentifiers());
 		
 		for (EveStatement statement : getStatements()) {
 			idents.addAll(statement.getIdentifiers());
@@ -144,11 +147,11 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 		return variable;
 	}
 
-	public void setOf(String of) {
+	public void setOf(ExpressionStatement of) {
 		this.of = of;
 	}
 
-	public String getOf() {
+	public ExpressionStatement getOf() {
 		return of;
 	}
 
