@@ -490,16 +490,10 @@ expression returns [ExpressionStatement result]
 	|	^('<=' op1=expression op2=expression) { $result = new LessThanOrEqualToExpression(op1, op2); $result.setLine(op1.getLine()); }
 	
 	//Everything else.
-	|	^(PROP_COLLECTION e=expression p+=IDENT (p+=IDENT)*) {
-			List<String> props = new ArrayList<String>($p.size());
-			
-			for (Object field : $p) {
-				props.add(field.toString());
-			}
-			
-			$result = new PropertyCollectionExpression(e, props);
+	|	^(PROP_COLLECTION e=expression (p=expression { pushFunctionInvocationParam(p); })*) {
+			$result = new PropertyCollectionExpression(e, getFunctionInvocationParams());
 			$result.setLine($PROP_COLLECTION.getLine());
-			EveLogger.debug("obj collection " + e + " with " + $p);
+			EveLogger.debug("obj collection " + e);
 		}
 	|	^(PROP_COLLECTION_ALL e=expression) {
 			$result = new PropertyCollectionExpression(e);

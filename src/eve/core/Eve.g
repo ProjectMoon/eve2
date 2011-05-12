@@ -215,7 +215,7 @@ mult
 add
 	:	mult (('+'^ | '-'^ | '~'^ | 'to'^) mult)*
 	//object collections here, because assignment takes precedence!
-	|	'{'	p+=IDENT (',' p+=IDENT)* '}' 'of' mult -> ^(PROP_COLLECTION mult $p+)
+	|	'{'	expression (',' expression)* '}' 'of' mult -> ^(PROP_COLLECTION mult expression*)
 	|	'all' 'of' mult -> ^(PROP_COLLECTION_ALL mult)
 	;
 
