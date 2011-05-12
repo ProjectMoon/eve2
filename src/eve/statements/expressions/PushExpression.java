@@ -34,26 +34,9 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 			executeForPropertyCollection(value);
 			return null;
 		}
-		
-		if (from instanceof PropertyCollectionExpression) {
-			executeForPropertyCollection(value);
-		}
 		else {
-			if (to instanceof PropertyResolution) {
-				EveObject eo = ((PropertyResolution)to).getExpression().execute();
-				String ident = ((PropertyResolution)to).getIdentifier();
-				eo.putField(ident, value);
-			}
-			else if (to instanceof IdentExpression) {
-				String ident = ((IdentExpression)to).getIdentifier();
-				ScopeManager.putVariable(ident, value);
-			}
-			else {
-				throw new EveError("invalid right hand of push statement");
-			}
+			throw new EveError("invalid left hand of push statement");
 		}
-		
-		return null;
 	}
 	
 	private void executeForPropertyCollection(EveObject clonedPropCollection) {
