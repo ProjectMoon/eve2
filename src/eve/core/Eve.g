@@ -143,7 +143,7 @@ protoStatement
 	
 //Loops
 foreachLoop
-	:	'for' '(' i1=IDENT ':' i2=IDENT ')' '{' codeStatement* '}' -> ^(FOREACH $i1 $i2 ^(LOOP_BODY codeStatement*))
+	:	'for' '(' i1=IDENT ':' e=expression ')' '{' codeStatement* '}' -> ^(FOREACH $i1 $e ^(LOOP_BODY codeStatement*))
 	;
 
 whileLoop
@@ -213,7 +213,7 @@ mult
 	;
 	
 add
-	:	mult (('+'^ | '-'^ | '~'^) mult)*
+	:	mult (('+'^ | '-'^ | '~'^ | 'to'^) mult)*
 	//object collections here, because assignment takes precedence!
 	|	'{'	p+=IDENT (',' p+=IDENT)* '}' 'of' mult -> ^(PROP_COLLECTION mult $p+)
 	|	'all' 'of' mult -> ^(PROP_COLLECTION_ALL mult)

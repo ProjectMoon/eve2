@@ -415,20 +415,20 @@ updateVariableStatement
 	
 //Loops
 foreachLoopDown
-	:	^(FOREACH variable=IDENT of=IDENT .*) {
-			ForEachLoop loop = new ForEachLoop($variable.text, $of.text);
+	:	^(FOREACH variable=IDENT of=expression .*) {
+			ForEachLoop loop = new ForEachLoop($variable.text, of);
 			loop.setLine($variable.getLine());
 			ScopeManager.pushConstructionScope(loop);
 			previousStatement = loop;
-			EveLogger.debug("creating for (" + $variable.text + " : " + $of.text + ")");
+			EveLogger.debug("creating for (" + $variable.text + " : " + of + ")");
 		}
 	;
 	
 foreachLoopUp
-	:	^(FOREACH variable=IDENT of=IDENT .*) {
+	:	^(FOREACH variable=IDENT of=expression .*) {
 			ForEachLoop loop = (ForEachLoop)ScopeManager.popConstructionScope();
 			ScopeManager.getCurrentConstructionScope().addStatement(loop);
-			EveLogger.debug("completed for (" + $variable.text + " : " + $of.text + ")");
+			EveLogger.debug("completed for (" + $variable.text + " : " + of + ")");
 		}
 	;
 	
@@ -476,6 +476,7 @@ expression returns [ExpressionStatement result]
 	|	^('*' op1=expression op2=expression) { $result = new MultiplicationExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op1); $result.setLine(op1.getLine()); }
 	|	^('%' op1=expression op2=expression) { $result = new ModulusExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('to' op1=expression op2=expression) { $result = new RangeExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^(NEGATION e=expression) { $result = new NegationExpression(e); $result.setLine($NEGATION.getLine()); }
 	
 	//Boolean comparison.
