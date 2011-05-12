@@ -8,7 +8,6 @@ import java.util.Map;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
-import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
 public class PushExpression extends ExpressionStatement implements EveStatement {
@@ -35,7 +34,7 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 			return null;
 		}
 		else {
-			throw new EveError("invalid left hand of push statement");
+			throw new EveError("left hand of push statement must evaluate to dict");
 		}
 	}
 	
