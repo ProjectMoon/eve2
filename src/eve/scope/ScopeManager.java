@@ -95,7 +95,7 @@ public class ScopeManager {
 		return null;
 	}
 	
-	private static EveObject getScopeForVariable(String name) {
+	public static EveObject getScopeForVariable(String name) {
 		EveObject eo = null;
  		if (getNamespace().equals("module")) {
 			setNamespace(previousNamespace);

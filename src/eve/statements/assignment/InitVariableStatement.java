@@ -23,6 +23,12 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 	
 	@Override
 	public EveObject execute() {
+		EveObject existing = ScopeManager.getVariable(identifier);
+		
+		if (existing != null) {
+			throw new EveError(identifier + " shadows or overwrites " + identifier + " at scope " + ScopeManager.getScopeForVariable(identifier));
+		}
+		
 		if (getExpression() instanceof IdentExpression) {
 			throw new EveError("identifiers cannot be assigned directly. use clone.");
 		}
