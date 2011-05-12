@@ -263,7 +263,6 @@ INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
 IDENT : LETTER ( LETTER | DIGIT)*;
-TO : '..' ;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN; };
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN; };
