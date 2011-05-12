@@ -7,17 +7,18 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
 import eve.statements.EveStatement;
 
 public class PropertyCollectionExpression extends ExpressionStatement implements EveStatement {
-	private List<String> props;
+	private List<ExpressionStatement> props;
 	private ExpressionStatement objExpr;
 	
 	public PropertyCollectionExpression(ExpressionStatement objExpr) {
 		this.objExpr = objExpr;
 	}
 	
-	public PropertyCollectionExpression(ExpressionStatement objExpr, List<String> props) {
+	public PropertyCollectionExpression(ExpressionStatement objExpr, List<ExpressionStatement> props) {
 		this.objExpr = objExpr;
 		this.props = props;
 	}
@@ -33,7 +34,15 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 		EveObject eo = objExpr.execute();
 	
 		if (props != null) {
-			for (String prop : props) {
+			for (ExpressionStatement propExpr : props) {
+				EveObject propObj = propExpr.execute();
+				
+				if (propObj.getType() != EveType.STRING) {
+					throw new EveError(propExpr + " does not evaluate to string in object collection statement");
+				}
+				
+				String prop = propObj.getStringValue();
+				
 				if (eo.getFieldNames().contains(prop)) {
 					dict.putDictValue(prop, eo.getField(prop));
 				}
@@ -55,8 +64,11 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 	@Override
 	public List<String> getIdentifiers() {
 		List<String> idents = new ArrayList<String>();
-		idents.addAll(props);
 		idents.addAll(objExpr.getIdentifiers());
+		
+		for (ExpressionStatement statement : props) {
+			idents.addAll(statement.getIdentifiers());
+		}
 		return idents;
 	}
 	
