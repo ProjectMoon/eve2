@@ -92,8 +92,8 @@ public class EveCore {
 			ScopeManager.createGlobalScope();
 		}
 		
-		eve.eni.stdlib.Java.init();
-		eve.eni.stdlib.Core.init();
+		eve.eji.stdlib.Java.init();
+		eve.eji.stdlib.Core.init();
 		script.execute();
 		ScopeManager.revertNamespace();
 	}
