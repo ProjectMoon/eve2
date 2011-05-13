@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import eve.core.EveError;
 import eve.core.EveObject;
@@ -69,49 +70,57 @@ public class NativeHelper {
 			throw new EveError("can only map java methods to java types.");
 		}
 		
+		class JavaMethodInvocation extends NativeFunction {
+			private Object o;
+			private Method meth;
+			
+			public JavaMethodInvocation(Object o, Method meth) {
+				this.o = o;
+				this.meth = meth;
+				if (meth.getParameterTypes().length > 0) {
+					setParameters("args");
+					setVarargs(true);
+					setVarargsIndex(0);
+				}
+			}
+			
+			@Override
+			public EveObject execute(Map<String, EveObject> parameters) {
+				EveObject eoArgs = ScopeManager.getVariable("args");
+				try {
+					Object[] args = (eoArgs != null) ? NativeHelper.mapToJava(eoArgs.getListValue()) : null;
+					Object retVal = meth.invoke(o, args);
+					if (retVal != null) {
+						EveObject eo = EveObject.javaType(retVal);
+						mapJavaMethods(eo);
+						return eo;
+					}
+					else {
+						return null;
+					}
+				}
+				catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				return null;
+			}				
+		}
+		
 		
 		final Object o = eo.getObjectValue();
-		for (final Method meth : o.getClass().getMethods()) {
-			final NativeCode nc = new NativeCode() {
-				@Override
-				public EveObject execute() {
-					EveObject eoArgs = ScopeManager.getVariable("args");
-					try {
-						Object[] args = (eoArgs != null) ? NativeHelper.mapToJava(eoArgs.getListValue()) : null;
-						Object retVal = meth.invoke(o, args);
-						if (retVal != null) {
-							EveObject eo = EveObject.javaType(retVal);
-							mapJavaMethods(eo);
-							return eo;
-						}
-						else {
-							return null;
-						}
-					}
-					catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					return null;
-				}		
-			};
-			
-			NativeFunction nfunc = new NativeFunction(nc);
-			if (meth.getParameterTypes().length > 0) {
-				nfunc.addParameter("args");
-				nfunc.setVarargs(true);
-				nfunc.setVarargsIndex(0); //args ...
-			}
-			eo.putField(meth.getName(), new EveObject(nfunc));
+		for (Method meth : o.getClass().getMethods()) {
+			JavaMethodInvocation invocation = new JavaMethodInvocation(o, meth);
+			eo.putField(meth.getName(), new EveObject(invocation));
 		}
 	}
 	

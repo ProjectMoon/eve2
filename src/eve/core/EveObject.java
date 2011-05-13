@@ -21,6 +21,7 @@ import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
 import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
+import eve.eji.DynamicField;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
@@ -487,6 +488,14 @@ public class EveObject {
 	
 	public void putTempField(String name, EveObject eo) {
 		this.tempFields.put(name, eo);
+	}
+	
+	public void putField(String name, DynamicField ejiField) {
+		
+	}
+	
+	public void putTempField(String name, DynamicField ejiField) {
+		
 	}
 	
 	public List<String> getFieldNames() {

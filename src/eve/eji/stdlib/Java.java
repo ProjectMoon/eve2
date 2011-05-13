@@ -2,9 +2,9 @@ package eve.eji.stdlib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 import eve.core.EveObject;
-import eve.eji.NativeCode;
 import eve.eji.NativeFunction;
 import eve.eji.NativeHelper;
 import eve.scope.ScopeManager;
@@ -18,12 +18,18 @@ public class Java {
 	}
 	
 	private static EveObject javaFunction() {
-		final NativeCode nc = new NativeCode() {
+		class JavaFunction extends NativeFunction {
+			public JavaFunction() {
+				setParameters("cname", "ctorArgs");
+				setVarargs(true);
+				setVarargsIndex(1);
+			}
+
 			@Override
-			public EveObject execute() {
-				EveObject cname = ScopeManager.getVariable("cname");
+			public EveObject execute(Map<String, EveObject> parameters) {
+				EveObject cname = parameters.get("cname");
 				String className = cname.getStringValue();
-				EveObject ctorArgs = ScopeManager.getVariable("ctorArgs");
+				EveObject ctorArgs = parameters.get("ctorArgs");
 							
 				try {
 					Constructor<?> ctor = NativeHelper.findConstructor(Class.forName(className), ctorArgs.getListValue());
@@ -53,14 +59,9 @@ public class Java {
 					e.printStackTrace();
 				}
 				return null;
-			}		
-		};
+			}
+		}
 		
-		NativeFunction nfunc = new NativeFunction(nc);
-		nfunc.addParameter("cname");
-		nfunc.addParameter("ctorArgs");
-		nfunc.setVarargs(true);
-		nfunc.setVarargsIndex(1); //ctorArgs ...
-		return new EveObject(nfunc);
+		return new EveObject(new JavaFunction());
 	}
 }

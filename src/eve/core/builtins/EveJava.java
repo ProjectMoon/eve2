@@ -1,13 +1,6 @@
 package eve.core.builtins;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import eve.core.EveObject;
-import eve.eji.NativeCode;
-import eve.eji.NativeFunction;
-import eve.eji.NativeHelper;
-import eve.scope.ScopeManager;
 
 /**
  * 	The java prototype.
