@@ -25,7 +25,9 @@ class EJIField extends DynamicField {
 					return (EveObject)o;
 				}
 				else {
-					return EveObject.javaType(o);
+					EveObject eo = EveObject.javaType(o);
+					EJIHelper.mapJavaMethods(eo);
+					return eo;
 				}
 			}
 		}

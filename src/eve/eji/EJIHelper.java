@@ -3,6 +3,7 @@ package eve.eji;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
+import java.beans.MethodDescriptor;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -77,58 +78,11 @@ public class EJIHelper {
 		if (eo.getType() != EveType.JAVA) {
 			throw new EveError("can only map java methods to java types.");
 		}
-		
-		class JavaMethodInvocation extends EJIFunction {
-			private Object o;
-			private Method meth;
 			
-			public JavaMethodInvocation(Object o, Method meth) {
-				this.o = o;
-				this.meth = meth;
-				if (meth.getParameterTypes().length > 0) {
-					setParameters("args");
-					setVarargs(true);
-					setVarargsIndex(0);
-				}
-			}
-			
-			@Override
-			public EveObject execute(Map<String, EveObject> parameters) {
-				EveObject eoArgs = ScopeManager.getVariable("args");
-				try {
-					Object[] args = (eoArgs != null) ? EJIHelper.mapToJava(eoArgs.getListValue()) : null;
-					Object retVal = meth.invoke(o, args);
-					if (retVal != null) {
-						EveObject eo = EveObject.javaType(retVal);
-						mapJavaMethods(eo);
-						return eo;
-					}
-					else {
-						return null;
-					}
-				}
-				catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				return null;
-			}				
-		}
-		
-		
-		final Object o = eo.getObjectValue();
+		Object o = eo.getObjectValue();
 		for (Method meth : o.getClass().getMethods()) {
-			JavaMethodInvocation invocation = new JavaMethodInvocation(o, meth);
-			eo.putField(meth.getName(), new EveObject(invocation));
+			EJIFunction methodInvocation = EJIFunction.fromJava(o, meth);
+			eo.putField(meth.getName(), new EveObject(methodInvocation));
 		}
 	}
 	
@@ -136,8 +90,15 @@ public class EJIHelper {
 		EveObject eo = EveObject.customType(obj.getClass().getName());
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 		
+		//handle properties
 		for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
 			eo.putField(pd.getName(), new EJIField(obj, pd));	
+		}
+		
+		//handle methods
+		for (MethodDescriptor md : info.getMethodDescriptors()) {
+			EveObject mappedMethod = new EveObject(EJIFunction.fromJava(obj, md.getMethod()));
+			eo.putField(md.getName(), mappedMethod);
 		}
 		
 		return eo;

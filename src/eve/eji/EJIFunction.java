@@ -1,14 +1,18 @@
 package eve.eji;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import eve.core.EveError;
 import eve.core.Function;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 
 public abstract class EJIFunction extends Function {
+	public static EJIFunction fromJava(Object obj, Method meth) {
+		return new JavaMethodInvocation(obj, meth);
+	}
+	
 	@Override
 	public EveObject execute() {
 		Map<String, EveObject> params = new HashMap<String, EveObject>();
