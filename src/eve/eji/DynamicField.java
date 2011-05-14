@@ -3,6 +3,7 @@ package eve.eji;
 import java.util.Map;
 
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
 
 public abstract class DynamicField {
 	public abstract EveObject get();
@@ -29,7 +30,9 @@ public abstract class DynamicField {
 			}
 		}
 		
-		EveObject eo = EveObject.customType("eji");
+		EveObject eo = new EveObject();
+		eo.setTypeName("eji");
+		eo.setType(EveType.PROTOTYPE);
 		eo.putField("get", new EveObject(new DynamicGetter()));
 		eo.putField("set", new EveObject(new DynamicSetter()));
 		return eo;

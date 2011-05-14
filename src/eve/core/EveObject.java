@@ -317,7 +317,7 @@ public class EveObject {
 		return results;
 	}
 	
-	public Map<Integer, EveObject> getListMap() {
+	public TreeMap<Integer, EveObject> getListMap() {
 		if (this.getType() != EveType.LIST){
 			throw new EveError(this + " is not a list!");
 		}
