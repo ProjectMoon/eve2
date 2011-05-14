@@ -13,11 +13,18 @@ import eve.eji.NativeHelper;
  */
 public class EveObjectPrototype extends EveObject {
 	private static final EveObjectPrototype proto = new EveObjectPrototype();
-	private static boolean propertiesSetup = false;
+	private static volatile Boolean propertiesSetup = false;
 	
 	public static EveObjectPrototype getPrototype() {
+		//Lazy initialization of properties, because otherwise
+		//the properties will try to clone this prototype which does
+		//not yet exist.
 		if (!propertiesSetup) {
-			setupProperties();
+			synchronized (propertiesSetup) {
+				if (!propertiesSetup) {
+					setupProperties();
+				}
+			}
 		}
 		return proto;
 	}
