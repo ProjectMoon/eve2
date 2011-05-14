@@ -37,6 +37,7 @@ public class EveCore {
 		opts.addOption("t", false, "print syntax tree");
 		opts.addOption("h", false, "print help");
 		opts.addOption("i", true, "register instrumentation hook");
+		opts.addOption("eji", true, "make EJI types available");
 		
 		CommandLineParser parser = new GnuParser();
 		
@@ -46,6 +47,7 @@ public class EveCore {
 			if (line.hasOption("h")) printHelp(opts);
 			if (line.hasOption("d")) EveLogger.debugLevel();
 			if (line.hasOption("t")) printSyntaxTree = true;
+			if (line.hasOption("eji")) handleEJI(line.getOptionValue("eji"));
 			//more options here...
 			
 			//Find the eve file to run.
@@ -72,6 +74,18 @@ public class EveCore {
 		System.exit(0);
 	}
 	
+	private void handleEJI(String ejiLine) {
+		String[] pkgs = ejiLine.split(File.pathSeparator);
+		
+		EJIScanner scanner = new EJIScanner();
+		
+		for (String pkg : pkgs) {
+			scanner.addPackage(pkg);
+		}
+		
+		scanner.scan();
+	}
+	
 	private void handleErrors(List<String> errors) {
 		for (String error : errors) {
 			System.err.println(error);
@@ -95,11 +109,7 @@ public class EveCore {
 		
 		eve.eji.stdlib.Java.init();
 		eve.eji.stdlib.Core.init();
-		
-		EJIScanner scanner = new EJIScanner();
-		scanner.addPackage("eve.eji");
-		scanner.scan();
-	
+			
 		script.execute();
 		ScopeManager.revertNamespace();
 	}
