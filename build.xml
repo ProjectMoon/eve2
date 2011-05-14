@@ -28,6 +28,7 @@
 		
 	<!-- resolve all dependencies via Ivy -->
     <target name="dependencies" description="--> retrieve dependencies with ivy">
+    	<ivy:configure />
         <ivy:retrieve />
     </target>
 	

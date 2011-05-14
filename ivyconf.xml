@@ -1,0 +1,16 @@
+<ivysettings>
+        <resolvers>
+        	<ibiblio name="mvn-public" m2compatible="true" />			
+			<url name="reflections-repo">
+	  			<artifact pattern="http://reflections.googlecode.com/svn/repo/org/reflections/[module]/[revision]/[artifact]-[revision].[ext]" />
+			</url>
+        </resolvers>
+        
+        <modules>
+        	<!-- url resolver for reflections library -->
+        	<module organisation="org.reflections" resolver="reflections-repo" />
+        	
+        	<!-- use the public MVN repo for everything else -->
+        	<module resolver="mvn-public" />
+        </modules>
+</ivysettings>
