@@ -491,11 +491,13 @@ public class EveObject {
 	}
 	
 	public void putField(String name, DynamicField ejiField) {
-		
+		EveObject eji = ejiField.createObject();
+		putField(name, eji);
 	}
 	
 	public void putTempField(String name, DynamicField ejiField) {
-		
+		EveObject eji = ejiField.createObject();
+		putTempField(name, eji);		
 	}
 	
 	public List<String> getFieldNames() {

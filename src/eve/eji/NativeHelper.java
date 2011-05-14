@@ -14,6 +14,10 @@ import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 
 public class NativeHelper {
+	public static EveObject self() {
+		return ScopeManager.getVariable("self");
+	}
+	
 	public static Constructor<?> findConstructor(Class<?> cl, List<EveObject> params) {
 		return findConstructor(cl, params.toArray(new EveObject[0]));
 	}
