@@ -25,7 +25,7 @@ public class EveList extends EveObject {
 	}
 	
 	private DynamicField lengthProperty() {
-		class Length extends DynamicField {
+		return new DynamicField() {
 			@Override
 			public EveObject get() {
 				EveObject self = NativeHelper.self();
@@ -37,8 +37,6 @@ public class EveList extends EveObject {
 			public void set(EveObject value) {
 				throw new EveError("length is a read-only property");
 			}
-		}
-		
-		return new Length();
+		};
 	}
 }

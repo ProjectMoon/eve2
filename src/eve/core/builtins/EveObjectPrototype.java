@@ -35,7 +35,7 @@ public class EveObjectPrototype extends EveObject {
 	}
 	
 	private static DynamicField typeProperty() {
-		class Type extends DynamicField {
+		return new DynamicField() {
 			@Override
 			public EveObject get() {
 				EveObject self = NativeHelper.self();
@@ -46,9 +46,7 @@ public class EveObjectPrototype extends EveObject {
 			public void set(EveObject value) {
 				throw new EveError("type is a read-only property");
 			}
-		}
-		
-		return new Type();
+		};
 	}
 	
 	private static void setupProperties() {
