@@ -7,10 +7,10 @@ import eve.core.EveError;
 import eve.core.EveObject;
 
 class EJIField extends DynamicField {
-	private EJIType context;
+	private Object context;
 	private PropertyDescriptor pd;
 	
-	public EJIField(EJIType context, PropertyDescriptor pd) {
+	public EJIField(Object context, PropertyDescriptor pd) {
 		this.context = context;
 		this.pd = pd;
 	}

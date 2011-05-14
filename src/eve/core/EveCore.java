@@ -19,6 +19,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import eve.core.EveParser.program_return;
+import eve.eji.EJIScanner;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
@@ -94,6 +95,10 @@ public class EveCore {
 		
 		eve.eji.stdlib.Java.init();
 		eve.eji.stdlib.Core.init();
+		
+		EJIScanner scanner = new EJIScanner();
+		scanner.addPackage("eve.eji");
+		scanner.scan();
 	
 		script.execute();
 		ScopeManager.revertNamespace();

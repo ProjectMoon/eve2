@@ -184,18 +184,7 @@ public class EveObject {
 	}
 
 	public static EveObject globalType() {
-		EveObject global = new EveObject(EveGlobal.getPrototype());
-		
-		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
-		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
-		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
-		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
-		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
-		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
-		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
-		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
-		global.putField(EveDictionary.getPrototype().getTypeName(), EveDictionary.getPrototype());
-		
+		EveObject global = EveGlobal.getPrototype().eventlessClone();
 		return global;
 	}
 	

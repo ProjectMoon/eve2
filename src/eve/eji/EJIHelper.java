@@ -1,5 +1,9 @@
 package eve.eji;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -128,5 +132,15 @@ public class EJIHelper {
 		}
 	}
 	
+	public static EveObject createEJIType(Object obj) throws IntrospectionException {
+		EveObject eo = EveObject.customType(obj.getClass().getName());
+		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
+		
+		for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
+			eo.putField(pd.getName(), new EJIField(obj, pd));	
+		}
+		
+		return eo;
+	}
 
 }
