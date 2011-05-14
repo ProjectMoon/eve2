@@ -5,8 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import eve.core.EveObject;
-import eve.eji.NativeFunction;
-import eve.eji.NativeHelper;
+import eve.eji.EJIFunction;
+import eve.eji.EJIHelper;
 import eve.scope.ScopeManager;
 
 public class Java {
@@ -18,7 +18,7 @@ public class Java {
 	}
 	
 	private static EveObject javaFunction() {
-		class JavaFunction extends NativeFunction {
+		class JavaFunction extends EJIFunction {
 			public JavaFunction() {
 				setParameters("cname", "ctorArgs");
 				setVarargs(true);
@@ -32,10 +32,10 @@ public class Java {
 				EveObject ctorArgs = parameters.get("ctorArgs");
 							
 				try {
-					Constructor<?> ctor = NativeHelper.findConstructor(Class.forName(className), ctorArgs.getListValue());
-					Object o = ctor.newInstance(NativeHelper.mapToJava(ctorArgs.getListValue()));
+					Constructor<?> ctor = EJIHelper.findConstructor(Class.forName(className), ctorArgs.getListValue());
+					Object o = ctor.newInstance(EJIHelper.mapToJava(ctorArgs.getListValue()));
 					EveObject eo = EveObject.javaType(o);
-					NativeHelper.mapJavaMethods(eo);
+					EJIHelper.mapJavaMethods(eo);
 					return eo;
 				}
 				catch (ClassNotFoundException e) {

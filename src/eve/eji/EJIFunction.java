@@ -8,7 +8,7 @@ import eve.core.Function;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 
-public abstract class NativeFunction extends Function {
+public abstract class EJIFunction extends Function {
 	@Override
 	public EveObject execute() {
 		Map<String, EveObject> params = new HashMap<String, EveObject>();

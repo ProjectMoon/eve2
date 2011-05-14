@@ -6,7 +6,7 @@ import java.util.TreeMap;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.eji.DynamicField;
-import eve.eji.NativeHelper;
+import eve.eji.EJIHelper;
 
 public class EveList extends EveObject {
 	private static final EveList proto = new EveList();
@@ -28,7 +28,7 @@ public class EveList extends EveObject {
 		return new DynamicField() {
 			@Override
 			public EveObject get() {
-				EveObject self = NativeHelper.self();
+				EveObject self = EJIHelper.self();
 				TreeMap<Integer, EveObject> list = self.getListMap();		
 				return new EveObject((list.lastKey() - list.firstKey()) + 1);
 			}

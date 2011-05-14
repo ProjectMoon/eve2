@@ -8,7 +8,7 @@ import org.antlr.runtime.RecognitionException;
 import eve.core.EveCore;
 import eve.core.EveObject;
 import eve.core.Script;
-import eve.eji.NativeFunction;
+import eve.eji.EJIFunction;
 import eve.scope.ScopeManager;
 
 public class Core {
@@ -19,7 +19,7 @@ public class Core {
 	}
 	
 	private static EveObject importFunction() {
-		class ImportFunction extends NativeFunction {
+		class ImportFunction extends EJIFunction {
 			public ImportFunction() {
 				setParameters("file");
 			}

@@ -4,7 +4,7 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.eji.DynamicField;
-import eve.eji.NativeHelper;
+import eve.eji.EJIHelper;
 
 /**
  * The object prototype, from which everything is cloned.
@@ -38,7 +38,7 @@ public class EveObjectPrototype extends EveObject {
 		return new DynamicField() {
 			@Override
 			public EveObject get() {
-				EveObject self = NativeHelper.self();
+				EveObject self = EJIHelper.self();
 				return new EveObject(self.getTypeName());
 			}
 

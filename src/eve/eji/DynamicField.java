@@ -10,14 +10,14 @@ public abstract class DynamicField {
 	public abstract void set(EveObject value);
 	
 	public EveObject createObject() {
-		class DynamicGetter extends NativeFunction {
+		class DynamicGetter extends EJIFunction {
 			@Override
 			public EveObject execute(Map<String, EveObject> parameters) {
 				return DynamicField.this.get();
 			}
 		}
 		
-		class DynamicSetter extends NativeFunction {
+		class DynamicSetter extends EJIFunction {
 			public DynamicSetter() {
 				setParameters("value");
 			}

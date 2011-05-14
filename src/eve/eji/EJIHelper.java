@@ -13,7 +13,7 @@ import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 
-public class NativeHelper {
+public class EJIHelper {
 	public static EveObject self() {
 		return ScopeManager.getVariable("self");
 	}
@@ -74,7 +74,7 @@ public class NativeHelper {
 			throw new EveError("can only map java methods to java types.");
 		}
 		
-		class JavaMethodInvocation extends NativeFunction {
+		class JavaMethodInvocation extends EJIFunction {
 			private Object o;
 			private Method meth;
 			
@@ -92,7 +92,7 @@ public class NativeHelper {
 			public EveObject execute(Map<String, EveObject> parameters) {
 				EveObject eoArgs = ScopeManager.getVariable("args");
 				try {
-					Object[] args = (eoArgs != null) ? NativeHelper.mapToJava(eoArgs.getListValue()) : null;
+					Object[] args = (eoArgs != null) ? EJIHelper.mapToJava(eoArgs.getListValue()) : null;
 					Object retVal = meth.invoke(o, args);
 					if (retVal != null) {
 						EveObject eo = EveObject.javaType(retVal);
