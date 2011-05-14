@@ -66,14 +66,25 @@
 		<property name="commons-cli" location="${lib}/commons-cli-1.2.jar" />
 		
 		<!-- copy runtime dependencies to dist/lib -->
-		<copy file="${antlr}" todir="${dist}/lib" />
-		<copy file="${commons-cli}" todir="${dist}/lib" />
-		
+		<!--<copy file="${antlr}" todir="${dist}/lib" />
+		<copy file="${commons-cli}" todir="${dist}/lib" />-->
+			
+		<copy todir="${dist}/lib">
+			<fileset dir="${lib}">
+				<include name="**/*.jar" />
+				<exclude name="**/*-sources.jar" />
+				<exclude name="**/*-javadoc.jar" />
+				<!-- for antlr, we currently only need the 3.3 runtime -->
+				<exclude name="**/antlr-3.3.jar" />
+				<exclude name="**/antlr-2.*.jar" />
+				<exclude name="**/stringtemplate-*.jar" />
+			</fileset>
+		</copy>
+
 		<manifestclasspath property="manifest_cp" jarfile="${dist}/eve.jar">
 			<classpath>
 				<fileset dir="${dist}/lib">
-					<include name="**/antlr-runtime-3.3.jar" />
-					<include name="**/commons-cli-1.2.jar" />
+					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
 		</manifestclasspath>
