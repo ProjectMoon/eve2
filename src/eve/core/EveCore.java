@@ -1,5 +1,4 @@
 package eve.core;
-import java.beans.IntrospectionException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

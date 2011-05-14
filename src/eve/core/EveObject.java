@@ -7,10 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Set;
 import java.util.TreeMap;
 
-import eve.core.EveParser.returnStatement_return;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDictionary;
 import eve.core.builtins.EveDouble;
@@ -50,7 +48,6 @@ public class EveObject {
 	
 	//internal object settings and state.
 	private boolean cloneable = true;
-	private boolean isMarkedForClone = false; //set to true by eveClone and used to detect modifications.
 	
 	//object family support.
 	private EveObject cloneParent;
