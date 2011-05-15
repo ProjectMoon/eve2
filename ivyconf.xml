@@ -1,0 +1,14 @@
+<ivysettings>
+        <resolvers>
+        	<ibiblio name="mvn-public" m2compatible="true" />
+        	<ibiblio name="reflections-repo" root="http://reflections.googlecode.com/svn/repo/" m2compatible="true" />
+        </resolvers>
+        
+        <modules>
+        	<!-- use the reflections mvn repo for reflections lib -->
+        	<module organisation="org.reflections" resolver="reflections-repo" />
+        	
+        	<!-- use the public MVN repo for everything else -->
+        	<module resolver="mvn-public" />
+        </modules>
+</ivysettings>

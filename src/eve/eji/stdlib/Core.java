@@ -1,14 +1,14 @@
-package eve.eni.stdlib;
+package eve.eji.stdlib;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
 
 import eve.core.EveCore;
 import eve.core.EveObject;
 import eve.core.Script;
-import eve.eni.NativeCode;
-import eve.eni.NativeFunction;
+import eve.eji.EJIFunction;
 import eve.scope.ScopeManager;
 
 public class Core {
@@ -19,9 +19,13 @@ public class Core {
 	}
 	
 	private static EveObject importFunction() {
-		final NativeCode nc = new NativeCode() {
+		class ImportFunction extends EJIFunction {
+			public ImportFunction() {
+				setParameters("file");
+			}
+
 			@Override
-			public EveObject execute() {
+			public EveObject execute(Map<String, EveObject> parameters) {
 				String file = ScopeManager.getVariable("file").getStringValue();
 				
 				EveCore core = new EveCore();
@@ -35,8 +39,8 @@ public class Core {
 						ScopeManager.createGlobalScope();
 					}
 					
-					eve.eni.stdlib.Java.init();
-					eve.eni.stdlib.Core.init();
+					eve.eji.stdlib.Java.init();
+					eve.eji.stdlib.Core.init();
 					script.execute();
 					ScopeManager.revertNamespace();
 					
@@ -53,11 +57,9 @@ public class Core {
 				}
 				
 				return null;
-			}		
-		};
+			}
+		}
 		
-		NativeFunction nfunc = new NativeFunction(nc);
-		nfunc.addParameter("file");
-		return new EveObject(nfunc);
+		return new EveObject(new ImportFunction());
 	}
 }

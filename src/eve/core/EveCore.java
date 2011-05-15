@@ -19,6 +19,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import eve.core.EveParser.program_return;
+import eve.eji.EJIScanner;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
@@ -36,6 +37,7 @@ public class EveCore {
 		opts.addOption("t", false, "print syntax tree");
 		opts.addOption("h", false, "print help");
 		opts.addOption("i", true, "register instrumentation hook");
+		opts.addOption("eji", true, "make EJI types available");
 		
 		CommandLineParser parser = new GnuParser();
 		
@@ -45,6 +47,7 @@ public class EveCore {
 			if (line.hasOption("h")) printHelp(opts);
 			if (line.hasOption("d")) EveLogger.debugLevel();
 			if (line.hasOption("t")) printSyntaxTree = true;
+			if (line.hasOption("eji")) handleEJI(line.getOptionValue("eji"));
 			//more options here...
 			
 			//Find the eve file to run.
@@ -71,6 +74,24 @@ public class EveCore {
 		System.exit(0);
 	}
 	
+	private void handleEJI(String ejiLine) {
+		String[] pkgs = ejiLine.split(File.pathSeparator);
+		
+		EJIScanner scanner = new EJIScanner();
+		
+		for (String pkg : pkgs) {
+			scanner.addPackage(pkg);
+		}
+		
+		try {
+			scanner.scan();
+		}
+		catch (EveError e) {
+			System.err.println("EJI error: " + e.getMessage());
+			System.exit(1);
+		}
+	}
+	
 	private void handleErrors(List<String> errors) {
 		for (String error : errors) {
 			System.err.println(error);
@@ -92,8 +113,9 @@ public class EveCore {
 			ScopeManager.createGlobalScope();
 		}
 		
-		eve.eni.stdlib.Java.init();
-		eve.eni.stdlib.Core.init();
+		eve.eji.stdlib.Java.init();
+		eve.eji.stdlib.Core.init();
+			
 		script.execute();
 		ScopeManager.revertNamespace();
 	}

@@ -1,12 +1,12 @@
-package eve.eni.stdlib;
+package eve.eji.stdlib;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 import eve.core.EveObject;
-import eve.eni.NativeCode;
-import eve.eni.NativeFunction;
-import eve.eni.NativeHelper;
+import eve.eji.EJIFunction;
+import eve.eji.EJIHelper;
 import eve.scope.ScopeManager;
 
 public class Java {
@@ -18,18 +18,24 @@ public class Java {
 	}
 	
 	private static EveObject javaFunction() {
-		final NativeCode nc = new NativeCode() {
+		class JavaFunction extends EJIFunction {
+			public JavaFunction() {
+				setParameters("cname", "ctorArgs");
+				setVarargs(true);
+				setVarargsIndex(1);
+			}
+
 			@Override
-			public EveObject execute() {
-				EveObject cname = ScopeManager.getVariable("cname");
+			public EveObject execute(Map<String, EveObject> parameters) {
+				EveObject cname = parameters.get("cname");
 				String className = cname.getStringValue();
-				EveObject ctorArgs = ScopeManager.getVariable("ctorArgs");
+				EveObject ctorArgs = parameters.get("ctorArgs");
 							
 				try {
-					Constructor<?> ctor = NativeHelper.findConstructor(Class.forName(className), ctorArgs.getListValue());
-					Object o = ctor.newInstance(NativeHelper.mapToJava(ctorArgs.getListValue()));
+					Constructor<?> ctor = EJIHelper.findConstructor(Class.forName(className), ctorArgs.getListValue());
+					Object o = ctor.newInstance(EJIHelper.mapToJava(ctorArgs.getListValue()));
 					EveObject eo = EveObject.javaType(o);
-					NativeHelper.mapJavaMethods(eo);
+					EJIHelper.mapJavaMethods(eo);
 					return eo;
 				}
 				catch (ClassNotFoundException e) {
@@ -53,14 +59,9 @@ public class Java {
 					e.printStackTrace();
 				}
 				return null;
-			}		
-		};
+			}
+		}
 		
-		NativeFunction nfunc = new NativeFunction(nc);
-		nfunc.addParameter("cname");
-		nfunc.addParameter("ctorArgs");
-		nfunc.setVarargs(true);
-		nfunc.setVarargsIndex(1); //ctorArgs ...
-		return new EveObject(nfunc);
+		return new EveObject(new JavaFunction());
 	}
 }

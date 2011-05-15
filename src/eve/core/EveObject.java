@@ -7,10 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Set;
 import java.util.TreeMap;
 
-import eve.core.EveParser.returnStatement_return;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDictionary;
 import eve.core.builtins.EveDouble;
@@ -21,6 +19,7 @@ import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
 import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
+import eve.eji.DynamicField;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
@@ -49,7 +48,6 @@ public class EveObject {
 	
 	//internal object settings and state.
 	private boolean cloneable = true;
-	private boolean isMarkedForClone = false; //set to true by eveClone and used to detect modifications.
 	
 	//object family support.
 	private EveObject cloneParent;
@@ -186,18 +184,7 @@ public class EveObject {
 	}
 
 	public static EveObject globalType() {
-		EveObject global = new EveObject(EveGlobal.getPrototype());
-		
-		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
-		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
-		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
-		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
-		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
-		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
-		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
-		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
-		global.putField(EveDictionary.getPrototype().getTypeName(), EveDictionary.getPrototype());
-		
+		EveObject global = EveGlobal.getPrototype().eventlessClone();
 		return global;
 	}
 	
@@ -316,7 +303,7 @@ public class EveObject {
 		return results;
 	}
 	
-	public Map<Integer, EveObject> getListMap() {
+	public TreeMap<Integer, EveObject> getListMap() {
 		if (this.getType() != EveType.LIST){
 			throw new EveError(this + " is not a list!");
 		}
@@ -487,6 +474,16 @@ public class EveObject {
 	
 	public void putTempField(String name, EveObject eo) {
 		this.tempFields.put(name, eo);
+	}
+	
+	public void putField(String name, DynamicField ejiField) {
+		EveObject eji = ejiField.createObject();
+		putField(name, eji);
+	}
+	
+	public void putTempField(String name, DynamicField ejiField) {
+		EveObject eji = ejiField.createObject();
+		putTempField(name, eji);		
 	}
 	
 	public List<String> getFieldNames() {
