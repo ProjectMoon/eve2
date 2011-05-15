@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
@@ -198,7 +199,7 @@ public class EJIHelper {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		class Test {
 			public Test() {}
 			public Test(int x, String y) {}
@@ -206,6 +207,14 @@ public class EJIHelper {
 			//public Test(int x, Character y) {}
 			public Test(Integer x, char y) {}
 			public Test(int x, char y) {}
+			
+			public void test(boolean b, Integer y) {
+				System.out.println("test received: " + b + ", " + y);
+			}
+			
+			public void test(Boolean b) {
+				System.out.println("test with obj param received: " + b);
+			}
 		}
 		
 		EveObject p1 = new EveObject();
@@ -214,8 +223,17 @@ public class EJIHelper {
 		p2.setType(EveType.STRING);
 		p2.setStringValue("a");
 		
-		Constructor<?> ctor = findConstructor(Test.class, p1, p2);
-		System.out.println("winner is : " + ctor);
+		//Constructor<?> ctor = findConstructor(Test.class, p1, p2);
+		//System.out.println("winner is : " + ctor);
+		
+		EveObject b = new EveObject(false);
+		EveObject i = new EveObject(1);
+		Method test = findMethod(Test.class, "test", b);
+		Object[] invokeArgs = mapArguments(test.getParameterTypes(), b, i);
+		System.out.println(Arrays.asList(invokeArgs));
+		
+		Test t = new Test();
+		test.invoke(t, invokeArgs);
 	}
 	
 	/**
@@ -255,12 +273,12 @@ public class EJIHelper {
 		}
 			
 		//Phase 2: discard signatures based on type. See map function for details.
-		OUTER:
+		List<Class<?>[]> sigsToDiscard = new ArrayList<Class<?>[]>();
 		for (Class<?>[] signature : possibilities) {	
 			//no-args.
 			if (signature.length == 0) {
 				if (params != null && params.length != 0) {
-					continue OUTER; //skip this signature
+					sigsToDiscard.add(signature);
 				}
 			}
 			else {
@@ -270,14 +288,13 @@ public class EJIHelper {
 					EveObject actualParam = params[c];
 					Collection<EveType> mappedTypes = map(formalParam, actualParam);
 					if (!mappedTypes.contains(actualParam.getType())) {
-						continue OUTER; //skip this signature.
+						sigsToDiscard.add(signature);
 					}
 				}
 			}
-			
-			//we have determined this signature is possible.
-			possibilities.add(signature);
 		}
+		
+		possibilities.removeAll(sigsToDiscard);
 			
 		//Phase 3, decide which signatures are the best.
 		Comparator<Class<?>[]> signatureComparator = new Comparator<Class<?>[]>() {
@@ -325,7 +342,8 @@ public class EJIHelper {
 	 * Find a constructor for the given class and parameters.
 	 * @param cl
 	 * @param params
-	 * @return A Constructor, if one is found. Null if none are found.
+	 * @return A The best-fit Constructor, if one is found. Null if none are found.
+	 * @throws EveError if there is an ambiguity error during signature discovery.
 	 */
 	public static Constructor<?> findConstructor(Class<?> cl, List<EveObject> params) {
 		return findConstructor(cl, params.toArray(new EveObject[0]));
@@ -334,10 +352,11 @@ public class EJIHelper {
 	/**
 	 * Find a constructor for the given class and parameters.
 	 * @param cl
-	 * @param params
-	 * @return A Constructor, if one is found. Null if none are found.
+	 * @param actualParameters
+	 * @return The best-fit Constructor, if one is found. Null if none are found.
+	 * @throws EveError if there is an ambiguity error during signature discovery.
 	 */
-	public static Constructor<?> findConstructor(Class<?> cl, EveObject ... params) {
+	public static Constructor<?> findConstructor(Class<?> cl, EveObject ... actualParameters) {
 		Constructor<?>[] ctors = cl.getConstructors();
 		List<Class<?>[]> sigs = new ArrayList<Class<?>[]>(ctors.length);
 		
@@ -345,7 +364,7 @@ public class EJIHelper {
 			sigs.add(ctor.getParameterTypes());
 		}
 		
-		Class<?>[] sig = findSignature(sigs, params);
+		Class<?>[] sig = findSignature(sigs, actualParameters);
 		
 		for (Constructor<?> ctor : ctors) {
 			if (Arrays.equals(ctor.getParameterTypes(), sig)) {
@@ -354,6 +373,85 @@ public class EJIHelper {
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Given a class, method name, and set of actual parameters, this method attempts to find
+	 * the best-fit Method object to invoke. This method discovery process follows the same
+	 * rules as constructor discovery: object types are preferred over primitive types, and
+	 * for single character strings, character types are preferred over java.lang.String.
+	 * @param cl
+	 * @param name
+	 * @param actualParameters
+	 * @return The best-fit Method object found. Null if none are found.
+	 * @throws EveError if there is an ambiguity error during signature discovery.
+	 */
+	public static Method findMethod(Class<?> cl, final String name, EveObject ... actualParameters) {
+		Predicate<Method> filter = new Predicate<Method>() {
+			@Override
+			public boolean apply(Method input) {
+				return input.getName().equals(name);
+			}
+			
+		};
+		
+		Iterable<Method> possibleMethods = Iterables.filter(Arrays.asList(cl.getMethods()), filter);
+		
+		List<Class<?>[]> sigs = new ArrayList<Class<?>[]>(); 
+		for (Method meth : possibleMethods) {
+			sigs.add(meth.getParameterTypes());
+		}
+		
+		Class<?>[] sig = findSignature(sigs, actualParameters);
+		
+		for (Method meth : possibleMethods) {
+			if (Arrays.equals(meth.getParameterTypes(), sig)) {
+				return meth;
+			}
+		}
+
+		return null;
+	}
+	
+	/**
+	 * Given a set of formal parameters and a set of actual parameters, this method attempts to
+	 * type coerce the EveObject arguments to Java arguments specified in the formal parameter
+	 * list.
+	 * @param formalParams
+	 * @param actualParameters
+	 */
+	public static Object[] mapArguments(Class<?>[] formalParams, EveObject ... actualParameters) {
+		if (formalParams.length != actualParameters.length) {
+			throw new EveError("formal parameters and actual parameters argument length do not match");
+		}
+		
+		List<Object> args = new ArrayList<Object>(actualParameters.length);
+		
+		for (int c = 0; c < formalParams.length; c++) {
+			Class<?> formalParam = formalParams[c];
+			EveObject actualParam = actualParameters[c];
+			
+			if (!formalParam.isPrimitive()) {
+				Object arg = formalParam.cast(actualParam.getObjectValue());
+				args.add(arg);
+			}
+			else {
+				//primitives automatically get unwrapped by Method#invoke.
+				args.add(actualParam.getObjectValue());
+			}
+			
+		}
+		
+		return args.toArray();
+	}
+	
+	private static Object mapPrimitive(EveObject actualParameter) {
+		if (actualParameter.getType() == EveType.BOOLEAN) {
+			return Boolean.valueOf(actualParameter.getBooleanValue());
+		}
+		else {
+			return null;
+		}
 	}
 		
 	public static Object[] mapToJava(List<EveObject> eoArgs) {
