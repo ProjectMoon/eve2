@@ -76,13 +76,7 @@ public class EveObject {
 		this.fields = new HashMap<String, EveObject>(source.fields); //a new map with the same references.
 		this.tempFields = new HashMap<String, EveObject>(source.tempFields); //a new map with the same references.
 		
-		//prototypes can only exist as base objects. any clone is immediately custom.
-		if (source.getType() == EveType.PROTOTYPE) {
-			this.setType(EveType.CUSTOM);
-		}
-		else {
-			this.setType(source.getType());
-		}
+		this.setType(source.getType());
 		
 		this.setTypeName(source.getTypeName());
 		this.cloneable = source.cloneable;
