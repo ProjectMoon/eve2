@@ -1,5 +1,6 @@
 package eve.eji;
 
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 
@@ -25,9 +26,7 @@ class EJIField extends DynamicField {
 					return (EveObject)o;
 				}
 				else {
-					EveObject eo = EveObject.javaType(o);
-					EJIHelper.mapJavaMethods(eo);
-					return eo;
+					return EJIHelper.createEJIType(o);
 				}
 			}
 		}
@@ -39,6 +38,9 @@ class EJIField extends DynamicField {
 		}
 		catch (InvocationTargetException e) {
 			throw new EveError(e.getMessage());
+		} catch (IntrospectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		return null;

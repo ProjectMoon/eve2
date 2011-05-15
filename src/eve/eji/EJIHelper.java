@@ -6,7 +6,6 @@ import java.beans.Introspector;
 import java.beans.MethodDescriptor;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +30,17 @@ import eve.core.EveObject.EveType;
 import eve.core.Function;
 import eve.scope.ScopeManager;
 
+/**
+ * EJIHelper contains many utility functions to assist in bridging the Eve and Java environments.
+ * Most of these methods are public, but end developers generally should not have to interact
+ * with them, except perhaps the {@link #self()} method.
+ * @author jeff
+ *
+ */
 public class EJIHelper {
+	//no instances of this class.
+	private EJIHelper() {}
+	
 	private static final Multimap<Class<?>, EveType> typeMap = createTypeMap();
 	private static final Map<Class<?>, Integer> weightMap = createWeightMap();
 	
@@ -200,7 +209,7 @@ public class EJIHelper {
 	}
 	
 	/**
-	 * Given a set of signatures (such as from a method or constructor) and a set of actual
+	 * Given a set of formal parameterse (such as from a method or constructor) and a set of actual
 	 * parameters (from the interpreter), attempt to discover the best signature that fits
 	 * the actual parameters. This method works in 3 phases: argument length testing, argument
 	 * type testing, and argument type weighing. Each phase progressively whittles down the
@@ -387,6 +396,14 @@ public class EJIHelper {
 		return null;
 	}
 	
+	/**
+	 * Delegates to {@link #findMethod(Class, String, EveObject...)}].
+	 * @param cl
+	 * @param name
+	 * @param actualParameters
+	 * @return The best-fit Method object found. Null if none are found.
+	 * @throws EveError if there is an ambiguity error during signature discovery.
+	 */
 	public static Method findMethod(Class<?> cl, String name, List<EveObject> actualParameters) {
 		if (actualParameters == null) {
 			throw new NullPointerException("actualParamters cannot be null.");
@@ -431,47 +448,40 @@ public class EJIHelper {
 		return args.toArray();
 	}
 	
+	/**
+	 * Maps EveObjects to Java types for constructor/method invocation.
+	 * @param formalParams
+	 * @param actualParameters
+	 * @return
+	 */
 	public static Object[] mapArguments(Class<?>[] formalParams, List<EveObject> actualParameters) {
 		if (actualParameters == null) {
 			throw new NullPointerException("actualParamters cannot be null.");
 		}
 		return mapArguments(formalParams, actualParameters.toArray(new EveObject[0]));
 	}
-		
-	public static Object[] mapToJava(List<EveObject> eoArgs) {
-		Object[] args = new Object[eoArgs.size()];
-		
-		for (int c = 0; c < args.length; c++) {
-			args[c] = eoArgs.get(c).getObjectValue();
-		}
-		
-		return args;
-	}
 	
-	public static void mapJavaMethods(EveObject eo) {
-		if (eo.getType() != EveType.JAVA) {
-			throw new EveError("can only map java methods to java types.");
-		}
-			
-		Object o = eo.getObjectValue();
-		Set<String> methodNames = new HashSet<String>();
-		
-		for (Method meth : o.getClass().getMethods()) {
-			methodNames.add(meth.getName());
-		}
-		
-		for (String methodName : methodNames) {
-			EJIFunction methodInvocation = EJIFunction.fromJava(o, methodName);
-			eo.putField(methodName, new EveObject(methodInvocation));
-		}
-	}
-	
+	/**
+	 * Creates a constructor function for the given Java type.
+	 * @param type
+	 * @return
+	 */
 	public static EveObject createEJIConstructor(Class<?> type) {
 		EJIFunction ctorFunc = new JavaConstructorInvocation(type);
 		EveObject eo = new EveObject(ctorFunc);
 		return eo;
 	}
 	
+	/**
+	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
+	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
+	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
+	 * functions.
+	 * @param obj
+	 * @return The wrapped type.
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 */
 	public static EveObject createEJIType(Object obj) throws IntrospectionException, IllegalAccessException {
 		EveObject eo = EveObject.javaType(obj);
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());

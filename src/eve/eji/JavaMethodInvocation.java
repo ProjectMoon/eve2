@@ -1,5 +1,6 @@
 package eve.eji;
 
+import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ class JavaMethodInvocation extends EJIFunction {
 	public JavaMethodInvocation(Object o, String methodName) {
 		this.o = o;
 		this.methodName = methodName;
+		setName(methodName);
 		setParameters("args");
 		setVarargs(true);
 		setVarargsIndex(0);
@@ -33,8 +35,7 @@ class JavaMethodInvocation extends EJIFunction {
 			Object retVal = meth.invoke(o, invokeArgs);
 			
 			if (retVal != null) {
-				EveObject eo = EveObject.javaType(retVal);
-				EJIHelper.mapJavaMethods(eo);
+				EveObject eo = EJIHelper.createEJIType(retVal);
 				return eo;
 			}
 			else {
@@ -50,6 +51,9 @@ class JavaMethodInvocation extends EJIFunction {
 			e.printStackTrace();
 		}
 		catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IntrospectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
