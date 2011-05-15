@@ -23,6 +23,29 @@ public class Java {
 			public JavaFunction() {
 				setParameters("className");
 			}
+			
+			private EveObject resolveJavaPackageContainer(String fqcn) {
+				String[] split = fqcn.split("\\.");
+				String className = split[split.length - 1];
+				
+				EveObject pkgContainer = ScopeManager.getVariable(split[0]);
+				if (pkgContainer == null) {
+					pkgContainer = EveObject.prototypeType(split[0]);
+					EveGlobal.addType(split[0], pkgContainer);
+				}
+				
+				EveObject prevContainer = pkgContainer;
+				for (int c = 1; c < split.length - 1; c++) {
+					pkgContainer = pkgContainer.getField(split[c]);
+					if (pkgContainer == null) {
+						pkgContainer = EveObject.prototypeType(split[c]);
+						prevContainer.putField(split[c], pkgContainer);
+					}
+					prevContainer = pkgContainer;
+				}
+				
+				return pkgContainer;
+			}
 
 			@Override
 			public EveObject execute(Map<String, EveObject> parameters) {
@@ -30,7 +53,9 @@ public class Java {
 				try {
 					Class<?> cl = Class.forName(className);
 					EveObject ctorFunc = EJIHelper.createEJIConstructor(cl);
-					EveGlobal.addType(cl.getSimpleName(), ctorFunc);
+					EveObject pkgContainer = resolveJavaPackageContainer(className);
+					pkgContainer.putField(cl.getSimpleName(), ctorFunc);
+					//EveGlobal.addType(cl.getSimpleName(), ctorFunc);
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
