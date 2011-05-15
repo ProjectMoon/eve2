@@ -672,7 +672,8 @@ public class EveObject {
 			}
 		}
 		else {
-			if (func.getParameters().size() > 0) {
+			//var-args function where the var-arg is the only parameter can invoke with 0 params.
+			if (!(func.isVarargs() && func.getParameters().size() == 1) && func.getParameters().size() > 0) {
 				throw new EveError(this + " requires " + func.getParameters().size() + " arguments. none were passed.");
 			}
 		}

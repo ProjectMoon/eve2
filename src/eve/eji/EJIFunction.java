@@ -9,8 +9,8 @@ import eve.core.EveObject;
 import eve.scope.ScopeManager;
 
 public abstract class EJIFunction extends Function {
-	public static EJIFunction fromJava(Object obj, Method meth) {
-		return new JavaMethodInvocation(obj, meth);
+	public static EJIFunction fromJava(Object obj, String methodName) {
+		return new JavaMethodInvocation(obj, methodName);
 	}
 	
 	@Override

@@ -34,6 +34,7 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 		}
 		
 		EveObject result = getExpression().execute();
+		System.out.println("result is: " + result);
 		ScopeManager.putVariable(getIdentifier(), result);
 		return result;
 	}

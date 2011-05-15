@@ -199,43 +199,6 @@ public class EJIHelper {
 		}
 	}
 	
-	public static void main(String[] args) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		class Test {
-			public Test() {}
-			public Test(int x, String y) {}
-			public Test(Integer x, String y) {}
-			//public Test(int x, Character y) {}
-			public Test(Integer x, char y) {}
-			public Test(int x, char y) {}
-			
-			public void test(boolean b, Integer y) {
-				System.out.println("test received: " + b + ", " + y);
-			}
-			
-			public void test(Boolean b) {
-				System.out.println("test with obj param received: " + b);
-			}
-		}
-		
-		EveObject p1 = new EveObject();
-		p1.setType(EveType.INTEGER);
-		EveObject p2 = new EveObject();
-		p2.setType(EveType.STRING);
-		p2.setStringValue("a");
-		
-		//Constructor<?> ctor = findConstructor(Test.class, p1, p2);
-		//System.out.println("winner is : " + ctor);
-		
-		EveObject b = new EveObject(false);
-		EveObject i = new EveObject(1);
-		Method test = findMethod(Test.class, "test", b);
-		Object[] invokeArgs = mapArguments(test.getParameterTypes(), b, i);
-		System.out.println(Arrays.asList(invokeArgs));
-		
-		Test t = new Test();
-		test.invoke(t, invokeArgs);
-	}
-	
 	/**
 	 * Given a set of signatures (such as from a method or constructor) and a set of actual
 	 * parameters (from the interpreter), attempt to discover the best signature that fits
@@ -324,7 +287,7 @@ public class EJIHelper {
 		//Phase 4: return a signature. there can only be one valid signature. if our
 		//decision process has resulted in more than best-fit signature, we throw an ambiguity error.
 		int highestWeight = weights.asMap().lastKey();
-		if (highestWeight > 0) {
+		if (highestWeight >= 0) {
 			Collection<Class<?>[]> winner = weights.get(highestWeight);
 			
 			if (winner.size() > 1) {
@@ -341,12 +304,15 @@ public class EJIHelper {
 	/**
 	 * Find a constructor for the given class and parameters.
 	 * @param cl
-	 * @param params
+	 * @param actualParameters
 	 * @return A The best-fit Constructor, if one is found. Null if none are found.
 	 * @throws EveError if there is an ambiguity error during signature discovery.
 	 */
-	public static Constructor<?> findConstructor(Class<?> cl, List<EveObject> params) {
-		return findConstructor(cl, params.toArray(new EveObject[0]));
+	public static Constructor<?> findConstructor(Class<?> cl, List<EveObject> actualParameters) {
+		if (actualParameters == null) {
+			throw new NullPointerException("actualParameters cannot be null");
+		}
+		return findConstructor(cl, actualParameters.toArray(new EveObject[0]));
 	}
 	
 	/**
@@ -357,6 +323,10 @@ public class EJIHelper {
 	 * @throws EveError if there is an ambiguity error during signature discovery.
 	 */
 	public static Constructor<?> findConstructor(Class<?> cl, EveObject ... actualParameters) {
+		if (actualParameters == null) {
+			throw new NullPointerException("actualParameters cannot be null");
+		}
+		
 		Constructor<?>[] ctors = cl.getConstructors();
 		List<Class<?>[]> sigs = new ArrayList<Class<?>[]>(ctors.length);
 		
@@ -387,6 +357,10 @@ public class EJIHelper {
 	 * @throws EveError if there is an ambiguity error during signature discovery.
 	 */
 	public static Method findMethod(Class<?> cl, final String name, EveObject ... actualParameters) {
+		if (actualParameters == null) {
+			throw new NullPointerException("actualParameters cannot be null");
+		}
+		
 		Predicate<Method> filter = new Predicate<Method>() {
 			@Override
 			public boolean apply(Method input) {
@@ -413,6 +387,14 @@ public class EJIHelper {
 		return null;
 	}
 	
+	public static Method findMethod(Class<?> cl, String name, List<EveObject> actualParameters) {
+		if (actualParameters == null) {
+			throw new NullPointerException("actualParamters cannot be null.");
+		}
+		
+		return findMethod(cl, name, actualParameters.toArray(new EveObject[0]));
+	}
+	
 	/**
 	 * Given a set of formal parameters and a set of actual parameters, this method attempts to
 	 * type coerce the EveObject arguments to Java arguments specified in the formal parameter
@@ -421,6 +403,10 @@ public class EJIHelper {
 	 * @param actualParameters
 	 */
 	public static Object[] mapArguments(Class<?>[] formalParams, EveObject ... actualParameters) {
+		if (actualParameters == null) {
+			throw new NullPointerException("actualParamters cannot be null.");
+		}
+		
 		if (formalParams.length != actualParameters.length) {
 			throw new EveError("formal parameters and actual parameters argument length do not match");
 		}
@@ -445,13 +431,11 @@ public class EJIHelper {
 		return args.toArray();
 	}
 	
-	private static Object mapPrimitive(EveObject actualParameter) {
-		if (actualParameter.getType() == EveType.BOOLEAN) {
-			return Boolean.valueOf(actualParameter.getBooleanValue());
+	public static Object[] mapArguments(Class<?>[] formalParams, List<EveObject> actualParameters) {
+		if (actualParameters == null) {
+			throw new NullPointerException("actualParamters cannot be null.");
 		}
-		else {
-			return null;
-		}
+		return mapArguments(formalParams, actualParameters.toArray(new EveObject[0]));
 	}
 		
 	public static Object[] mapToJava(List<EveObject> eoArgs) {
@@ -470,23 +454,26 @@ public class EJIHelper {
 		}
 			
 		Object o = eo.getObjectValue();
+		Set<String> methodNames = new HashSet<String>();
+		
 		for (Method meth : o.getClass().getMethods()) {
-			EJIFunction methodInvocation = EJIFunction.fromJava(o, meth);
-			eo.putField(meth.getName(), new EveObject(methodInvocation));
+			methodNames.add(meth.getName());
+		}
+		
+		for (String methodName : methodNames) {
+			EJIFunction methodInvocation = EJIFunction.fromJava(o, methodName);
+			eo.putField(methodName, new EveObject(methodInvocation));
 		}
 	}
 	
-	public static EveObject createEJIType(Class<?> type) throws IntrospectionException, IllegalAccessException {
-		Object obj;
-		
-		try {
-			obj = type.newInstance();
-		}
-		catch (InstantiationException e) {
-			throw new EveError(type.getName() + ": EJI currently only supports JavaBeans");
-		}
-		
-		EveObject eo = EveObject.customType(obj.getClass().getName());
+	public static EveObject createEJIConstructor(Class<?> type) {
+		EJIFunction ctorFunc = new JavaConstructorInvocation(type);
+		EveObject eo = new EveObject(ctorFunc);
+		return eo;
+	}
+	
+	public static EveObject createEJIType(Object obj) throws IntrospectionException, IllegalAccessException {
+		EveObject eo = EveObject.javaType(obj);
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 		
 		//handle properties
@@ -495,9 +482,15 @@ public class EJIHelper {
 		}
 		
 		//handle methods
+		Set<String> methodNames = new HashSet<String>();
+		
 		for (MethodDescriptor md : info.getMethodDescriptors()) {
-			EveObject mappedMethod = new EveObject(EJIFunction.fromJava(obj, md.getMethod()));
-			eo.putField(md.getName(), mappedMethod);
+			methodNames.add(md.getMethod().getName());
+		}
+		
+		for (String methodName : methodNames) {
+			EJIFunction methodInvocation = EJIFunction.fromJava(obj, methodName);
+			eo.putField(methodName, new EveObject(methodInvocation));
 		}
 		
 		return eo;
