@@ -10,7 +10,7 @@ public class EveDictionary extends EveObject {
 	}
 	
 	private EveDictionary() {
-		super(EveObjectPrototype.getPrototype());
+		//super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("dict");
 	}

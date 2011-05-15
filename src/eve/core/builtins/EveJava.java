@@ -15,7 +15,7 @@ public class EveJava extends EveObject {
 	}
 	
 	private EveJava() {
-		super(EveObjectPrototype.getPrototype());
+		//super(EveObjectPrototype.getPrototype());
 		this.setTypeName("java");
 		this.setType(EveType.PROTOTYPE);
 	}

@@ -3,6 +3,7 @@ package eve.core.builtins;
 import java.util.HashMap;
 import java.util.Map;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 
 public class EveGlobal extends EveObject {
@@ -26,11 +27,15 @@ public class EveGlobal extends EveObject {
 	}
 	
 	public static void addType(String name, EveObject type) {
+		if (typePool.get(name) != null) {
+			throw new EveError("type " + name + " already exists in the global type pool.");
+		}
+		
 		typePool.put(name, type);
 	}
 	
 	private EveGlobal() {
-		super(EveObjectPrototype.getPrototype());
+		//super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("global");
 	}
@@ -59,7 +64,7 @@ public class EveGlobal extends EveObject {
 		//search type pool first.
 		EveObject eo = typePool.get(name);
 		
-		if (typePool != null) {
+		if (eo != null) {
 			return eo;
 		}
 		else {

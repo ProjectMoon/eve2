@@ -16,6 +16,22 @@ import org.reflections.util.FilterBuilder;
 import eve.core.EveObject;
 import eve.core.builtins.EveGlobal;
 
+@EJIType("test")
+class Test {
+	private String x;
+	public Test(String x) {
+		this.x = x;
+	}
+	
+	public String getX() {
+		return x;
+	}
+	
+	public void setX(String x) {
+		this.x = x;
+	}
+}
+
 public class EJIScanner {
 	private List<String> packages = new ArrayList<String>();
 	
@@ -62,7 +78,7 @@ public class EJIScanner {
 	private void createEJITypes(Set<Class<?>> types) throws InstantiationException, IllegalAccessException, IntrospectionException {
 		for (Class<?> type : types) {
 			EJIType typeInfo = type.getAnnotation(EJIType.class);
-			EveObject eo = EJIHelper.createEJIType(type);
+			EveObject eo = EJIHelper.createEJIConstructor(type);
 			EveGlobal.addType(typeInfo.value(), eo);
 		}
 	}

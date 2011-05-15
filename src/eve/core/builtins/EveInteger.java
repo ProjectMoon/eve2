@@ -15,7 +15,7 @@ public class EveInteger extends EveObject {
 	}
 	
 	private EveInteger() {
-		super(EveObjectPrototype.getPrototype());
+		//super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("int");
 	}

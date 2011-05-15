@@ -15,7 +15,7 @@ public class EveFunction extends EveObject {
 	}
 	
 	private EveFunction() {
-		super(EveObjectPrototype.getPrototype());
+		//super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("function");
 	}
