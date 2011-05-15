@@ -19,7 +19,7 @@ class JavaFunction extends EJIFunction {
 	private EveObject resolveJavaPackageContainer(String fqcn) {
 		String[] split = fqcn.split("\\.");
 		
-		EveObject pkgContainer = ScopeManager.getVariable(split[0]);
+		EveObject pkgContainer = ScopeManager.getGlobalScope().getField(split[0]);
 		if (pkgContainer == null) {
 			pkgContainer = EveObject.prototypeType(split[0]);
 			EveGlobal.addType(split[0], pkgContainer);
