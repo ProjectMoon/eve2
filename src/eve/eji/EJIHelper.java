@@ -190,7 +190,7 @@ public class EJIHelper {
 		//Phase 2: determine best constructor (assuming we have any)
 		//take jython approach and define an order:
 		//for most, prefer objects (Integer, etc) over primitives (int)
-		//for strings, if the actual param is length 1, prefer Character over char over String.
+		//for strings, if the actual param is length 1, prefer Character over char over String. else, it must be a string (if not, -999 weight)
 		//for java mappings, we might as well just give weight of 0 because all java possibilities
 		//are based on isAssignableFrom
 		//perhaps give weight to each parameter (2 for obj, 1 for primitive, or something)
@@ -207,7 +207,10 @@ public class EJIHelper {
 			System.out.println("ctor " + ctor + " has weight: " + weight);
 		}
 		
-		//Phase 3: return constructor!
+		//Phase 3: return a constructor (or die trying).
+		//The highest-weighted valid ctor is returned. A valid ctor has weight >= 0.
+		//If there are two highest-ranking valid ctors, throw an ambiguity error with note about explicit casting.
+		//otherwise, return the ctor.
 		
 		/*
 		
