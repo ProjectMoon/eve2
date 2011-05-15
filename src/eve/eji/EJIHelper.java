@@ -165,8 +165,8 @@ public class EJIHelper {
 			
 			//no-args constructor.
 			if (ctorParams.length == 0) {
-				if (params != null || params.length != 0) {
-					continue OUTER;
+				if (params != null && params.length != 0) {
+					continue OUTER; //skip this constructor.
 				}
 			}
 			else {
