@@ -83,7 +83,13 @@ public class EveCore {
 			scanner.addPackage(pkg);
 		}
 		
-		scanner.scan();
+		try {
+			scanner.scan();
+		}
+		catch (EveError e) {
+			System.err.println("EJI error: " + e.getMessage());
+			System.exit(1);
+		}
 	}
 	
 	private void handleErrors(List<String> errors) {

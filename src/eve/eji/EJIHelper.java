@@ -86,7 +86,16 @@ public class EJIHelper {
 		}
 	}
 	
-	public static EveObject createEJIType(Object obj) throws IntrospectionException {
+	public static EveObject createEJIType(Class<?> type) throws IntrospectionException, IllegalAccessException {
+		Object obj;
+		
+		try {
+			obj = type.newInstance();
+		}
+		catch (InstantiationException e) {
+			throw new EveError(type.getName() + ": EJI currently only supports JavaBeans");
+		}
+		
 		EveObject eo = EveObject.customType(obj.getClass().getName());
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 		
