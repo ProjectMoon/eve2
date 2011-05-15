@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.TreeMultimap;
@@ -33,6 +34,11 @@ public class EJIHelper {
 	private static final Multimap<Class<?>, EveType> typeMap = createTypeMap();
 	private static final Map<Class<?>, Integer> weightMap = createWeightMap();
 	
+	/**
+	 * Create the type map. Note that this does not cover every single mapping case.
+	 * The type map is used as a helper for the map(Class<?>, EveObject) method.
+	 * @return The type map.
+	 */
 	private static Multimap<Class<?>, EveType> createTypeMap() {
 		HashMultimap<Class<?>, EveType> map = HashMultimap.create();
 		
@@ -54,6 +60,11 @@ public class EJIHelper {
 		return map;
 	}
 	
+	/**
+	 * Create the weight map. Note that this does not cover every single weighing case.
+	 * The weight map is used as a helper for the weigh(Class<?>, EveObject) method.
+	 * @return The weight map.
+	 */
 	private static Map<Class<?>, Integer> createWeightMap() {
 		Map<Class<?>, Integer> map = new HashMap<Class<?>, Integer>();
 		
@@ -68,36 +79,79 @@ public class EJIHelper {
 		return map;
 	}
 	
+	/**
+	 * Convenience method for getting the current "self" reference.
+	 * @return The current self reference. Null if it doesn't exist.
+	 */
 	public static EveObject self() {
 		return ScopeManager.getVariable("self");
 	}
 	
-	private static Collection<EveType> map(Class<?> ctorParam, EveObject eo) {
-		Collection<EveType> types = typeMap.get(ctorParam);
-		
-		if (!types.isEmpty()) {
-			return types;
+	/**
+	 * Core logic of phase 2 of the signature discovery process. Attempt to map a formal parameter
+	 * (Class) to an actual parameter (EveObject). A single formal parameter can possibly map to one
+	 * of several different actual parameters. Mapping rules are as follows:
+	 * <ul>
+	 * 	<li>int, Integer = EveType.INTEGER</li>
+	 * 	<li>double, Double = EveType.DOUBLE</li>
+	 * 	<li>boolean, Boolean = EveType.BOOLEAN</li>
+	 * 	<li>char, Character, String = EveType.STRING</li>
+	 * 	<li>java.util.List = EveType.LIST</li>
+	 * 	<li>EveObject = EveType.PROTOTYPE, EveType.CUSTOM</li>
+	 * 	<li>eve.core.Function = EveType.FUNCTION</li>
+	 * 	<li>Everything else (Java types) = formalParam.isAssignableFrom(actualParam.getClass())</li>
+	 * </ul>
+	 * If no mappings are found, an empty collection is returned. This method never returns
+	 * null.
+	 * @param formalParam
+	 * @param actualParam
+	 * @return A Collection of EveTypes that the formal parameter maps to. Empty if no valid mapping found. 
+	 */
+	private static Collection<EveType> map(Class<?> formalParam, EveObject actualParam) {	
+		if (actualParam.getType() != EveType.JAVA) {
+			return typeMap.get(formalParam);
 		}
 		else {
 			//everything else is a java mapping. in order for this mapping to be
-			//valid, the class of the java value must be assignable from the ctorParam
-			if (eo.getJavaValue() != null && ctorParam.isAssignableFrom(eo.getJavaValue().getClass())) {
+			//valid, a widening conversion from actualParam to formalParam must exist.
+			if (actualParam.getJavaValue() != null && formalParam.isAssignableFrom(actualParam.getJavaValue().getClass())) {
 				Set<EveType> type = new HashSet<EveType>();
 				type.add(EveType.JAVA);
 				return type;
 			}
 			else {
+				//empty collection means no mapping found.
 				return new HashSet<EveType>();
 			}
 		}
 	}
 	
-	private static int weigh(Class<?> ctorParam, EveObject actualParam) {
+	/**
+	 * Decide how good of a fit the given formal parameter is for the given actual parameter.
+	 * This is the core logic of phase 3 of the signature discovery process. The decision rules
+	 * are somewhat complex, and are detailed inside the method itself.
+	 * <br/><br/>
+	 * In general, objects are preferred over primitives (e.g. Integer > int), and direct type 
+	 * equality is preferred over widening conversion. In the case of an EveType.STRING actual
+	 * parameter, Character and char are preferred over String if the actualParameter's string
+	 * value is of length 1. Otherwise, String is required.
+	 * @param formalParam
+	 * @param actualParam
+	 * @return A number representing how good of a fit this formal parameter is for an actual parameter.
+	 * Higher is better.
+	 */
+	private static int weigh(Class<?> formalParam, EveObject actualParam) {
+		//Note: we don't consider List here, because non-Lists are discarded
+		//during type filtering.
 		if (actualParam.getType() == EveType.STRING) {
+			//For strings, we weigh differently based on the length of the string.
+			//Length 1 prefers: java.lang.Character, char, java.lang.String
+			//Length > 1: requires java.lang.String. Anything else is invalid.
+			//Null: if actualParam is null, then assume java.lang.String
 			String value = actualParam.getStringValue();
 			
 			if (value != null && value.length() > 1) {
-				if (ctorParam == String.class) {
+				if (formalParam == String.class) {
 					return 2;
 				}
 				else {
@@ -105,10 +159,10 @@ public class EJIHelper {
 				}
 			}
 			else {
-				if (ctorParam == Character.class) {
+				if (formalParam == Character.class) {
 					return 3;
 				}
-				else if (ctorParam == char.class) {
+				else if (formalParam == char.class) {
 					return 2;
 				}
 				else {
@@ -116,17 +170,32 @@ public class EJIHelper {
 				}
 			}
 		}
-		else if (actualParam.getType() == EveType.JAVA || actualParam.getType() == EveType.FUNCTION || 
-				actualParam.getType() == EveType.CUSTOM || actualParam.getType() == EveType.PROTOTYPE) {
+		else if (actualParam.getType() == EveType.JAVA) {
+			//For Java types, direct equality is weight 2.
+			//isAssignableFrom is weight 1.
+			//and while the last else clause should never be hit, we might
+			//as well cover all our bases.
+			Object javaValue = actualParam.getJavaValue();
+			if (javaValue.getClass().equals(formalParam)) {
+				return 2;
+			}
+			else if (formalParam.isAssignableFrom(javaValue.getClass())) {
+				return 1;
+			}
+			else {
+				return -999;
+			}
+		}
+		else if (actualParam.getType() == EveType.FUNCTION || actualParam.getType() == EveType.CUSTOM || 
+				actualParam.getType() == EveType.PROTOTYPE) {
+			//These are all EveObject mappings. Just return 0 to acknowledge they're valid and move on.
 			return 0;
 		}
 		else {
-			return weightMap.get(ctorParam);
+			//Query the weight map for int, double, and boolean.
+			//In all cases, we prefer the object form (e.g. java.lang.Integer) over the primitive (e.g. int).
+			return weightMap.get(formalParam);
 		}
-	}
-	
-	public static Constructor<?> findConstructor(Class<?> cl, List<EveObject> params) {
-		return findConstructor(cl, params.toArray(new EveObject[0]));
 	}
 	
 	public static void main(String[] args) {
@@ -134,7 +203,7 @@ public class EJIHelper {
 			public Test() {}
 			public Test(int x, String y) {}
 			public Test(Integer x, String y) {}
-			public Test(int x, Character y) {}
+			//public Test(int x, Character y) {}
 			public Test(Integer x, char y) {}
 			public Test(int x, char y) {}
 		}
@@ -146,61 +215,75 @@ public class EJIHelper {
 		p2.setStringValue("a");
 		
 		Constructor<?> ctor = findConstructor(Test.class, p1, p2);
+		System.out.println("winner is : " + ctor);
 	}
 	
-	public static Constructor<?> findConstructor(Class<?> cl, EveObject ... params) {
+	/**
+	 * Given a set of signatures (such as from a method or constructor) and a set of actual
+	 * parameters (from the interpreter), attempt to discover the best signature that fits
+	 * the actual parameters. This method works in 3 phases: argument length testing, argument
+	 * type testing, and argument type weighing. Each phase progressively whittles down the
+	 * list of signatures until one or more best-fit signatures are left. If one signature is
+	 * found, everything is good and that signature is returned. If more than one is found, an
+	 * EveError is thrown.
+	 * <br/><br/>
+	 * Because of Java's statically typed nature, there are limits on this algorithm. Most Eve
+	 * types map to two different Java types (primitive and object equivalent). Some map to more
+	 * or less. Like Jython, this implementation maps based on a preferred order. In general,
+	 * object formal parameters are preferred over primitive ones. The main impediment here is
+	 * that the Java reflection API does NOT handle auto-boxing. java.lang.Integer and int are
+	 * considered two different types to the reflection API.
+	 * <br/><br/> 
+	 * The signature discovery is a very expensive process, albeit a necessary one. To that end,
+	 * some memoization should be implemented (although this is currently not the case).
+	 * @param signatures
+	 * @param params
+	 * @return The best-fit signature for the given set of actual parameters.
+	 */
+	private static Class<?>[] findSignature(List<Class<?>[]> signatures, EveObject ... params) {
+		//Designed with great inspiration from:
+		//http://www.jython.org/archive/22/userguide.html#overloaded-java-method-signatures
 		//http://ironpython.net/documentation/dotnet/dotnet.html#appendix-type-conversion-rules
 		
-		//Phase 0: check that lengths match up.
+		List<Class<?>[]> possibilities = new ArrayList<Class<?>[]>();
 		
-		//Phase 1: Determine possible constructors.
-		//for each constructor C:
-		//	for each parameter P of C:
-		//		retrieve mapped EveType for P
-		//		if mapped EveType == actualParameter A.getType(), continue.
-		//		else, ignore ctor C.
-		//	add C to the list of possible constructors.
-		List<Constructor<?>> possibleCtors = new ArrayList<Constructor<?>>();
-		
-		OUTER:
-		for (Constructor<?> ctor : cl.getConstructors()) {
-			Class<?>[] ctorParams = ctor.getParameterTypes();
+		//Phase 1: discard signatures based on length.
+		for (Class<?>[] signature : signatures) {
+			if (params.length == signature.length) {
+				possibilities.add(signature);
+			}
+		}
 			
-			//no-args constructor.
-			if (ctorParams.length == 0) {
+		//Phase 2: discard signatures based on type. See map function for details.
+		OUTER:
+		for (Class<?>[] signature : possibilities) {	
+			//no-args.
+			if (signature.length == 0) {
 				if (params != null && params.length != 0) {
-					continue OUTER; //skip this constructor.
+					continue OUTER; //skip this signature
 				}
 			}
 			else {
-				//args constructor.
+				//args signature
 				for (int c = 0; c < params.length; c++) {
-					Class<?> ctorParam = ctorParams[c];
+					Class<?> formalParam = signature[c];
 					EveObject actualParam = params[c];
-					Collection<EveType> mappedTypes = map(ctorParam, actualParam);
+					Collection<EveType> mappedTypes = map(formalParam, actualParam);
 					if (!mappedTypes.contains(actualParam.getType())) {
-						continue OUTER; //skip this constructor.
+						continue OUTER; //skip this signature.
 					}
 				}
 			}
 			
-			//we have determined this ctor is possible.
-			possibleCtors.add(ctor);
+			//we have determined this signature is possible.
+			possibilities.add(signature);
 		}
-		
-		System.out.println(possibleCtors);
-		
-		//Phase 2: determine best constructor (assuming we have any)
-		//take jython approach and define an order:
-		//for most, prefer objects (Integer, etc) over primitives (int)
-		//for strings, if the actual param is length 1, prefer Character over char over String. else, it must be a string (if not, -999 weight)
-		//for java mappings, we might as well just give weight of 0 because all java possibilities
-		//are based on isAssignableFrom
-		//perhaps give weight to each parameter (2 for obj, 1 for primitive, or something)
-		Comparator<Constructor<?>> comp = new Comparator<Constructor<?>>() {
+			
+		//Phase 3, decide which signatures are the best.
+		Comparator<Class<?>[]> signatureComparator = new Comparator<Class<?>[]>() {
 			@Override
-			public int compare(Constructor<?> arg0, Constructor<?> arg1) {
-				if (arg0.equals(arg1)) {
+			public int compare(Class<?>[] arg0, Class<?>[] arg1) {
+				if (Arrays.equals(arg0, arg1)) {
 					return 0;
 				}
 				else {
@@ -209,78 +292,70 @@ public class EJIHelper {
 			}
 		};
 		
-		TreeMultimap<Integer, Constructor<?>> weights = TreeMultimap.create(Ordering.natural(), comp);
-		for (Constructor<?> ctor : possibleCtors) {
-			Class<?>[] ctorParams = ctor.getParameterTypes();
+		TreeMultimap<Integer, Class<?>[]> weights = TreeMultimap.create(Ordering.natural(), signatureComparator);
+		for (Class<?>[] signature : possibilities) {
 			int weight = 0;
 			for (int c = 0; c < params.length; c++) {
 				EveObject actualParam = params[c];
-				Class<?> ctorParam = ctorParams[c];
-				weight += weigh(ctorParam, actualParam);
+				Class<?> formalParam = signature[c];
+				weight += weigh(formalParam, actualParam);
 			}
 			
-			System.out.println(ctor + " has weight: " + weight);
-			weights.put(weight, ctor);
+			weights.put(weight, signature);
 		}
 		
-		//Phase 3: return a constructor (or die trying).
-		//sort ctors by weight.
-		//The highest-weighted valid ctor is returned. A valid ctor has weight >= 0.
-		//If there are two highest-ranking valid ctors, throw an ambiguity error with note about explicit casting.
-		//otherwise, return the ctor.
+		//Phase 4: return a signature. there can only be one valid signature. if our
+		//decision process has resulted in more than best-fit signature, we throw an ambiguity error.
 		int highestWeight = weights.asMap().lastKey();
-		
 		if (highestWeight > 0) {
-			Collection<Constructor<?>> winner = weights.get(highestWeight);
+			Collection<Class<?>[]> winner = weights.get(highestWeight);
 			
 			if (winner.size() > 1) {
-				throw new EveError("ambiguous constructors. use explicit types.");
+				throw new EveError("ambiguous signatures. use explicit types instead.");
 			}
 			
-			System.out.println("winner is: " + winner.toArray()[0]);
+			return Iterables.get(winner, 0);
+		}
+		else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Find a constructor for the given class and parameters.
+	 * @param cl
+	 * @param params
+	 * @return A Constructor, if one is found. Null if none are found.
+	 */
+	public static Constructor<?> findConstructor(Class<?> cl, List<EveObject> params) {
+		return findConstructor(cl, params.toArray(new EveObject[0]));
+	}
+	
+	/**
+	 * Find a constructor for the given class and parameters.
+	 * @param cl
+	 * @param params
+	 * @return A Constructor, if one is found. Null if none are found.
+	 */
+	public static Constructor<?> findConstructor(Class<?> cl, EveObject ... params) {
+		Constructor<?>[] ctors = cl.getConstructors();
+		List<Class<?>[]> sigs = new ArrayList<Class<?>[]>(ctors.length);
+		
+		for (Constructor<?> ctor : ctors) {
+			sigs.add(ctor.getParameterTypes());
 		}
 		
-		/*
+		Class<?>[] sig = findSignature(sigs, params);
 		
-		
-		List<Class<?>> clParams = new ArrayList<Class<?>>(params.length);
-		
-		for (EveObject param : params) {
-			clParams.add(param.getTypeClass());
-		}
-		
-		Class<?>[] clParamsArray = clParams.toArray(new Class<?>[0]);
-		
-		
-		for (Constructor<?> c : cl.getConstructors()) {
-			if (Arrays.equals(c.getParameterTypes(), clParamsArray)) {
-				return c;
+		for (Constructor<?> ctor : ctors) {
+			if (Arrays.equals(ctor.getParameterTypes(), sig)) {
+				return ctor;
 			}
 		}
 		
-		throw new EveError("could not find constructor for " + cl.getName() + " matching " + Arrays.asList(params));
-		*/
 		return null;
 	}
-	
-	public static Method findMethod(Class<?> cl, EveObject ... params) {
-		List<Class<?>> methParams = new ArrayList<Class<?>>(params.length);
 		
-		for (EveObject param : params) {
-			methParams.add(param.getTypeClass());
-		}
-		
-		Class<?>[] clParamsArray = methParams.toArray(new Class<?>[0]);
-		
-		for (Method meth : cl.getMethods()) {
-			if (Arrays.equals(meth.getParameterTypes(), clParamsArray)) {
-				return meth;
-			}
-		}
-		
-		throw new EveError("could not find method for " + cl.getName() + " matching " + params);
-	}
-	
 	public static Object[] mapToJava(List<EveObject> eoArgs) {
 		Object[] args = new Object[eoArgs.size()];
 		
