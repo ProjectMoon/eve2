@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.builtins.EveGlobal;
 import eve.eji.EJIFunction;
@@ -21,7 +22,7 @@ public class Java {
 	private static EveObject javaFunction() {
 		class JavaFunction extends EJIFunction {
 			public JavaFunction() {
-				setParameters("className");
+				setParameters("fqcn");
 			}
 			
 			private EveObject resolveJavaPackageContainer(String fqcn) {
@@ -49,13 +50,25 @@ public class Java {
 
 			@Override
 			public EveObject execute(Map<String, EveObject> parameters) {
-				String className = parameters.get("className").getStringValue();
+				String className = parameters.get("fqcn").getStringValue();
 				try {
 					Class<?> cl = Class.forName(className);
 					EveObject ctorFunc = EJIHelper.createEJIConstructor(cl);
 					EveObject pkgContainer = resolveJavaPackageContainer(className);
-					pkgContainer.putField(cl.getSimpleName(), ctorFunc);
-					//EveGlobal.addType(cl.getSimpleName(), ctorFunc);
+					
+					if (cl.isAnonymousClass()) {
+						throw new EveError("EJI currently does not support anonymous classes");
+					}
+					
+					if (cl.isArray()) {
+						String simpleName = cl.getSimpleName();
+						simpleName = simpleName.substring(0, simpleName.indexOf("["));
+						simpleName += "_Array";
+						pkgContainer.putField(simpleName, ctorFunc);
+					}
+					else {
+						pkgContainer.putField(cl.getSimpleName(), ctorFunc);
+					}
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

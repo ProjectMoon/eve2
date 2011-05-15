@@ -258,11 +258,11 @@ DICT_LITERAL
 
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
-fragment SCOPE_OP : ':' ':' ;
+fragment UNDERSCORE : '_' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
-IDENT : LETTER ( LETTER | DIGIT)*;
+IDENT : LETTER ( LETTER | UNDERSCORE | DIGIT)*;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN; };
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN; };
