@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import eve.scope.ScopeManager;
 
 public class EJIHelper {
 	private static final Multimap<Class<?>, EveType> typeMap = createTypeMap();
+	private static final Map<Class<?>, Integer> weightMap = createWeightMap();
 	
 	private static Multimap<Class<?>, EveType> createTypeMap() {
 		HashMultimap<Class<?>, EveType> map = HashMultimap.create();
@@ -49,20 +51,74 @@ public class EJIHelper {
 		return map;
 	}
 	
+	private static Map<Class<?>, Integer> createWeightMap() {
+		Map<Class<?>, Integer> map = new HashMap<Class<?>, Integer>();
+		
+		map.put(Integer.class, 2);
+		map.put(int.class, 1);
+		map.put(Double.class, 2);
+		map.put(double.class, 1);
+		map.put(Boolean.class, 2);
+		map.put(boolean.class, 1);
+		//nothing else, because they are special cases.
+		
+		return map;
+	}
+	
 	public static EveObject self() {
 		return ScopeManager.getVariable("self");
 	}
 	
-	private static Collection<EveType> map(Class<?> ctorParam) {
+	private static Collection<EveType> map(Class<?> ctorParam, EveObject eo) {
 		Collection<EveType> types = typeMap.get(ctorParam);
 		
 		if (!types.isEmpty()) {
 			return types;
 		}
 		else {
-			Set<EveType> type = new HashSet<EveType>();
-			type.add(EveType.JAVA);
-			return type;
+			//everything else is a java mapping. in order for this mapping to be
+			//valid, the class of the java value must be assignable from the ctorParam
+			if (eo.getJavaValue() != null && ctorParam.isAssignableFrom(eo.getJavaValue().getClass())) {
+				Set<EveType> type = new HashSet<EveType>();
+				type.add(EveType.JAVA);
+				return type;
+			}
+			else {
+				return new HashSet<EveType>();
+			}
+		}
+	}
+	
+	private static int weigh(Class<?> ctorParam, EveObject actualParam) {
+		if (actualParam.getType() == EveType.STRING) {
+			String value = actualParam.getStringValue();
+			
+			if (value != null && value.length() > 1) {
+				if (ctorParam == String.class) {
+					return 2;
+				}
+				else {
+					return -999;
+				}
+			}
+			else {
+				if (ctorParam == Character.class) {
+					return 3;
+				}
+				else if (ctorParam == char.class) {
+					return 2;
+				}
+				else {
+					return 1;
+				}
+			}
+		}
+		else if (actualParam.getType() == EveType.JAVA || actualParam.getType() == EveType.FUNCTION || 
+				actualParam.getType() == EveType.CUSTOM || actualParam.getType() == EveType.PROTOTYPE) {
+			return 0;
+		}
+		else {
+			return weightMap.get(ctorParam);
 		}
 	}
 	
@@ -71,10 +127,22 @@ public class EJIHelper {
 	}
 	
 	public static void main(String[] args) {
-		EveObject p1 = new EveObject();
-		p1.setType(EveType.JAVA);
+		class Test {
+			public Test() {}
+			public Test(int x, String y) {}
+			public Test(Integer x, String y) {}
+			public Test(int x, Character y) {}
+			public Test(Integer x, char y) {}
+			public Test(int x, char y) {}
+		}
 		
-		Constructor<?> ctor = findConstructor(ArrayList.class, p1);
+		EveObject p1 = new EveObject();
+		p1.setType(EveType.INTEGER);
+		EveObject p2 = new EveObject();
+		p2.setType(EveType.STRING);
+		p2.setStringValue("a");
+		
+		Constructor<?> ctor = findConstructor(Test.class, p1, p2);
 	}
 	
 	public static Constructor<?> findConstructor(Class<?> cl, EveObject ... params) {
@@ -106,7 +174,7 @@ public class EJIHelper {
 				for (int c = 0; c < params.length; c++) {
 					Class<?> ctorParam = ctorParams[c];
 					EveObject actualParam = params[c];
-					Collection<EveType> mappedTypes = map(ctorParam);
+					Collection<EveType> mappedTypes = map(ctorParam, actualParam);
 					if (!mappedTypes.contains(actualParam.getType())) {
 						continue OUTER; //skip this constructor.
 					}
@@ -120,10 +188,24 @@ public class EJIHelper {
 		System.out.println(possibleCtors);
 		
 		//Phase 2: determine best constructor (assuming we have any)
-		//the least-wide method is chosen. this means that the least amount of widening will be taken.
 		//take jython approach and define an order:
 		//for most, prefer objects (Integer, etc) over primitives (int)
 		//for strings, if the actual param is length 1, prefer Character over char over String.
+		//for java mappings, we might as well just give weight of 0 because all java possibilities
+		//are based on isAssignableFrom
+		//perhaps give weight to each parameter (2 for obj, 1 for primitive, or something)
+		//sort ctors by weight.
+		for (Constructor<?> ctor : possibleCtors) {
+			Class<?>[] ctorParams = ctor.getParameterTypes();
+			int weight = 0;
+			for (int c = 0; c < params.length; c++) {
+				EveObject actualParam = params[c];
+				Class<?> ctorParam = ctorParams[c];
+				weight += weigh(ctorParam, actualParam);
+			}
+			
+			System.out.println("ctor " + ctor + " has weight: " + weight);
+		}
 		
 		//Phase 3: return constructor!
 		
