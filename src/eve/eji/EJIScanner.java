@@ -16,23 +16,6 @@ import org.reflections.util.FilterBuilder;
 import eve.core.EveObject;
 import eve.core.builtins.EveGlobal;
 
-@EJIType("test")
-class Test {
-	public Test(String x) {}
-	
-	public String getProp() {
-		return "a prop";
-	}
-	
-	public void setProp(String value) {
-		System.out.println("prop set to " + value);
-	}
-	
-	public void printIt() {
-		System.out.println("print it!");
-	}
-}
-
 public class EJIScanner {
 	private List<String> packages = new ArrayList<String>();
 	
