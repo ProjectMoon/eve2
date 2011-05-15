@@ -295,15 +295,20 @@ public class EJIHelper {
 		
 		//Phase 4: return a signature. there can only be one valid signature. if our
 		//decision process has resulted in more than best-fit signature, we throw an ambiguity error.
-		int highestWeight = weights.asMap().lastKey();
-		if (highestWeight >= 0) {
-			Collection<Class<?>[]> winner = weights.get(highestWeight);
-			
-			if (winner.size() > 1) {
-				throw new EveError("ambiguous signatures. use explicit types instead.");
+		if (!weights.isEmpty()) {
+			int highestWeight = weights.asMap().lastKey();
+			if (highestWeight >= 0) {
+				Collection<Class<?>[]> winner = weights.get(highestWeight);
+				
+				if (winner.size() > 1) {
+					throw new EveError("ambiguous signatures. use explicit types instead.");
+				}
+				
+				return Iterables.get(winner, 0);
 			}
-			
-			return Iterables.get(winner, 0);
+			else {
+				return null;
+			}
 		}
 		else {
 			return null;

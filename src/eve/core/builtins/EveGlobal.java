@@ -18,7 +18,7 @@ public class EveGlobal extends EveObject {
 		typePool.put(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
 		typePool.put(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
 		typePool.put(EveList.getPrototype().getTypeName(), EveList.getPrototype());
-		//typePool.put(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
+		typePool.put(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
 		typePool.put(EveDictionary.getPrototype().getTypeName(), EveDictionary.getPrototype());
 	}
 	
@@ -35,7 +35,7 @@ public class EveGlobal extends EveObject {
 	}
 	
 	private EveGlobal() {
-		super(EveObjectPrototype.getPrototype());
+		//super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("global");
 	}

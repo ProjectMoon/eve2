@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 
 class JavaConstructorInvocation extends EJIFunction {
@@ -17,6 +18,7 @@ class JavaConstructorInvocation extends EJIFunction {
 		setParameters("args");
 		setVarargs(true);
 		setVarargsIndex(0);
+		setName(type.getSimpleName() + "_Ctor");
 	}
 	@Override
 	public EveObject execute(Map<String, EveObject> parameters) {
@@ -26,6 +28,10 @@ class JavaConstructorInvocation extends EJIFunction {
 		
 		try {
 			Constructor<?> ctor = EJIHelper.findConstructor(type, args);
+			if (ctor == null) {
+				throw new EveError("could not find constructor for java type " + type.getName());
+			}
+			
 			Object[] initArgs = EJIHelper.mapArguments(ctor.getParameterTypes(), args);
 			Object obj = ctor.newInstance(initArgs);
 			return EJIHelper.createEJIType(obj);
