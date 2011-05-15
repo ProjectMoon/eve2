@@ -68,11 +68,12 @@ the classpath in Ubuntu 10.10:
 
 `export CLASSPATH=/usr/share/java/ivy.jar:$CLASSPATH`
 
-### Interpreter Can't Find ANTLR Runtime ###
-The executable jar has the ANTLR runtime in its classpath. Make sure a `lib/`
+### Interpreter Can't Find Dependencies ###
+The executable jar requires a number of dependencies. Make sure a `lib/`
 directory exists in the location where eve.jar is, and make sure
-`antlr-runtime-3.3.jar` is in that directory. If those are present, eve should
-able to be run from anywhere.
+all required dependencies are in that directory. If those are present, Eve
+should able to be run from anywhere. The build process should dump all required
+dependencies into the `dist/` directory for you.
 
 Status
 ======
