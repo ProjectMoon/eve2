@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +20,8 @@ import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.TreeMultimap;
 
 import eve.core.EveError;
 import eve.core.EveObject;
@@ -194,7 +197,19 @@ public class EJIHelper {
 		//for java mappings, we might as well just give weight of 0 because all java possibilities
 		//are based on isAssignableFrom
 		//perhaps give weight to each parameter (2 for obj, 1 for primitive, or something)
-		//sort ctors by weight.
+		Comparator<Constructor<?>> comp = new Comparator<Constructor<?>>() {
+			@Override
+			public int compare(Constructor<?> arg0, Constructor<?> arg1) {
+				if (arg0.equals(arg1)) {
+					return 0;
+				}
+				else {
+					return -1;
+				}
+			}
+		};
+		
+		TreeMultimap<Integer, Constructor<?>> weights = TreeMultimap.create(Ordering.natural(), comp);
 		for (Constructor<?> ctor : possibleCtors) {
 			Class<?>[] ctorParams = ctor.getParameterTypes();
 			int weight = 0;
@@ -204,13 +219,26 @@ public class EJIHelper {
 				weight += weigh(ctorParam, actualParam);
 			}
 			
-			System.out.println("ctor " + ctor + " has weight: " + weight);
+			System.out.println(ctor + " has weight: " + weight);
+			weights.put(weight, ctor);
 		}
 		
 		//Phase 3: return a constructor (or die trying).
+		//sort ctors by weight.
 		//The highest-weighted valid ctor is returned. A valid ctor has weight >= 0.
 		//If there are two highest-ranking valid ctors, throw an ambiguity error with note about explicit casting.
 		//otherwise, return the ctor.
+		int highestWeight = weights.asMap().lastKey();
+		
+		if (highestWeight > 0) {
+			Collection<Constructor<?>> winner = weights.get(highestWeight);
+			
+			if (winner.size() > 1) {
+				throw new EveError("ambiguous constructors. use explicit types.");
+			}
+			
+			System.out.println("winner is: " + winner.toArray()[0]);
+		}
 		
 		/*
 		
