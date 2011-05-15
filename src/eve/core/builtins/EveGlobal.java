@@ -59,7 +59,7 @@ public class EveGlobal extends EveObject {
 		//search type pool first.
 		EveObject eo = typePool.get(name);
 		
-		if (typePool != null) {
+		if (eo != null) {
 			return eo;
 		}
 		else {
