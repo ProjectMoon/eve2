@@ -21,6 +21,16 @@ article:
 
 <http://en.wikipedia.org/wiki/Prototype-based_programming>
 
+Usage
+-----
+First, write an eve file. See the wiki for language reference, tutorials, and
+examples. Then, invoke the Eve interpreter:
+
+    java -jar dist/eve.jar file.eve
+    
+You can invoke the executable jar with the `-h` option to get more a summary
+of options used to tweak the interpreter.
+
 Building
 ========
 First, check out the code from the Git repository. The master branch always
@@ -31,7 +41,7 @@ The primary requirement for buildin and running Eve is Java. Eve is developed
 and tested on the "official" 1.6 HotSpot VM. It should work under Java 1.5, but
 that environment is unsupported. It will not work under Java 1.4 or lower.
 
-Eve uses Apache Ant for building and Apache Ivy for resolving libraries.
+Eve uses Apache Ant for building and Apache Ivy for resolving dependencies.
 Make sure to install those first. On Linux, your distro may have them.
 For example, to install Ant and Ivy on Ubuntu 10.10:
 
@@ -81,16 +91,16 @@ Very much a work in progress. Completed things:
 * Adding properties to objects works
 * Basic scoping implemented
 * Cloning objects
-* Very basic Java interop implemented (only internally)
+* Very basic Java interop implemented
 * function invocation works
 * Boolean data type
 * if/else statements
 * namespaces and importing
+* loop statements (for, while)
 
 Big things left to do:
 
 * REPL
-* loop statements (for, while)
 * delete statement
 * Object family support (for pushing changes to many objects)
 * Ahead of Time "compilation"
