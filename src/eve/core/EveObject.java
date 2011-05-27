@@ -48,6 +48,7 @@ public class EveObject {
 	
 	//internal object settings and state.
 	private boolean cloneable = true;
+	private boolean markedForClone = false;
 	
 	//object family support.
 	private EveObject cloneParent;
@@ -67,7 +68,7 @@ public class EveObject {
 	 */
 	public EveObject(EveObject source, boolean onClone) {
 		if (!source.isCloneable()) {
-			throw new EveError("attempting to clone uncloneable prototype");
+			throw new EveError("attempting to clone uncloneable object");
 		}
 				
 		//Object is cloned to initially use references of this object to save memory.
@@ -457,6 +458,14 @@ public class EveObject {
 	public void setFields(Map<String, EveObject> fields) {
 		this.fields = fields;
 	}	
+
+	public void setMarkedForClone(boolean markedForClone) {
+		this.markedForClone = markedForClone;
+	}
+
+	public boolean isMarkedForClone() {
+		return markedForClone;
+	}
 
 	public Map<String, EveObject> getFields() {
 		return fields;
