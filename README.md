@@ -13,7 +13,7 @@ Eve is a dynamically strongly typed, pure prototypal, object-oriented language:
 * Objects have no delegation relationship with one another (as in 
   JavaScript); this reduces confusion and mistakes when dealing with
   references.
-* Eve runs on the Java Virtual Machine, so integration with Java code is
+* Eve runs on the Java Virtual Machine, and integration with Java code is
   possible.
   
 For more information about prototypal OOP programming, see the Wikipedia
@@ -92,7 +92,7 @@ Very much a work in progress. Completed things:
 * Adding properties to objects works
 * Basic scoping implemented
 * Cloning objects
-* Very basic Java interop implemented
+* Basic Java interop implemented
 * function invocation works
 * Boolean data type
 * if/else statements
