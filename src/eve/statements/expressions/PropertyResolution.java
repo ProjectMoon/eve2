@@ -53,6 +53,11 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		
 		//setter functionality.
 		EveObject existingField = eo.getField(ident);
+		
+		if (existingField != null && existingField.isMarkedForClone()) {
+			existingField.deepClone();
+		}
+		
 		if (isUsingMutatorAccessor() && existingField != null && existingField.hasField("set") &&
 				existingField.getField("set").getType() == EveType.FUNCTION) {
 			existingField.getField("set").invokeSelf(existingField, value);

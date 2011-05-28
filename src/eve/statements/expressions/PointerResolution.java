@@ -81,6 +81,13 @@ public class PointerResolution extends ExpressionStatement implements EveStateme
 		
 		EveObject eo = vfinder.execute();
 		String ident = getIdentifier();
+		
+		EveObject existingField = eo.getField(ident);
+		
+		if (existingField != null && existingField.isMarkedForClone()) {
+			existingField.deepClone();
+		}
+		
 		eo.putField(ident, value);
 	}
 

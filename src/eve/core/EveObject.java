@@ -513,7 +513,7 @@ public class EveObject {
 	 * only want to deep clone when necessary and use the same references for
 	 * everything else.
 	 */
-	private void deepClone() {
+	public void deepClone() {
 		//first, collect a queue of fields that need to be cloned.
 		EveObject eo = this;
 		Deque<String> fieldNames = new ArrayDeque<String>();
@@ -531,11 +531,16 @@ public class EveObject {
 			String fieldName = fieldNames.pop();
 			EveObject field = eo.getField(fieldName);
 			
-			field = field.eventlessClone();
-			eo.putField(fieldName, field);
+			if (field.isMarkedForClone()) {
+				field = field.eventlessClone();
+				field.setMarkedForClone(false);
+			}
 			
+			eo.putField(fieldName, field);
 			eo = field;
 		}
+		
+		this.setMarkedForClone(false);
 	}
 	
 	/**
