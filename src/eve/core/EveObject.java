@@ -1,5 +1,6 @@
 package eve.core;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
@@ -49,6 +50,7 @@ public class EveObject {
 	//internal object settings and state.
 	private boolean cloneable = true;
 	private boolean markedForClone = false;
+	private EveObject objectParent = null;
 	
 	//object family support.
 	private EveObject cloneParent;
@@ -78,9 +80,11 @@ public class EveObject {
 		this.tempFields = new HashMap<String, EveObject>(source.tempFields); //a new map with the same references.
 		
 		this.setType(source.getType());
-		
 		this.setTypeName(source.getTypeName());
+		
 		this.cloneable = source.cloneable;
+		this.objectParent = source.objectParent;
+		
 		this.intValue = source.intValue;
 		this.functionValue = source.functionValue;
 		this.stringValue = source.stringValue;
@@ -96,6 +100,9 @@ public class EveObject {
 			source.getField(SpecialFunctions.ON_CLONE).putTempField("self", source);
 			source.getField(SpecialFunctions.ON_CLONE).invoke(this);
 		}
+		
+		//mark fields for clone. this means that we deep clone as necessary for the new fields.
+		markFieldsForClone();
 	}
 	
 	public EveObject(Integer i) {
@@ -210,6 +217,13 @@ public class EveObject {
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName(WITH_STATEMENT_TYPENAME);
 		return eo;
+	}
+	
+	private void markFieldsForClone() {
+		for (EveObject eo : getFields().values()) {
+			eo.markedForClone = true;
+			eo.markFieldsForClone();
+		}
 	}
 		
 	public boolean isCloneable() {
@@ -472,10 +486,12 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
+		eo.objectParent = this;
 		this.fields.put(name, eo);
 	}
 	
 	public void putTempField(String name, EveObject eo) {
+		eo.objectParent = this;
 		this.tempFields.put(name, eo);
 	}
 	
@@ -487,6 +503,57 @@ public class EveObject {
 	public void putTempField(String name, DynamicField ejiField) {
 		EveObject eji = ejiField.createObject();
 		putTempField(name, eji);		
+	}
+	
+	/**
+	 * Deep clones this EveObject, unique-ifying its object hierarchy
+	 * as necessary. This method is called by the interpreter to implement
+	 * the magic auto deep cloning at the interpreter level. At the interpreter
+	 * level, everything is automatically deep cloned. But to save memory, we
+	 * only want to deep clone when necessary and use the same references for
+	 * everything else.
+	 */
+	private void deepClone() {
+		//first, collect a queue of fields that need to be cloned.
+		EveObject eo = this;
+		Deque<String> fieldNames = new ArrayDeque<String>();
+		
+		while (eo.objectParent != null) {
+			String fieldName = eo.objectParent.getFieldName(eo);
+			fieldNames.addFirst(fieldName);
+			eo = eo.objectParent;
+		}
+		
+		//now that eo is the top of the object hierarchy, we go back down through
+		//the hierarchy and clone each field. We do not need to clone eo, because
+		//eo is already unique via a clone operation somewhere along the way.
+		while (!fieldNames.isEmpty()) {
+			String fieldName = fieldNames.pop();
+			EveObject field = eo.getField(fieldName);
+			
+			field = field.eventlessClone();
+			eo.putField(fieldName, field);
+			
+			eo = field;
+		}
+	}
+	
+	/**
+	 * Given an EveObject, attempts to find the field name attached to it. This
+	 * method checks reference equality to determine which field name to return.
+	 * It does not check via the .equals() method.
+	 * @param value
+	 * @return The name if found, null otherwise.
+	 */
+	public String getFieldName(EveObject value) {
+		for (String fieldName : getFieldNames()) {
+			EveObject eo = getField(fieldName);
+			if (eo == value) {
+				return fieldName;
+			}
+		}
+		
+		return null;
 	}
 	
 	public List<String> getFieldNames() {
