@@ -1,40 +1,28 @@
 /*
-proto X {
-	def g = () {
-		global::durp.q = 5;
-	}
-}
+scopesarrays.eve
 
-var durp = 10;
-var x = clone X;
-x.g();
-print(durp.q);
+Demonstrates how scope works. Eve has a very strict scoping policy. In most
+cases, the interpreter will refuse to look very far to find a variable. Global
+variables must be referenced explicitly by "global::varName", for example. 
 
-durp.l = [];
-durp.l[0] = 1;
-durp.l[2] = [];
-durp.l[2][0] = 10;
-durp.l[2][0].x = [];
-durp.l[2][0].x[0] = 13;
-print(durp.l[2][0].x);
+Arrays are simple. They are created with the list literal []. You can then put
+data at any index you so desire.
 */
 
-def ctor = (x) {
-	proto X {
-		var q = parent::x;
+//First, scope demonstration.
+var x = 5;
+proto obj {
+	def func = () {
+		print(global::x);
 	}
-
-	return X;
 }
 
-var X = ctor(12);
-print(X.q);
+obj.func();
 
-def closure = () {
-	var a = 15;
-	def yarr = () {
-		print(parent::a);
-	}
+//Arrays.
+var l = [];
+l[0] = 11;
+l[1] = "hello";
 
-	return yarr;
-}
+print(l[0]);
+print(l[1]);

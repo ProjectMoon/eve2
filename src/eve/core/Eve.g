@@ -7,21 +7,40 @@ options {
 }
 
 tokens {
+	NAMESPACE;
+	NS_SWITCH_BLOCK;
+	NS_SWITCH_EXPR;
 	NEGATION;
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
+	PUSH_VARIABLE;
 	INIT_FUNCTION;
-	UPDATE_FUNCTION;
 	FUNCTION_NAME;
 	FUNCTION_PARAMETERS;
 	FUNCTION_BODY;
 	INVOKE_FUNCTION_STMT;
 	INVOKE_FUNCTION_EXPR;
 	INIT_PROTO;
-	CLONE_PROTO;
+	CLONE;
 	IF_STATEMENT;
 	ELSE_IF;
 	ELSE;
+	FOREACH;
+	WHILE;
+	LOOP_BODY;
+	PRINT_EXPR;
+	PRINTLN_EXPR;
+	PRINTLN_EMPTY;
+	ARRAY_ACCESS;
+	ARRAY_IDENT;
+	PROPERTY;
+	EXPR_STATEMENT;
+	PROP_COLLECTION;
+	PROP_COLLECTION_ALL;
+	POINTER;
+	DEREF;
+	WITH;
+	WITH_BODY;
 }
 
 @header {
@@ -40,10 +59,10 @@ tokens {
         String msg = getErrorMessage(e, tokenNames);
         throw new EveError(hdr + " " + msg);
     }
-    
-    public void recover(RecognitionException e) {
- 	    String hdr = getErrorHeader(e);
-        throw new EveError(hdr + " " + e.getMessage());
+        
+    public void reportError(RecognitionException e) {
+    	String hdr = getErrorHeader(e);
+    	throw new EveError(hdr + " " + e.toString());
     }
 }
 
@@ -68,9 +87,13 @@ tokens {
     }
 }
 
-//Statements
+//Top level
 program
-	:	statement*
+	:	namespace? statement*
+	;
+	
+namespace
+	:	'namespace' IDENT ';' -> ^(NAMESPACE IDENT)
 	;
 
 // Statements
@@ -81,43 +104,50 @@ statement
 codeStatement //Statements that can appear pretty much anywhere.
 	:	printStatement
 	|	returnStatement
-	|	assignmentStatement
 	|	initVariableStatement
-	|	functionInvocationStatement
 	|	ifStatement
+	|	foreachLoop
+	|	whileLoop
 	|	protoStatement
+	|	expressionStatement
+	|	withStatement
 	;
-	
+
+withStatement
+	:	'with' '(' idents+=IDENT (',' idents+=IDENT)* ')' '{' codeStatement* '}'
+		-> ^(WITH $idents+ ^(WITH_BODY codeStatement*))
+	;
+		
+expressionStatement
+	:	';'!
+	|	expression ';' -> ^(EXPR_STATEMENT expression)
+	;
 returnStatement
 	:	'return'^ expression ';'!
 	;
 	
 printStatement
-	:	'print'^ '('! expression ')'! ';'!
+	:	'print' '(' expression ')' ';' -> ^(PRINT_EXPR expression)
+	|	'println' '(' expression ')' ';' -> ^(PRINTLN_EXPR expression)
+	|	'println' '(' ')' ';' -> ^(PRINTLN_EMPTY)
 	;
-	
-assignmentStatement
-	:	IDENT '=' expression ';' -> ^(UPDATE_VARIABLE IDENT expression)
-	|	prop=IDENT '=' name=IDENT? function ';'? -> ^(UPDATE_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
-	;
-	
+		
 initVariableStatement
 	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
-	|	'def' prop=IDENT '=' name=IDENT? function ';'? -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
+	|	'def' prop=IDENT '=' name=IDENT? function -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
 	;
 
 protoStatement
-	: 'proto' IDENT '{' codeStatement* '}' ';'? -> ^(INIT_PROTO IDENT codeStatement*)
+	: 'proto' IDENT '{' codeStatement* '}' -> ^(INIT_PROTO IDENT codeStatement*)
 	;
 	
-functionInvocationStatement
-	:	IDENT '(' functionInvocationParameters ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT functionInvocationParameters)
-	|	IDENT '(' ')' ';' -> ^(INVOKE_FUNCTION_STMT IDENT)
+//Loops
+foreachLoop
+	:	'for' '(' i1=IDENT ':' e=expression ')' '{' codeStatement* '}' -> ^(FOREACH $i1 $e ^(LOOP_BODY codeStatement*))
 	;
 
-//Prototype cloning
-cloneExpression
-	:	'clone' IDENT -> ^(CLONE_PROTO IDENT)
+whileLoop
+	:	'while' '(' expression ')' '{' codeStatement* '}' -> ^(WHILE expression ^(LOOP_BODY codeStatement*))
 	;
 
 //Function related stuff
@@ -129,15 +159,6 @@ function
 	:	'(' (IDENT (',' IDENT)*)* '...'? ')' '{' codeStatement* '}' -> ^(FUNCTION_PARAMETERS IDENT* '...'?) ^(FUNCTION_BODY codeStatement*)
 	;
 	
-parameters
-	:	'(' IDENT (',' IDENT)* ')' -> ^(FUNCTION_PARAMETERS IDENT*)
-	;
-	
-functionInvocationExpression
-	:	IDENT '(' functionInvocationParameters ')' -> ^(INVOKE_FUNCTION_EXPR IDENT functionInvocationParameters)
-	|	IDENT '(' ')' -> ^(INVOKE_FUNCTION_EXPR IDENT)
-	;
-
 //If statements
 ifStatement
 	:	'if' '(' expression ')' '{' codeStatement* '}' -> ^(IF_STATEMENT expression codeStatement*)
@@ -146,16 +167,33 @@ ifStatement
 	;
 
 //Expressions
-term
+atom
 	:	IDENT
+	|	'*' IDENT -> ^(DEREF IDENT)
 	|	'('! expression ')'!
-	|	INTEGER
-	|	DOUBLE
+ 	|	INTEGER
+ 	|	DOUBLE
 	|	BOOLEAN
 	|	STRING_LITERAL
 	|	LIST_LITERAL
-	|	functionInvocationExpression
-	|	cloneExpression
+	|	DICT_LITERAL
+	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
+	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
+	;
+
+term
+	:	(atom -> atom) ( suffix[$term.tree] -> suffix )*
+	;
+	
+modifiers 
+	:	expression (','! expression)*
+	;
+
+suffix [CommonTree t]
+	:	( x='(' modifiers? ')' -> ^(INVOKE_FUNCTION_EXPR {$t} modifiers? ))
+	|	( x='[' modifiers  ']' -> ^(ARRAY_IDENT {$t} modifiers) )
+	|	( x='.' (p=IDENT) -> ^(PROPERTY {$t} $p) )
+	|	( '-' '>' (p=IDENT) -> ^(POINTER {t} $p) )
 	;
 	
 boolNegation
@@ -175,15 +213,28 @@ mult
 	;
 	
 add
-	:	mult (('+'^ | '-'^ | '~'^) mult)*
+	:	mult (('+'^ | '-'^ | '~'^ | 'to'^) mult)*
+	//object collections here, because assignment takes precedence!
+	|	'{'	expression (',' expression)* '}' 'of' mult -> ^(PROP_COLLECTION mult expression*)
+	|	'all' 'of' mult -> ^(PROP_COLLECTION_ALL mult)
 	;
 
 relation
-	:	add (('=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^) add)*
+	:	add ((assignment^ | '=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^ | 'in'^) add)*
+	;
+	
+assignment
+	:	'=' -> UPDATE_VARIABLE
+	|	'=>' -> PUSH_VARIABLE
+	;
+	
+andOr
+	:	relation (('&&'^ | '||'^) relation)*
 	;
 	
 expression
-	:	relation (('&&'^ | '||'^) relation)*
+	:	'clone' andOr -> ^(CLONE andOr)
+	|	andOr
 	;
 	
 // Tokens
@@ -201,16 +252,17 @@ STRING_LITERAL
 	
 LIST_LITERAL
 	:	'[' ']' ;
+	
+DICT_LITERAL
+	:	'{' '}' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
-fragment DOT : '.' ;
-fragment ARRAY_ACCESS : '[' DIGIT+ ']' ;
-fragment SCOPE_OP : ':' ':' ;
+fragment UNDERSCORE : '_' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
-IDENT : LETTER (SCOPE_OP | DOT | ARRAY_ACCESS | LETTER | DIGIT)*;
+IDENT : LETTER ( LETTER | UNDERSCORE | DIGIT)*;
 
-WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN;};
-COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN;};
+WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN; };
+COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN; };

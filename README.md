@@ -13,13 +13,23 @@ Eve is a dynamically strongly typed, pure prototypal, object-oriented language:
 * Objects have no delegation relationship with one another (as in 
   JavaScript); this reduces confusion and mistakes when dealing with
   references.
-* Eve runs on the Java Virtual Machine, so integration with Java code is
+* Eve runs on the Java Virtual Machine, and integration with Java code is
   possible.
   
-For more information about Prototypal OOP programming, see the Wikipedia
+For more information about prototypal OOP programming, see the Wikipedia
 article:
 
 <http://en.wikipedia.org/wiki/Prototype-based_programming>
+
+Usage
+-----
+First, write an eve file. See the wiki for language reference, tutorials, and
+examples. Then, invoke the Eve interpreter:
+
+    java -jar dist/eve.jar file.eve
+    
+You can invoke the executable jar with the `-h` option to get more a summary
+of options used to tweak the interpreter.
 
 Building
 ========
@@ -31,7 +41,7 @@ The primary requirement for buildin and running Eve is Java. Eve is developed
 and tested on the "official" 1.6 HotSpot VM. It should work under Java 1.5, but
 that environment is unsupported. It will not work under Java 1.4 or lower.
 
-Eve uses Apache Ant for building and Apache Ivy for resolving libraries.
+Eve uses Apache Ant for building and Apache Ivy for resolving dependencies.
 Make sure to install those first. On Linux, your distro may have them.
 For example, to install Ant and Ivy on Ubuntu 10.10:
 
@@ -58,11 +68,12 @@ the classpath in Ubuntu 10.10:
 
 `export CLASSPATH=/usr/share/java/ivy.jar:$CLASSPATH`
 
-### Interpreter Can't Find ANTLR Runtime ###
-The executable jar has the ANTLR runtime in its classpath. Make sure a `lib/`
+### Interpreter Can't Find Dependencies ###
+The executable jar requires a number of dependencies. Make sure a `lib/`
 directory exists in the location where eve.jar is, and make sure
-`antlr-runtime-3.3.jar` is in that directory. If those are present, eve should
-able to be run from anywhere.
+all required dependencies are in that directory. If those are present, Eve
+should able to be run from anywhere. The build process should dump all required
+dependencies into the `dist/` directory for you.
 
 Status
 ======
@@ -81,17 +92,16 @@ Very much a work in progress. Completed things:
 * Adding properties to objects works
 * Basic scoping implemented
 * Cloning objects
-* Very basic Java interop implemented (only internally)
+* Basic Java interop implemented
 * function invocation works
 * Boolean data type
 * if/else statements
+* namespaces and importing
+* loop statements (for, while)
 
 Big things left to do:
 
 * REPL
-* import statment
-* loop statements (for, while)
-* Scope operator
 * delete statement
 * Object family support (for pushing changes to many objects)
 * Ahead of Time "compilation"

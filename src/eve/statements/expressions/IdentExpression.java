@@ -1,12 +1,20 @@
 package eve.statements.expressions;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
+import eve.statements.VariableFindingStatement;
+import eve.statements.assignment.Updateable;
 
 
-public class IdentExpression extends ExpressionStatement implements EveStatement {
+public class IdentExpression extends ExpressionStatement implements EveStatement, VariableFindingStatement, Updateable {
 	private String identifier;
+	private boolean usingMutatorAccessor = true;
 	
 	public IdentExpression(String identifier) {
 		this.identifier = identifier;
@@ -20,7 +28,12 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 	public EveObject execute() {
 		EveObject eo = ScopeManager.getVariable(identifier);
 		if (eo != null) {
-			return eo;
+			if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
+				return eo.getField("get").invokeSelf(eo);
+			}
+			else {
+				return eo;
+			}
 		}
 		else {
 			throw new EveError(identifier + " not defined at current scope.");
@@ -28,13 +41,45 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 	}
 	
 	@Override
-	public boolean referencesClosure() {
-		return super.analyzeForClosure(identifier);
+	public void updateVariable(EveObject value) {
+		String ident = getIdentifier();
+		
+		//setter functionality
+		EveObject existingField = ScopeManager.getVariable(ident);
+		if (isUsingMutatorAccessor() && existingField != null && existingField.hasField("set") &&
+				existingField.getField("set").getType() == EveType.FUNCTION) {
+			existingField.getField("set").invokeSelf(existingField, value);
+		}
+		else {
+			ScopeManager.putVariable(ident, value);
+		}	
+		
 	}
-	
+		
 	@Override
 	public String toString() {
 		return identifier;
 	}
 
+	@Override
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>(1);
+		idents.add(identifier);
+		return idents;
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		//TODO need to analyze closure scope for IdentExpression.
+	}
+
+	@Override
+	public boolean isUsingMutatorAccessor() {
+		return usingMutatorAccessor;
+	}
+
+	@Override
+	public void setUsingMutatorAccessor(boolean using) {
+		usingMutatorAccessor = using;
+	}
 }

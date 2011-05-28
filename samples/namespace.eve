@@ -1,0 +1,16 @@
+/*
+namespace.eve
+
+Demonstration of namespaces and the import function. Namespaces are the highest
+form of organization in Eve, and allow you to section off code into packages of
+sorts. A file can only have one namespace declaration, and everything in the
+file belongs to that namespace.
+
+In this example, we import the import.eve file, which declares itself to be
+part of the test namespace. Notice that we do not import namespaces, but rather
+files. Namespace members can be spread across many files.
+*/
+import("samples/import.eve");
+
+test::y();
+

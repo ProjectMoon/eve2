@@ -19,37 +19,12 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import eve.core.EveParser.program_return;
-import eve.core.builtins.EveBoolean;
-import eve.core.builtins.EveDouble;
-import eve.core.builtins.EveFunction;
-import eve.core.builtins.EveGlobal;
-import eve.core.builtins.EveInteger;
-import eve.core.builtins.EveJava;
-import eve.core.builtins.EveList;
-import eve.core.builtins.EveObjectPrototype;
-import eve.core.builtins.EveString;
-import eve.eni.NativeHelper;
+import eve.eji.EJIScanner;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
 
 public class EveCore {
 	private boolean printSyntaxTree;
-
-	private EveObject initialize() {
-		EveObject global = EveGlobal.getPrototype();
-		
-		//add the built-in prototypes to the global scope.
-		global.putField(EveObjectPrototype.getPrototype().getTypeName(), EveObjectPrototype.getPrototype());
-		global.putField(EveInteger.getPrototype().getTypeName(), EveInteger.getPrototype());
-		global.putField(EveString.getPrototype().getTypeName(), EveString.getPrototype());
-		global.putField(EveDouble.getPrototype().getTypeName(), EveDouble.getPrototype());
-		global.putField(EveBoolean.getPrototype().getTypeName(), EveBoolean.getPrototype());
-		global.putField(EveFunction.getPrototype().getTypeName(), EveFunction.getPrototype());
-		global.putField(EveList.getPrototype().getTypeName(), EveList.getPrototype());
-		global.putField(EveJava.getPrototype().getTypeName(), EveJava.getPrototype());
-		
-		return global;
-	}
 	
 	/**
 	 * Parses options and returns the filename to load.
@@ -62,6 +37,7 @@ public class EveCore {
 		opts.addOption("t", false, "print syntax tree");
 		opts.addOption("h", false, "print help");
 		opts.addOption("i", true, "register instrumentation hook");
+		opts.addOption("eji", true, "make EJI types available");
 		
 		CommandLineParser parser = new GnuParser();
 		
@@ -71,6 +47,7 @@ public class EveCore {
 			if (line.hasOption("h")) printHelp(opts);
 			if (line.hasOption("d")) EveLogger.debugLevel();
 			if (line.hasOption("t")) printSyntaxTree = true;
+			if (line.hasOption("eji")) handleEJI(line.getOptionValue("eji"));
 			//more options here...
 			
 			//Find the eve file to run.
@@ -97,6 +74,24 @@ public class EveCore {
 		System.exit(0);
 	}
 	
+	private void handleEJI(String ejiLine) {
+		String[] pkgs = ejiLine.split(File.pathSeparator);
+		
+		EJIScanner scanner = new EJIScanner();
+		
+		for (String pkg : pkgs) {
+			scanner.addPackage(pkg);
+		}
+		
+		try {
+			scanner.scan();
+		}
+		catch (EveError e) {
+			System.err.println("EJI error: " + e.getMessage());
+			System.exit(1);
+		}
+	}
+	
 	private void handleErrors(List<String> errors) {
 		for (String error : errors) {
 			System.err.println(error);
@@ -104,19 +99,37 @@ public class EveCore {
 		System.exit(1);
 	}
 	
-	private void run(String file) throws RecognitionException, IOException {
+	public void run(String file) throws RecognitionException, IOException {
+		Script script = getScript(file);
+		run(script);
+	}
+	
+	public void run(Script script) {
+		ScopeManager.setNamespace("_global");
+		ScopeManager.createGlobalScope();
+		
+		if (!script.getNamespace().equals("_global")) {
+			ScopeManager.setNamespace(script.getNamespace());
+			ScopeManager.createGlobalScope();
+		}
+		
+		eve.eji.stdlib.Java.init();
+		eve.eji.stdlib.Core.init();
+			
+		script.execute();
+		ScopeManager.revertNamespace();
+	}
+	
+	public Script getScript(String file) throws RecognitionException, IOException {
 		File inputFile = new File(file);
 		
 		if (!inputFile.exists()) {
-			System.err.println("file " + inputFile + " not found. exiting.");
+			System.err.println("file " + inputFile.getAbsolutePath() + " not found. exiting.");
 			System.exit(1);
 		}
 		
 		InputStream input = new FileInputStream(file);
 		CharStream stream = new ANTLRInputStream(input);
-		
-		ScopeManager.setGlobalScope(initialize());
-		ScopeManager.pushScope(ScopeManager.getGlobalScope());
 	
 		EveLexer lexer = new EveLexer(stream);
 		
@@ -131,18 +144,21 @@ public class EveCore {
 			System.err.println(e.getMessage());
 			System.exit(1);
 		}
-		
-		if (printSyntaxTree) {
-			System.out.println(main.tree.toStringTree());
-			System.exit(0);
-		}
-		
+			
 		if (parser.hasErrors()) {
 			handleErrors(parser.getErrors());
 		}
+		
+		//If the file is empty, the tree will be null.
+		//Thus, we have an empty script.
+		if (main.tree == null) {
+			return new Script();
+		}
 			
 		//global is root construction scope.
-		ScopeManager.pushConstructionScope(new Script());
+		Script script = new Script();
+		ScopeManager.setScript(script);
+		ScopeManager.pushConstructionScope(script);
 		CommonTreeNodeStream nodeStream = new CommonTreeNodeStream(main.getTree());
 		ASTParser treeParser = new ASTParser(nodeStream);
 		treeParser.downup(main.tree);
@@ -153,18 +169,55 @@ public class EveCore {
 		
 		//we should be back to global scope after construction phase.
 		ConstructionScope cs = ScopeManager.popConstructionScope();
-		if ((cs instanceof Script)) {
-			Script script = (Script)cs;
-			script.execute();
+		if (cs instanceof Script) {
+			return script;
 		}
 		else {
 			throw new EveError("Did not receive global scope from construction phase.");
 		}		
 	}
 	
+	private void printTree(String file) throws IOException, RecognitionException {
+		File inputFile = new File(file);
+		
+		if (!inputFile.exists()) {
+			System.err.println("file " + inputFile.getAbsolutePath() + " not found. exiting.");
+			System.exit(1);
+		}
+		
+		InputStream input = new FileInputStream(file);
+		CharStream stream = new ANTLRInputStream(input);
+	
+		EveLexer lexer = new EveLexer(stream);
+		
+		TokenStream tokenStream = new CommonTokenStream(lexer);
+		EveParser parser = new EveParser(tokenStream);
+		program_return main = null;
+		
+		try {
+			main = parser.program();
+		}
+		catch (EveError e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
+			
+		if (parser.hasErrors()) {
+			handleErrors(parser.getErrors());
+		}
+							
+		System.out.println(main.tree.toStringTree());
+	}
+	
 	public static void main(String[] args) throws RecognitionException, IOException {
 		EveCore eve = new EveCore();
 		String file = eve.parseOptions(args);
-		eve.run(file);
+		
+		if (eve.printSyntaxTree) {
+			eve.printTree(file);
+		}
+		else {
+			eve.run(file);
+		}
 	}
 }

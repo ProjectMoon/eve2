@@ -1,11 +1,13 @@
 package eve.statements.assignment;
 
-import eve.core.EveObject;
 import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
 
+/**
+ * Currently just a marker class.
+ * @author jeff
+ *
+ */
 public abstract class AssignmentStatement extends AbstractStatement implements EveStatement {
-	@Override
-	public abstract EveObject execute();
 
 }

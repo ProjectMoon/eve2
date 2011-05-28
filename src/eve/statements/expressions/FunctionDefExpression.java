@@ -1,6 +1,8 @@
 package eve.statements.expressions;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
@@ -13,10 +15,15 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	private String name;
 	private List<String> parameters = new ArrayList<String>();
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
-	private boolean isClosureDef = false;
 	private boolean isVarargs = false;
 	private int varargsIndex;
 	
+	private Function func;
+	
+	//closure analysis
+	private boolean isPossibleClosure = false;
+	private boolean closureStatusKnown = false;
+		
 	public FunctionDefExpression() {}
 	
 	public FunctionDefExpression(List<EveStatement> statements) {
@@ -25,16 +32,10 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 	
 	public void addStatement(EveStatement statement) {
 		this.getStatements().add(statement);
-		if (!this.isClosureDef) {
-			this.isClosureDef = analyzeForClosure(statement);
-		}
 	}
 	
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
-		if (!this.isClosureDef) {
-			this.isClosureDef = analyzeForClosure(statements);
-		}
 	}
 
 	public List<EveStatement> getStatements() {
@@ -75,7 +76,8 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 
 	@Override
 	public EveObject execute() {
-		Function func = new Function();
+		closureAnalysis(null);
+		func = new Function();
 		func.setName(name);
 		func.addStatements(getStatements());
 		func.setParameters(this.parameters);
@@ -85,39 +87,69 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 			func.setVarargsIndex(varargsIndex);
 		}
 		
-		if (isClosureDef) {
-			func.setClosureStack(ScopeManager.createClosureStack());
+		if (isPossibleClosure) {
+			func.setPossibleClosure(true);
+		}
+
+		//with statement scope?
+		if (ScopeManager.getCurrentScope().getTypeName().equals(EveObject.WITH_STATEMENT_TYPENAME)) {
+			EveObject with = ScopeManager.getCurrentScope();
+			func.setWithScope(with);
+			func.setClosure(true);
 		}
 		
 		EveObject eo = new EveObject(func);
 		return eo;
 	}
-	
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		//this is if we are calling it from a top-level function.
+		if (closureList == null) {
+			closureList = new ArrayDeque<List<String>>();
+		}
+		
+		if (!this.closureStatusKnown) {
+			this.closureStatusKnown = true;
+			
+			List<String> functionVariables = getIdentifiers();
+			
+			outer:
+			for (List<String> variables : closureList) {
+				for (String variable : variables) {
+					if (functionVariables.contains(variable)) {
+						//this function is possibly a closure!
+						this.isPossibleClosure = true;
+						break outer;
+					}
+				}
+			}
+			
+			//now analyze sub functions.
+			closureList.push(functionVariables);
+			
+			for (EveStatement statement : getStatements()) {
+				statement.closureAnalysis(closureList);
+			}
+			
+			closureList.pop();
+		}
+	}
+
 	@Override
 	public String toString() {
 		String name = (getName() != null) ? getName() : "function";
-		return "def + " + name + "(" + getParameters().toString() + ")";
-	}
-	
-	private boolean analyzeForClosure(List<EveStatement> statements) {
-		boolean isClosure = false;
-		
-		for (EveStatement stmt : statements) {
-			isClosure = analyzeForClosure(stmt);
-			if (isClosure) {
-				break;
-			}
-		}
-		
-		return isClosure;
-	}
-	
-	private boolean analyzeForClosure(EveStatement stmt) {
-		return stmt.referencesClosure();
+		return name + "(" + getParameters().toString() + ")";
 	}
 	
 	@Override
-	public boolean referencesClosure() {
-		return isClosureDef;
+	public List<String> getIdentifiers() {
+		List<String> idents = new ArrayList<String>(getParameters()); //defensive copy!
+		
+		for (EveStatement statement : getStatements()) {
+			idents.addAll(statement.getIdentifiers());
+		}
+		
+		return idents;
 	}
 }

@@ -24,7 +24,7 @@ Development Model
 -----------------
 Please follow this development model when making changes:
 
-* All new code should be in or merged into the '''develop''' branch.
+* All new code should be in or merged into the **develop** branch.
 * New features should be created in a local branch and then merged with 
   `merge --no-ff` into develop so the branch history is preserved in the
   network graph.
@@ -40,7 +40,21 @@ plugins:
 
 * IvyDE: <http://ant.apache.org/ivy/ivyde/>
 * ANTLR IDE: <http://antlrv3ide.sourceforge.net/>
-   * Under the Code Generator settings, check 'Append Java package to output
-     folder'. This preserves package hierarchy.
-   * This will also require an ANTLR 3 installation. Get the complete version
-     from <http://www.antlr.org>.
+
+Note: ANTLR IDE is really only recommended for its syntax highlighting.
+
+### Setting up Eclipse ###
+You will need to set up your environment to use an Ant Builder. Disable the
+Java and Script builders for the project, and add build.xml as a new Ant build.
+If you import the project into the workspace from the repository, this should
+all be handled automatically. If you don't have ANTLR IDE installed, you will
+get an error about antlr-3.3-complete.jar missing. Ignore this error.
+
+If you are setting up run configurations, don't forget to put the built jar on
+the classpath. It should be added under the Classpath tab of the run
+configuration, and must be ABOVE the project folder under user entries. Do not
+DELETE the project, as that is needed for the debugger to follow the source
+code.
+
+The built jar will always be located in the dist/ directory. When making a run
+configuration, you will generally want to run the eve.core.EveCore class.

@@ -1,6 +1,9 @@
 package eve.statements.expressions;
 
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 
 import eve.core.EveError;
 import eve.core.EveObject;
@@ -12,6 +15,7 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	private Double doubleOp;
 	private Boolean booleanOp;
 	private List<EveObject> listOp;
+	private Map<String, EveObject> dictOp;
 	
 	public WrappedPrimitiveExpression(Integer op) {
 		this.intOp = op;
@@ -33,6 +37,10 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		this.listOp = op;
 	}
 	
+	public WrappedPrimitiveExpression(Map<String, EveObject> op) {
+		this.dictOp = op;
+	}
+	
 	@Override
 	public EveObject execute() {	
 		if (intOp != null) {
@@ -50,16 +58,14 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		else if (listOp != null) {
 			return new EveObject(listOp);
 		}
+		else if (dictOp != null) {
+			return new EveObject(dictOp);
+		}
 		else {
 			throw new EveError("unable to assign wrapped primitive");
 		}
 	}
-		
-	@Override
-	public boolean referencesClosure() {
-		return false;
-	}
-	
+			
 	private Object getOp() {
 		if (intOp != null) {
 			return intOp;
@@ -76,6 +82,9 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		else if (listOp != null) {
 			return listOp;
 		}
+		else if (dictOp != null) {
+			return dictOp;
+		}
 		else {
 			throw new EveError("unable to find operator");
 		}	
@@ -84,6 +93,68 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	@Override
 	public String toString() {
 		return "WrappedPrimitive(" + getOp().toString() + ")"; 
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		return new ArrayList<String>(0);
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+	
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((booleanOp == null) ? 0 : booleanOp.hashCode());
+		result = prime * result
+				+ ((doubleOp == null) ? 0 : doubleOp.hashCode());
+		result = prime * result + ((intOp == null) ? 0 : intOp.hashCode());
+		result = prime * result + ((listOp == null) ? 0 : listOp.hashCode());
+		result = prime * result
+				+ ((stringOp == null) ? 0 : stringOp.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		WrappedPrimitiveExpression other = (WrappedPrimitiveExpression) obj;
+		if (booleanOp == null) {
+			if (other.booleanOp != null)
+				return false;
+		} else if (!booleanOp.equals(other.booleanOp))
+			return false;
+		if (doubleOp == null) {
+			if (other.doubleOp != null)
+				return false;
+		} else if (!doubleOp.equals(other.doubleOp))
+			return false;
+		if (intOp == null) {
+			if (other.intOp != null)
+				return false;
+		} else if (!intOp.equals(other.intOp))
+			return false;
+		if (listOp == null) {
+			if (other.listOp != null)
+				return false;
+		} else if (!listOp.equals(other.listOp))
+			return false;
+		if (stringOp == null) {
+			if (other.stringOp != null)
+				return false;
+		} else if (!stringOp.equals(other.stringOp))
+			return false;
+		return true;
 	}
 
 }

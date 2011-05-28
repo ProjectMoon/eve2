@@ -15,7 +15,7 @@ public class EveString extends EveObject {
 	}
 	
 	private EveString() {
-		super(EveObjectPrototype.getPrototype());
+		//super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("string");
 	}

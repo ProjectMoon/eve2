@@ -1,47 +1,54 @@
 package eve.statements.assignment;
 
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
+import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
 import eve.statements.expressions.IdentExpression;
+import eve.statements.expressions.IndexedAccess;
+import eve.statements.expressions.PointerResolution;
+import eve.statements.expressions.PropertyResolution;
 
-public class UpdateVariableStatement extends AssignmentStatement implements EveStatement {
-	private String identifier;
-	private ExpressionStatement expression;
+public class UpdateVariableStatement extends AbstractStatement implements EveStatement {
+	private ExpressionStatement assignmentExpr, valueExpr;
 	
-	public UpdateVariableStatement(String identifier, ExpressionStatement expression) {
-		this.identifier = identifier;
-		this.expression = expression;
+	public UpdateVariableStatement(ExpressionStatement assignmentExpr, ExpressionStatement valueExpr) {
+		this.assignmentExpr = assignmentExpr;
+		this.valueExpr = valueExpr;
 	}
 	
 	@Override
 	public EveObject execute() {
-		//Verify that stuff exists.
-		EveObject eo = ScopeManager.getVariable(identifier);
+		EveObject value = valueExpr.execute();
 		
-		if (eo == null && !identifier.contains(".") && !identifier.matches(".+\\[[0-9]+\\]*")) {
-			throw new EveError("variable " + identifier + " does not exist in the current scope.");
+		if (!(assignmentExpr instanceof Updateable)) {
+			throw new EveError("invalid left side of assignment statement.");
 		}
 		
-		if (expression instanceof IdentExpression) {
-			throw new EveError("identifiers cannot be assigned directly. use clone.");
-		}
-				
-		EveObject result = expression.execute();
-		ScopeManager.putVariable(identifier, result);
-		return result;
-	}
-	
-	@Override
-	public String toString() {
-		return identifier + "=" + expression.toString();
-	}
-	
-	@Override
-	public boolean referencesClosure() {
-		return super.analyzeForClosure(identifier);
+		((Updateable)assignmentExpr).updateVariable(value);
+		
+			
+		return null;
 	}
 
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		assignmentExpr.closureAnalysis(closureList);
+		valueExpr.closureAnalysis(closureList);
+	}
+
+	@Override
+	public List<String> getIdentifiers() {
+		List<String> idents = new ArrayList<String>();
+		idents.addAll(assignmentExpr.getIdentifiers());
+		idents.addAll(valueExpr.getIdentifiers());
+		return idents;
+	}
 }

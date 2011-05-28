@@ -1,45 +1,62 @@
 package eve.statements.expressions;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
 public class FunctionInvokeExpression extends ExpressionStatement implements EveStatement {
-	private String identifier;
+	public ExpressionStatement funcExpr;
 	private List<ExpressionStatement> parameters = new ArrayList<ExpressionStatement>();
 	
-	public FunctionInvokeExpression(String identifier, List<ExpressionStatement> parameters) {
-		this.identifier = identifier;
+	public FunctionInvokeExpression(ExpressionStatement funcExpr, List<ExpressionStatement> parameters) {
+		this.funcExpr = funcExpr;
 		this.parameters = parameters;
 	}
 	
-	public FunctionInvokeExpression(String identifier, ExpressionStatement parameter) {
-		this.identifier = identifier;
+	public FunctionInvokeExpression(ExpressionStatement funcExpr, ExpressionStatement parameter) {
+		this.funcExpr = funcExpr;
 		this.parameters.add(parameter);
 	}
 	
-	public FunctionInvokeExpression(String identifier) {
-		this.identifier = identifier;
+	public FunctionInvokeExpression(ExpressionStatement funcExpr) {
+		this.funcExpr = funcExpr;
 		this.parameters = null;
 	}
 	
 	@Override
 	public EveObject execute() {
-		EveObject result = new EveObject();
-		EveObject funcVariable = ScopeManager.getVariable(identifier);
-		EveObject objContext = ScopeManager.getParentVariable(identifier);
+		EveObject funcVariable = funcExpr.execute();
 		
-		if (funcVariable != null && funcVariable.getType() == EveType.FUNCTION) {
-			List<EveObject> actualParameters = getActualParameters();
-			funcVariable.putTempField("self", objContext);
-			result = funcVariable.invoke(actualParameters);
+		if (funcVariable == null || funcVariable.getType() != EveType.FUNCTION) {
+			throw new EveError(funcVariable + " is not a function.");
 		}
 		
-		return result;
+		//Pass down self for inner functions, and get the parent variable for
+		//top level functions.
+		EveObject objContext = ScopeManager.getVariable("self");
+		if (objContext == null) {
+			if (funcExpr instanceof PropertyResolution) {
+				objContext = ((PropertyResolution)funcExpr).getExpression().execute();
+			}
+			else {
+				objContext = ScopeManager.getCurrentScope();
+			}
+		}
+		
+		//Cannot have global as "self". Otherwise passing self into closures
+		//gets screwed up.
+		if (objContext == ScopeManager.getGlobalScope()) {
+			objContext = null;
+		}
+		
+		List<EveObject> actualParameters = getActualParameters();
+		return funcVariable.invokeSelf(objContext, actualParameters);
 	}
 	
 	private List<EveObject> getActualParameters() {
@@ -58,7 +75,7 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 	
 	@Override
 	public String toString() {
-		String res = identifier + "(";
+		String res = funcExpr.toString() + "(";
 		for (ExpressionStatement statement : parameters) {
 			res += statement.toString() + ",";
 		}
@@ -71,8 +88,19 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 	}
 	
 	@Override
-	public boolean referencesClosure() {
-		return super.analyzeForClosure(identifier);
+	public List<String> getIdentifiers() {
+		ArrayList<String> idents = new ArrayList<String>();
+		for (ExpressionStatement expr : parameters) {
+			idents.addAll(expr.getIdentifiers());
+		}
+		return idents;
+	}
+
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		for (ExpressionStatement expr : parameters) {
+			expr.closureAnalysis(closureList);
+		}
 	}
 
 }
