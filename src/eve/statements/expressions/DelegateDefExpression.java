@@ -3,6 +3,8 @@ package eve.statements.expressions;
 import java.util.List;
 import java.util.Map;
 
+import com.rits.cloning.Cloner;
+
 import eve.core.EveObject;
 import eve.core.Function;
 import eve.eji.EJIFunction;
@@ -21,6 +23,7 @@ public class DelegateDefExpression extends FunctionDefExpression implements EveS
 	public EveObject execute() {
 		EveObject delegateFunc = super.execute();
 		delegateFunc.putField("create", new EveObject(new CreateDelegateFunction(delegateFunc)));
+		delegateFunc.getFunctionValue().setDelegateCreator(true);
 		return delegateFunc;
 	}
 	
@@ -36,13 +39,17 @@ public class DelegateDefExpression extends FunctionDefExpression implements EveS
 		public EveObject execute(Map<String, EveObject> parameters) {
 			EveObject context = parameters.get("context");
 
-			EveObject delegateClone = delegateFunc.eventlessClone();
+			Function df = delegateFunc.getFunctionValue();
 			
-			Function delegate = delegateClone.getFunctionValue();
+			Cloner cl = new Cloner();
+			Function delegate = cl.deepClone(df);
+			
+			delegate.setDelegateCreator(false);
 			delegate.setDelegate(true);
 			delegate.setDelegateContext(context);
+			delegate.setName(null);
 			
-			return delegateClone;
+			return new EveObject(delegate);
 		}
 	}
 }

@@ -29,6 +29,7 @@ public class Function {
 	private boolean isPossibleClosure = false;
 	private boolean isClosure = false;
 	private boolean isDelegate;
+	private boolean isDelegateCreator;
 	private EveObject delegateContext;
 	
 	public void setStatements(List<EveStatement> statements) {
@@ -259,5 +260,13 @@ public class Function {
 
 	public EveObject getDelegateContext() {
 		return delegateContext;
+	}
+
+	public void setDelegateCreator(boolean isDelegateCreator) {
+		this.isDelegateCreator = isDelegateCreator;
+	}
+
+	public boolean isDelegateCreator() {
+		return isDelegateCreator;
 	}
 }

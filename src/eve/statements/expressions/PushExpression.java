@@ -33,8 +33,12 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 			executeForPropertyCollection(value);
 			return null;
 		}
+		else if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
+			executeForDelegate(value);
+			return null;
+		}
 		else {
-			throw new EveError("left hand of push statement must evaluate to dict");
+			throw new EveError("left hand of push statement must evaluate to dict, delegate, or namespace");
 		}
 	}
 	
@@ -44,6 +48,15 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		for (Map.Entry<String, EveObject> entry : clonedPropCollection.getDictionaryValue().entrySet()) {
 			eo.putField(entry.getKey(), entry.getValue());
 		}
+	}
+	
+	private void executeForDelegate(EveObject delegate) {
+		EveObject eo = to.execute();
+		EveObject delegatedMethod = delegate.eventlessClone();
+		delegatedMethod.getFunctionValue().setDelegateCreator(false);
+		delegatedMethod.getFunctionValue().setDelegate(false);
+		delegatedMethod.getFunctionValue().setDelegateContext(null);
+		eo.putField(delegatedMethod.getFunctionValue().getName(), delegatedMethod);
 	}
 
 	@Override

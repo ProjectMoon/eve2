@@ -180,6 +180,7 @@ assignDelegateDown
 	:	^(DELEGATE IDENT .*) {
 			//Create new FunctionExpression.
 			DelegateDefExpression expr = new DelegateDefExpression();
+			expr.setName($IDENT.text);
 			expr.setLine($IDENT.getLine());
 			//ScopeManager.pushConstructionScope(expr);
 			currentFuncExpr = expr;
