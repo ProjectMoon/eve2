@@ -526,7 +526,7 @@ expression returns [ExpressionStatement result]
 	|	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('-' op1=expression op2=expression) { $result = new MinusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('*' op1=expression op2=expression) { $result = new MultiplicationExpression(op1, op2); $result.setLine(op1.getLine()); }
-	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op1); $result.setLine(op1.getLine()); }
+	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('%' op1=expression op2=expression) { $result = new ModulusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('to' op1=expression op2=expression) { $result = new RangeExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^(NEGATION e=expression) { $result = new NegationExpression(e); $result.setLine($NEGATION.getLine()); }

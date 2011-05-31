@@ -54,7 +54,7 @@ public class DivisionExpression extends ExpressionStatement implements EveStatem
 			result = doubleAndJava(op1.getDoubleValue(), op2.getJavaValue());
 		}
 		else if (op1.getType() == EveType.JAVA && op2.getType() == EveType.DOUBLE) {
-			result = doubleAndJava(op1.getJavaValue()(), op2.getDoubleValue());
+			result = doubleAndJava(op1.getJavaValue(), op2.getDoubleValue());
 		}
 		else {
 			//anything else = error
