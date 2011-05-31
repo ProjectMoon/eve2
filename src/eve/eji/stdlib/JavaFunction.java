@@ -62,9 +62,9 @@ class JavaFunction extends EJIFunction {
 			if (exposeType) {
 				BuiltinCommons.addType(simpleName, ctorFunc);
 			}
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		}
+		catch (ClassNotFoundException e) {
+			throw new EveError("EJI error: " + e.getMessage());
 		}
 		
 		return null;
