@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.interpreter.ErrorHandler;
@@ -40,12 +41,94 @@ public class DivisionExpression extends ExpressionStatement implements EveStatem
 			Double res = op1.getIntValue() / op2.getDoubleValue();
 			result.setDoubleValue(res);
 		}
+		else if (op1.getType() == EveType.JAVA && op2.getType() == EveType.JAVA) {
+			result = handleForJava(op1.getJavaValue(), op2.getJavaValue());
+		}
+		else if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.JAVA) {
+			result = intAndJava(op1.getIntValue(), op2.getJavaValue());
+		}
+		else if (op1.getType() == EveType.JAVA && op2.getType() == EveType.INTEGER) {
+			result = intAndJava(op1.getJavaValue(), op2.getIntValue());
+		}
+		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.JAVA) {
+			result = doubleAndJava(op1.getDoubleValue(), op2.getJavaValue());
+		}
+		else if (op1.getType() == EveType.JAVA && op2.getType() == EveType.DOUBLE) {
+			result = doubleAndJava(op1.getJavaValue()(), op2.getDoubleValue());
+		}
 		else {
 			//anything else = error
 			ErrorHandler.operatorError("/", op1, op2);
 		}
 		
 		return result;
+	}
+	
+	private EveObject handleForJava(Object op1, Object op2) {
+		if (op1 instanceof Integer && op2 instanceof Integer) {
+			return new EveObject((Integer)op1 / (Integer)op2);
+		}
+		else if (op1 instanceof Double && op2 instanceof Double) {
+			return new EveObject((Double)op1 / (Double)op2);
+		}
+		else if (op1 instanceof Integer && op2 instanceof Double) {
+			return new EveObject((Integer)op1 / (Double)op2);
+		}
+		else if (op1 instanceof Double && op2 instanceof Integer) {
+			return new EveObject((Double)op1 / (Integer)op2);
+		}
+		else {
+			//anything else = error
+			throw new EveError("operator / is undefined for " + op1 + " and " + op2);
+		}
+	}
+	
+	private EveObject intAndJava(Integer op1, Object op2) {
+		if (op2 instanceof Integer) {
+			return new EveObject(op1 / (Integer)op2);
+		}
+		else if (op2 instanceof Double) {
+			return new EveObject(op1 / (Double)op2);
+		}
+		else {
+			throw new EveError("operator / is undefined for " + op1 + " and " + op2);
+		}
+	}
+	
+	private EveObject intAndJava(Object op1, Integer op2) {
+		if (op1 instanceof Integer) {
+			return new EveObject((Integer)op1 / op2);
+		}
+		else if (op1 instanceof Double) {
+			return new EveObject((Double)op1 / op2);
+		}
+		else {
+			throw new EveError("operator / is undefined for " + op1 + " and " + op2);
+		}
+	}
+	
+	private EveObject doubleAndJava(Double op1, Object op2) {
+		if (op2 instanceof Integer) {
+			return new EveObject(op1 / (Integer)op2);
+		}
+		else if (op2 instanceof Double) {
+			return new EveObject(op1 / (Double)op2);
+		}
+		else {
+			throw new EveError("operator / is undefined for " + op1 + " and " + op2);
+		}		
+	}
+	
+	private EveObject doubleAndJava(Object op1, Double op2) {
+		if (op1 instanceof Integer) {
+			return new EveObject((Integer)op1 / op2);
+		}
+		else if (op1 instanceof Double) {
+			return new EveObject((Double)op1 / op2);
+		}
+		else {
+			throw new EveError("operator / is undefined for " + op1 + " and " + op2);
+		}		
 	}
 	
 	@Override

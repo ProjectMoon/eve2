@@ -40,11 +40,6 @@ public class PlusExpression extends ExpressionStatement implements EveStatement 
 			Double res = op1.getIntValue() + op2.getDoubleValue();
 			result.setDoubleValue(res);
 		}
-		//java types: java and java
-		//int and java
-		//java and int
-		//double and java
-		//java and double
 		else if (op1.getType() == EveType.JAVA && op2.getType() == EveType.JAVA) {
 			result = handleForJava(op1.getJavaValue(), op2.getJavaValue());
 		}
