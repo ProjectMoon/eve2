@@ -4,6 +4,7 @@ import java.util.Map;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.builtins.BuiltinCommonsFactory;
 import eve.core.builtins.EveGlobal;
 import eve.eji.EJIFunction;
 import eve.eji.EJIHelper;
@@ -22,7 +23,7 @@ class JavaFunction extends EJIFunction {
 		EveObject pkgContainer = ScopeManager.getGlobalScope().getField(split[0]);
 		if (pkgContainer == null) {
 			pkgContainer = EveObject.prototypeType(split[0]);
-			EveGlobal.addType(split[0], pkgContainer);
+			BuiltinCommonsFactory.addType(split[0], pkgContainer);
 		}
 		
 		EveObject prevContainer = pkgContainer;
@@ -59,7 +60,7 @@ class JavaFunction extends EJIFunction {
 			pkgContainer.putField(simpleName, ctorFunc);
 							
 			if (exposeType) {
-				EveGlobal.addType(simpleName, ctorFunc);
+				BuiltinCommonsFactory.addType(simpleName, ctorFunc);
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

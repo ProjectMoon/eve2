@@ -11,6 +11,7 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.core.Script;
+import eve.core.builtins.BuiltinCommonsFactory;
 
 public class ScopeManager {
 	private static Deque<EveObject> closureScope;
@@ -89,10 +90,15 @@ public class ScopeManager {
 		}
 		
 		if (getCurrentScope() != null && getCurrentScope() == getGlobalScope()) {
-			return getCurrentScope().getField(name);
+			eo = getCurrentScope().getField(name);
+		}
+		
+		//last resort: type pool
+		if (eo == null) {
+			eo = BuiltinCommonsFactory.getType(name);
 		}
 	
-		return null;
+		return eo;
 	}
 	
 	public static EveObject getScopeForVariable(String name) {
@@ -128,6 +134,12 @@ public class ScopeManager {
 					}					
 				}
 			}
+		}
+		
+		//type pool is global.
+		eo = BuiltinCommonsFactory.getType(name);
+		if (eo != null) {
+			return getGlobalScope();
 		}
 		
 		//if all else fails, return the current scope.

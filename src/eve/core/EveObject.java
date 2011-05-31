@@ -491,7 +491,10 @@ public class EveObject {
 	}
 	
 	public void putTempField(String name, EveObject eo) {
-		eo.objectParent = this;
+		if (eo != null) {
+			eo.objectParent = this;
+		}
+		
 		this.tempFields.put(name, eo);
 	}
 	
