@@ -17,22 +17,6 @@ import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
 import eve.core.builtins.EveGlobal;
 
-@EJIType("test")
-class Test {
-	private String x;
-	public Test(String x) {
-		this.x = x;
-	}
-	
-	public String getX() {
-		return x;
-	}
-	
-	public void setX(String x) {
-		this.x = x;
-	}
-}
-
 public class EJIScanner {
 	private List<String> packages = new ArrayList<String>();
 	

@@ -176,6 +176,10 @@ public class ScopeManager {
 		return globalScopes.get(getNamespace());
 	}
 	
+	public static EveObject getGlobalScope(String namespace) {
+		return globalScopes.get(namespace);
+	}
+	
 	private static void setGlobalScope(EveObject scope) {
 		globalScopes.put(getNamespace(), scope);
 	}
@@ -269,7 +273,7 @@ public class ScopeManager {
 	public static Map<String, Deque<EveObject>> getNamespaces() {
 		return namespaces;
 	}
-
+	
 	public static void setNamespace(String namespace) {
 		previousNamespace = namespaceStack.peek();
 		namespaceStack.push(namespace);

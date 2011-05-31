@@ -32,7 +32,7 @@ public class BuiltinCommons {
 	
 	public static void addType(String name, EveObject type) {
 		if (typePool.get(name) != null) {
-			throw new EveError("type " + name + " already exists in the global type pool.");
+			return;
 		}
 		
 		typePool.put(name, type);
@@ -42,6 +42,11 @@ public class BuiltinCommons {
 		return typePool.get(name);
 	}
 
+	/**
+	 * Initialize a given EveObject with the properties standard to all EveObjects (such as type).
+	 * @param prototype
+	 * @return The EveObject.
+	 */
 	public static EveObject initialize(EveObject prototype) {
 		prototype.putField("type", typeProperty());
 		return prototype;

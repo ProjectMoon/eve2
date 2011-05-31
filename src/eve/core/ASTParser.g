@@ -89,6 +89,7 @@ topdown
 	:	namespaceStatement
 	|	withStatementDown
 	|	assignFunctionDown
+	|	assignDelegateDown
 	|	functionNameDown
 	|	createPrototypeDown
 	|	ifStatementDown
@@ -104,6 +105,7 @@ topdown
 bottomup
 	:	withStatementUp
 	|	assignFunctionUp
+	|	assignDelegateUp
 	|	functionParametersUp
 	|	ifStatementUp
 	|	elseIfStatementUp
@@ -174,6 +176,18 @@ assignFunctionDown
 	}
 	;
 	
+assignDelegateDown
+	:	^(DELEGATE IDENT .*) {
+			//Create new FunctionExpression.
+			DelegateDefExpression expr = new DelegateDefExpression();
+			expr.setName($IDENT.text);
+			expr.setLine($IDENT.getLine());
+			//ScopeManager.pushConstructionScope(expr);
+			currentFuncExpr = expr;
+			EveLogger.debug("Creating new delegate expression for " + $IDENT.text);
+	}
+	;
+	
 functionNameDown
 	:	^(FUNCTION_NAME IDENT .*) {
 			//we have to be in a function definition!
@@ -193,6 +207,19 @@ assignFunctionUp
 			//we are now back on global (or proto).		
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
 			EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");
+		}
+	;
+	
+assignDelegateUp
+	:	^(DELEGATE IDENT .*) {
+			//Create new Assignment statement.
+			//This MUST be a function def, otherwise there's a serious problem.
+			//FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
+			AssignmentStatement as = new InitVariableStatement($IDENT.text, currentFuncExpr);
+	
+			//we are now back on global (or proto).		
+			ScopeManager.getCurrentConstructionScope().addStatement(as);
+			EveLogger.debug("Assigning " + $IDENT.text + " delegate to current scope.");
 		}
 	;
 
@@ -300,6 +327,11 @@ returnStatement
 			ret.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ret);
 			previousStatement = ret;	
+		}
+	|	'return' {
+			ReturnStatement ret = new ReturnStatement();
+			ScopeManager.getCurrentConstructionScope().addStatement(ret);
+			previousStatement = ret;
 		}
 	;
 

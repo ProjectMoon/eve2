@@ -6,6 +6,7 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.builtins.BuiltinCommons;
 import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
@@ -31,6 +32,7 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 	public EveObject execute() {
 		verifyNoReturns();
 		EveObject proto = EveObject.customType(protoName);
+		BuiltinCommons.initialize(proto);
 		
 		ScopeManager.pushScope(proto);
 		new Interpreter().executeStatements(protoBlock);

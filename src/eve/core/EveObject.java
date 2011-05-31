@@ -27,8 +27,14 @@ public class EveObject {
 	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA };
 	public static final String WITH_STATEMENT_TYPENAME = "with-statement";
 	
-	//the type of this object.
+	//the type and type name of this object.
+	//the type is an internal representation, while the type name is what is
+	//displayed to the user.
 	private EveType type;
+	private String typeName;
+	
+	//custom toString without making a toString field.
+	private String stringRepresentation = null;
 	
 	//base eve types.
 	private Integer intValue;
@@ -40,7 +46,7 @@ public class EveObject {
 	private TreeMap<Integer, EveObject> listValues;
 	private Map<String, EveObject> dictionaryValues;
 	
-	private String typeName;
+	
 	
 	//Properties of this object. Temp fields are deleted on scope exit.
 	private Map<String, EveObject> fields = new HashMap<String, EveObject>();
@@ -253,6 +259,16 @@ public class EveObject {
 		EveObject eo = new EveObject();
 		eo.setType(EveType.PROTOTYPE);
 		eo.setTypeName(typeName);
+		return eo;
+	}
+	
+	public static EveObject namespaceType(String nsName) {
+		EveObject eo = new EveObject();
+		eo.setTypeName("namespace");
+		eo.setType(EveType.CUSTOM);
+		eo.cloneable = false;
+		eo.putField("ns", new EveObject(nsName));
+		eo.setStringRepresentation("<namespace " + nsName + ">");
 		return eo;
 	}
 	
@@ -642,6 +658,22 @@ public class EveObject {
 	}
 	
 	/**
+	 * If this EveObject has a "get" field, returns the EveObject from the getter.
+	 * The method will recurse through accessor fields until it cannot find one.
+	 * If there is no accessor field on this EveObject, this EveObject is returned.
+	 * This is the recommended way to get the "real" value of an EveObject.
+	 * @return An EveObject
+	 */
+	public EveObject getSelf() {
+		if (hasField("get") && getField("get").getType() == EveType.FUNCTION) {
+			return getField("get").invokeSelf(this).getSelf();
+		}
+		else {
+			return this;
+		}
+	}
+	
+	/**
 	 * Called by ScopeManager.
 	 */
 	public void deleteTempFields() {
@@ -682,33 +714,21 @@ public class EveObject {
 		
 		throw new EveError("unrecognized type " + getType() + " for getTypeName()");
 	}
-	
-	public Class<?> getTypeClass() {
-		switch (getType()) {
-		case INTEGER:
-			return int.class;
-		case STRING:
-			return String.class;
-		case BOOLEAN:
-			return boolean.class;
-		case DOUBLE:
-			return double.class;
-		case LIST:
-			return List.class;
-		case CUSTOM:
-			return EveObject.class;
-		case FUNCTION:
-			return Function.class;
-		case JAVA:
-			return this.getJavaValue().getClass();
-		case DICT:
-			return Map.class;
+		
+	public void setStringRepresentation(String stringRepresentation) {
+		this.stringRepresentation = stringRepresentation;
+	}
+
+	public String getStringRepresentation() {
+		return stringRepresentation;
+	}
+
+	public String toString() {
+		//utilize the java-defined toString if present, over all others.
+		if (getStringRepresentation() != null) {
+			return getStringRepresentation();
 		}
 		
-		throw new EveError("unrecognized type " + getType() + " for getTypeClass()");
-	}
-	
-	public String toString() {
 		//Utilize custom toString() if present.
 		if (hasField("toString")) {
 			EveObject toString = this.getField("toString");
@@ -743,7 +763,7 @@ public class EveObject {
 			case LIST:
 				return this.getListValue().toString();
 			case CUSTOM:
-				return "[custom " + this.getTypeName() + "]";
+				return "<" + this.getTypeName() + ">";
 			case PROTOTYPE:
 				return "[prototype " + this.getTypeName() + "]";
 			case JAVA:
@@ -842,6 +862,11 @@ public class EveObject {
 		//are we a closure?
 		if (func.isClosure()) {
 			ScopeManager.setClosureStack(func.getClosureStack());
+		}
+		
+		//delegate?
+		if (func.isDelegate()) {
+			this.putTempField("self", func.getDelegateContext());
 		}
 		
 		//named function expression?

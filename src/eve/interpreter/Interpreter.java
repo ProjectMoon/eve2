@@ -9,10 +9,6 @@ import eve.statements.EveStatement;
 import eve.statements.ReturnStatement;
 
 public class Interpreter {
-	//Whether or not we returned early from execution.
-	//That is, returned == true if we hit a return statement.
-	private boolean returned = false;
-	
 	/**
 	 * Execute arbitrary statements in the current scope. This method is delegated 
 	 * to by anything that wants to execute large portions of code at once.
@@ -23,25 +19,15 @@ public class Interpreter {
 		EveObject retval = null;
 		for (EveStatement statement : statements) {
 			retval = statement.execute();
-			if (statement.getPumpedValue() != null) {
-				returned = true;
+			if (statement.isReturned()) {
 				retval = statement.getPumpedValue();
 				break;
 			}
 		}
 		
-		if (returned || retval != null) {
-			return retval;
-		}
-		else {
-			return null;
-		}
+		return retval;
 	}
-	
-	public boolean isReturned() {
-		return returned;
-	}
-	
+		
 	/**
 	 * Execute a single statement in the current scope.
 	 * @param statement
