@@ -59,10 +59,7 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 	
 	private void executeForDelegate(EveObject delegate) {
 		EveObject eo = to.execute();
-		EveObject delegatedMethod = delegate.eventlessClone();
-		delegatedMethod.getFunctionValue().setDelegateCreator(false);
-		delegatedMethod.getFunctionValue().setDelegate(false);
-		delegatedMethod.getFunctionValue().setDelegateContext(null);
+		EveObject delegatedMethod = createMixin(delegate);
 		eo.putField(delegatedMethod.getFunctionValue().getName(), delegatedMethod);
 	}
 	
@@ -73,16 +70,14 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		EveObject nsGlobal = ScopeManager.getGlobalScope(nsName);
 		
 		for (String field : nsGlobal.getFieldNames()) {
+			//make sure no one sneaks invalid crap in through getter methods. 
 			EveObject nsField = nsGlobal.getField(field).getSelf();
 			
 			//in the case of functions, only delegates are allowed to mix-in.
 			if (nsField.getType() == EveType.FUNCTION) {
 				if (nsField.getFunctionValue().isDelegateCreator()) {
-					EveObject delegatedMethod = nsField.eventlessClone();
-					delegatedMethod.getFunctionValue().setDelegateCreator(false);
-					delegatedMethod.getFunctionValue().setDelegate(false);
-					delegatedMethod.getFunctionValue().setDelegateContext(null);
-					eo.putField(field, nsField);
+					EveObject delegatedMethod = createMixin(nsField);
+					eo.putField(field, delegatedMethod);
 				}
 			}
 			else {
@@ -91,6 +86,14 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 				eo.putField(field, nsField);
 			}
 		}
+	}
+	
+	private EveObject createMixin(EveObject delegate) {
+		EveObject delegatedMethod = delegate.eventlessClone();
+		delegatedMethod.getFunctionValue().setDelegateCreator(false);
+		delegatedMethod.getFunctionValue().setDelegate(false);
+		delegatedMethod.getFunctionValue().setDelegateContext(null);
+		return delegatedMethod;
 	}
 
 	@Override
