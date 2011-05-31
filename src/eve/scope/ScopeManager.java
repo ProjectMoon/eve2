@@ -11,7 +11,7 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.core.Script;
-import eve.core.builtins.BuiltinCommonsFactory;
+import eve.core.builtins.BuiltinCommons;
 
 public class ScopeManager {
 	private static Deque<EveObject> closureScope;
@@ -95,7 +95,7 @@ public class ScopeManager {
 		
 		//last resort: type pool
 		if (eo == null) {
-			eo = BuiltinCommonsFactory.getType(name);
+			eo = BuiltinCommons.getType(name);
 		}
 	
 		return eo;
@@ -137,7 +137,7 @@ public class ScopeManager {
 		}
 		
 		//type pool is global.
-		eo = BuiltinCommonsFactory.getType(name);
+		eo = BuiltinCommons.getType(name);
 		if (eo != null) {
 			return getGlobalScope();
 		}

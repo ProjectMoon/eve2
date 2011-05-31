@@ -14,7 +14,7 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
 import eve.core.EveObject;
-import eve.core.builtins.BuiltinCommonsFactory;
+import eve.core.builtins.BuiltinCommons;
 import eve.core.builtins.EveGlobal;
 
 @EJIType("test")
@@ -80,7 +80,7 @@ public class EJIScanner {
 		for (Class<?> type : types) {
 			EJIType typeInfo = type.getAnnotation(EJIType.class);
 			EveObject eo = EJIHelper.createEJIConstructor(type);
-			BuiltinCommonsFactory.addType(typeInfo.value(), eo);
+			BuiltinCommons.addType(typeInfo.value(), eo);
 		}
 	}
 }
