@@ -918,7 +918,9 @@ public class EveObject {
 		int result = 1;
 		result = prime * result
 				+ ((booleanValue == null) ? 0 : booleanValue.hashCode());
-		result = prime * result + (cloneable ? 1231 : 1237);
+		result = prime
+				* result
+				+ ((dictionaryValues == null) ? 0 : dictionaryValues.hashCode());
 		result = prime * result
 				+ ((doubleValue == null) ? 0 : doubleValue.hashCode());
 		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
@@ -927,12 +929,16 @@ public class EveObject {
 		result = prime * result
 				+ ((intValue == null) ? 0 : intValue.hashCode());
 		result = prime * result
+				+ ((javaValue == null) ? 0 : javaValue.hashCode());
+		result = prime * result
+				+ ((listValues == null) ? 0 : listValues.hashCode());
+		result = prime * result
 				+ ((stringValue == null) ? 0 : stringValue.hashCode());
 		result = prime * result
 				+ ((tempFields == null) ? 0 : tempFields.hashCode());
-		result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result
-				+ ((getTypeName() == null) ? 0 : getTypeName().hashCode());
+				+ ((typeName == null) ? 0 : typeName.hashCode());
 		return result;
 	}
 
@@ -1014,13 +1020,26 @@ public class EveObject {
 	}
 	
 	private boolean prototypeEquals(EveObject other) {
-		//TODO: implement prototype equals.
-		return true;
+		//because of the type pool, we only need to check references.
+		return this == other;
 	}
 	
 	private boolean customTypeEquals(EveObject other) {
-		//TODO: implement custom equals		
-		return true;
+		EveObject equalsFunc = this.getField("equals");
+		
+		//default behavior is like java.
+		if (equalsFunc == null) {
+			return this == other;
+		}
+		else {
+			EveObject equal = equalsFunc.invokeSelf(this, other);
+			
+			if (equal.getType() != EveType.BOOLEAN) {
+				throw new EveError("equals function must return a boolean value.");
+			}
+			
+			return equal.getBooleanValue();
+		}
 	}
 
 	public void transferTempFields() {

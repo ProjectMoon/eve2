@@ -14,7 +14,6 @@ public class EveGlobal extends EveObject {
 	}
 	
 	private EveGlobal() {
-		//super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("global");
 	}
