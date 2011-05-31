@@ -1,6 +1,8 @@
 package eve.eji.stdlib;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
@@ -21,6 +23,8 @@ public class Core {
 	
 	private static EveObject importFunction() {
 		class ImportFunction extends EJIFunction {
+			private List<String> importedFiles = new ArrayList<String>();
+			
 			public ImportFunction() {
 				setParameters("file");
 			}
@@ -29,33 +33,39 @@ public class Core {
 			public EveObject execute(Map<String, EveObject> parameters) {
 				String file = ScopeManager.getVariable("file").getStringValue();
 				
-				EveCore core = new EveCore();
-				try {
-					Script script = core.getScript(file);
-					ScopeManager.setNamespace("_global");
-					ScopeManager.pushScope(ScopeManager.getGlobalScope());
-
-					if (!script.getNamespace().equals("_global")) {
-						ScopeManager.setNamespace(script.getNamespace());
-						ScopeManager.createGlobalScope();
-						BuiltinCommons.addType(script.getNamespace(), EveObject.namespaceType(script.getNamespace()));
-					}
+				if (!importedFiles.contains(file)) {
+					importedFiles.add(file);
 					
-					eve.eji.stdlib.Java.init();
-					eve.eji.stdlib.Core.init();
-					script.execute();
-					ScopeManager.revertNamespace();
-					
-					if (!script.getNamespace().equals("_global")) {
+					EveCore core = new EveCore();
+					try {
+						Script script = core.getScript(file);
+						ScopeManager.setNamespace("_global");
+						ScopeManager.pushScope(ScopeManager.getGlobalScope());
+	
+						if (!script.getNamespace().equals("_global")) {
+							ScopeManager.setNamespace(script.getNamespace());
+							ScopeManager.createGlobalScope();
+							BuiltinCommons.addType(script.getNamespace(), EveObject.namespaceType(script.getNamespace()));
+						}
+						
+						eve.eji.stdlib.Java.init();
+						eve.eji.stdlib.Core.init();
+						script.execute();
+						ScopeManager.popScope();
 						ScopeManager.revertNamespace();
+						
+						if (!script.getNamespace().equals("_global")) {
+							ScopeManager.popScope();
+							ScopeManager.revertNamespace();
+						}
 					}
-				}
-				catch (RecognitionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					catch (RecognitionException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				
 				return null;
