@@ -18,7 +18,6 @@ import eve.core.builtins.EveGlobal;
 import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
-import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
 import eve.eji.DynamicField;
 import eve.hooks.HookManager;

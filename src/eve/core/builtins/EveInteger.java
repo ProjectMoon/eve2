@@ -22,11 +22,11 @@ public class EveInteger extends EveObject {
 	private EveInteger() {
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("int");
-		this.putField("create", new EveObject(new EveIntCreateFunction()));
+		this.putField("create", new EveObject(new CreateIntFunction()));
 	}
 	
-	private class EveIntCreateFunction extends EJIFunction {
-		public EveIntCreateFunction() {
+	private class CreateIntFunction extends EJIFunction {
+		public CreateIntFunction() {
 			this.addParameter("value");
 		}
 		
@@ -38,11 +38,7 @@ public class EveInteger extends EveObject {
 				throw new EveError("int.create requires an int parameter");
 			}
 			
-			EveObject eo = new EveObject(EJIHelper.self());
-			eo.setIntValue(value.getIntValue());
-			return eo;
+			return new EveObject(value.getIntValue(), EJIHelper.self());
 		}
-		
-		
 	}
 }
