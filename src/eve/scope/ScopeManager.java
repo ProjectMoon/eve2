@@ -160,7 +160,12 @@ public class ScopeManager {
 	 */
 	public static void putVariable(String name, EveObject eo) {
 		EveObject scope = getScopeForVariable(name);
-		scope.putField(name, eo); 
+		if (!inFunction()) {
+			scope.putField(name, eo);
+		}
+		else {
+			scope.putTempField(name, eo);
+		}
 	}
 		
 	public static boolean inFunction() {
