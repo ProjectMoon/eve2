@@ -8,6 +8,7 @@ import org.antlr.runtime.RecognitionException;
 import eve.core.EveCore;
 import eve.core.EveObject;
 import eve.core.Script;
+import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIFunction;
 import eve.scope.ScopeManager;
 
@@ -37,6 +38,8 @@ public class Core {
 					if (!script.getNamespace().equals("_global")) {
 						ScopeManager.setNamespace(script.getNamespace());
 						ScopeManager.createGlobalScope();
+						
+						BuiltinCommons.addType(script.getNamespace(), EveObject.namespaceType(script.getNamespace()));
 					}
 					
 					eve.eji.stdlib.Java.init();
@@ -47,8 +50,8 @@ public class Core {
 					if (!script.getNamespace().equals("_global")) {
 						ScopeManager.revertNamespace();
 					}
-					
-				} catch (RecognitionException e) {
+				}
+				catch (RecognitionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {

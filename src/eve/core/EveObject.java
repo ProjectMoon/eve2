@@ -256,6 +256,13 @@ public class EveObject {
 		return eo;
 	}
 	
+	public static EveObject namespaceType(String nsName) {
+		EveObject eo = new EveObject();
+		eo.setType(EveType.CUSTOM);
+		eo.setTypeName("namespace " + nsName);
+		return eo;
+	}
+	
 	public static EveObject withStatementType() {
 		EveObject eo = new EveObject();
 		eo.setType(EveType.CUSTOM);
