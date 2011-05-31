@@ -22,7 +22,12 @@ public class EveFunction extends EveObject {
 	private EveFunction() {
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("function");
-		this.putField("create", new EveObject(new CreateFunctionFunction()));
+		
+		//we cannot use the normal method of cloning from EveFunction when
+		//adding a function to the EveFunction prototype... so CreateFunctionFunction
+		//must not be cloned from anything (or at least not function).
+		//TODO: fix this in case dynamic properties need to be added to all objects.
+		this.putField("create", new EveObject(new CreateFunctionFunction(), false));
 	}
 	
 	private class CreateFunctionFunction extends EJIFunction {
