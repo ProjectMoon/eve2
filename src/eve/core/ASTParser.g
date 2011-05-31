@@ -285,6 +285,26 @@ codeStatement
 	|	initVariableStatement
 	|	updateVariableStatement
 	|	expressionStatement
+	|	sealStatement
+	|	freezeStatement
+	;
+	
+sealStatement
+	:	^(SEAL e=expression) {
+			SealStatement ss = new SealStatement(e);
+			ss.setLine($SEAL.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(ss);
+			previousStatement = ss;
+		}
+	;
+	
+freezeStatement
+	:	^(FREEZE e=expression) {
+			FreezeStatement fs = new FreezeStatement(e);
+			fs.setLine($FREEZE.getLine());
+			ScopeManager.getCurrentConstructionScope().addStatement(fs);
+			previousStatement = fs;
+		}
 	;
 	
 expressionStatement

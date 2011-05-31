@@ -46,8 +46,6 @@ public class EveObject {
 	private TreeMap<Integer, EveObject> listValues;
 	private Map<String, EveObject> dictionaryValues;
 	
-	
-	
 	//Properties of this object. Temp fields are deleted on scope exit.
 	private Map<String, EveObject> fields = new HashMap<String, EveObject>();
 	private Map<String, EveObject> tempFields = new HashMap<String, EveObject>();
@@ -56,6 +54,10 @@ public class EveObject {
 	private boolean cloneable = true;
 	private boolean markedForClone = false;
 	private EveObject objectParent = null;
+	
+	//freeze and seal support
+	private boolean isFrozen = false;
+	private boolean isSealed = false;
 	
 	//object family support.
 	private EveObject cloneParent;
@@ -551,6 +553,10 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
+		if ((isFrozen() || isSealed()) && !hasField(name)) {
+			throw new EveError("frozen/sealed objects cannot have properties added.");
+		}
+		
 		if (eo != null) {
 			eo.objectParent = this;
 		}
@@ -559,6 +565,10 @@ public class EveObject {
 	}
 	
 	public void putTempField(String name, EveObject eo) {
+		if ((isFrozen() || isSealed()) && !hasField(name)) {
+			throw new EveError("frozen/sealed objects cannot have properties added.");
+		}
+		
 		if (eo != null) {
 			eo.objectParent = this;
 		}
@@ -654,6 +664,10 @@ public class EveObject {
 	}
 	
 	public boolean deleteField(String name) {
+		if (isFrozen() || isSealed()) {
+			throw new EveError("frozen/sealed objects cannot have properties removed.");
+		}
+		
 		return this.fields.remove(name) != null;
 	}
 	
@@ -721,6 +735,27 @@ public class EveObject {
 
 	public String getStringRepresentation() {
 		return stringRepresentation;
+	}
+
+	public void setSealed(boolean isSealed) {
+		this.isSealed = isSealed;
+		setFrozen(isSealed); //a sealed object is also frozen (or vice versa).
+	}
+
+	public boolean isSealed() {
+		return isSealed;
+	}
+
+	public void setFrozen(boolean isFrozen) {
+		if (isSealed() && isFrozen() && isFrozen == false) {
+			throw new EveError("sealed objects must be unsealed before being unfrozen.");
+		}
+		
+		this.isFrozen = isFrozen;
+	}
+
+	public boolean isFrozen() {
+		return isFrozen;
 	}
 
 	public String toString() {
