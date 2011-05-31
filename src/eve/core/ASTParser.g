@@ -301,7 +301,7 @@ sealStatement
 freezeStatement
 	:	^(FREEZE e=expression) {
 			FreezeStatement fs = new FreezeStatement(e);
-			fs.setLine($SEAL.getLine());
+			fs.setLine($FREEZE.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(fs);
 			previousStatement = fs;
 		}

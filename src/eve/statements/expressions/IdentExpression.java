@@ -27,6 +27,7 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 	@Override
 	public EveObject execute() {
 		EveObject eo = ScopeManager.getVariable(identifier);
+			
 		if (eo != null) {
 			if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
 				return eo.getField("get").invokeSelf(eo);
@@ -44,16 +45,21 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 	public void updateVariable(EveObject value) {
 		String ident = getIdentifier();
 		
-		//setter functionality
 		EveObject existingField = ScopeManager.getVariable(ident);
-		if (isUsingMutatorAccessor() && existingField != null && existingField.hasField("set") &&
-				existingField.getField("set").getType() == EveType.FUNCTION) {
-			existingField.getField("set").invokeSelf(existingField, value);
-		}
-		else {
-			ScopeManager.putVariable(ident, value);
-		}	
 		
+		if (existingField != null) {
+			if (existingField.isSealed()) {
+				throw new EveError("object is sealed.");
+			}
+			
+			//setter functionality
+			if (isUsingMutatorAccessor() && existingField.hasField("set") && existingField.getField("set").getType() == EveType.FUNCTION) {
+				existingField.getField("set").invokeSelf(existingField, value);
+			}
+			else {
+				ScopeManager.putVariable(ident, value);
+			}
+		}
 	}
 		
 	@Override

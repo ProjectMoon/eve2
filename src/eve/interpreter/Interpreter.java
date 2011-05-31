@@ -9,6 +9,8 @@ import eve.statements.EveStatement;
 import eve.statements.ReturnStatement;
 
 public class Interpreter {
+	private boolean returned = false;
+	
 	/**
 	 * Execute arbitrary statements in the current scope. This method is delegated 
 	 * to by anything that wants to execute large portions of code at once.
@@ -21,6 +23,7 @@ public class Interpreter {
 			retval = statement.execute();
 			if (statement.isReturned()) {
 				retval = statement.getPumpedValue();
+				returned = true;
 				break;
 			}
 		}
@@ -37,5 +40,9 @@ public class Interpreter {
 		List<EveStatement> oneStatement = new ArrayList<EveStatement>(1);
 		oneStatement.add(statement);
 		return executeStatements(oneStatement);
+	}
+	
+	public boolean isReturned() {
+		return returned;
 	}
 }

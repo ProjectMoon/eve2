@@ -85,6 +85,10 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 		EveObject eo = getObjExpression().execute();
 		EveObject index = getAccessExpression().execute();
 		
+		if (eo.isSealed()) {
+			throw new EveError("object is sealed.");
+		}
+		
 		if (index.getType() == EveType.INTEGER) {
 			eo.setIndexedProperty(index.getIntValue(), value);
 		}

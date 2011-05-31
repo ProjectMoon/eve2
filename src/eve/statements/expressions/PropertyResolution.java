@@ -51,6 +51,10 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		EveObject eo = getExpression().execute();
 		String ident = getIdentifier();
 		
+		if (eo != null && eo.isSealed()) {
+			throw new EveError("object is sealed.");
+		}
+		
 		//setter functionality.
 		EveObject existingField = eo.getField(ident);
 		

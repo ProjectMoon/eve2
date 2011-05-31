@@ -553,7 +553,7 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
-		if (isFrozen() || isSealed()) {
+		if ((isFrozen() || isSealed()) && !hasField(name)) {
 			throw new EveError("frozen/sealed objects cannot have properties added.");
 		}
 		
@@ -565,7 +565,7 @@ public class EveObject {
 	}
 	
 	public void putTempField(String name, EveObject eo) {
-		if (isFrozen() || isSealed()) {
+		if ((isFrozen() || isSealed()) && !hasField(name)) {
 			throw new EveError("frozen/sealed objects cannot have properties added.");
 		}
 		
