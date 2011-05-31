@@ -69,12 +69,17 @@ public class EveObject {
 	 * @param source The object to clone.
 	 */
 	public EveObject(EveObject source, boolean onClone) {
+		if (source == null) {
+			throw new EveError("cannot clone from null.");
+		}
+		
 		if (!source.isCloneable()) {
 			throw new EveError("attempting to clone uncloneable object");
 		}
 				
 		//Object is cloned to initially use references of this object to save memory.
-		//Later, assignment statements will change the references for us.
+		//Later, assignment statements and automated deep cloning will change the references
+		//for us.
 		this.cloneParent = source;
 		this.fields = new HashMap<String, EveObject>(source.fields); //a new map with the same references.
 		this.tempFields = new HashMap<String, EveObject>(source.tempFields); //a new map with the same references.
@@ -115,6 +120,11 @@ public class EveObject {
 		setIntValue(i);
 	}
 	
+	public EveObject(Integer i, EveObject prototype) {
+		this(prototype);
+		setIntValue(i);
+	}
+	
 	public EveObject(String s) {
 		this(EveString.getPrototype());
 		setStringValue(s);
@@ -122,6 +132,11 @@ public class EveObject {
 	
 	public EveObject(String s, boolean clone) {
 		this();
+		setStringValue(s);
+	}
+	
+	public EveObject(String s, EveObject prototype) {
+		this(prototype);
 		setStringValue(s);
 	}
 	
@@ -135,6 +150,11 @@ public class EveObject {
 		setDoubleValue(d);
 	}
 	
+	public EveObject(Double d, EveObject prototype) {
+		this(prototype);
+		setDoubleValue(d);
+	}
+	
 	public EveObject(Function func) {
 		this(EveFunction.getPrototype());
 		setFunctionValue(func);
@@ -142,6 +162,11 @@ public class EveObject {
 	
 	public EveObject(Function func, boolean clone) {
 		this();
+		setFunctionValue(func);
+	}
+	
+	public EveObject(Function func, EveObject prototype) {
+		this(prototype);
 		setFunctionValue(func);
 	}
 	
@@ -155,6 +180,11 @@ public class EveObject {
 		setBooleanValue(b);
 	}
 	
+	public EveObject(Boolean b, EveObject prototype) {
+		this(prototype);
+		setBooleanValue(b);
+	}
+	
 	public EveObject(List<EveObject> l) {
 		this(EveList.getPrototype());
 		setListValue(l);
@@ -165,14 +195,24 @@ public class EveObject {
 		setListValue(l);
 	}
 	
+	public EveObject(List<EveObject> l, EveObject prototype) {
+		this(prototype);
+		setListValue(l);
+	}
+	
 	public EveObject(char c) {
 		this(EveString.getPrototype());
-		setStringValue(Character.toString(c));
+		setStringValue(c);
 	}
 	
 	public EveObject(char c, boolean clone) {
 		this();
-		setStringValue(Character.toString(c));
+		setStringValue(c);
+	}
+	
+	public EveObject(char c, EveObject prototype) {
+		this(prototype);
+		setStringValue(c);
 	}
 	
 	public EveObject(Map<String, EveObject> d) {
@@ -182,6 +222,11 @@ public class EveObject {
 	
 	public EveObject(Map<String, EveObject> d, boolean clone) {
 		this();
+		setDictionaryValue(d);
+	}
+	
+	public EveObject(Map<String, EveObject> d, EveObject prototype) {
+		this(prototype);
 		setDictionaryValue(d);
 	}
 
@@ -199,21 +244,21 @@ public class EveObject {
 	}
 		
 	public static EveObject customType(String typeName) {
-		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
+		EveObject eo = new EveObject();
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName(typeName);
 		return eo;
 	}
 	
 	public static EveObject prototypeType(String typeName) {
-		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
+		EveObject eo = new EveObject();
 		eo.setType(EveType.PROTOTYPE);
 		eo.setTypeName(typeName);
 		return eo;
 	}
 	
 	public static EveObject withStatementType() {
-		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
+		EveObject eo = new EveObject();
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName(WITH_STATEMENT_TYPENAME);
 		return eo;
@@ -245,6 +290,11 @@ public class EveObject {
 	public void setStringValue(String stringValue) {
 		this.setType(EveType.STRING);
 		this.stringValue = stringValue;
+	}
+	
+	public void setStringValue(Character c) {
+		this.setType(EveType.STRING);
+		this.stringValue = Character.toString(c);
 	}
 	
 	public String getStringValue() {
@@ -486,7 +536,10 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
-		eo.objectParent = this;
+		if (eo != null) {
+			eo.objectParent = this;
+		}
+		
 		this.fields.put(name, eo);
 	}
 	

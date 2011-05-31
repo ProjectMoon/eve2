@@ -5,6 +5,7 @@ import java.util.Map;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.eji.EJIFunction;
+import eve.eji.EJIHelper;
 
 /**
  * The int prototype.
@@ -37,7 +38,9 @@ public class EveInteger extends EveObject {
 				throw new EveError("int.create requires an int parameter");
 			}
 			
-			return new EveObject(value.getIntValue());
+			EveObject eo = new EveObject(EJIHelper.self());
+			eo.setIntValue(value.getIntValue());
+			return eo;
 		}
 		
 		
