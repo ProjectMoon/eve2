@@ -28,8 +28,10 @@ Please follow this development model when making changes:
 * New features should be created in a local branch and then merged with 
   `merge --no-ff` into develop so the branch history is preserved in the
   network graph.
-* Bug fixes should be done on the develop branch, although if you happen to
-  fix a bug while making a new feature, that's fine too.
+* Bug fixes should be done on a branch separate from the develop branch. But
+  instead of merging, bug fix branches should be **rebase**d into the develop
+  branch. If you happen to fix a bug while working on a new feature, that's
+  fine too.
 
 Development Environment
 -----------------------
