@@ -8,6 +8,7 @@ import java.util.Map;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
 public class PushExpression extends ExpressionStatement implements EveStatement {
@@ -27,26 +28,32 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 	@Override
 	public EveObject execute() {
 		EveObject value = from.execute();
-		value = value.eventlessClone();
+		
+		if (value.isCloneable()) {
+			value = value.eventlessClone();
+		}
 		
 		if (value.getType() == EveType.DICT) {
 			executeForPropertyCollection(value);
-			return null;
 		}
 		else if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
 			executeForDelegate(value);
-			return null;
+		}
+		else if (value.getType() == EveType.CUSTOM && value.getTypeName().equals("namespace")) {
+			executeForNamespace(value);
 		}
 		else {
 			throw new EveError("left hand of push statement must evaluate to dict, delegate, or namespace");
 		}
+		
+		return null;
 	}
 	
 	private void executeForPropertyCollection(EveObject clonedPropCollection) {
 		EveObject eo = to.execute();
 		
 		for (Map.Entry<String, EveObject> entry : clonedPropCollection.getDictionaryValue().entrySet()) {
-			eo.putField(entry.getKey(), entry.getValue());
+			eo.putField(entry.getKey(), entry.getValue().getSelf());
 		}
 	}
 	
@@ -57,6 +64,33 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		delegatedMethod.getFunctionValue().setDelegate(false);
 		delegatedMethod.getFunctionValue().setDelegateContext(null);
 		eo.putField(delegatedMethod.getFunctionValue().getName(), delegatedMethod);
+	}
+	
+	private void executeForNamespace(EveObject ns) {
+		EveObject eo = to.execute();
+		
+		String nsName = ns.getField("ns").getStringValue();
+		EveObject nsGlobal = ScopeManager.getGlobalScope(nsName);
+		
+		for (String field : nsGlobal.getFieldNames()) {
+			EveObject nsField = nsGlobal.getField(field).getSelf();
+			
+			//in the case of functions, only delegates are allowed to mix-in.
+			if (nsField.getType() == EveType.FUNCTION) {
+				if (nsField.getFunctionValue().isDelegateCreator()) {
+					EveObject delegatedMethod = nsField.eventlessClone();
+					delegatedMethod.getFunctionValue().setDelegateCreator(false);
+					delegatedMethod.getFunctionValue().setDelegate(false);
+					delegatedMethod.getFunctionValue().setDelegateContext(null);
+					eo.putField(field, nsField);
+				}
+			}
+			else {
+				//everything else.
+				nsField = nsField.eventlessClone();
+				eo.putField(field, nsField);
+			}
+		}
 	}
 
 	@Override
