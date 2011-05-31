@@ -3,6 +3,7 @@ package eve.statements;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.statements.expressions.ExpressionStatement;
 
@@ -21,6 +22,11 @@ public class SealStatement extends AbstractStatement implements EveStatement {
 	@Override
 	public EveObject execute() {
 		EveObject eo = expr.execute();
+		
+		if (eo.isSealed()) {
+			throw new EveError("the object is already sealed.");
+		}
+				
 		eo.setSealed(true);
 		return null;
 	}

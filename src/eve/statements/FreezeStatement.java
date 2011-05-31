@@ -3,6 +3,7 @@ package eve.statements;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.statements.expressions.ExpressionStatement;
 
@@ -21,6 +22,11 @@ public class FreezeStatement extends AbstractStatement implements EveStatement {
 	@Override
 	public EveObject execute() {
 		EveObject eo = expr.execute();
+		
+		if (eo.isFrozen() || eo.isSealed()) {
+			throw new EveError("the object is already frozen or sealed.");
+		}
+		
 		eo.setFrozen(true);
 		return null;
 	}
