@@ -328,6 +328,11 @@ returnStatement
 			ScopeManager.getCurrentConstructionScope().addStatement(ret);
 			previousStatement = ret;	
 		}
+	|	'return' {
+			ReturnStatement ret = new ReturnStatement();
+			ScopeManager.getCurrentConstructionScope().addStatement(ret);
+			previousStatement = ret;
+		}
 	;
 
 ifStatementDown

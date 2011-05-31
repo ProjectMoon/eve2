@@ -8,6 +8,7 @@ import eve.core.EveObject;
 public abstract class AbstractStatement implements EveStatement {
 	private int line;
 	private EveObject pumpedValue;
+	private boolean isReturned;
 	
 	@Override
 	public abstract EveObject execute();
@@ -37,5 +38,13 @@ public abstract class AbstractStatement implements EveStatement {
 	
 	public EveObject getPumpedValue() {
 		return pumpedValue;
+	}
+	
+	public boolean isReturned() {
+		return isReturned;
+	}
+	
+	public void setReturned(boolean isReturned) {
+		this.isReturned = isReturned;
 	}
 }

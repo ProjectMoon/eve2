@@ -1,5 +1,6 @@
 package eve.statements;
 
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
@@ -9,24 +10,37 @@ import eve.statements.expressions.ExpressionStatement;
 public class ReturnStatement extends AbstractStatement implements EveStatement {
 	private ExpressionStatement expression;
 	
+	public ReturnStatement() {}
+	
 	public ReturnStatement(ExpressionStatement expression) {
 		this.expression = expression;
 	}
 	
 	@Override
 	public EveObject execute() {
-		this.pumpValue(expression.execute());
+		if (expression != null) {
+			this.pumpValue(expression.execute());
+		}
+		
+		this.setReturned(true);
 		return null;
 	}
 
 	@Override
 	public List<String> getIdentifiers() {
-		return expression.getIdentifiers();
+		if (expression != null) {
+			return expression.getIdentifiers();
+		}
+		else {
+			return new ArrayList<String>(0);
+		}
 	}
 
 	@Override
 	public void closureAnalysis(Deque<List<String>> closureList) {
-		expression.closureAnalysis(closureList);
+		if (expression != null) {
+			expression.closureAnalysis(closureList);
+		}
 	}
 
 	@Override

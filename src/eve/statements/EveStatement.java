@@ -33,4 +33,7 @@ public interface EveStatement {
 	
 	public boolean equals(Object other);
 	public int hashCode();
+	
+	public boolean isReturned();
+	public void setReturned(boolean returned);
 }

@@ -124,7 +124,7 @@ expressionStatement
 	|	expression ';' -> ^(EXPR_STATEMENT expression)
 	;
 returnStatement
-	:	'return'^ expression ';'!
+	:	'return'^ expression? ';'!
 	;
 	
 printStatement
