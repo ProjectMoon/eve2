@@ -26,7 +26,7 @@ public class EveFunction extends EveObject {
 		//we cannot use the normal method of cloning from EveFunction when
 		//adding a function to the EveFunction prototype... so CreateFunctionFunction
 		//must not be cloned from anything (or at least not function).
-		//TODO: fix this in case dynamic properties need to be added to all objects.
+		//TODO: fix this in case dynamic properties need to be added to all function objects.
 		this.putField("create", new EveObject(new CreateFunctionFunction(), false));
 	}
 	
