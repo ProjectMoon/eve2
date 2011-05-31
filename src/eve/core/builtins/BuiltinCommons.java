@@ -42,6 +42,11 @@ public class BuiltinCommons {
 		return typePool.get(name);
 	}
 
+	/**
+	 * Initialize a given EveObject with the properties standard to all EveObjects (such as type).
+	 * @param prototype
+	 * @return The EveObject.
+	 */
 	public static EveObject initialize(EveObject prototype) {
 		prototype.putField("type", typeProperty());
 		return prototype;

@@ -38,7 +38,6 @@ public class Core {
 					if (!script.getNamespace().equals("_global")) {
 						ScopeManager.setNamespace(script.getNamespace());
 						ScopeManager.createGlobalScope();
-						
 						BuiltinCommons.addType(script.getNamespace(), EveObject.namespaceType(script.getNamespace()));
 					}
 					

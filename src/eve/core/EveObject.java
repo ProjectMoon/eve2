@@ -260,6 +260,7 @@ public class EveObject {
 		EveObject eo = new EveObject();
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName("namespace " + nsName);
+		eo.cloneable = false;
 		return eo;
 	}
 	
@@ -750,7 +751,7 @@ public class EveObject {
 			case LIST:
 				return this.getListValue().toString();
 			case CUSTOM:
-				return "[custom " + this.getTypeName() + "]";
+				return "<" + this.getTypeName() + ">";
 			case PROTOTYPE:
 				return "[prototype " + this.getTypeName() + "]";
 			case JAVA:
