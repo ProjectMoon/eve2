@@ -28,6 +28,8 @@ public class Function {
 	private int varargsIndex;
 	private boolean isPossibleClosure = false;
 	private boolean isClosure = false;
+	private boolean isDelegate;
+	private EveObject delegateContext;
 	
 	public void setStatements(List<EveStatement> statements) {
 		this.statements = statements;
@@ -85,7 +87,13 @@ public class Function {
 	
 	@Override
 	public String toString() {
-		String res = "[function";
+		String res = "";
+		if (isDelegate()) {
+			res = "[delegate@" + getDelegateContext();
+		}
+		else {
+			res = "[function";
+		}
 		
 		if (name != null) {
 			res += " " + name; 
@@ -235,5 +243,21 @@ public class Function {
 	
 	public int getVarargsIndex() {
 		return this.varargsIndex;
+	}
+
+	public void setDelegate(boolean isDelegate) {
+		this.isDelegate = isDelegate;
+	}
+
+	public boolean isDelegate() {
+		return isDelegate;
+	}
+
+	public void setDelegateContext(EveObject delegateContext) {
+		this.delegateContext = delegateContext;
+	}
+
+	public EveObject getDelegateContext() {
+		return delegateContext;
 	}
 }

@@ -844,6 +844,11 @@ public class EveObject {
 			ScopeManager.setClosureStack(func.getClosureStack());
 		}
 		
+		//delegate?
+		if (func.isDelegate()) {
+			this.putTempField("self", func.getDelegateContext());
+		}
+		
 		//named function expression?
 		if (func.getName() != null) {
 			this.putTempField(func.getName(), this);

@@ -41,6 +41,7 @@ tokens {
 	DEREF;
 	WITH;
 	WITH_BODY;
+	DELEGATE;
 }
 
 @header {
@@ -135,6 +136,7 @@ printStatement
 initVariableStatement
 	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
 	|	'def' prop=IDENT '=' name=IDENT? function -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
+	|	'delegate' prop=IDENT '=' name=IDENT? function -> ^(DELEGATE $prop ^(FUNCTION_NAME $name?) function)
 	;
 
 protoStatement
