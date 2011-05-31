@@ -1,5 +1,6 @@
 package eve.eji.stdlib;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,8 @@ import eve.eji.EJIFunction;
 import eve.scope.ScopeManager;
 
 public class Core {
+	private static final List<File> IMPORTED_FILES = new ArrayList<File>();
+	
 	public static void init() {
 		ScopeManager.setNamespace("_global");
 		ScopeManager.putVariable("import", importFunction());
@@ -23,7 +26,7 @@ public class Core {
 	
 	private static EveObject importFunction() {
 		class ImportFunction extends EJIFunction {
-			private List<String> importedFiles = new ArrayList<String>();
+			
 			
 			public ImportFunction() {
 				setParameters("file");
@@ -31,14 +34,14 @@ public class Core {
 
 			@Override
 			public EveObject execute(Map<String, EveObject> parameters) {
-				String file = ScopeManager.getVariable("file").getStringValue();
+				File file = new File(ScopeManager.getVariable("file").getStringValue());
 				
-				if (!importedFiles.contains(file)) {
-					importedFiles.add(file);
+				if (!IMPORTED_FILES.contains(file)) {
+					IMPORTED_FILES.add(file);
 					
 					EveCore core = new EveCore();
 					try {
-						Script script = core.getScript(file);
+						Script script = core.getScript(file.getAbsolutePath());
 						ScopeManager.setNamespace("_global");
 						ScopeManager.pushScope(ScopeManager.getGlobalScope());
 	

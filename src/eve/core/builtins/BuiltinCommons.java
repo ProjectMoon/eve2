@@ -32,7 +32,7 @@ public class BuiltinCommons {
 	
 	public static void addType(String name, EveObject type) {
 		if (typePool.get(name) != null) {
-			throw new EveError("type " + name + " already exists in the global type pool.");
+			return;
 		}
 		
 		typePool.put(name, type);
