@@ -45,4 +45,37 @@ public class NamespacedExpression extends ExpressionStatement implements EveStat
 		return namespace + "::" + expression.toString();
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((expression == null) ? 0 : expression.hashCode());
+		result = prime * result
+				+ ((namespace == null) ? 0 : namespace.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		NamespacedExpression other = (NamespacedExpression) obj;
+		if (expression == null) {
+			if (other.expression != null)
+				return false;
+		} else if (!expression.equals(other.expression))
+			return false;
+		if (namespace == null) {
+			if (other.namespace != null)
+				return false;
+		} else if (!namespace.equals(other.namespace))
+			return false;
+		return true;
+	}
+
 }

@@ -96,4 +96,38 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 		}		
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime
+				* result
+				+ ((accessExpression == null) ? 0 : accessExpression.hashCode());
+		result = prime * result
+				+ ((objExpression == null) ? 0 : objExpression.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IndexedAccess other = (IndexedAccess) obj;
+		if (accessExpression == null) {
+			if (other.accessExpression != null)
+				return false;
+		} else if (!accessExpression.equals(other.accessExpression))
+			return false;
+		if (objExpression == null) {
+			if (other.objExpression != null)
+				return false;
+		} else if (!objExpression.equals(other.objExpression))
+			return false;
+		return true;
+	}
+
 }

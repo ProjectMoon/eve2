@@ -14,6 +14,12 @@ public abstract class AbstractStatement implements EveStatement {
 	
 	@Override
 	public abstract List<String> getIdentifiers();
+	
+	@Override
+	public abstract boolean equals(Object other);
+	
+	@Override
+	public abstract int hashCode();
 
 	@Override
 	public void setLine(int line) {

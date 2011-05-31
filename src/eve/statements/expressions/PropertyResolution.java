@@ -104,4 +104,40 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 	public void setUsingMutatorAccessor(boolean using) {
 		usingMutatorAccessor = using;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((expression == null) ? 0 : expression.hashCode());
+		result = prime * result
+				+ ((identifier == null) ? 0 : identifier.hashCode());
+		result = prime * result + (usingMutatorAccessor ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PropertyResolution other = (PropertyResolution) obj;
+		if (expression == null) {
+			if (other.expression != null)
+				return false;
+		} else if (!expression.equals(other.expression))
+			return false;
+		if (identifier == null) {
+			if (other.identifier != null)
+				return false;
+		} else if (!identifier.equals(other.identifier))
+			return false;
+		if (usingMutatorAccessor != other.usingMutatorAccessor)
+			return false;
+		return true;
+	}
 }

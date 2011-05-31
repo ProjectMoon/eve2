@@ -74,4 +74,37 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 	public void closureAnalysis(Deque<List<String>> closureList) {
 		expression.closureAnalysis(closureList);
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((expression == null) ? 0 : expression.hashCode());
+		result = prime * result
+				+ ((identifier == null) ? 0 : identifier.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InitVariableStatement other = (InitVariableStatement) obj;
+		if (expression == null) {
+			if (other.expression != null)
+				return false;
+		} else if (!expression.equals(other.expression))
+			return false;
+		if (identifier == null) {
+			if (other.identifier != null)
+				return false;
+		} else if (!identifier.equals(other.identifier))
+			return false;
+		return true;
+	}
 }

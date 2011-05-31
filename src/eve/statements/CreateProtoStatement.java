@@ -66,4 +66,37 @@ public class CreateProtoStatement extends AbstractStatement implements EveStatem
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((protoBlock == null) ? 0 : protoBlock.hashCode());
+		result = prime * result
+				+ ((protoName == null) ? 0 : protoName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CreateProtoStatement other = (CreateProtoStatement) obj;
+		if (protoBlock == null) {
+			if (other.protoBlock != null)
+				return false;
+		} else if (!protoBlock.equals(other.protoBlock))
+			return false;
+		if (protoName == null) {
+			if (other.protoName != null)
+				return false;
+		} else if (!protoName.equals(other.protoName))
+			return false;
+		return true;
+	}
+
 }

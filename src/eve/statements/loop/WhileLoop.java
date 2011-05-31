@@ -82,4 +82,37 @@ public class WhileLoop extends LoopStatement implements EveStatement, Constructi
 		return statements;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((loopCondition == null) ? 0 : loopCondition.hashCode());
+		result = prime * result
+				+ ((statements == null) ? 0 : statements.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		WhileLoop other = (WhileLoop) obj;
+		if (loopCondition == null) {
+			if (other.loopCondition != null)
+				return false;
+		} else if (!loopCondition.equals(other.loopCondition))
+			return false;
+		if (statements == null) {
+			if (other.statements != null)
+				return false;
+		} else if (!statements.equals(other.statements))
+			return false;
+		return true;
+	}
+
 }

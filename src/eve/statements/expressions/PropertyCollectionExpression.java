@@ -71,6 +71,37 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 		}
 		return idents;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((objExpr == null) ? 0 : objExpr.hashCode());
+		result = prime * result + ((props == null) ? 0 : props.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PropertyCollectionExpression other = (PropertyCollectionExpression) obj;
+		if (objExpr == null) {
+			if (other.objExpr != null)
+				return false;
+		} else if (!objExpr.equals(other.objExpr))
+			return false;
+		if (props == null) {
+			if (other.props != null)
+				return false;
+		} else if (!props.equals(other.props))
+			return false;
+		return true;
+	}
 	
 	
 }

@@ -42,4 +42,35 @@ public class ConcatExpression extends ExpressionStatement implements EveStatemen
 		exp1.closureAnalysis(closureList);
 		exp2.closureAnalysis(closureList);
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((exp1 == null) ? 0 : exp1.hashCode());
+		result = prime * result + ((exp2 == null) ? 0 : exp2.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ConcatExpression other = (ConcatExpression) obj;
+		if (exp1 == null) {
+			if (other.exp1 != null)
+				return false;
+		} else if (!exp1.equals(other.exp1))
+			return false;
+		if (exp2 == null) {
+			if (other.exp2 != null)
+				return false;
+		} else if (!exp2.equals(other.exp2))
+			return false;
+		return true;
+	}
 }
