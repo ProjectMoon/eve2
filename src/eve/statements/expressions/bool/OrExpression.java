@@ -27,6 +27,11 @@ public class OrExpression extends ExpressionStatement implements EveStatement {
 		Object v2 = op2.getObjectValue();
 		
 		if (v1 instanceof Boolean && v2 instanceof Boolean) {
+			//short circuit.
+			if ((Boolean)v1 == true) {
+				return new EveObject(true);
+			}
+			
 			result.setBooleanValue((Boolean)v1 || (Boolean)v2);
 		}
 		else {

@@ -25,8 +25,13 @@ public class AndExpression extends ExpressionStatement implements EveStatement {
 		
 		Object v1 = op1.getObjectValue();
 		Object v2 = op2.getObjectValue();
-		
+				
 		if (v1 instanceof Boolean && v2 instanceof Boolean) {
+			//short circuit.
+			if ((Boolean)v1 == false) {
+				return new EveObject(false);
+			}
+			
 			result = new EveObject((Boolean)v1 && (Boolean)v2);
 		}
 		else {
