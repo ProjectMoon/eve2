@@ -12,4 +12,5 @@ import eve.statements.EveStatement;
  */
 public interface Updateable extends EveStatement {
 	public void updateVariable(EveObject value);
+	public boolean deleteVariable();
 }
