@@ -6,7 +6,6 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
-import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
 
 public class CloneExpression extends ExpressionStatement implements EveStatement {

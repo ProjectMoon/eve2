@@ -7,7 +7,6 @@ import java.util.List;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
-import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
 import eve.statements.assignment.Updateable;
 

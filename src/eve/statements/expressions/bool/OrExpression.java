@@ -5,7 +5,6 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
-import eve.core.EveObject.EveType;
 import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
