@@ -6,6 +6,7 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject.EveType;
+import eve.core.EveObject;
 import eve.statements.EveStatement;
 import eve.statements.VariableFindingStatement;
 import eve.statements.assignment.Updateable;

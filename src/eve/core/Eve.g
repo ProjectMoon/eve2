@@ -44,6 +44,7 @@ tokens {
 	DELEGATE;
 	FREEZE;
 	SEAL;
+	DELETE;
 }
 
 @header {
@@ -114,18 +115,8 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	protoStatement
 	|	expressionStatement
 	|	withStatement
-	|	freezeStatement
-	|	sealStatement
 	;
 	
-freezeStatement
-	:	'freeze' '(' expression ')' -> ^(FREEZE expression)
-	;
-	
-sealStatement
-	:	'seal' '(' expression ')' -> ^(SEAL expression)
-	;
-
 withStatement
 	:	'with' '(' idents+=IDENT (',' idents+=IDENT)* ')' '{' codeStatement* '}'
 		-> ^(WITH $idents+ ^(WITH_BODY codeStatement*))
@@ -248,6 +239,8 @@ andOr
 	
 expression
 	:	'clone' andOr -> ^(CLONE andOr)
+	|	'freeze' andOr -> ^(FREEZE andOr)
+	|	'seal'	andOr -> ^(SEAL andOr)
 	|	andOr
 	;
 	
