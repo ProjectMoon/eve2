@@ -61,6 +61,23 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 			}
 		}
 	}
+	
+	@Override
+	public boolean deleteVariable() {
+		EveObject toDelete = ScopeManager.getVariable(getIdentifier());
+		
+		if (toDelete == null) {
+			return false;
+		}
+		
+		if (toDelete.isSealed()) {
+			throw new EveError("sealed objects cannot be deleted.");
+		}
+		
+		EveObject parent = toDelete.getObjectParent();
+		String field = parent.getFieldName(toDelete);
+		return parent.deleteField(field);
+	}
 		
 	@Override
 	public String toString() {

@@ -241,6 +241,7 @@ expression
 	:	'clone' andOr -> ^(CLONE andOr)
 	|	'freeze' andOr -> ^(FREEZE andOr)
 	|	'seal'	andOr -> ^(SEAL andOr)
+	|	'delete' andOr -> ^(DELETE andOr)
 	|	andOr
 	;
 	

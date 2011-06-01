@@ -468,6 +468,7 @@ public class EveObject {
 	}
 	
 	public void setIndexedProperty(int index, EveObject eo) {
+		eo.objectParent = this;
 		if (this.getType() == EveType.STRING) {
 			if (eo.getType() != EveType.STRING) {
 				throw new EveError("can't insert a non-string into a string");
@@ -486,6 +487,20 @@ public class EveObject {
 		}
 		else {
 			throw new EveError("can't use indexer access on non-indexed property");
+		}
+	}
+	
+	public boolean deleteIndexedProperty(EveObject index) {
+		if (this.getType() == EveType.DICT) {
+			//index must be string.
+			return this.dictionaryValues.remove(index.getStringValue()) != null;
+		}
+		else if (this.getType() == EveType.LIST) {
+			//index must be int.
+			return this.listValues.remove(index.getIntValue()) != null;
+		}
+		else {
+			throw new EveError("can't use indexer delete on type " + this.getTypeName());
 		}
 	}
 	
@@ -808,6 +823,10 @@ public class EveObject {
 		}
 		
 		return "[unknown]";
+	}
+	
+	public EveObject getObjectParent() {
+		return this.objectParent;
 	}
 	
 	public EveObject invoke() {

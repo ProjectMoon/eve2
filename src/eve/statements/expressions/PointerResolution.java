@@ -96,6 +96,18 @@ public class PointerResolution extends ExpressionStatement implements EveStateme
 		
 		eo.putField(ident, value);
 	}
+	
+	@Override
+	public boolean deleteVariable() {
+		EveObject eo = getExpression().execute();
+		String ident = getIdentifier();
+		
+		if (eo.isSealed() || eo.isFrozen()) {
+			throw new EveError("sealed/frozen objects cannot have properties removed.");
+		}
+		
+		return eo.deleteField(ident);
+	}
 
 	@Override
 	public boolean isUsingMutatorAccessor() {

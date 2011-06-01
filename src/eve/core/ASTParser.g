@@ -285,26 +285,6 @@ codeStatement
 	|	initVariableStatement
 	|	updateVariableStatement
 	|	expressionStatement
-	|	sealStatement
-	|	freezeStatement
-	;
-	
-sealStatement
-	:	^(SEAL e=expression) {
-			SealStatement ss = new SealStatement(e);
-			ss.setLine($SEAL.getLine());
-			ScopeManager.getCurrentConstructionScope().addStatement(ss);
-			previousStatement = ss;
-		}
-	;
-	
-freezeStatement
-	:	^(FREEZE e=expression) {
-			FreezeStatement fs = new FreezeStatement(e);
-			fs.setLine($FREEZE.getLine());
-			ScopeManager.getCurrentConstructionScope().addStatement(fs);
-			previousStatement = fs;
-		}
 	;
 	
 expressionStatement
@@ -579,6 +559,18 @@ expression returns [ExpressionStatement result]
 	|	^(CLONE e=expression) {
 			$result = new CloneExpression(e);
 			$result.setLine($CLONE.getLine());				
+		}
+	|	^(SEAL e=expression) {
+			$result = new SealExpression(e);
+			$result.setLine($SEAL.getLine());
+		}
+	|	^(FREEZE e=expression) {
+			$result = new FreezeExpression(e);
+			$result.setLine($FREEZE.getLine());
+		}
+	|	^(DELETE e=expression) {
+			$result = new DeleteExpression(e);
+			$result.setLine($DELETE.getLine());
 		}
 	|	IDENT {
 			$result = new IdentExpression($IDENT.text);

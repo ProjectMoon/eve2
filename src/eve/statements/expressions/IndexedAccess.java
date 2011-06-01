@@ -98,6 +98,18 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 			throw new EveError("invalid indexed accessor type");
 		}		
 	}
+	
+	@Override
+	public boolean deleteVariable() {
+		EveObject eo = getObjExpression().execute();
+		EveObject index = getAccessExpression().execute();
+		
+		if (eo.isSealed()) {
+			throw new EveError("object is sealed.");
+		}
+		
+		return eo.deleteIndexedProperty(index);
+	}
 
 	@Override
 	public int hashCode() {

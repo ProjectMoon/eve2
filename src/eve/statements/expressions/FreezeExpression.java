@@ -1,16 +1,15 @@
-package eve.statements;
+package eve.statements.expressions;
 
 import java.util.Deque;
 import java.util.List;
 
-import eve.core.EveError;
 import eve.core.EveObject;
-import eve.statements.expressions.ExpressionStatement;
+import eve.statements.EveStatement;
 
-public class FreezeStatement extends AbstractStatement implements EveStatement {
+public class FreezeExpression extends ExpressionStatement implements EveStatement {
 	private ExpressionStatement expr;
 	
-	public FreezeStatement(ExpressionStatement expr) {
+	public FreezeExpression(ExpressionStatement expr) {
 		this.expr = expr;
 	}
 	
@@ -24,11 +23,11 @@ public class FreezeStatement extends AbstractStatement implements EveStatement {
 		EveObject eo = expr.execute();
 		
 		if (eo.isFrozen() || eo.isSealed()) {
-			throw new EveError("the object is already frozen or sealed.");
+			return new EveObject(false);
 		}
 		
 		eo.setFrozen(true);
-		return null;
+		return new EveObject(true);
 	}
 
 	@Override
@@ -52,7 +51,7 @@ public class FreezeStatement extends AbstractStatement implements EveStatement {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		FreezeStatement other = (FreezeStatement) obj;
+		FreezeExpression other = (FreezeExpression) obj;
 		if (expr == null) {
 			if (other.expr != null)
 				return false;

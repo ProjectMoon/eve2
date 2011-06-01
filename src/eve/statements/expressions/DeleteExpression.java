@@ -1,16 +1,17 @@
-package eve.statements;
+package eve.statements.expressions;
 
 import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
-import eve.statements.expressions.ExpressionStatement;
+import eve.statements.EveStatement;
+import eve.statements.assignment.Updateable;
 
-public class SealStatement extends AbstractStatement implements EveStatement {
+public class DeleteExpression extends ExpressionStatement implements EveStatement {
 	private ExpressionStatement expr;
-	
-	public SealStatement(ExpressionStatement expr) {
+
+	public DeleteExpression(ExpressionStatement expr) {
 		this.expr = expr;
 	}
 	
@@ -21,14 +22,24 @@ public class SealStatement extends AbstractStatement implements EveStatement {
 
 	@Override
 	public EveObject execute() {
-		EveObject eo = expr.execute();
-		
-		if (eo.isSealed()) {
-			throw new EveError("the object is already sealed.");
+		if (!(expr instanceof Updateable)) {
+			throw new EveError("invalid delete expression");
 		}
-				
-		eo.setSealed(true);
-		return null;
+		
+		return new EveObject(((Updateable)expr).deleteVariable());
+		/*
+		EveObject toDelete = expr.execute();
+		EveObject parent = toDelete.getObjectParent();
+		
+		if (expr instanceof IndexedAccess) {
+			EveObject index = ((IndexedAccess)expr).getAccessExpression().execute();
+			return new EveObject(parent.deleteIndexedProperty(index));
+		}
+		else {
+			String field = parent.getFieldName(toDelete);
+			return new EveObject(parent.deleteField(field));
+		}
+		*/
 	}
 
 	@Override
@@ -52,7 +63,7 @@ public class SealStatement extends AbstractStatement implements EveStatement {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SealStatement other = (SealStatement) obj;
+		DeleteExpression other = (DeleteExpression) obj;
 		if (expr == null) {
 			if (other.expr != null)
 				return false;
@@ -60,4 +71,5 @@ public class SealStatement extends AbstractStatement implements EveStatement {
 			return false;
 		return true;
 	}
+
 }

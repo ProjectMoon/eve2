@@ -11,5 +11,15 @@ import eve.statements.EveStatement;
  *
  */
 public interface Updateable extends EveStatement {
+	/**
+	 * Update the given variable with a new value.
+	 * @param value
+	 */
 	public void updateVariable(EveObject value);
+	
+	/**
+	 * Delete this variable.
+	 * @return true if the delete was a success, false otherwise.
+	 */
+	public boolean deleteVariable();
 }
