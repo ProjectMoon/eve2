@@ -6,6 +6,7 @@ import java.util.List;
 
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
 
@@ -22,21 +23,28 @@ public class GreaterThanOrEqualToExpression extends ExpressionStatement implemen
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
 		
-		//the comparison operators work on int, string, and double.
-		if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.INTEGER) {
-			return new EveObject(op1.getIntValue() >= op2.getIntValue());
+		Object v1 = op1.getObjectValue();
+		Object v2 = op2.getObjectValue();
+		
+		if (v1 instanceof Integer && v2 instanceof Integer) {
+			return new EveObject((Integer)v1 >= (Integer)v2);
 		}
-		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.DOUBLE) {
-			return new EveObject(op1.getDoubleValue() >= op2.getDoubleValue());
+		else if (v1 instanceof Double && v2 instanceof Double) {
+			return new EveObject((Double)v1 >= (Double)v2);
 		}
-		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.INTEGER) {
-			return new EveObject(op1.getDoubleValue() >= op2.getIntValue());
+		else if (v1 instanceof Double && v2 instanceof Integer) {
+			return new EveObject((Double)v1 >= (Integer)v2);
 		}
-		else if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.DOUBLE) {
-			return new EveObject(op1.getIntValue() >= op2.getDoubleValue());
+		else if (v1 instanceof Integer && v2 instanceof Double) {
+			return new EveObject((Integer)v1 >= (Double)v2);
 		}
-		else if (op1.getType() == EveType.STRING && op2.getType() == EveType.STRING) {
-			return new EveObject(op1.getStringValue().compareTo(op2.getStringValue()) >= 0);
+		else if (v1 instanceof String && v2 instanceof String) {
+			String s1 = (String)v1;
+			String s2 = (String)v2;
+			return new EveObject(s1.compareTo(s2) >= 0);
+		}
+		else {
+			ErrorHandler.operatorError(">=", op1, op2);
 		}
 		
 		return null;
