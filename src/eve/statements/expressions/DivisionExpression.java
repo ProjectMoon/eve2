@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.interpreter.ErrorHandler;
@@ -23,22 +24,20 @@ public class DivisionExpression extends ExpressionStatement implements EveStatem
 		EveObject op2 = exp2.execute();
 		EveObject result = new EveObject();
 		
-		if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.INTEGER) {
-			//int / int = int math
-			Integer res = op1.getIntValue() / op2.getIntValue();
-			result.setIntValue(res);
+		Object v1 = op1.getObjectValue();
+		Object v2 = op2.getObjectValue();
+		
+		if (v1 instanceof Integer && v2 instanceof Integer) {
+			result = new EveObject((Integer)v1 / (Integer)v2);
 		}
-		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.DOUBLE) {
-			Double res = op1.getDoubleValue() / op2.getDoubleValue();
-			result.setDoubleValue(res);
+		else if (v1 instanceof Double && v2 instanceof Double) {
+			result = new EveObject((Double)v1 / (Double)v2);
 		}
-		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.INTEGER) {
-			Double res = op1.getDoubleValue() / op2.getIntValue();
-			result.setDoubleValue(res);
+		else if (v1 instanceof Integer && v2 instanceof Double) {
+			result = new EveObject((Integer)v1 / (Double)v2);
 		}
-		else if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.DOUBLE) {
-			Double res = op1.getIntValue() / op2.getDoubleValue();
-			result.setDoubleValue(res);
+		else if (v1 instanceof Double && v2 instanceof Integer) {
+			result = new EveObject((Double)v1 / (Integer)v2);
 		}
 		else {
 			//anything else = error

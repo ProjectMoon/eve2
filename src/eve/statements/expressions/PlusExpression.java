@@ -24,41 +24,20 @@ public class PlusExpression extends ExpressionStatement implements EveStatement 
 		EveObject op2 = exp2.execute();
 		EveObject result = new EveObject();
 		
-		if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.INTEGER) {
-			Integer res = op1.getIntValue() + op2.getIntValue();
-			result.setIntValue(res);
+		Object v1 = op1.getObjectValue();
+		Object v2 = op2.getObjectValue();
+		
+		if (v1 instanceof Integer && v2 instanceof Integer) {
+			result = new EveObject((Integer)v1 + (Integer)v2);
 		}
-		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.DOUBLE) {
-			Double res = op1.getDoubleValue() + op2.getDoubleValue();
-			result.setDoubleValue(res);
+		else if (v1 instanceof Double && v2 instanceof Double) {
+			result = new EveObject((Double)v1 + (Double)v2);
 		}
-		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.INTEGER) {
-			Double res = op1.getDoubleValue() + op2.getIntValue();
-			result.setDoubleValue(res);
+		else if (v1 instanceof Integer && v2 instanceof Double) {
+			result = new EveObject((Integer)v1 + (Double)v2);
 		}
-		else if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.DOUBLE) {
-			Double res = op1.getIntValue() + op2.getDoubleValue();
-			result.setDoubleValue(res);
-		}
-		//java types: java and java
-		//int and java
-		//java and int
-		//double and java
-		//java and double
-		else if (op1.getType() == EveType.JAVA && op2.getType() == EveType.JAVA) {
-			result = handleForJava(op1.getJavaValue(), op2.getJavaValue());
-		}
-		else if (op1.getType() == EveType.INTEGER && op2.getType() == EveType.JAVA) {
-			result = intAndJava(op1.getIntValue(), op2.getJavaValue());
-		}
-		else if (op1.getType() == EveType.JAVA && op2.getType() == EveType.INTEGER) {
-			result = intAndJava(op2.getIntValue(), op1.getJavaValue());
-		}
-		else if (op1.getType() == EveType.DOUBLE && op2.getType() == EveType.JAVA) {
-			result = doubleAndJava(op1.getDoubleValue(), op2.getJavaValue());
-		}
-		else if (op1.getType() == EveType.JAVA && op2.getType() == EveType.DOUBLE) {
-			result = doubleAndJava(op2.getDoubleValue(), op1.getJavaValue());
+		else if (v1 instanceof Double && v2 instanceof Integer) {
+			result = new EveObject((Double)v1 + (Integer)v2);
 		}
 		else {
 			//anything else = error
@@ -66,49 +45,6 @@ public class PlusExpression extends ExpressionStatement implements EveStatement 
 		}
 		
 		return result;
-	}
-	
-	private EveObject handleForJava(Object op1, Object op2) {
-		if (op1 instanceof Integer && op2 instanceof Integer) {
-			return new EveObject((Integer)op1 + (Integer)op2);
-		}
-		else if (op1 instanceof Double && op2 instanceof Double) {
-			return new EveObject((Double)op1 + (Double)op2);
-		}
-		else if (op1 instanceof Integer && op2 instanceof Double) {
-			return new EveObject((Integer)op1 + (Double)op2);
-		}
-		else if (op1 instanceof Double && op2 instanceof Integer) {
-			return new EveObject((Double)op1 + (Integer)op2);
-		}
-		else {
-			//anything else = error
-			throw new EveError("operator + is undefined for " + op1 + " and " + op2);
-		}
-	}
-	
-	private EveObject intAndJava(Integer op1, Object op2) {
-		if (op2 instanceof Integer) {
-			return new EveObject(op1 + (Integer)op2);
-		}
-		else if (op2 instanceof Double) {
-			return new EveObject(op1 + (Double)op2);
-		}
-		else {
-			throw new EveError("operator + is undefined for " + op1 + " and " + op2);
-		}
-	}
-	
-	private EveObject doubleAndJava(Double op1, Object op2) {
-		if (op2 instanceof Integer) {
-			return new EveObject(op1 + (Integer)op2);
-		}
-		else if (op2 instanceof Double) {
-			return new EveObject(op1 + (Double)op2);
-		}
-		else {
-			throw new EveError("operator + is undefined for " + op1 + " and " + op2);
-		}		
 	}
 		
 	@Override

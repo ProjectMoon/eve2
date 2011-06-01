@@ -23,13 +23,16 @@ public class AndExpression extends ExpressionStatement implements EveStatement {
 		EveObject op2 = exp2.execute();
 		EveObject result = new EveObject();
 		
-		if (op1.getType() == EveType.BOOLEAN && op2.getType() == EveType.BOOLEAN) {
-			result.setBooleanValue(op1.getBooleanValue() && op2.getBooleanValue());
+		Object v1 = op1.getObjectValue();
+		Object v2 = op2.getObjectValue();
+		
+		if (v1 instanceof Boolean && v2 instanceof Boolean) {
+			result = new EveObject((Boolean)v1 && (Boolean)v2);
 		}
 		else {
 			ErrorHandler.operatorError("&&", op1, op2);
-		}
-		
+		}		
+
 		return result;
 	}
 	
