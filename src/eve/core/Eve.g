@@ -46,6 +46,7 @@ tokens {
 	SEAL;
 	DELETE;
 	JSON;
+	JSON_NAME;
 	JSON_ENTRY;
 }
 
@@ -175,7 +176,7 @@ ifStatement
 
 //Expressions
 json
-	:	'{' jsonEntry (',' jsonEntry)* '}' -> ^(JSON jsonEntry*)	
+	:	name=IDENT? '{' jsonEntry (',' jsonEntry)* '}' -> ^(JSON ^(JSON_NAME $name?) jsonEntry*)	
 	;
 	
 jsonEntry

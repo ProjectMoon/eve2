@@ -11,18 +11,16 @@ import eve.statements.expressions.ExpressionStatement;
 
 public class JSONExpression extends ExpressionStatement implements EveStatement, ConstructionScope {
 	private List<JSONEntry> entries = new ArrayList<JSONEntry>();
-
-	@Override
-	public String toString() {
-		String res = "{ ";
-		for (JSONEntry entry : entries) {
-			res += entry.toString() + ", ";
-		}
-		res += " }";
-		
-		return res;
-	}
+	private String name;
 	
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 	public void addEntry(JSONEntry entry) {
 		entries.add(entry);
 	}
@@ -41,7 +39,13 @@ public class JSONExpression extends ExpressionStatement implements EveStatement,
 
 	@Override
 	public EveObject execute() {
-		EveObject eo = EveObject.customType("object_literal");
+		EveObject eo = null;
+		if (getName() != null) {
+			eo = EveObject.customType(getName());
+		}
+		else {
+			eo = EveObject.customType("object_literal");
+		}
 		
 		for (JSONEntry entry : entries) {
 			eo.putField(entry.getIdentifier(), entry.getExpression().execute());
@@ -59,6 +63,17 @@ public class JSONExpression extends ExpressionStatement implements EveStatement,
 		}
 		
 		return idents;
+	}
+	
+	@Override
+	public String toString() {
+		String res = "{ ";
+		for (JSONEntry entry : entries) {
+			res += entry.toString() + ", ";
+		}
+		res += " }";
+		
+		return res;
 	}
 
 	@Override

@@ -105,6 +105,7 @@ topdown
 	|	whileLoopDown
 	|	functionBodyDown
 	|	jsonDown
+	|	jsonNameDown
 	|	jsonEntryDown
 	;
 
@@ -134,6 +135,12 @@ jsonDown
 jsonUp
 	:	^(JSON .*) {
 			ScopeManager.popConstructionScope();
+		}
+	;
+
+jsonNameDown
+	:	^(JSON_NAME IDENT) {
+			((JSONExpression)ScopeManager.getCurrentConstructionScope()).setName($IDENT.text);
 		}
 	;
 	
