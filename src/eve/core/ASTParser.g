@@ -95,7 +95,6 @@ topdown
 	|	assignFunctionDown
 	|	assignDelegateDown
 	|	functionNameDown
-	|	createPrototypeDown
 	|	ifStatementDown
 	|	elseIfStatementDown
 	|	elseStatementDown
@@ -117,7 +116,6 @@ bottomup
 	|	ifStatementUp
 	|	elseIfStatementUp
 	|	elseStatementUp
-	|	createPrototypeUp
 	|	nsSwitchUp
 	|	foreachLoopUp
 	|	whileLoopUp
@@ -290,29 +288,7 @@ functionParametersUp
 		}
 	;
 	
-//Prototype creation (not cloning)
-createPrototypeDown 
-	:	^(INIT_PROTO IDENT .*) {
-			//Current construction scope is now in a prototype.
-			CreateProtoStatement createProto = new CreateProtoStatement($IDENT.text);
-			createProto.setLine($IDENT.getLine());
-			ScopeManager.pushConstructionScope(createProto);
-			EveLogger.debug("init prototype " + $IDENT.text);
-		}
-	;
-	
-createPrototypeUp
-	:	^(INIT_PROTO IDENT .*) {
-			//ConstructionScope MUST be CreateProtoStatement, or we have issues.
-			CreateProtoStatement createProto = (CreateProtoStatement)ScopeManager.popConstructionScope();
-			
-			//This should be global construction scope.
-			ScopeManager.getCurrentConstructionScope().addStatement(createProto);
-			EveLogger.debug("creating create proto statement for " + $IDENT.text);
-		}
-	;
-
-//Code Statements: can occur anywhere (global, in proto, or in function)
+//Code Statements: can occur anywhere
 codeStatement
 	:	printStatement
 	|	returnStatement
