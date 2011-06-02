@@ -145,7 +145,7 @@ initVariableStatement
 	;
 
 protoStatement
-	: 'prototype' IDENT '{' codeStatement* '}' -> ^(INIT_PROTO IDENT codeStatement*)
+	: 'proto' IDENT '{' codeStatement* '}' -> ^(INIT_PROTO IDENT codeStatement*)
 	;
 	
 //Loops
