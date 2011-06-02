@@ -14,6 +14,7 @@ options {
 	import eve.statements.assignment.*;
 	import eve.statements.expressions.*;
 	import eve.statements.expressions.bool.*;
+	import eve.statements.expressions.json.*;
 	import eve.statements.loop.*;
 	import eve.scope.*;
 	import java.util.Queue;
@@ -63,6 +64,9 @@ options {
 	//If statement management
 	private EveStatement previousStatement;
 	
+	//JSON Management
+	private JSONExpression currentJSONExpr = null;
+	
 	//Error handling
     private List<String> errors = new ArrayList<String>();
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
@@ -100,6 +104,8 @@ topdown
 	|	foreachLoopDown
 	|	whileLoopDown
 	|	functionBodyDown
+	|	jsonDown
+	|	jsonEntryDown
 	;
 
 bottomup
@@ -115,6 +121,27 @@ bottomup
 	|	foreachLoopUp
 	|	whileLoopUp
 	|	functionBodyUp
+	|	jsonUp
+	;
+	
+//json handling
+jsonDown
+	:	^(JSON .*) {
+			ScopeManager.pushConstructionScope(currentJSONExpr);
+		}
+	;
+	
+jsonUp
+	:	^(JSON .*) {
+			ScopeManager.popConstructionScope();
+		}
+	;
+	
+jsonEntryDown
+	:	^(JSON_ENTRY IDENT e=expression) {
+			JSONEntry entry = new JSONEntry($IDENT.text, e);
+			((JSONExpression)ScopeManager.getCurrentConstructionScope()).addEntry(entry);		
+		}
 	;
 
 //with statement
@@ -523,6 +550,13 @@ expression returns [ExpressionStatement result]
 	|	^('in' op1=expression op2=expression) { $result = new InExpression(op1, op2); $result.setLine(op1.getLine()); }
 	
 	//Everything else.
+	|	^(JSON .*) {
+			JSONExpression json = new JSONExpression();
+			json.setLine($JSON.getLine());
+			currentJSONExpr = json;
+			EveLogger.debug("pushing json expression " + json);
+			$result = json;
+		}
 	|	^(PROP_COLLECTION e=expression (p=expression { pushFunctionInvocationParam(p); })*) {
 			$result = new PropertyCollectionExpression(e, getFunctionInvocationParams());
 			$result.setLine($PROP_COLLECTION.getLine());
@@ -552,7 +586,6 @@ expression returns [ExpressionStatement result]
 			$result.setLine($INVOKE_FUNCTION_EXPR.getLine());
 		}
 	|	^(INVOKE_FUNCTION_EXPR i=expression) {
-			System.out.println("invoke function expr " + i);
 			$result = new FunctionInvokeExpression(i);
 			$result.setLine($INVOKE_FUNCTION_EXPR.getLine());
 		}

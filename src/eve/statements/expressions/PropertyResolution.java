@@ -38,6 +38,7 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		//getter functionality.
 		if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
 			return eo.getField("get").invokeSelf(obj);
+			//return eo.getSelf();
 		}
 		else {
 			return eo;
@@ -62,7 +63,7 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		
 		if (isUsingMutatorAccessor() && existingField != null && existingField.hasField("set") &&
 				existingField.getField("set").getType() == EveType.FUNCTION) {
-			existingField.getField("set").invokeSelf(existingField, value);
+			existingField.getField("set").invokeSelf(eo, value);
 		}
 		else {
 			eo.putField(ident, value);

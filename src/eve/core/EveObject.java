@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
 
+import eve.core.builtins.BuiltinCommons;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDictionary;
 import eve.core.builtins.EveDouble;
@@ -254,6 +255,7 @@ public class EveObject {
 		EveObject eo = new EveObject();
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName(typeName);
+		BuiltinCommons.initialize(eo);
 		return eo;
 	}
 	

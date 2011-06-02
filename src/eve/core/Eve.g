@@ -45,6 +45,8 @@ tokens {
 	FREEZE;
 	SEAL;
 	DELETE;
+	JSON;
+	JSON_ENTRY;
 }
 
 @header {
@@ -143,7 +145,7 @@ initVariableStatement
 	;
 
 protoStatement
-	: 'object' IDENT '{' codeStatement* '}' -> ^(INIT_PROTO IDENT codeStatement*)
+	: 'prototype' IDENT '{' codeStatement* '}' -> ^(INIT_PROTO IDENT codeStatement*)
 	;
 	
 //Loops
@@ -172,10 +174,19 @@ ifStatement
 	;
 
 //Expressions
+json
+	:	'{' jsonEntry (',' jsonEntry)* '}' -> ^(JSON jsonEntry*)	
+	;
+	
+jsonEntry
+	:	IDENT ':' expression -> ^(JSON_ENTRY IDENT expression)
+	;
+	
 atom
 	:	IDENT
 	|	'*' IDENT -> ^(DEREF IDENT)
 	|	'('! expression ')'!
+	|	json
  	|	INTEGER
  	|	DOUBLE
 	|	BOOLEAN

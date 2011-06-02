@@ -66,8 +66,10 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 		List<String> idents = new ArrayList<String>();
 		idents.addAll(objExpr.getIdentifiers());
 		
-		for (ExpressionStatement statement : props) {
-			idents.addAll(statement.getIdentifiers());
+		if (props != null) {
+			for (ExpressionStatement statement : props) {
+				idents.addAll(statement.getIdentifiers());
+			}
 		}
 		return idents;
 	}
