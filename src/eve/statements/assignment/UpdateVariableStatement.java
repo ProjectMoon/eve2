@@ -10,6 +10,7 @@ import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
+import eve.statements.VariableFindingStatement;
 import eve.statements.expressions.ExpressionStatement;
 import eve.statements.expressions.IdentExpression;
 import eve.statements.expressions.IndexedAccess;
@@ -32,9 +33,13 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 			throw new EveError("invalid left side of assignment statement.");
 		}
 		
-		((Updateable)assignmentExpr).updateVariable(value);
+		//for auto deep cloning.
+		if (assignmentExpr instanceof VariableFindingStatement) {
+			value = value.eventlessClone();
+		}
 		
-			
+		((Updateable)assignmentExpr).updateVariable(value);
+				
 		return null;
 	}
 

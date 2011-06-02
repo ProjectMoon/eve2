@@ -8,6 +8,7 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
+import eve.statements.VariableFindingStatement;
 import eve.statements.expressions.ExpressionStatement;
 import eve.statements.expressions.FunctionDefExpression;
 import eve.statements.expressions.IdentExpression;
@@ -29,11 +30,15 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 			throw new EveError(identifier + " shadows or overwrites " + identifier + " at scope " + ScopeManager.getScopeForVariable(identifier));
 		}
 		
-		if (getExpression() instanceof IdentExpression) {
-			throw new EveError("identifiers cannot be assigned directly. use clone.");
+		EveObject result = getExpression().execute();
+		
+		//mark for clone if we are assigning an ident, property, etc.
+		//this will make sure the new variable is deep cloned when necessary.
+		//otherwise, we get reference problems.
+		if (getExpression() instanceof VariableFindingStatement) {
+			result = result.eventlessClone();
 		}
 		
-		EveObject result = getExpression().execute();
 		ScopeManager.putVariable(getIdentifier(), result);
 		return result;
 	}

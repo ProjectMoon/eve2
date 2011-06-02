@@ -26,13 +26,16 @@ public class PointerResolution extends ExpressionStatement implements EveStateme
 
 	@Override
 	public EveObject execute() {
-		if (!(getExpression() instanceof VariableFindingStatement)) {
-			throw new EveError(getExpression() + " is not valid for pointer resolution");
+		EveObject obj = null;
+		if (getExpression() instanceof VariableFindingStatement) {
+			VariableFindingStatement vfinder = (VariableFindingStatement)getExpression();
+			vfinder.setUsingMutatorAccessor(false);
+			obj = vfinder.execute();
+		}
+		else {
+			obj = getExpression().execute();
 		}
 		
-		VariableFindingStatement vfinder = (VariableFindingStatement)getExpression();
-		vfinder.setUsingMutatorAccessor(false);
-		EveObject obj = vfinder.execute();
 		EveObject eo = obj.getField(getIdentifier());
 		
 		if (eo == null) {

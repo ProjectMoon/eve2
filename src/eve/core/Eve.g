@@ -20,7 +20,6 @@ tokens {
 	FUNCTION_BODY;
 	INVOKE_FUNCTION_STMT;
 	INVOKE_FUNCTION_EXPR;
-	INIT_PROTO;
 	CLONE;
 	IF_STATEMENT;
 	ELSE_IF;
@@ -45,6 +44,9 @@ tokens {
 	FREEZE;
 	SEAL;
 	DELETE;
+	JSON;
+	JSON_NAME;
+	JSON_ENTRY;
 }
 
 @header {
@@ -112,7 +114,6 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	ifStatement
 	|	foreachLoop
 	|	whileLoop
-	|	protoStatement
 	|	expressionStatement
 	|	withStatement
 	;
@@ -142,10 +143,6 @@ initVariableStatement
 	|	'delegate' prop=IDENT '=' name=IDENT? function -> ^(DELEGATE $prop ^(FUNCTION_NAME $name?) function)
 	;
 
-protoStatement
-	: 'proto' IDENT '{' codeStatement* '}' -> ^(INIT_PROTO IDENT codeStatement*)
-	;
-	
 //Loops
 foreachLoop
 	:	'for' '(' i1=IDENT ':' e=expression ')' '{' codeStatement* '}' -> ^(FOREACH $i1 $e ^(LOOP_BODY codeStatement*))
@@ -172,10 +169,19 @@ ifStatement
 	;
 
 //Expressions
+json
+	:	name=IDENT? '{' jsonEntry (',' jsonEntry)* '}' -> ^(JSON ^(JSON_NAME $name?) jsonEntry*)	
+	;
+	
+jsonEntry
+	:	IDENT ':' expression -> ^(JSON_ENTRY IDENT expression)
+	;
+	
 atom
 	:	IDENT
 	|	'*' IDENT -> ^(DEREF IDENT)
 	|	'('! expression ')'!
+	|	json
  	|	INTEGER
  	|	DOUBLE
 	|	BOOLEAN
