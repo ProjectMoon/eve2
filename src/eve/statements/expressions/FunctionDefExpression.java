@@ -152,4 +152,55 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		
 		return idents;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((func == null) ? 0 : func.hashCode());
+		result = prime * result + (isVarargs ? 1231 : 1237);
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result
+				+ ((parameters == null) ? 0 : parameters.hashCode());
+		result = prime * result
+				+ ((statements == null) ? 0 : statements.hashCode());
+		result = prime * result + varargsIndex;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		FunctionDefExpression other = (FunctionDefExpression) obj;
+		if (func == null) {
+			if (other.func != null)
+				return false;
+		} else if (!func.equals(other.func))
+			return false;
+		if (isVarargs != other.isVarargs)
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (parameters == null) {
+			if (other.parameters != null)
+				return false;
+		} else if (!parameters.equals(other.parameters))
+			return false;
+		if (statements == null) {
+			if (other.statements != null)
+				return false;
+		} else if (!statements.equals(other.statements))
+			return false;
+		if (varargsIndex != other.varargsIndex)
+			return false;
+		return true;
+	}
 }

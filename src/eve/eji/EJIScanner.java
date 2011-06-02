@@ -14,23 +14,8 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
 import eve.core.EveObject;
+import eve.core.builtins.BuiltinCommons;
 import eve.core.builtins.EveGlobal;
-
-@EJIType("test")
-class Test {
-	private String x;
-	public Test(String x) {
-		this.x = x;
-	}
-	
-	public String getX() {
-		return x;
-	}
-	
-	public void setX(String x) {
-		this.x = x;
-	}
-}
 
 public class EJIScanner {
 	private List<String> packages = new ArrayList<String>();
@@ -79,7 +64,7 @@ public class EJIScanner {
 		for (Class<?> type : types) {
 			EJIType typeInfo = type.getAnnotation(EJIType.class);
 			EveObject eo = EJIHelper.createEJIConstructor(type);
-			EveGlobal.addType(typeInfo.value(), eo);
+			BuiltinCommons.addType(typeInfo.value(), eo);
 		}
 	}
 }

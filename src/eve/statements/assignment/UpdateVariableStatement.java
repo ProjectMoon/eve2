@@ -10,6 +10,7 @@ import eve.core.EveObject.EveType;
 import eve.scope.ScopeManager;
 import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
+import eve.statements.VariableFindingStatement;
 import eve.statements.expressions.ExpressionStatement;
 import eve.statements.expressions.IdentExpression;
 import eve.statements.expressions.IndexedAccess;
@@ -32,9 +33,13 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 			throw new EveError("invalid left side of assignment statement.");
 		}
 		
-		((Updateable)assignmentExpr).updateVariable(value);
+		//for auto deep cloning.
+		if (assignmentExpr instanceof VariableFindingStatement) {
+			value = value.eventlessClone();
+		}
 		
-			
+		((Updateable)assignmentExpr).updateVariable(value);
+				
 		return null;
 	}
 
@@ -50,5 +55,38 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 		idents.addAll(assignmentExpr.getIdentifiers());
 		idents.addAll(valueExpr.getIdentifiers());
 		return idents;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((assignmentExpr == null) ? 0 : assignmentExpr.hashCode());
+		result = prime * result
+				+ ((valueExpr == null) ? 0 : valueExpr.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UpdateVariableStatement other = (UpdateVariableStatement) obj;
+		if (assignmentExpr == null) {
+			if (other.assignmentExpr != null)
+				return false;
+		} else if (!assignmentExpr.equals(other.assignmentExpr))
+			return false;
+		if (valueExpr == null) {
+			if (other.valueExpr != null)
+				return false;
+		} else if (!valueExpr.equals(other.valueExpr))
+			return false;
+		return true;
 	}
 }

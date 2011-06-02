@@ -155,4 +155,43 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 		return of;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((of == null) ? 0 : of.hashCode());
+		result = prime * result
+				+ ((statements == null) ? 0 : statements.hashCode());
+		result = prime * result
+				+ ((variable == null) ? 0 : variable.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ForEachLoop other = (ForEachLoop) obj;
+		if (of == null) {
+			if (other.of != null)
+				return false;
+		} else if (!of.equals(other.of))
+			return false;
+		if (statements == null) {
+			if (other.statements != null)
+				return false;
+		} else if (!statements.equals(other.statements))
+			return false;
+		if (variable == null) {
+			if (other.variable != null)
+				return false;
+		} else if (!variable.equals(other.variable))
+			return false;
+		return true;
+	}
+
 }

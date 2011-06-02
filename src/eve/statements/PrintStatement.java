@@ -40,12 +40,21 @@ public class PrintStatement extends AbstractStatement implements EveStatement {
 		expression.closureAnalysis(closureList);
 	}
 
+	public void setPrintNewline(boolean printNewline) {
+		this.printNewline = printNewline;
+	}
+
+	public boolean isPrintNewline() {
+		return printNewline;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
 				+ ((expression == null) ? 0 : expression.hashCode());
+		result = prime * result + (printNewline ? 1231 : 1237);
 		return result;
 	}
 
@@ -63,14 +72,8 @@ public class PrintStatement extends AbstractStatement implements EveStatement {
 				return false;
 		} else if (!expression.equals(other.expression))
 			return false;
+		if (printNewline != other.printNewline)
+			return false;
 		return true;
-	}
-
-	public void setPrintNewline(boolean printNewline) {
-		this.printNewline = printNewline;
-	}
-
-	public boolean isPrintNewline() {
-		return printNewline;
 	}
 }

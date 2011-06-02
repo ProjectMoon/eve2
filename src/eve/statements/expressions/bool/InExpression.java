@@ -43,4 +43,35 @@ public class InExpression extends ExpressionStatement implements EveStatement {
 		idents.addAll(op2.getIdentifiers());
 		return idents;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((op1 == null) ? 0 : op1.hashCode());
+		result = prime * result + ((op2 == null) ? 0 : op2.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InExpression other = (InExpression) obj;
+		if (op1 == null) {
+			if (other.op1 != null)
+				return false;
+		} else if (!op1.equals(other.op1))
+			return false;
+		if (op2 == null) {
+			if (other.op2 != null)
+				return false;
+		} else if (!op2.equals(other.op2))
+			return false;
+		return true;
+	}
 }

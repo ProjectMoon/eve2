@@ -30,4 +30,10 @@ public interface EveStatement {
 	public void closureAnalysis(Deque<List<String>> closureList);
 	public EveObject getPumpedValue();
 	public void pumpValue(EveObject eo);
+	
+	public boolean equals(Object other);
+	public int hashCode();
+	
+	public boolean isReturned();
+	public void setReturned(boolean returned);
 }

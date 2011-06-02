@@ -26,13 +26,16 @@ public class PointerResolution extends ExpressionStatement implements EveStateme
 
 	@Override
 	public EveObject execute() {
-		if (!(getExpression() instanceof VariableFindingStatement)) {
-			throw new EveError(getExpression() + " is not valid for pointer resolution");
+		EveObject obj = null;
+		if (getExpression() instanceof VariableFindingStatement) {
+			VariableFindingStatement vfinder = (VariableFindingStatement)getExpression();
+			vfinder.setUsingMutatorAccessor(false);
+			obj = vfinder.execute();
+		}
+		else {
+			obj = getExpression().execute();
 		}
 		
-		VariableFindingStatement vfinder = (VariableFindingStatement)getExpression();
-		vfinder.setUsingMutatorAccessor(false);
-		EveObject obj = vfinder.execute();
 		EveObject eo = obj.getField(getIdentifier());
 		
 		if (eo == null) {
@@ -82,13 +85,31 @@ public class PointerResolution extends ExpressionStatement implements EveStateme
 		EveObject eo = vfinder.execute();
 		String ident = getIdentifier();
 		
+		if (eo.isSealed()) {
+			throw new EveError("object is sealed.");
+		}
+		
 		EveObject existingField = eo.getField(ident);
 		
-		if (existingField != null && existingField.isMarkedForClone()) {
-			existingField.deepClone();
+		if (existingField != null) {		
+			if (existingField.isMarkedForClone()) {
+				existingField.deepClone();
+			}
 		}
 		
 		eo.putField(ident, value);
+	}
+	
+	@Override
+	public boolean deleteVariable() {
+		EveObject eo = getExpression().execute();
+		String ident = getIdentifier();
+		
+		if (eo.isSealed() || eo.isFrozen()) {
+			throw new EveError("sealed/frozen objects cannot have properties removed.");
+		}
+		
+		return eo.deleteField(ident);
 	}
 
 	@Override
@@ -99,6 +120,39 @@ public class PointerResolution extends ExpressionStatement implements EveStateme
 	@Override
 	public void setUsingMutatorAccessor(boolean using) {
 		//Do nothing. PointerResolution never uses mutators and accessors.
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((expression == null) ? 0 : expression.hashCode());
+		result = prime * result
+				+ ((identifier == null) ? 0 : identifier.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PointerResolution other = (PointerResolution) obj;
+		if (expression == null) {
+			if (other.expression != null)
+				return false;
+		} else if (!expression.equals(other.expression))
+			return false;
+		if (identifier == null) {
+			if (other.identifier != null)
+				return false;
+		} else if (!identifier.equals(other.identifier))
+			return false;
+		return true;
 	}
 
 }

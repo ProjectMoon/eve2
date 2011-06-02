@@ -209,7 +209,7 @@ public class EJIHelper {
 	}
 	
 	/**
-	 * Given a set of formal parameterse (such as from a method or constructor) and a set of actual
+	 * Given a set of formal parameters (such as from a method or constructor) and a set of actual
 	 * parameters (from the interpreter), attempt to discover the best signature that fits
 	 * the actual parameters. This method works in 3 phases: argument length testing, argument
 	 * type testing, and argument type weighing. Each phase progressively whittles down the
@@ -426,7 +426,7 @@ public class EJIHelper {
 	 */
 	public static Object[] mapArguments(Class<?>[] formalParams, EveObject ... actualParameters) {
 		if (actualParameters == null) {
-			throw new NullPointerException("actualParamters cannot be null.");
+			throw new NullPointerException("actualParameters cannot be null.");
 		}
 		
 		if (formalParams.length != actualParameters.length) {
@@ -461,7 +461,7 @@ public class EJIHelper {
 	 */
 	public static Object[] mapArguments(Class<?>[] formalParams, List<EveObject> actualParameters) {
 		if (actualParameters == null) {
-			throw new NullPointerException("actualParamters cannot be null.");
+			throw new NullPointerException("actualParameters cannot be null.");
 		}
 		return mapArguments(formalParams, actualParameters.toArray(new EveObject[0]));
 	}

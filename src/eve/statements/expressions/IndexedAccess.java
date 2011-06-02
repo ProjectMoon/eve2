@@ -7,7 +7,6 @@ import java.util.List;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
-import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
 import eve.statements.assignment.Updateable;
 
@@ -85,6 +84,10 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 		EveObject eo = getObjExpression().execute();
 		EveObject index = getAccessExpression().execute();
 		
+		if (eo.isSealed()) {
+			throw new EveError("object is sealed.");
+		}
+		
 		if (index.getType() == EveType.INTEGER) {
 			eo.setIndexedProperty(index.getIntValue(), value);
 		}
@@ -94,6 +97,52 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 		else {
 			throw new EveError("invalid indexed accessor type");
 		}		
+	}
+	
+	@Override
+	public boolean deleteVariable() {
+		EveObject eo = getObjExpression().execute();
+		EveObject index = getAccessExpression().execute();
+		
+		if (eo.isSealed()) {
+			throw new EveError("object is sealed.");
+		}
+		
+		return eo.deleteIndexedProperty(index);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime
+				* result
+				+ ((accessExpression == null) ? 0 : accessExpression.hashCode());
+		result = prime * result
+				+ ((objExpression == null) ? 0 : objExpression.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IndexedAccess other = (IndexedAccess) obj;
+		if (accessExpression == null) {
+			if (other.accessExpression != null)
+				return false;
+		} else if (!accessExpression.equals(other.accessExpression))
+			return false;
+		if (objExpression == null) {
+			if (other.objExpression != null)
+				return false;
+		} else if (!objExpression.equals(other.objExpression))
+			return false;
+		return true;
 	}
 
 }

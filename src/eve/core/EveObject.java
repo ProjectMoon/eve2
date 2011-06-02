@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
 
+import eve.core.builtins.BuiltinCommons;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDictionary;
 import eve.core.builtins.EveDouble;
@@ -18,7 +19,6 @@ import eve.core.builtins.EveGlobal;
 import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
-import eve.core.builtins.EveObjectPrototype;
 import eve.core.builtins.EveString;
 import eve.eji.DynamicField;
 import eve.hooks.HookManager;
@@ -28,8 +28,14 @@ public class EveObject {
 	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA };
 	public static final String WITH_STATEMENT_TYPENAME = "with-statement";
 	
-	//the type of this object.
+	//the type and type name of this object.
+	//the type is an internal representation, while the type name is what is
+	//displayed to the user.
 	private EveType type;
+	private String typeName;
+	
+	//custom toString without making a toString field.
+	private String stringRepresentation = null;
 	
 	//base eve types.
 	private Integer intValue;
@@ -41,8 +47,6 @@ public class EveObject {
 	private TreeMap<Integer, EveObject> listValues;
 	private Map<String, EveObject> dictionaryValues;
 	
-	private String typeName;
-	
 	//Properties of this object. Temp fields are deleted on scope exit.
 	private Map<String, EveObject> fields = new HashMap<String, EveObject>();
 	private Map<String, EveObject> tempFields = new HashMap<String, EveObject>();
@@ -51,6 +55,10 @@ public class EveObject {
 	private boolean cloneable = true;
 	private boolean markedForClone = false;
 	private EveObject objectParent = null;
+	
+	//freeze and seal support
+	private boolean isFrozen = false;
+	private boolean isSealed = false;
 	
 	//object family support.
 	private EveObject cloneParent;
@@ -69,12 +77,17 @@ public class EveObject {
 	 * @param source The object to clone.
 	 */
 	public EveObject(EveObject source, boolean onClone) {
+		if (source == null) {
+			throw new EveError("cannot clone from null.");
+		}
+		
 		if (!source.isCloneable()) {
 			throw new EveError("attempting to clone uncloneable object");
 		}
 				
 		//Object is cloned to initially use references of this object to save memory.
-		//Later, assignment statements will change the references for us.
+		//Later, assignment statements and automated deep cloning will change the references
+		//for us.
 		this.cloneParent = source;
 		this.fields = new HashMap<String, EveObject>(source.fields); //a new map with the same references.
 		this.tempFields = new HashMap<String, EveObject>(source.tempFields); //a new map with the same references.
@@ -115,6 +128,11 @@ public class EveObject {
 		setIntValue(i);
 	}
 	
+	public EveObject(Integer i, EveObject prototype) {
+		this(prototype);
+		setIntValue(i);
+	}
+	
 	public EveObject(String s) {
 		this(EveString.getPrototype());
 		setStringValue(s);
@@ -122,6 +140,11 @@ public class EveObject {
 	
 	public EveObject(String s, boolean clone) {
 		this();
+		setStringValue(s);
+	}
+	
+	public EveObject(String s, EveObject prototype) {
+		this(prototype);
 		setStringValue(s);
 	}
 	
@@ -135,6 +158,11 @@ public class EveObject {
 		setDoubleValue(d);
 	}
 	
+	public EveObject(Double d, EveObject prototype) {
+		this(prototype);
+		setDoubleValue(d);
+	}
+	
 	public EveObject(Function func) {
 		this(EveFunction.getPrototype());
 		setFunctionValue(func);
@@ -142,6 +170,11 @@ public class EveObject {
 	
 	public EveObject(Function func, boolean clone) {
 		this();
+		setFunctionValue(func);
+	}
+	
+	public EveObject(Function func, EveObject prototype) {
+		this(prototype);
 		setFunctionValue(func);
 	}
 	
@@ -155,6 +188,11 @@ public class EveObject {
 		setBooleanValue(b);
 	}
 	
+	public EveObject(Boolean b, EveObject prototype) {
+		this(prototype);
+		setBooleanValue(b);
+	}
+	
 	public EveObject(List<EveObject> l) {
 		this(EveList.getPrototype());
 		setListValue(l);
@@ -165,14 +203,24 @@ public class EveObject {
 		setListValue(l);
 	}
 	
+	public EveObject(List<EveObject> l, EveObject prototype) {
+		this(prototype);
+		setListValue(l);
+	}
+	
 	public EveObject(char c) {
 		this(EveString.getPrototype());
-		setStringValue(Character.toString(c));
+		setStringValue(c);
 	}
 	
 	public EveObject(char c, boolean clone) {
 		this();
-		setStringValue(Character.toString(c));
+		setStringValue(c);
+	}
+	
+	public EveObject(char c, EveObject prototype) {
+		this(prototype);
+		setStringValue(c);
 	}
 	
 	public EveObject(Map<String, EveObject> d) {
@@ -182,6 +230,11 @@ public class EveObject {
 	
 	public EveObject(Map<String, EveObject> d, boolean clone) {
 		this();
+		setDictionaryValue(d);
+	}
+	
+	public EveObject(Map<String, EveObject> d, EveObject prototype) {
+		this(prototype);
 		setDictionaryValue(d);
 	}
 
@@ -199,27 +252,38 @@ public class EveObject {
 	}
 		
 	public static EveObject customType(String typeName) {
-		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
+		EveObject eo = new EveObject();
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName(typeName);
+		BuiltinCommons.initialize(eo);
 		return eo;
 	}
 	
 	public static EveObject prototypeType(String typeName) {
-		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
+		EveObject eo = new EveObject();
 		eo.setType(EveType.PROTOTYPE);
 		eo.setTypeName(typeName);
 		return eo;
 	}
 	
+	public static EveObject namespaceType(String nsName) {
+		EveObject eo = new EveObject();
+		eo.setTypeName("namespace");
+		eo.setType(EveType.CUSTOM);
+		eo.cloneable = false;
+		eo.putField("ns", new EveObject(nsName));
+		eo.setStringRepresentation("<namespace " + nsName + ">");
+		return eo;
+	}
+	
 	public static EveObject withStatementType() {
-		EveObject eo = new EveObject(EveObjectPrototype.getPrototype());
+		EveObject eo = new EveObject();
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName(WITH_STATEMENT_TYPENAME);
 		return eo;
 	}
 	
-	private void markFieldsForClone() {
+	public void markFieldsForClone() {
 		for (EveObject eo : getFields().values()) {
 			eo.markedForClone = true;
 			eo.markFieldsForClone();
@@ -245,6 +309,11 @@ public class EveObject {
 	public void setStringValue(String stringValue) {
 		this.setType(EveType.STRING);
 		this.stringValue = stringValue;
+	}
+	
+	public void setStringValue(Character c) {
+		this.setType(EveType.STRING);
+		this.stringValue = Character.toString(c);
 	}
 	
 	public String getStringValue() {
@@ -401,6 +470,7 @@ public class EveObject {
 	}
 	
 	public void setIndexedProperty(int index, EveObject eo) {
+		eo.objectParent = this;
 		if (this.getType() == EveType.STRING) {
 			if (eo.getType() != EveType.STRING) {
 				throw new EveError("can't insert a non-string into a string");
@@ -419,6 +489,20 @@ public class EveObject {
 		}
 		else {
 			throw new EveError("can't use indexer access on non-indexed property");
+		}
+	}
+	
+	public boolean deleteIndexedProperty(EveObject index) {
+		if (this.getType() == EveType.DICT) {
+			//index must be string.
+			return this.dictionaryValues.remove(index.getStringValue()) != null;
+		}
+		else if (this.getType() == EveType.LIST) {
+			//index must be int.
+			return this.listValues.remove(index.getIntValue()) != null;
+		}
+		else {
+			throw new EveError("can't use indexer delete on type " + this.getTypeName());
 		}
 	}
 	
@@ -486,12 +570,26 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
-		eo.objectParent = this;
+		if ((isFrozen() || isSealed()) && !hasField(name)) {
+			throw new EveError("frozen/sealed objects cannot have properties added.");
+		}
+		
+		if (eo != null) {
+			eo.objectParent = this;
+		}
+		
 		this.fields.put(name, eo);
 	}
 	
 	public void putTempField(String name, EveObject eo) {
-		eo.objectParent = this;
+		if ((isFrozen() || isSealed()) && !hasField(name)) {
+			throw new EveError("frozen/sealed objects cannot have properties added.");
+		}
+		
+		if (eo != null) {
+			eo.objectParent = this;
+		}
+		
 		this.tempFields.put(name, eo);
 	}
 	
@@ -536,6 +634,7 @@ public class EveObject {
 				field.setMarkedForClone(false);
 			}
 			
+			field.objectParent = eo; //necessary?
 			eo.putField(fieldName, field);
 			eo = field;
 		}
@@ -583,7 +682,27 @@ public class EveObject {
 	}
 	
 	public boolean deleteField(String name) {
+		if (isFrozen() || isSealed()) {
+			throw new EveError("frozen/sealed objects cannot have properties removed.");
+		}
+		
 		return this.fields.remove(name) != null;
+	}
+	
+	/**
+	 * If this EveObject has a "get" field, returns the EveObject from the getter.
+	 * The method will recurse through accessor fields until it cannot find one.
+	 * If there is no accessor field on this EveObject, this EveObject is returned.
+	 * This is the recommended way to get the "real" value of an EveObject.
+	 * @return An EveObject
+	 */
+	public EveObject getSelf() {
+		if (hasField("get") && getField("get").getType() == EveType.FUNCTION) {
+			return getField("get").invokeSelf(this).getSelf();
+		}
+		else {
+			return this;
+		}
 	}
 	
 	/**
@@ -627,33 +746,42 @@ public class EveObject {
 		
 		throw new EveError("unrecognized type " + getType() + " for getTypeName()");
 	}
-	
-	public Class<?> getTypeClass() {
-		switch (getType()) {
-		case INTEGER:
-			return int.class;
-		case STRING:
-			return String.class;
-		case BOOLEAN:
-			return boolean.class;
-		case DOUBLE:
-			return double.class;
-		case LIST:
-			return List.class;
-		case CUSTOM:
-			return EveObject.class;
-		case FUNCTION:
-			return Function.class;
-		case JAVA:
-			return this.getJavaValue().getClass();
-		case DICT:
-			return Map.class;
+		
+	public void setStringRepresentation(String stringRepresentation) {
+		this.stringRepresentation = stringRepresentation;
+	}
+
+	public String getStringRepresentation() {
+		return stringRepresentation;
+	}
+
+	public void setSealed(boolean isSealed) {
+		this.isSealed = isSealed;
+		setFrozen(isSealed); //a sealed object is also frozen (or vice versa).
+	}
+
+	public boolean isSealed() {
+		return isSealed;
+	}
+
+	public void setFrozen(boolean isFrozen) {
+		if (isSealed() && isFrozen() && isFrozen == false) {
+			throw new EveError("sealed objects must be unsealed before being unfrozen.");
 		}
 		
-		throw new EveError("unrecognized type " + getType() + " for getTypeClass()");
+		this.isFrozen = isFrozen;
 	}
-	
+
+	public boolean isFrozen() {
+		return isFrozen;
+	}
+
 	public String toString() {
+		//utilize the java-defined toString if present, over all others.
+		if (getStringRepresentation() != null) {
+			return getStringRepresentation();
+		}
+		
 		//Utilize custom toString() if present.
 		if (hasField("toString")) {
 			EveObject toString = this.getField("toString");
@@ -688,7 +816,7 @@ public class EveObject {
 			case LIST:
 				return this.getListValue().toString();
 			case CUSTOM:
-				return "[custom " + this.getTypeName() + "]";
+				return "<" + this.getTypeName() + ">";
 			case PROTOTYPE:
 				return "[prototype " + this.getTypeName() + "]";
 			case JAVA:
@@ -698,6 +826,10 @@ public class EveObject {
 		}
 		
 		return "[unknown]";
+	}
+	
+	public EveObject getObjectParent() {
+		return this.objectParent;
 	}
 	
 	public EveObject invoke() {
@@ -789,6 +921,11 @@ public class EveObject {
 			ScopeManager.setClosureStack(func.getClosureStack());
 		}
 		
+		//delegate?
+		if (func.isDelegate()) {
+			this.putTempField("self", func.getDelegateContext());
+		}
+		
 		//named function expression?
 		if (func.getName() != null) {
 			this.putTempField(func.getName(), this);
@@ -863,7 +1000,9 @@ public class EveObject {
 		int result = 1;
 		result = prime * result
 				+ ((booleanValue == null) ? 0 : booleanValue.hashCode());
-		result = prime * result + (cloneable ? 1231 : 1237);
+		result = prime
+				* result
+				+ ((dictionaryValues == null) ? 0 : dictionaryValues.hashCode());
 		result = prime * result
 				+ ((doubleValue == null) ? 0 : doubleValue.hashCode());
 		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
@@ -872,12 +1011,16 @@ public class EveObject {
 		result = prime * result
 				+ ((intValue == null) ? 0 : intValue.hashCode());
 		result = prime * result
+				+ ((javaValue == null) ? 0 : javaValue.hashCode());
+		result = prime * result
+				+ ((listValues == null) ? 0 : listValues.hashCode());
+		result = prime * result
 				+ ((stringValue == null) ? 0 : stringValue.hashCode());
 		result = prime * result
 				+ ((tempFields == null) ? 0 : tempFields.hashCode());
-		result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result
-				+ ((getTypeName() == null) ? 0 : getTypeName().hashCode());
+				+ ((typeName == null) ? 0 : typeName.hashCode());
 		return result;
 	}
 
@@ -959,13 +1102,26 @@ public class EveObject {
 	}
 	
 	private boolean prototypeEquals(EveObject other) {
-		//TODO: implement prototype equals.
-		return true;
+		//because of the type pool, we only need to check references.
+		return this == other;
 	}
 	
 	private boolean customTypeEquals(EveObject other) {
-		//TODO: implement custom equals		
-		return true;
+		EveObject equalsFunc = this.getField("equals");
+		
+		//default behavior is like java.
+		if (equalsFunc == null) {
+			return this == other;
+		}
+		else {
+			EveObject equal = equalsFunc.invokeSelf(this, other);
+			
+			if (equal.getType() != EveType.BOOLEAN) {
+				throw new EveError("equals function must return a boolean value.");
+			}
+			
+			return equal.getBooleanValue();
+		}
 	}
 
 	public void transferTempFields() {

@@ -1,6 +1,11 @@
 package eve.core.builtins;
 
+import java.util.Map;
+
+import eve.core.EveError;
 import eve.core.EveObject;
+import eve.eji.EJIFunction;
+import eve.eji.EJIHelper;
 
 /**
  * The double prototype.
@@ -15,8 +20,25 @@ public class EveDouble extends EveObject {
 	}
 	
 	private EveDouble() {
-		//super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("double");
+		this.putField("create", new EveObject(new CreateDoubleFunction()));
+	}
+	
+	private class CreateDoubleFunction extends EJIFunction {
+		public CreateDoubleFunction() {
+			this.addParameter("value");
+		}
+		
+		@Override
+		public EveObject execute(Map<String, EveObject> parameters) {
+			EveObject value = parameters.get("value");
+			
+			if (value.getType() != EveType.DOUBLE) {
+				throw new EveError("double.create requires a double parameter");
+			}
+			
+			return new EveObject(value.getDoubleValue(), EJIHelper.self());
+		}
 	}
 }

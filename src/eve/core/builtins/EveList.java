@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.eji.DynamicField;
+import eve.eji.EJIFunction;
 import eve.eji.EJIHelper;
 
 public class EveList extends EveObject {
@@ -16,12 +17,12 @@ public class EveList extends EveObject {
 	}
 	
 	private EveList() {
-		///super(EveObjectPrototype.getPrototype());
 		this.setType(EveType.PROTOTYPE);
 		this.setTypeName("list");
 	
 		//properties.
 		this.putField("length", lengthProperty());
+		this.putField("create", new EveObject(new CreateListFunction()));
 	}
 	
 	private DynamicField lengthProperty() {
@@ -38,5 +39,22 @@ public class EveList extends EveObject {
 				throw new EveError("length is a read-only property");
 			}
 		};
+	}
+	
+	private class CreateListFunction extends EJIFunction {
+		public CreateListFunction() {
+			this.addParameter("value");
+		}
+		
+		@Override
+		public EveObject execute(Map<String, EveObject> parameters) {
+			EveObject value = parameters.get("value");
+			
+			if (value.getType() != EveType.LIST) {
+				throw new EveError("list.create requires a list parameter");
+			}
+			
+			return new EveObject(value.getListValue(), EJIHelper.self());
+		}
 	}
 }

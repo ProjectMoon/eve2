@@ -11,6 +11,7 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.core.Script;
+import eve.core.builtins.BuiltinCommons;
 
 public class ScopeManager {
 	private static Deque<EveObject> closureScope;
@@ -89,10 +90,15 @@ public class ScopeManager {
 		}
 		
 		if (getCurrentScope() != null && getCurrentScope() == getGlobalScope()) {
-			return getCurrentScope().getField(name);
+			eo = getCurrentScope().getField(name);
+		}
+		
+		//last resort: type pool
+		if (eo == null) {
+			eo = BuiltinCommons.getType(name);
 		}
 	
-		return null;
+		return eo;
 	}
 	
 	public static EveObject getScopeForVariable(String name) {
@@ -130,6 +136,12 @@ public class ScopeManager {
 			}
 		}
 		
+		//type pool is global.
+		eo = BuiltinCommons.getType(name);
+		if (eo != null) {
+			return getGlobalScope();
+		}
+		
 		//if all else fails, return the current scope.
 		//this allows us to assign new variables.
 		//it also covers the global scope
@@ -148,7 +160,12 @@ public class ScopeManager {
 	 */
 	public static void putVariable(String name, EveObject eo) {
 		EveObject scope = getScopeForVariable(name);
-		scope.putField(name, eo); 
+		if (!inFunction()) {
+			scope.putField(name, eo);
+		}
+		else {
+			scope.putTempField(name, eo);
+		}
 	}
 		
 	public static boolean inFunction() {
@@ -157,6 +174,10 @@ public class ScopeManager {
 	
 	public static EveObject getGlobalScope() {
 		return globalScopes.get(getNamespace());
+	}
+	
+	public static EveObject getGlobalScope(String namespace) {
+		return globalScopes.get(namespace);
 	}
 	
 	private static void setGlobalScope(EveObject scope) {
@@ -252,7 +273,7 @@ public class ScopeManager {
 	public static Map<String, Deque<EveObject>> getNamespaces() {
 		return namespaces;
 	}
-
+	
 	public static void setNamespace(String namespace) {
 		previousNamespace = namespaceStack.peek();
 		namespaceStack.push(namespace);

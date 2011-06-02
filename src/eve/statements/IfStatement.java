@@ -109,6 +109,44 @@ public class IfStatement extends AbstractStatement implements EveStatement, Cons
 			childIf.closureAnalysis(closureList);
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((childIf == null) ? 0 : childIf.hashCode());
+		result = prime * result + ((ifBlock == null) ? 0 : ifBlock.hashCode());
+		result = prime * result
+				+ ((ifExpression == null) ? 0 : ifExpression.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IfStatement other = (IfStatement) obj;
+		if (childIf == null) {
+			if (other.childIf != null)
+				return false;
+		} else if (!childIf.equals(other.childIf))
+			return false;
+		if (ifBlock == null) {
+			if (other.ifBlock != null)
+				return false;
+		} else if (!ifBlock.equals(other.ifBlock))
+			return false;
+		if (ifExpression == null) {
+			if (other.ifExpression != null)
+				return false;
+		} else if (!ifExpression.equals(other.ifExpression))
+			return false;
+		return true;
+	}
 	
 
 }

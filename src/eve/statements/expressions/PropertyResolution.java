@@ -5,10 +5,8 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveError;
-import eve.core.EveObject;
 import eve.core.EveObject.EveType;
-import eve.core.builtins.EveDictionary;
-import eve.statements.AbstractStatement;
+import eve.core.EveObject;
 import eve.statements.EveStatement;
 import eve.statements.VariableFindingStatement;
 import eve.statements.assignment.Updateable;
@@ -40,6 +38,7 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		//getter functionality.
 		if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
 			return eo.getField("get").invokeSelf(obj);
+			//return eo.getSelf();
 		}
 		else {
 			return eo;
@@ -51,6 +50,10 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		EveObject eo = getExpression().execute();
 		String ident = getIdentifier();
 		
+		if (eo != null && eo.isSealed()) {
+			throw new EveError("object is sealed.");
+		}
+		
 		//setter functionality.
 		EveObject existingField = eo.getField(ident);
 		
@@ -60,11 +63,23 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		
 		if (isUsingMutatorAccessor() && existingField != null && existingField.hasField("set") &&
 				existingField.getField("set").getType() == EveType.FUNCTION) {
-			existingField.getField("set").invokeSelf(existingField, value);
+			existingField.getField("set").invokeSelf(eo, value);
 		}
 		else {
 			eo.putField(ident, value);
 		}	
+	}
+	
+	@Override
+	public boolean deleteVariable() {
+		EveObject eo = getExpression().execute();
+		String ident = getIdentifier();
+		
+		if (eo.isSealed() || eo.isFrozen()) {
+			throw new EveError("sealed/frozen objects cannot have properties removed.");
+		}
+		
+		return eo.deleteField(ident);
 	}
 
 	@Override
@@ -103,5 +118,41 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 	@Override
 	public void setUsingMutatorAccessor(boolean using) {
 		usingMutatorAccessor = using;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((expression == null) ? 0 : expression.hashCode());
+		result = prime * result
+				+ ((identifier == null) ? 0 : identifier.hashCode());
+		result = prime * result + (usingMutatorAccessor ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PropertyResolution other = (PropertyResolution) obj;
+		if (expression == null) {
+			if (other.expression != null)
+				return false;
+		} else if (!expression.equals(other.expression))
+			return false;
+		if (identifier == null) {
+			if (other.identifier != null)
+				return false;
+		} else if (!identifier.equals(other.identifier))
+			return false;
+		if (usingMutatorAccessor != other.usingMutatorAccessor)
+			return false;
+		return true;
 	}
 }

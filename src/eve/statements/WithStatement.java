@@ -81,4 +81,37 @@ public class WithStatement extends AbstractStatement implements EveStatement, Co
 		return res;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((withBlock == null) ? 0 : withBlock.hashCode());
+		result = prime * result
+				+ ((withVariables == null) ? 0 : withVariables.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		WithStatement other = (WithStatement) obj;
+		if (withBlock == null) {
+			if (other.withBlock != null)
+				return false;
+		} else if (!withBlock.equals(other.withBlock))
+			return false;
+		if (withVariables == null) {
+			if (other.withVariables != null)
+				return false;
+		} else if (!withVariables.equals(other.withVariables))
+			return false;
+		return true;
+	}
+
 }

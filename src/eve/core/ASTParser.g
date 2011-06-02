@@ -14,6 +14,7 @@ options {
 	import eve.statements.assignment.*;
 	import eve.statements.expressions.*;
 	import eve.statements.expressions.bool.*;
+	import eve.statements.expressions.json.*;
 	import eve.statements.loop.*;
 	import eve.scope.*;
 	import java.util.Queue;
@@ -63,6 +64,9 @@ options {
 	//If statement management
 	private EveStatement previousStatement;
 	
+	//JSON Management
+	private JSONExpression currentJSONExpr = null;
+	
 	//Error handling
     private List<String> errors = new ArrayList<String>();
     public void displayRecognitionError(String[] tokenNames, RecognitionException e) {
@@ -89,8 +93,8 @@ topdown
 	:	namespaceStatement
 	|	withStatementDown
 	|	assignFunctionDown
+	|	assignDelegateDown
 	|	functionNameDown
-	|	createPrototypeDown
 	|	ifStatementDown
 	|	elseIfStatementDown
 	|	elseStatementDown
@@ -99,20 +103,50 @@ topdown
 	|	foreachLoopDown
 	|	whileLoopDown
 	|	functionBodyDown
+	|	jsonDown
+	|	jsonNameDown
+	|	jsonEntryDown
 	;
 
 bottomup
 	:	withStatementUp
 	|	assignFunctionUp
+	|	assignDelegateUp
 	|	functionParametersUp
 	|	ifStatementUp
 	|	elseIfStatementUp
 	|	elseStatementUp
-	|	createPrototypeUp
 	|	nsSwitchUp
 	|	foreachLoopUp
 	|	whileLoopUp
 	|	functionBodyUp
+	|	jsonUp
+	;
+	
+//json handling
+jsonDown
+	:	^(JSON .*) {
+			ScopeManager.pushConstructionScope(currentJSONExpr);
+		}
+	;
+	
+jsonUp
+	:	^(JSON .*) {
+			ScopeManager.popConstructionScope();
+		}
+	;
+
+jsonNameDown
+	:	^(JSON_NAME IDENT) {
+			((JSONExpression)ScopeManager.getCurrentConstructionScope()).setName($IDENT.text);
+		}
+	;
+	
+jsonEntryDown
+	:	^(JSON_ENTRY IDENT e=expression) {
+			JSONEntry entry = new JSONEntry($IDENT.text, e);
+			((JSONExpression)ScopeManager.getCurrentConstructionScope()).addEntry(entry);		
+		}
 	;
 
 //with statement
@@ -174,6 +208,18 @@ assignFunctionDown
 	}
 	;
 	
+assignDelegateDown
+	:	^(DELEGATE IDENT .*) {
+			//Create new FunctionExpression.
+			DelegateDefExpression expr = new DelegateDefExpression();
+			expr.setName($IDENT.text);
+			expr.setLine($IDENT.getLine());
+			//ScopeManager.pushConstructionScope(expr);
+			currentFuncExpr = expr;
+			EveLogger.debug("Creating new delegate expression for " + $IDENT.text);
+	}
+	;
+	
 functionNameDown
 	:	^(FUNCTION_NAME IDENT .*) {
 			//we have to be in a function definition!
@@ -193,6 +239,19 @@ assignFunctionUp
 			//we are now back on global (or proto).		
 			ScopeManager.getCurrentConstructionScope().addStatement(as);
 			EveLogger.debug("Assigning " + $IDENT.text + " function to current scope.");
+		}
+	;
+	
+assignDelegateUp
+	:	^(DELEGATE IDENT .*) {
+			//Create new Assignment statement.
+			//This MUST be a function def, otherwise there's a serious problem.
+			//FunctionDefExpression expr = (FunctionDefExpression)ScopeManager.popConstructionScope();
+			AssignmentStatement as = new InitVariableStatement($IDENT.text, currentFuncExpr);
+	
+			//we are now back on global (or proto).		
+			ScopeManager.getCurrentConstructionScope().addStatement(as);
+			EveLogger.debug("Assigning " + $IDENT.text + " delegate to current scope.");
 		}
 	;
 
@@ -229,29 +288,7 @@ functionParametersUp
 		}
 	;
 	
-//Prototype creation (not cloning)
-createPrototypeDown 
-	:	^(INIT_PROTO IDENT .*) {
-			//Current construction scope is now in a prototype.
-			CreateProtoStatement createProto = new CreateProtoStatement($IDENT.text);
-			createProto.setLine($IDENT.getLine());
-			ScopeManager.pushConstructionScope(createProto);
-			EveLogger.debug("init prototype " + $IDENT.text);
-		}
-	;
-	
-createPrototypeUp
-	:	^(INIT_PROTO IDENT .*) {
-			//ConstructionScope MUST be CreateProtoStatement, or we have issues.
-			CreateProtoStatement createProto = (CreateProtoStatement)ScopeManager.popConstructionScope();
-			
-			//This should be global construction scope.
-			ScopeManager.getCurrentConstructionScope().addStatement(createProto);
-			EveLogger.debug("creating create proto statement for " + $IDENT.text);
-		}
-	;
-
-//Code Statements: can occur anywhere (global, in proto, or in function)
+//Code Statements: can occur anywhere
 codeStatement
 	:	printStatement
 	|	returnStatement
@@ -300,6 +337,11 @@ returnStatement
 			ret.setLine(e.getLine());
 			ScopeManager.getCurrentConstructionScope().addStatement(ret);
 			previousStatement = ret;	
+		}
+	|	'return' {
+			ReturnStatement ret = new ReturnStatement();
+			ScopeManager.getCurrentConstructionScope().addStatement(ret);
+			previousStatement = ret;
 		}
 	;
 
@@ -474,7 +516,7 @@ expression returns [ExpressionStatement result]
 	|	^('+' op1=expression op2=expression) { $result = new PlusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('-' op1=expression op2=expression) { $result = new MinusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('*' op1=expression op2=expression) { $result = new MultiplicationExpression(op1, op2); $result.setLine(op1.getLine()); }
-	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op1); $result.setLine(op1.getLine()); }
+	|	^('/' op1=expression op2=expression) { $result = new DivisionExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('%' op1=expression op2=expression) { $result = new ModulusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('to' op1=expression op2=expression) { $result = new RangeExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^(NEGATION e=expression) { $result = new NegationExpression(e); $result.setLine($NEGATION.getLine()); }
@@ -491,6 +533,13 @@ expression returns [ExpressionStatement result]
 	|	^('in' op1=expression op2=expression) { $result = new InExpression(op1, op2); $result.setLine(op1.getLine()); }
 	
 	//Everything else.
+	|	^(JSON .*) {
+			JSONExpression json = new JSONExpression();
+			json.setLine($JSON.getLine());
+			currentJSONExpr = json;
+			EveLogger.debug("pushing json expression " + json);
+			$result = json;
+		}
 	|	^(PROP_COLLECTION e=expression (p=expression { pushFunctionInvocationParam(p); })*) {
 			$result = new PropertyCollectionExpression(e, getFunctionInvocationParams());
 			$result.setLine($PROP_COLLECTION.getLine());
@@ -520,13 +569,24 @@ expression returns [ExpressionStatement result]
 			$result.setLine($INVOKE_FUNCTION_EXPR.getLine());
 		}
 	|	^(INVOKE_FUNCTION_EXPR i=expression) {
-			System.out.println("invoke function expr " + i);
 			$result = new FunctionInvokeExpression(i);
 			$result.setLine($INVOKE_FUNCTION_EXPR.getLine());
 		}
 	|	^(CLONE e=expression) {
 			$result = new CloneExpression(e);
 			$result.setLine($CLONE.getLine());				
+		}
+	|	^(SEAL e=expression) {
+			$result = new SealExpression(e);
+			$result.setLine($SEAL.getLine());
+		}
+	|	^(FREEZE e=expression) {
+			$result = new FreezeExpression(e);
+			$result.setLine($FREEZE.getLine());
+		}
+	|	^(DELETE e=expression) {
+			$result = new DeleteExpression(e);
+			$result.setLine($DELETE.getLine());
 		}
 	|	IDENT {
 			$result = new IdentExpression($IDENT.text);
