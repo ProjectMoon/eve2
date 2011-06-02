@@ -283,7 +283,7 @@ public class EveObject {
 		return eo;
 	}
 	
-	private void markFieldsForClone() {
+	public void markFieldsForClone() {
 		for (EveObject eo : getFields().values()) {
 			eo.markedForClone = true;
 			eo.markFieldsForClone();
@@ -634,6 +634,7 @@ public class EveObject {
 				field.setMarkedForClone(false);
 			}
 			
+			field.objectParent = eo; //necessary?
 			eo.putField(fieldName, field);
 			eo = field;
 		}
