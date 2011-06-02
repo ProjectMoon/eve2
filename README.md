@@ -1,5 +1,5 @@
-Eve
-====
+Eve 0.3.1
+=========
 
 An experiment to learn how to make an interpreter.<br>
 Eve is a simple interpreted language that targets the JVM.
@@ -102,7 +102,6 @@ Very much a work in progress. Completed things:
 Big things left to do:
 
 * REPL
-* delete statement
 * Object family support (for pushing changes to many objects)
 * Ahead of Time "compilation"
 * A standard library
