@@ -1,7 +1,25 @@
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="eve-interpreter" default="jar" basedir=".">
+<project xmlns:artifact="antlib:org.apache.maven.artifact.ant" xmlns:ivy="antlib:org.apache.ivy.ant" name="eve-interpreter" default="jar" basedir=".">
+	<description>
+***TO BUILD: ant dependencies &amp;&amp; ant jar***
+
+This will build the eve interpreter. Building is divided into two stages:
+dependency resolution and actual building. If you do not have dependencies
+installed, downloading all of them can take a bit of time. The build process
+uses Apache Ivy for dependency resolution.
+
+This project also depends on the javaflow continuations library, which must be
+downloaded via SVN. All of this should be handled by the build process. Modify
+build.xml if you need more control over this process.
+
+Once dependencies are resolved, building is very quick. An executable eve.jar
+will be placed in a dist directory, and all dependencies will be placed in a
+lib directory there.
+	</description>
+
 	<!-- global properties -->
 	<property name="src" location="src" />
 	<property name="lib" location="lib" />
+	<property name="build-dep" location="build-dep" />
 	<property name="antlr-generated" location="antlr-generated" />
 	<property name="build" location="build" />
 	<property name="dist" location="dist" />
@@ -27,14 +45,48 @@
 		</sequential>
 	</macrodef>
 		
-	<!-- resolve all dependencies via Ivy -->
-    <target name="dependencies" description="--> retrieve dependencies with ivy">
-    	<ivy:configure />
-        <ivy:retrieve />
-    </target>
-	
+	<!--Dependency resolution: javaflow library and Ivy dependencies -->
+	<target name="javaflow" description="--> build javaflow library">
+		<mkdir dir="${build-dep}" />
+		<get usetimestamp="true" src="http://apache.mirrors.redwire.net/maven/binaries/maven-ant-tasks-2.1.3.jar" dest="${build-dep}" />
+		<get usetimestamp="true" src="http://subclipse.tigris.org/files/documents/906/49042/svnant-1.3.1.zip" dest="${build-dep}/svnant.zip" />
+
+		<unzip src="${build-dep}/svnant.zip" dest="${build-dep}/svnant" />
+
+		<!-- download svnant, check out svn repo, and install -->
+		<path id="maven-ant-tasks.classpath" path="${build-dep}/maven-ant-tasks-2.1.3.jar" />
+		<path id="path.svnant">
+			<fileset dir="${build-dep}/svnant/lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+
+		<typedef resource="org/apache/maven/artifact/ant/antlib.xml"
+			uri="antlib:org.apache.maven.artifact.ant"
+			classpathref="maven-ant-tasks.classpath" />
+
+		<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" 
+			classpathref="path.svnant" />
+
+		<svnSetting id="settings" svnkit="true" javahl="false" />
+		<svn refid="settings">
+			<checkout url="http://svn.apache.org/repos/asf/commons/sandbox/javaflow/trunk/" revision="HEAD" destPath="${build-dep}/javaflow" />
+		</svn>
+
+		<artifact:mvn pom="${build-dep}/javaflow/pom.xml">
+			<arg value="install" />
+		</artifact:mvn>
+	</target>
+
+	<!-- This will resolve all dependencies (including javaflow) via Ivy -->
+	<target name="dependencies" depends="javaflow" description="--> retrieve and build dependencies">
+		<mkdir dir="${lib}" />
+		<ivy:configure />
+		<ivy:retrieve />
+	</target>
+
 	<!-- initial build setup -->
-	<target name="init" depends="dependencies" description="--> build setup">
+	<target name="init" description="--> build setup">
 		<tstamp />
 		<mkdir dir="${build}" />
 	</target>
@@ -103,10 +155,14 @@
 		<chmod perm="+x" file="${dist}/eve.jar" />
 	</target>
 	
-	<target name="clean" description="--> clean Up">
+	<target name="clean" description="--> clean up">
 		<delete dir="${dist}" />
 		<delete dir="${build}" />
 		<delete dir="${antlr-generated}" />
 		<delete dir="${bin}" />
+	</target>
+
+	<target name="purge" depends="clean" description="--> remove dependency build directory">
+		<delete dir="${build-dep}" />
 	</target>
 </project>

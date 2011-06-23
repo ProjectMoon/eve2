@@ -1,14 +1,28 @@
 <ivysettings>
+	<property name="local-maven2-pattern"
+		value="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[module]-[revision].pom"
+		override="false" />
+
+	<settings defaultResolver="chain-1" />
+
         <resolvers>
-        	<ibiblio name="mvn-public" m2compatible="true" />
-        	<ibiblio name="reflections-repo" root="http://reflections.googlecode.com/svn/repo/" m2compatible="true" />
+		<chain name="chain-1">
+	        	<ibiblio name="reflections-repo" root="http://reflections.googlecode.com/svn/repo/" m2compatible="true" />
+			<filesystem name="mvn-local" m2compatible="true" local="true">
+				<ivy pattern="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[module]-[revision].pom" />
+				<artifact pattern="${user.home}/.m2/repository/[organisation]/[module]/[revision]/[module]-[revision].[ext]" />
+			</filesystem>
+	        	<ibiblio name="mvn-public" m2compatible="true" />
+		</chain>
         </resolvers>
         
+<!--
         <modules>
-        	<!-- use the reflections mvn repo for reflections lib -->
         	<module organisation="org.reflections" resolver="reflections-repo" />
+
+		<module organisation="org.apache.commons" name="commons-javaflow" resolver="mvn-local" />
         	
-        	<!-- use the public MVN repo for everything else -->
         	<module resolver="mvn-public" />
         </modules>
+-->
 </ivysettings>

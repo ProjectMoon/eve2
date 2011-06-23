@@ -3,4 +3,5 @@ bin/
 antlr-generated/
 dist/
 build/
+build-dep/
 lib/

@@ -52,9 +52,15 @@ If necessary, install Ant and Ivy manually. They can be found at:
 <http://ant.apache.org/><br/>
 <http://ant.apache.org/ivy/>
 
-Once having installed Ant and Ivy and putting them on your classpath, run the
-build script by typing "ant" in the root of the repository. Dependencies will
-be fetched and added to the classpath automatically.
+Once having installed Ant and Ivy and putting them on your classpath, you must
+resolve dependencies before building:
+
+    ant dependencies
+
+This may take awhile if it is your first time building eve. After everything
+downloads and installs into the `lib` directory, you are ready to build:
+
+    ant jar
 
 The build process will produce an executable jar `eve.jar` in the `dist`
 directory. Execute `java -jar dist/eve.jar` to start the interpreter.
