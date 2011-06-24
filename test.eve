@@ -1,0 +1,12 @@
+def x = () {
+	println("from x");
+	yield global::y;
+	println("bye from x");
+}
+
+def y = () {
+	println("from y");
+	yield global::x;
+}
+
+resume x;
