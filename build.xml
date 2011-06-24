@@ -44,7 +44,7 @@ lib directory there.
 			</java>
 		</sequential>
 	</macrodef>
-		
+
 	<!--Dependency resolution: javaflow library and Ivy dependencies -->
 	<target name="javaflow" description="--> build javaflow library">
 		<mkdir dir="${build-dep}" />
@@ -104,16 +104,30 @@ lib directory there.
 	
 	<!-- compile code -->
 	<target name="compile" depends="antlr" description="--> build eve">
-		<mkdir dir="${build}" />
-		<javac srcdir="${src};${antlr-generated}" listfiles="true" destdir="${build}" deprecation="Yes" debug="true" debuglevel="lines,vars,source" includeantruntime="false">
+		<mkdir dir="${build}/_" />
+		<javac srcdir="${src};${antlr-generated}" listfiles="true" destdir="${build}/_" deprecation="Yes" debug="true" debuglevel="lines,vars,source" includeantruntime="false">
 			<classpath>
 				<fileset dir="lib/" includes="*.jar" />
 			</classpath>
 		</javac>
 	</target>
 	
+	<target name="enhance" depends="compile" description="--> javaflow enhancement">
+		<taskdef name="javaflow" classname="org.apache.commons.javaflow.ant.AntRewriteTask">
+			<classpath>
+				<fileset dir="lib/" includes="*.jar" />
+			</classpath>
+		</taskdef>
+
+		<javaflow srcdir="${build}/_" destdir="${build}">
+			<include name="**/*.class" />
+		</javaflow>
+		
+		<delete dir="${build}/_" />
+	</target>
+	
 	<!-- build executable jar file -->
-	<target name="jar" depends="compile" description="--> create executable jar">
+	<target name="jar" depends="enhance" description="--> create executable jar">
 		<!-- library definitions -->
 		<property name="antlr" location="${lib}/antlr-runtime-3.3.jar" />
 		<property name="commons-cli" location="${lib}/commons-cli-1.2.jar" />

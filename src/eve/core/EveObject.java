@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.TreeMap;
 
+import org.apache.commons.javaflow.Continuation;
+
 import eve.core.builtins.BuiltinCommons;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveDictionary;

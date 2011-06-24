@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.commons.javaflow.Continuation;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
@@ -16,11 +18,15 @@ import eve.core.builtins.BuiltinCommons;
 public class ScopeManager {
 	private static Deque<EveObject> closureScope;
 	
-	//namespaces
+	//scope management: namespaces, etc.
 	private static Map<String, EveObject> globalScopes = new HashMap<String, EveObject>();
 	private static Deque<String> namespaceStack = new ArrayDeque<String>();
 	private static Map<String, Deque<EveObject>> namespaces = new HashMap<String, Deque<EveObject>>();
 	private static String previousNamespace; //right below current namespace on namespaceStack
+	
+	//coroutines/continuations.
+	private static EveObject yieldedTo;
+	private static Map<EveObject, Continuation> coroutines = new HashMap<EveObject, Continuation>();
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
@@ -293,5 +299,61 @@ public class ScopeManager {
 		//previousNamespace = namespaceStack.peek();
 		//namespaceStack.push(currNS);
 		return ns;
+	}
+	
+	public static void addCoroutine(EveObject eo, Continuation cont) {
+		coroutines.put(eo, cont);
+	}
+	
+	public static void yieldTo(EveObject eo) {
+		yieldedTo = eo;
+		Continuation.suspend();
+	}
+	
+	public static boolean isYielded() {
+		return yieldedTo != null;
+	}
+	
+	public static EveObject getYieldedObject() {
+		return yieldedTo;
+	}
+	
+	private static class CoroutineRunner implements Runnable {
+		private EveObject func;
+		
+		public CoroutineRunner(EveObject func) {
+			this.func = func;
+		}
+		
+		@Override public void run() {
+			func.invoke();
+		}
+	}
+	
+	public static Continuation getCoroutine(final EveObject eo) {
+		Continuation cont = coroutines.get(eo);
+		if (cont == null) {
+			CoroutineRunner r = new CoroutineRunner(eo);			
+			cont = Continuation.startSuspendedWith(r);
+			addCoroutine(eo, cont);
+		}
+		
+		return cont;
+	}
+	
+	public static void invokeCoroutine(EveObject eo) {
+		yieldedTo = eo;
+		
+		while (ScopeManager.isYielded()) {
+			System.out.println("yieldedTo is: " + yieldedTo);
+			Continuation cont = getCoroutine(yieldedTo);
+			EveObject thisFunction = yieldedTo;
+			yieldedTo = null;
+			System.out.println("about to continue with " + cont);
+			Continuation c = Continuation.continueWith(cont);
+			System.out.println("putting away " + thisFunction + ", " + c);
+			yieldedTo = thisFunction;
+			coroutines.put(thisFunction, c);
+		}
 	}
 }

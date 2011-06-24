@@ -588,6 +588,14 @@ expression returns [ExpressionStatement result]
 			$result = new DeleteExpression(e);
 			$result.setLine($DELETE.getLine());
 		}
+	|	^(YIELD e=expression) {
+			$result = new YieldExpression(e);
+			$result.setLine($YIELD.getLine());
+		}
+	|	^(RESUME e=expression) {
+			$result = new ResumeExpression(e);
+			$result.setLine($RESUME.getLine());
+		}
 	|	IDENT {
 			$result = new IdentExpression($IDENT.text);
 			$result.setLine($IDENT.getLine());

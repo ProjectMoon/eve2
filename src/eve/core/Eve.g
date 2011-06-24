@@ -47,6 +47,8 @@ tokens {
 	JSON;
 	JSON_NAME;
 	JSON_ENTRY;
+	YIELD;
+	RESUME;
 }
 
 @header {
@@ -248,6 +250,8 @@ expression
 	|	'freeze' andOr -> ^(FREEZE andOr)
 	|	'seal'	andOr -> ^(SEAL andOr)
 	|	'delete' andOr -> ^(DELETE andOr)
+	|	'yield' andOr -> ^(YIELD andOr)
+	|	'resume' andOr -> ^(RESUME andOr)
 	|	andOr
 	;
 	
