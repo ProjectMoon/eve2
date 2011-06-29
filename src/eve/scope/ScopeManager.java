@@ -352,7 +352,6 @@ public class ScopeManager {
 			System.out.println("about to continue with " + cont);
 			Continuation c = Continuation.continueWith(cont);
 			System.out.println("putting away " + thisFunction + ", " + c);
-			yieldedTo = thisFunction;
 			coroutines.put(thisFunction, c);
 		}
 	}
