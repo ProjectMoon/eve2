@@ -119,8 +119,10 @@ lib directory there.
 			</classpath>
 		</taskdef>
 
-		<javaflow srcdir="${build}/_" destdir="${build}">
+		<javaflow srcdir="${build}/_" destdir="${build}" mode="bcel">
 			<include name="**/*.class" />
+			<exclude name="**/EveParser*.class" />
+			<exclude name="**/ASTParser*.class" />
 		</javaflow>
 		
 		<delete dir="${build}/_" />
