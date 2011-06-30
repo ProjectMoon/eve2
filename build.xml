@@ -125,6 +125,13 @@ lib directory there.
 			<exclude name="**/ASTParser*.class" />
 		</javaflow>
 		
+		<copy todir="${build}">
+			<fileset dir="${build}/_">
+				<include name="eve/core/EveParser*.class" />
+				<include name="eve/core/ASTParser*.class" />
+			</fileset>
+		</copy>
+		
 		<delete dir="${build}/_" />
 	</target>
 	

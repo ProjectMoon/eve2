@@ -251,7 +251,7 @@ expression
 	|	'seal'	andOr -> ^(SEAL andOr)
 	|	'delete' andOr -> ^(DELETE andOr)
 	|	'yield' andOr -> ^(YIELD andOr)
-	|	'resume' andOr -> ^(RESUME andOr)
+	|	'resume' andOr ('with' expression)? -> ^(RESUME andOr expression?)
 	|	andOr
 	;
 	
