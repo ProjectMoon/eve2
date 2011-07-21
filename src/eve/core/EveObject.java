@@ -292,8 +292,10 @@ public class EveObject {
 	
 	public void markFieldsForClone() {
 		for (EveObject eo : getFields().values()) {
-			eo.markedForClone = true;
-			eo.markFieldsForClone();
+			if (eo != null) {
+				eo.markedForClone = true;
+				eo.markFieldsForClone();
+			}
 		}
 		
 		//have to hit indexed and dict values as well.
