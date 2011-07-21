@@ -16,6 +16,14 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	private Boolean booleanOp;
 	private List<EveObject> listOp;
 	private Map<String, EveObject> dictOp;
+	private boolean nullValue = false;
+	
+	/**
+	 * Initialize a new null value.
+	 */
+	public WrappedPrimitiveExpression() {
+		nullValue = true;
+	}
 	
 	public WrappedPrimitiveExpression(Integer op) {
 		this.intOp = op;
@@ -42,8 +50,11 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	}
 	
 	@Override
-	public EveObject execute() {	
-		if (intOp != null) {
+	public EveObject execute() {
+		if (nullValue) {
+			return EveObject.nullType();
+		}
+		else if (intOp != null) {
 			return new EveObject(intOp);
 		}
 		else if (stringOp != null) {
@@ -67,7 +78,10 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	}
 			
 	private Object getOp() {
-		if (intOp != null) {
+		if (nullValue) {
+			return EveObject.nullType();
+		}
+		else if (intOp != null) {
 			return intOp;
 		}
 		else if (stringOp != null) {
@@ -92,7 +106,8 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	
 	@Override
 	public String toString() {
-		return "WrappedPrimitive(" + getOp().toString() + ")"; 
+		Object op = getOp();
+		return "WrappedPrimitive(" + op.toString() + ")";
 	}
 
 	@Override

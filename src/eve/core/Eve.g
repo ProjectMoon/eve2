@@ -188,6 +188,7 @@ atom
 	|	STRING_LITERAL
 	|	LIST_LITERAL
 	|	DICT_LITERAL
+	|	NULL
 	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
 	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	;
@@ -276,6 +277,7 @@ fragment UNDERSCORE : '_' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
+NULL : 'null' ;
 IDENT : LETTER ( LETTER | UNDERSCORE | DIGIT)*;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN; };
