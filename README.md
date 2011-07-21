@@ -77,6 +77,10 @@ dependencies into the `dist/` directory for you.
 
 Release Notes
 =============
+0.3.4:
+
+* Basic REPL.
+
 0.3.3:
 
 * Fixed null pointer exception related to auto deep cloning with closures.
@@ -98,7 +102,6 @@ Release Notes
 
 Big things left to do:
 
-* REPL
 * Object family support (for pushing changes to many objects)
 * Ahead of Time "compilation"
 * A standard library
