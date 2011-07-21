@@ -25,7 +25,7 @@ import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
 public class EveObject {
-	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA };
+	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA, NULL };
 	public static final String WITH_STATEMENT_TYPENAME = "with-statement";
 	
 	//the type and type name of this object.
@@ -283,6 +283,13 @@ public class EveObject {
 		return eo;
 	}
 	
+	public static EveObject nullType() {
+		EveObject eo = new EveObject();
+		eo.setType(EveType.NULL);
+		eo.setTypeName("null");
+		return eo;
+	}
+	
 	public void markFieldsForClone() {
 		for (EveObject eo : getFields().values()) {
 			eo.markedForClone = true;
@@ -444,6 +451,8 @@ public class EveObject {
 			return this.getJavaValue();
 		case DICT:
 			return this.getDictionaryValue();
+		case NULL:
+			return null;
 		}
 	
 		throw new EveError("unrecognized type " + getType() + " for getObjectValue()");		
@@ -570,6 +579,10 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
+		if (isNull()) {
+			throw new EveError("null objects cannot have fields.");
+		}
+		
 		if ((isFrozen() || isSealed()) && !hasField(name)) {
 			throw new EveError("frozen/sealed objects cannot have properties added.");
 		}
@@ -582,6 +595,10 @@ public class EveObject {
 	}
 	
 	public void putTempField(String name, EveObject eo) {
+		if (isNull()) {
+			throw new EveError("null objects cannot have fields.");
+		}
+		
 		if ((isFrozen() || isSealed()) && !hasField(name)) {
 			throw new EveError("frozen/sealed objects cannot have properties added.");
 		}
@@ -742,6 +759,8 @@ public class EveObject {
 				return this.typeName;
 			case DICT:
 				return "dict";
+			case NULL:
+				return "null";
 		}
 		
 		throw new EveError("unrecognized type " + getType() + " for getTypeName()");
@@ -774,6 +793,10 @@ public class EveObject {
 
 	public boolean isFrozen() {
 		return isFrozen;
+	}
+	
+	public boolean isNull() {
+		return getType() == EveType.NULL;
 	}
 
 	public String toString() {
@@ -818,14 +841,16 @@ public class EveObject {
 			case CUSTOM:
 				return "<" + this.getTypeName() + ">";
 			case PROTOTYPE:
-				return "[prototype " + this.getTypeName() + "]";
+				return "<prototype " + this.getTypeName() + ">";
 			case JAVA:
 				return this.getJavaValue().toString();
 			case DICT:
 				return this.getDictionaryValue().toString();
+			case NULL:
+				return "null";
 		}
 		
-		return "[unknown]";
+		return "<unknown>";
 	}
 	
 	public EveObject getObjectParent() {
@@ -1044,7 +1069,10 @@ public class EveObject {
 		//int-double and double-int are also type coerced for this.
 		//no other type coercion exists for equality checking.
 		//for custom types, they must define their own equals function.
-		if (this.getType() == EveType.BOOLEAN && other.getType() == EveType.BOOLEAN) {
+		if (this.isNull() && other.isNull()) {
+			return true;
+		}
+		else if (this.getType() == EveType.BOOLEAN && other.getType() == EveType.BOOLEAN) {
 			return this.getBooleanValue().equals(other.getBooleanValue()); 
 		}
 		else if (this.getType() == EveType.INTEGER && other.getType() == EveType.INTEGER) {

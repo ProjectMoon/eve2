@@ -29,7 +29,7 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 		if (existing != null) {
 			throw new EveError(identifier + " shadows or overwrites " + identifier + " at scope " + ScopeManager.getScopeForVariable(identifier));
 		}
-		
+		 
 		EveObject result = getExpression().execute();
 		
 		//mark for clone if we are assigning an ident, property, etc.
