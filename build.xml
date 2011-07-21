@@ -1,4 +1,19 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="eve-interpreter" default="jar" basedir=".">
+	<description>
+***TO BUILD: ant jar***
+
+This will build the eve interpreter. Building is divided into two stages:
+dependency resolution and actual building. If you do not have dependencies
+installed, downloading all of them can take a bit of time. The build process
+uses Apache Ivy for dependency resolution.
+
+Once dependencies are resolved, building is very quick. An executable eve.jar
+will be placed in a dist directory, and all dependencies will be placed in a
+lib directory there.
+		
+To run the test suite, run `and test`. Eve uses JUnit for unit testing.
+	</description>
+
 	<!-- global properties -->
 	<property name="src" location="src" />
 	<property name="tests" location="tests" />
