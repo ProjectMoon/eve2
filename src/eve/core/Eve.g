@@ -141,8 +141,8 @@ printStatement
 initVariableStatement
 	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
 	|	'var' IDENT ';' -> ^(INIT_VARIABLE IDENT NULL)
-	|	'def' prop=IDENT '=' name=IDENT? function -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
-	|	'delegate' prop=IDENT '=' name=IDENT? function -> ^(DELEGATE $prop ^(FUNCTION_NAME $name?) function)
+	|	'def' name=IDENT function -> ^(INIT_FUNCTION $name ^(FUNCTION_NAME $name) function)
+	|	'delegate' name=IDENT? function -> ^(DELEGATE $name ^(FUNCTION_NAME $name) function)
 	;
 
 //Loops

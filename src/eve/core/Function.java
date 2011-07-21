@@ -90,10 +90,10 @@ public class Function {
 	public String toString() {
 		String res = "";
 		if (isDelegate()) {
-			res = "[delegate@" + getDelegateContext();
+			res = "<delegate@" + getDelegateContext();
 		}
 		else {
-			res = "[function";
+			res = "<function";
 		}
 		
 		if (name != null) {
@@ -112,7 +112,7 @@ public class Function {
 				res += " ...";
 			}
 		}
-		res += ")]";
+		res += ")>";
 		return res;
 	}
 
