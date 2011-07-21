@@ -1,4 +1,4 @@
-Eve 0.3.2
+Eve 0.3.3
 =========
 
 An experiment to learn how to make an interpreter.<br>
@@ -77,6 +77,10 @@ dependencies into the `dist/` directory for you.
 
 Release Notes
 =============
+0.3.3:
+
+* Fixed null pointer exception related to auto deep cloning with closures.
+
 0.3.2:
 
 * Put release notes in the readme file!
