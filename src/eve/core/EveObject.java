@@ -1069,7 +1069,10 @@ public class EveObject {
 		//int-double and double-int are also type coerced for this.
 		//no other type coercion exists for equality checking.
 		//for custom types, they must define their own equals function.
-		if (this.getType() == EveType.BOOLEAN && other.getType() == EveType.BOOLEAN) {
+		if (this.isNull() && other.isNull()) {
+			return true;
+		}
+		else if (this.getType() == EveType.BOOLEAN && other.getType() == EveType.BOOLEAN) {
 			return this.getBooleanValue().equals(other.getBooleanValue()); 
 		}
 		else if (this.getType() == EveType.INTEGER && other.getType() == EveType.INTEGER) {
