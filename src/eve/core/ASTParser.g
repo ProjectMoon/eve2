@@ -592,8 +592,8 @@ expression returns [ExpressionStatement result]
 			$result = new YieldExpression(e);
 			$result.setLine($YIELD.getLine());
 		}
-	|	^(RESUME e=expression) {
-			$result = new ResumeExpression(e);
+	|	^(RESUME e=expression e2=expression?) {
+			$result = new ResumeExpression(e, e2);
 			$result.setLine($RESUME.getLine());
 		}
 	|	IDENT {

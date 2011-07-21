@@ -6,6 +6,7 @@ import java.util.List;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
+import org.apache.commons.javaflow.Continuation;
 
 public class YieldExpression extends ExpressionStatement implements EveStatement {
 	private ExpressionStatement expr;
@@ -22,9 +23,10 @@ public class YieldExpression extends ExpressionStatement implements EveStatement
 	@Override
 	public EveObject execute() {
 		EveObject eo = expr.execute();
-		ScopeManager.yieldTo(eo);
+		ScopeManager.yieldValue(eo);
+		EveObject resumedValue = (EveObject)Continuation.getContext();
 		System.out.println("resuming from yield for " + ScopeManager.getCurrentScope());
-		return null;
+		return resumedValue;
 	}
 
 	@Override

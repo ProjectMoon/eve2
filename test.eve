@@ -1,2 +1,12 @@
+def x = () {
+	println("*****X");
+	var result = resume global::y;
+	println("RESULT****: " ~ result);
+}
+
+def y = () {
+	println("******Y");
+	yield 5;
+}
+
 resume x;
-resume y with 5;

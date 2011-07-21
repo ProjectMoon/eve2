@@ -6,12 +6,14 @@ import java.util.List;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
+import org.apache.commons.javaflow.Continuation;
 
 public class ResumeExpression extends ExpressionStatement implements EveStatement {
-	private ExpressionStatement expr;
+	private ExpressionStatement expr, withExpr;
 	
-	public ResumeExpression(ExpressionStatement expr) {
+	public ResumeExpression(ExpressionStatement expr, ExpressionStatement withExpr) {
 		this.expr = expr;
+		this.withExpr = withExpr;
 	}
 	
 	@Override
@@ -22,8 +24,15 @@ public class ResumeExpression extends ExpressionStatement implements EveStatemen
 	@Override
 	public EveObject execute() {
 		EveObject coroutine = expr.execute();
-		ScopeManager.invokeCoroutine(coroutine);
-		return null;
+		EveObject with = null;
+
+		if (withExpr != null) {
+			with = withExpr.execute();
+		}
+		
+		ScopeManager.invokeCoroutine(coroutine, with);
+		EveObject resumedValue = ScopeManager.getYieldedValue();
+		return resumedValue;
 	}
 
 	@Override

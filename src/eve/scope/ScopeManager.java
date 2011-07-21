@@ -340,19 +340,47 @@ public class ScopeManager {
 		
 		return cont;
 	}
+
+	private static EveObject yieldedValue;
+	public static void yieldValue(EveObject eo) {
+		yieldedValue = eo;
+		Continuation.suspend();
+	}
 	
-	public static void invokeCoroutine(EveObject eo) {
-		yieldedTo = eo;
+	public static EveObject getYieldedValue() {
+		return yieldedValue;
+	}
+	
+	private static java.util.Set<EveObject> running = new java.util.HashSet<EveObject>();
+	private static Deque<EveObject> parents = new ArrayDeque<EveObject>();
+	
+	public static void invokeCoroutine(EveObject eo, EveObject withValue) {
+		System.out.println("yieldedTo is: " + yieldedTo);
+		if (running.contains(parents.peek())) {
+			//treat this as a yield to a specific place
+			System.out.println("***ENDING CURRENT CONTINUATION***");
+			yieldedTo = eo;
+			yieldedValue = withValue;
+			Continuation.suspend();
+			return;
+		}
 		
+		yieldedTo = eo;
+
 		while (ScopeManager.isYielded()) {
 			System.out.println("yieldedTo is: " + yieldedTo);
 			Continuation cont = getCoroutine(yieldedTo);
 			EveObject thisFunction = yieldedTo;
+			parents.push(thisFunction);
 			yieldedTo = null;
+			running.add(thisFunction);
 			System.out.println("about to continue with " + cont);
-			Continuation c = Continuation.continueWith(cont);
+			Continuation c = Continuation.continueWith(cont, withValue);
 			System.out.println("putting away " + thisFunction + ", " + c);
 			coroutines.put(thisFunction, c);
 		}
+
+		parents.clear();
+		
 	}
 }
