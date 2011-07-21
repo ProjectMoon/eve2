@@ -89,9 +89,21 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 		}
 		
 		if (index.getType() == EveType.INTEGER) {
+			EveObject existing = eo.getIndexedProperty(index.getIntValue());
+			
+			if (existing != null && existing.isMarkedForClone()) {
+				existing.deepClone();
+			}
+			
 			eo.setIndexedProperty(index.getIntValue(), value);
 		}
 		else if (index.getType() == EveType.STRING) {
+			EveObject existing = eo.getDictValue(index.getStringValue());
+			
+			if (existing != null && existing.isMarkedForClone()) {
+				existing.deepClone();
+			}
+			
 			eo.putDictValue(index.getStringValue(), value);
 		}
 		else {
