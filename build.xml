@@ -1,6 +1,7 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="eve-interpreter" default="jar" basedir=".">
 	<!-- global properties -->
 	<property name="src" location="src" />
+	<property name="tests" location="tests" />
 	<property name="lib" location="lib" />
 	<property name="antlr-generated" location="antlr-generated" />
 	<property name="build" location="build" />
@@ -60,6 +61,26 @@
 		</javac>
 	</target>
 	
+	<target name="compile-tests" depends="compile" description="--> build test cases">
+		<javac srcdir="${tests}" destdir="${build}" deprecation="Yes" debug="true" debuglevel="lines,vars,source" includeantruntime="false">
+			<classpath>
+				<fileset dir="${build}" includes="**/*.class" />
+				<fileset dir="lib/" includes="*.jar" />
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="test" depends="compile-tests" description="--> run test suite">
+		<junit fork="true">
+			<classpath>
+				<pathelement path="${build}" />
+				<fileset dir="${lib}" includes="*.jar" />
+			</classpath>
+			<formatter type="brief" usefile="false" />
+			<test name="eve.tests.Objects" />
+		</junit>
+	</target>
+	
 	<!-- build executable jar file -->
 	<target name="jar" depends="compile" description="--> create executable jar">
 		<!-- library definitions -->
@@ -75,6 +96,7 @@
 				<include name="**/*.jar" />
 				<exclude name="**/*-sources.jar" />
 				<exclude name="**/*-javadoc.jar" />
+				<exclude name="**/junit*.jar" />
 				<!-- for antlr, we currently only need the 3.3 runtime -->
 				<exclude name="**/antlr-3.3.jar" />
 				<exclude name="**/antlr-2.*.jar" />

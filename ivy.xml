@@ -9,5 +9,6 @@
         <dependency org="org.antlr" name="antlr" rev="3.3" />
         <dependency org="commons-cli" name="commons-cli" rev="1.2"/>
         <dependency org="uk.com.robust-it" name="cloning" rev="1.7.4"/>
+        <dependency org="junit" name="junit" rev="4.8.2"/>
     </dependencies>
 </ivy-module>

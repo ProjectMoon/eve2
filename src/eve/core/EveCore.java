@@ -141,12 +141,14 @@ public class EveCore {
 	}
 	
 	public void initForREPL() {
-		ScopeManager.setNamespace("_global");
-		ScopeManager.createGlobalScope();
-				
-		eve.eji.stdlib.Java.init();
-		eve.eji.stdlib.Core.init();
-		repl = true;
+		if (!repl) {
+			ScopeManager.setNamespace("_global");
+			ScopeManager.createGlobalScope();
+					
+			eve.eji.stdlib.Java.init();
+			eve.eji.stdlib.Core.init();
+			repl = true;
+		}
 	}
 	
 	public Script getScript(String file) throws RecognitionException, IOException {
@@ -268,6 +270,29 @@ public class EveCore {
 		}
 							
 		System.out.println(main.tree.toStringTree());
+	}
+	
+	public boolean runCode(String code) {
+		if (!repl) {
+			this.initForREPL();
+		}
+		
+		Script script = getScriptFromCode(code);
+		
+		try {
+			if (!script.getNamespace().equals("_global")) {
+				ScopeManager.setNamespace(script.getNamespace());
+				ScopeManager.createGlobalScope();
+			}
+			
+			script.execute();
+			return true;
+		}
+		catch (Exception e) {
+			System.err.println(e);
+			return false;
+		}
+		
 	}
 	
 	public static void main(String[] args) throws RecognitionException, IOException {

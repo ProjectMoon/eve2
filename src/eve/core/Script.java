@@ -61,6 +61,9 @@ public class Script implements ConstructionScope {
 				if (!repl) {
 					System.exit(1);
 				}
+				else {
+					throw e;
+				}
 			}
 		}
 	}
