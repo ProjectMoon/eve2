@@ -25,7 +25,7 @@ import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
 public class EveObject {
-	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA };
+	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA, NULL };
 	public static final String WITH_STATEMENT_TYPENAME = "with-statement";
 	
 	//the type and type name of this object.
@@ -283,10 +283,32 @@ public class EveObject {
 		return eo;
 	}
 	
+	public static EveObject nullType() {
+		EveObject eo = new EveObject();
+		eo.setType(EveType.NULL);
+		eo.setTypeName("null");
+		return eo;
+	}
+	
 	public void markFieldsForClone() {
 		for (EveObject eo : getFields().values()) {
 			eo.markedForClone = true;
 			eo.markFieldsForClone();
+		}
+		
+		//have to hit indexed and dict values as well.
+		if (this.getType() == EveType.LIST) {
+			for (EveObject eo : getListValue()) {
+				eo.markedForClone = true;
+				eo.markFieldsForClone();
+			}
+		}
+		
+		if (this.getType() == EveType.DICT) {
+			for (EveObject eo : getDictionaryValue().values()) {
+				eo.markedForClone = true;
+				eo.markFieldsForClone();
+			}
 		}
 	}
 		
@@ -415,6 +437,7 @@ public class EveObject {
 	}
 	
 	public void putDictValue(String key, EveObject value) {
+		value.objectParent = this;
 		getDictionaryValue().put(key, value);
 	}
 	
@@ -444,6 +467,8 @@ public class EveObject {
 			return this.getJavaValue();
 		case DICT:
 			return this.getDictionaryValue();
+		case NULL:
+			return null;
 		}
 	
 		throw new EveError("unrecognized type " + getType() + " for getObjectValue()");		
@@ -525,6 +550,7 @@ public class EveObject {
 	}
 	
 	public void addIndexedValue(EveObject eo) {
+		eo.objectParent = this;
 		if (getType() == EveType.STRING) {
 			if (eo.getType() != EveType.STRING) {
 				throw new EveError("can't insert a non-string into a string");
@@ -570,6 +596,10 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
+		if (isNull()) {
+			throw new EveError("null objects cannot have fields.");
+		}
+		
 		if ((isFrozen() || isSealed()) && !hasField(name)) {
 			throw new EveError("frozen/sealed objects cannot have properties added.");
 		}
@@ -582,6 +612,10 @@ public class EveObject {
 	}
 	
 	public void putTempField(String name, EveObject eo) {
+		if (isNull()) {
+			throw new EveError("null objects cannot have fields.");
+		}
+		
 		if ((isFrozen() || isSealed()) && !hasField(name)) {
 			throw new EveError("frozen/sealed objects cannot have properties added.");
 		}
@@ -618,6 +652,17 @@ public class EveObject {
 		
 		while (eo.objectParent != null) {
 			String fieldName = eo.objectParent.getFieldName(eo);
+			
+			if (fieldName == null) {
+				//this is a dict or list index, and not a field.
+				if (eo.objectParent.getType() == EveType.DICT) {
+					fieldName = "dict:" + eo.objectParent.getDictKey(eo);
+				}
+				else if (eo.objectParent.getType() == EveType.LIST) {
+					fieldName = "list:" + eo.objectParent.getIndex(eo);
+				}
+			}
+			
 			fieldNames.addFirst(fieldName);
 			eo = eo.objectParent;
 		}
@@ -627,7 +672,23 @@ public class EveObject {
 		//eo is already unique via a clone operation somewhere along the way.
 		while (!fieldNames.isEmpty()) {
 			String fieldName = fieldNames.pop();
-			EveObject field = eo.getField(fieldName);
+			EveObject field = null;
+			
+			//not necessarily used.
+			String key = null;
+			int index = -1;
+			
+			if (fieldName.startsWith("dict:")) {
+				key = fieldName.substring("dict:".length());
+				field = eo.getDictValue(key);
+			}
+			else if (fieldName.startsWith("list:")) {
+				index = Integer.parseInt(fieldName.substring("list:".length()));
+				field = eo.getIndexedProperty(index);
+			}
+			else {
+				field = eo.getField(fieldName);
+			}
 			
 			if (field.isMarkedForClone()) {
 				field = field.eventlessClone();
@@ -635,11 +696,22 @@ public class EveObject {
 			}
 			
 			field.objectParent = eo; //necessary?
-			eo.putField(fieldName, field);
+			
+			if (fieldName.startsWith("dict:")) {
+				eo.putDictValue(key, field);
+			}
+			else if (fieldName.startsWith("list:")) {
+				eo.setIndexedProperty(index, field);eo.putField(fieldName, field);
+			}
+			else {
+				eo.putField(fieldName, field);
+			}
+			
 			eo = field;
 		}
-		
+				
 		this.setMarkedForClone(false);
+		
 	}
 	
 	/**
@@ -668,6 +740,50 @@ public class EveObject {
 		}
 		
 		return fieldNames;
+	}
+	
+	/**
+	 * Given an EveObject, attempts to find the index attached to it.
+	 * This method checks reference equality to determine which index to return.
+	 * It does not check via the .equals() method. Only works if this EveObject
+	 * is of type LIST.
+	 * @param value
+	 * @return the index of the value, or -1 if one was not found.
+	 */
+	public int getIndex(EveObject value) {
+		if (this.getType() != EveType.LIST) {
+			throw new EveError("getIndex only works on type list.");
+		}
+		
+		for (Map.Entry<Integer, EveObject> entry : this.getListMap().entrySet()) {
+			if (entry.getValue() == value) {
+				return entry.getKey();
+			}
+		}
+		
+		return -1;
+	}
+	
+	/**
+	 * Given an EveObject, attempts to find the dict key attached to it. This
+	 * method checks reference equality to determine which field name to return.
+	 * It does not check via the .equals() method. Only works if this EveObject
+	 * is of type DICT.
+	 * @param value
+	 * @return The key if found, null otherwise.
+	 */
+	public String getDictKey(EveObject value) {
+		if (this.getType() != EveType.DICT) { 
+			throw new EveError("getDictKey only works on type dict.");
+		}
+		
+		for (Map.Entry<String, EveObject> entry : getDictionaryValue().entrySet()) {
+			if (entry.getValue() == value) {
+				return entry.getKey();
+			}
+		}
+		
+		return null;
 	}
 	
 	public EveObject getField(String name) {
@@ -742,6 +858,8 @@ public class EveObject {
 				return this.typeName;
 			case DICT:
 				return "dict";
+			case NULL:
+				return "null";
 		}
 		
 		throw new EveError("unrecognized type " + getType() + " for getTypeName()");
@@ -774,6 +892,10 @@ public class EveObject {
 
 	public boolean isFrozen() {
 		return isFrozen;
+	}
+	
+	public boolean isNull() {
+		return getType() == EveType.NULL;
 	}
 
 	public String toString() {
@@ -818,14 +940,16 @@ public class EveObject {
 			case CUSTOM:
 				return "<" + this.getTypeName() + ">";
 			case PROTOTYPE:
-				return "[prototype " + this.getTypeName() + "]";
+				return "<prototype " + this.getTypeName() + ">";
 			case JAVA:
 				return this.getJavaValue().toString();
 			case DICT:
 				return this.getDictionaryValue().toString();
+			case NULL:
+				return "null";
 		}
 		
-		return "[unknown]";
+		return "<unknown>";
 	}
 	
 	public EveObject getObjectParent() {
@@ -1044,7 +1168,10 @@ public class EveObject {
 		//int-double and double-int are also type coerced for this.
 		//no other type coercion exists for equality checking.
 		//for custom types, they must define their own equals function.
-		if (this.getType() == EveType.BOOLEAN && other.getType() == EveType.BOOLEAN) {
+		if (this.isNull() && other.isNull()) {
+			return true;
+		}
+		else if (this.getType() == EveType.BOOLEAN && other.getType() == EveType.BOOLEAN) {
 			return this.getBooleanValue().equals(other.getBooleanValue()); 
 		}
 		else if (this.getType() == EveType.INTEGER && other.getType() == EveType.INTEGER) {

@@ -127,6 +127,7 @@ expressionStatement
 	:	';'!
 	|	expression ';' -> ^(EXPR_STATEMENT expression)
 	;
+	
 returnStatement
 	:	'return'^ expression? ';'!
 	;
@@ -139,8 +140,9 @@ printStatement
 		
 initVariableStatement
 	:	'var' IDENT '=' expression ';' -> ^(INIT_VARIABLE IDENT expression)
-	|	'def' prop=IDENT '=' name=IDENT? function -> ^(INIT_FUNCTION $prop ^(FUNCTION_NAME $name?) function)
-	|	'delegate' prop=IDENT '=' name=IDENT? function -> ^(DELEGATE $prop ^(FUNCTION_NAME $name?) function)
+	|	'var' IDENT ';' -> ^(INIT_VARIABLE IDENT NULL)
+	|	'def' name=IDENT function -> ^(INIT_FUNCTION $name ^(FUNCTION_NAME $name) function)
+	|	'delegate' name=IDENT? function -> ^(DELEGATE $name ^(FUNCTION_NAME $name) function)
 	;
 
 //Loops
@@ -188,6 +190,7 @@ atom
 	|	STRING_LITERAL
 	|	LIST_LITERAL
 	|	DICT_LITERAL
+	|	NULL
 	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
 	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	;
@@ -276,6 +279,7 @@ fragment UNDERSCORE : '_' ;
 INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
+NULL : 'null' ;
 IDENT : LETTER ( LETTER | UNDERSCORE | DIGIT)*;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN; };

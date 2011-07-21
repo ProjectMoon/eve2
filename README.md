@@ -1,4 +1,4 @@
-Eve 0.3.1
+Eve 0.3.2
 =========
 
 An experiment to learn how to make an interpreter.<br>
@@ -75,29 +75,22 @@ all required dependencies are in that directory. If those are present, Eve
 should able to be run from anywhere. The build process should dump all required
 dependencies into the `dist/` directory for you.
 
-Status
-======
+Release Notes
+=============
+0.3.2:
 
-Very much a work in progress. Completed things:
+* Put release notes in the readme file!
+* Added automatic deep cloning for lists and dicts.
+* Changed `def` and `delegate` syntax to be less obtuse.
+* Added `null` value and variable initialization without assignment.
 
-* Read and execute script files
-* Debug mode
-* Closures
-* all data types are complete.
-* Variable assignment works
-* Variable update works
-* Print statement works
-* Prototype definition works
-* Prototype cloning works
-* Adding properties to objects works
-* Basic scoping implemented
-* Cloning objects
-* Basic Java interop implemented
-* function invocation works
-* Boolean data type
-* if/else statements
-* namespaces and importing
-* loop statements (for, while)
+0.3.1:
+
+* Bug fixes of some sort.
+
+0.3.0:
+
+* Large update that completely changes how to create objects.
 
 Big things left to do:
 

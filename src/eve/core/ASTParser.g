@@ -622,4 +622,8 @@ expression returns [ExpressionStatement result]
 			$result = new WrappedPrimitiveExpression(new HashMap<String, EveObject>());
 			$result.setLine($DICT_LITERAL.getLine());
 		}
+	|	NULL {
+			$result = new WrappedPrimitiveExpression();
+			$result.setLine($NULL.getLine());
+		}
 	;	
