@@ -579,6 +579,10 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
+		if (isNull()) {
+			throw new EveError("null objects cannot have fields.");
+		}
+		
 		if ((isFrozen() || isSealed()) && !hasField(name)) {
 			throw new EveError("frozen/sealed objects cannot have properties added.");
 		}
@@ -591,6 +595,10 @@ public class EveObject {
 	}
 	
 	public void putTempField(String name, EveObject eo) {
+		if (isNull()) {
+			throw new EveError("null objects cannot have fields.");
+		}
+		
 		if ((isFrozen() || isSealed()) && !hasField(name)) {
 			throw new EveError("frozen/sealed objects cannot have properties added.");
 		}
@@ -785,6 +793,10 @@ public class EveObject {
 
 	public boolean isFrozen() {
 		return isFrozen;
+	}
+	
+	public boolean isNull() {
+		return getType() == EveType.NULL;
 	}
 
 	public String toString() {
