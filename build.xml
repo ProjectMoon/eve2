@@ -11,7 +11,7 @@ Once dependencies are resolved, building is very quick. An executable eve.jar
 will be placed in a dist directory, and all dependencies will be placed in a
 lib directory there.
 		
-To run the test suite, run `and test`. Eve uses JUnit for unit testing.
+To run the test suite, run `ant test`. Eve uses JUnit for unit testing.
 	</description>
 
 	<!-- global properties -->
