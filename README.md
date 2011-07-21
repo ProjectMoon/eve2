@@ -59,6 +59,10 @@ be fetched and added to the classpath automatically.
 The build process will produce an executable jar `eve.jar` in the `dist`
 directory. Execute `java -jar dist/eve.jar` to start the interpreter.
 
+Tests
+-----
+If you want to run the test suite, run `ant test` instead of `ant jar`.
+
 Troubleshooting
 ---------------
 ### Building Issues ###
