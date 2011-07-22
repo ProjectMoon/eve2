@@ -85,6 +85,8 @@ Release Notes
 
 * Basic REPL.
 * Reference equality operators === and !==.
+* "Equals Expressions": +=, -=, etc.
+* Unix install task: will install to /usr/local/lib/eve/. No task for Windows yet.
 
 0.3.3:
 
