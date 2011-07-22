@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.antlr.runtime.ANTLRInputStream;
+import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -25,6 +26,7 @@ import eve.scope.ScopeManager;
 
 public class EveCore {
 	private boolean printSyntaxTree;
+	private boolean repl = false;
 	
 	/**
 	 * Parses options and returns the filename to load.
@@ -33,10 +35,12 @@ public class EveCore {
 	 */
 	private String parseOptions(String[] args) {
 		Options opts = new Options();
+		opts.addOption("e", true, "evaluate code");
 		opts.addOption("d", false, "debug mode");
 		opts.addOption("t", false, "print syntax tree");
 		opts.addOption("h", false, "print help");
 		opts.addOption("i", true, "register instrumentation hook");
+		opts.addOption("r", false, "enter repl mode");
 		opts.addOption("eji", true, "make EJI types available");
 		
 		CommandLineParser parser = new GnuParser();
@@ -48,6 +52,10 @@ public class EveCore {
 			if (line.hasOption("d")) EveLogger.debugLevel();
 			if (line.hasOption("t")) printSyntaxTree = true;
 			if (line.hasOption("eji")) handleEJI(line.getOptionValue("eji"));
+			if (line.hasOption("r")) repl();
+			if (line.hasOption("e")) {
+				eval(line.getOptionValue("e"));
+			}
 			//more options here...
 			
 			//Find the eve file to run.
@@ -66,6 +74,18 @@ public class EveCore {
 		}
 		
 		return ""; //keeps compiler happy.
+	}
+	
+	private void eval(String code) {
+		Script script = getScriptFromCode(code);
+		this.run(script);
+		System.exit(0);
+	}
+	
+	private void repl() {
+		EveREPL repl = new EveREPL();
+		repl.run();
+		System.exit(0);
 	}
 	
 	private void printHelp(Options opts) {
@@ -120,6 +140,17 @@ public class EveCore {
 		ScopeManager.revertNamespace();
 	}
 	
+	public void initForREPL() {
+		if (!repl) {
+			ScopeManager.setNamespace("_global");
+			ScopeManager.createGlobalScope();
+					
+			eve.eji.stdlib.Java.init();
+			eve.eji.stdlib.Core.init();
+			repl = true;
+		}
+	}
+	
 	public Script getScript(String file) throws RecognitionException, IOException {
 		File inputFile = new File(file);
 		
@@ -131,6 +162,15 @@ public class EveCore {
 		InputStream input = new FileInputStream(file);
 		CharStream stream = new ANTLRInputStream(input);
 	
+		return getScript0(stream);
+	}
+
+	public Script getScriptFromCode(String code) {
+		CharStream stream = new ANTLRStringStream(code);
+		return getScript0(stream);
+	}
+	
+	private Script getScript0(CharStream stream) {
 		EveLexer lexer = new EveLexer(stream);
 		
 		TokenStream tokenStream = new CommonTokenStream(lexer);
@@ -141,12 +181,35 @@ public class EveCore {
 			main = parser.program();
 		}
 		catch (EveError e) {
-			System.err.println(e.getMessage());
-			System.exit(1);
+			if (!repl) {
+				System.err.println(e.getMessage());
+				System.exit(1);
+			}
+			else {
+				throw e;
+			}
+		}
+		catch (RecognitionException e) {
+			if (!repl) {
+				System.err.println(e.getMessage());
+				System.exit(1);
+			}
+			else {
+				throw new EveError(e);
+			}
 		}
 			
 		if (parser.hasErrors()) {
-			handleErrors(parser.getErrors());
+			if (!repl) {
+				handleErrors(parser.getErrors());
+			}
+			else {
+				String message = "";
+				for (String error : parser.getErrors()) {
+					message += error + "\n";
+				}
+				throw new EveError(message);
+			}
 		}
 		
 		//If the file is empty, the tree will be null.
@@ -207,6 +270,29 @@ public class EveCore {
 		}
 							
 		System.out.println(main.tree.toStringTree());
+	}
+	
+	public boolean runCode(String code) {
+		if (!repl) {
+			this.initForREPL();
+		}
+		
+		Script script = getScriptFromCode(code);
+		
+		try {
+			if (!script.getNamespace().equals("_global")) {
+				ScopeManager.setNamespace(script.getNamespace());
+				ScopeManager.createGlobalScope();
+			}
+			
+			script.execute();
+			return true;
+		}
+		catch (Exception e) {
+			System.err.println(e);
+			return false;
+		}
+		
 	}
 	
 	public static void main(String[] args) throws RecognitionException, IOException {

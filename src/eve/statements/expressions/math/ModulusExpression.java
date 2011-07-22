@@ -1,4 +1,4 @@
-package eve.statements.expressions;
+package eve.statements.expressions.math;
 
 import java.util.ArrayList;
 import java.util.Deque;
@@ -8,6 +8,7 @@ import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
+import eve.statements.expressions.ExpressionStatement;
 
 public class ModulusExpression extends ExpressionStatement implements EveStatement {
 	private ExpressionStatement exp1, exp2;

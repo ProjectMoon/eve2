@@ -4,3 +4,4 @@ antlr-generated/
 dist/
 build/
 lib/
+test.eve

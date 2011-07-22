@@ -1,55 +1,33 @@
-package eve.statements.expressions;
+package eve.statements.expressions.math;
 
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import eve.core.EveError;
 import eve.core.EveObject;
-import eve.core.EveObject.EveType;
-import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
+import eve.statements.expressions.ExpressionStatement;
 
-public class PlusExpression extends ExpressionStatement implements EveStatement {
+public class ConcatExpression extends ExpressionStatement implements EveStatement {
 	private ExpressionStatement exp1, exp2;
 	
-	public PlusExpression(ExpressionStatement exp1, ExpressionStatement exp2) {
-		this.exp1 = exp1;
-		this.exp2 = exp2;
+	public ConcatExpression(ExpressionStatement op1, ExpressionStatement op2) {
+		this.exp1 = op1;
+		this.exp2 = op2;
 	}
 	
 	@Override
 	public EveObject execute() {
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
-		EveObject result = new EveObject();
-		
-		Object v1 = op1.getObjectValue();
-		Object v2 = op2.getObjectValue();
-		
-		if (v1 instanceof Integer && v2 instanceof Integer) {
-			result = new EveObject((Integer)v1 + (Integer)v2);
-		}
-		else if (v1 instanceof Double && v2 instanceof Double) {
-			result = new EveObject((Double)v1 + (Double)v2);
-		}
-		else if (v1 instanceof Integer && v2 instanceof Double) {
-			result = new EveObject((Integer)v1 + (Double)v2);
-		}
-		else if (v1 instanceof Double && v2 instanceof Integer) {
-			result = new EveObject((Double)v1 + (Integer)v2);
-		}
-		else {
-			//anything else = error
-			ErrorHandler.operatorError("+", op1, op2);
-		}
-		
-		return result;
+		EveObject eo = new EveObject();
+		eo.setStringValue(op1.toString() + op2.toString());
+		return eo;
 	}
-		
+	
 	@Override
 	public String toString() {
-		return exp1.toString() + " + " + exp2.toString();
+		return exp1.toString() + " ~ " + exp2.toString();
 	}
 
 	@Override
@@ -59,7 +37,7 @@ public class PlusExpression extends ExpressionStatement implements EveStatement 
 		idents.addAll(exp2.getIdentifiers());
 		return idents;
 	}
-
+	
 	@Override
 	public void closureAnalysis(Deque<List<String>> closureList) {
 		exp1.closureAnalysis(closureList);
@@ -83,7 +61,7 @@ public class PlusExpression extends ExpressionStatement implements EveStatement 
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PlusExpression other = (PlusExpression) obj;
+		ConcatExpression other = (ConcatExpression) obj;
 		if (exp1 == null) {
 			if (other.exp1 != null)
 				return false;

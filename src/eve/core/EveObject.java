@@ -656,7 +656,7 @@ public class EveObject {
 			String fieldName = eo.objectParent.getFieldName(eo);
 			
 			if (fieldName == null) {
-				//this is a dict or list index, and not a field.
+				//this is a dict or list.
 				if (eo.objectParent.getType() == EveType.DICT) {
 					fieldName = "dict:" + eo.objectParent.getDictKey(eo);
 				}
@@ -692,9 +692,23 @@ public class EveObject {
 				field = eo.getField(fieldName);
 			}
 			
+			//handle the cloning.
 			if (field.isMarkedForClone()) {
 				field = field.eventlessClone();
 				field.setMarkedForClone(false);
+				
+				//handle dynamic fields
+				if (field.hasField("get") && field.getField("get").getType() == EveType.FUNCTION) {
+					EveObject get = field.getField("get");
+					get.setMarkedForClone(false);
+					field.putField("get", get.eventlessClone());
+				}
+				
+				if (field.hasField("set") && field.getField("set").getType() == EveType.FUNCTION) {
+					EveObject set = field.getField("set");
+					set.setMarkedForClone(false);
+					field.putField("set", set.eventlessClone());
+				}
 			}
 			
 			field.objectParent = eo; //necessary?
@@ -703,7 +717,7 @@ public class EveObject {
 				eo.putDictValue(key, field);
 			}
 			else if (fieldName.startsWith("list:")) {
-				eo.setIndexedProperty(index, field);eo.putField(fieldName, field);
+				eo.setIndexedProperty(index, field);
 			}
 			else {
 				eo.putField(fieldName, field);
@@ -742,6 +756,21 @@ public class EveObject {
 		}
 		
 		return fieldNames;
+	}
+	
+	public String getDynamicFieldName(EveObject value) {
+		for (String fieldName : getFieldNames()) {
+			EveObject eo = getField(fieldName);
+			
+			if (eo != null && eo.hasField("get")) {
+				eo = eo.getField("get").invokeSelf(this);
+				if (eo == value) {
+					return fieldName;
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -983,6 +1012,12 @@ public class EveObject {
 	public EveObject invokeSelf(EveObject self, List<EveObject> actualParameters) {
 		this.putTempField("self", self);
 		return invoke0(actualParameters);
+	}
+	
+	public EveObject invokeSetter(EveObject self, EveObject value) {
+		this.putTempField("self", self);
+		value.objectParent = this;
+		return invoke0(Arrays.asList(value));
 	}
 	
 	private EveObject invoke0(List<EveObject> actualParameters) {

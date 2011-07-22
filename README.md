@@ -59,6 +59,10 @@ be fetched and added to the classpath automatically.
 The build process will produce an executable jar `eve.jar` in the `dist`
 directory. Execute `java -jar dist/eve.jar` to start the interpreter.
 
+Tests
+-----
+If you want to run the test suite, run `ant test` instead of `ant jar`.
+
 Troubleshooting
 ---------------
 ### Building Issues ###
@@ -77,6 +81,13 @@ dependencies into the `dist/` directory for you.
 
 Release Notes
 =============
+0.3.4:
+
+* Basic REPL.
+* Reference equality operators === and !==.
+* "Equals Expressions": +=, -=, etc.
+* Unix install task: will install to /usr/local/lib/eve/. No task for Windows yet.
+
 0.3.3:
 
 * Fixed null pointer exception related to auto deep cloning with closures.
@@ -98,7 +109,6 @@ Release Notes
 
 Big things left to do:
 
-* REPL
 * Object family support (for pushing changes to many objects)
 * Ahead of Time "compilation"
 * A standard library

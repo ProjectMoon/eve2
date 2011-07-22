@@ -12,9 +12,18 @@ import eve.statements.EveStatement;
 public class Script implements ConstructionScope {
 	private List<EveStatement> statements = new ArrayList<EveStatement>();
 	private String namespace = "_global";
+	private boolean repl = false;
 	
 	public Script() {
 		
+	}
+	
+	public void setREPL(boolean value) {
+		repl = value;
+	}
+	
+	public boolean getREPL() {
+		return repl;
 	}
 
 	public void setStatements(List<EveStatement> statements) {
@@ -48,7 +57,13 @@ public class Script implements ConstructionScope {
 					EveObject scope = stack.pop();
 					System.err.println("\tat " + scope);
 				}
-				System.exit(1);	
+				
+				if (!repl) {
+					System.exit(1);
+				}
+				else {
+					throw e;
+				}
 			}
 		}
 	}

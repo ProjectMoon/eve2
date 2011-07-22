@@ -10,4 +10,8 @@ public class EveError extends RuntimeException {
 	public EveError(String message) {
 		super(message);
 	}
+	
+	public EveError(Exception e) {
+		super(e);
+	}
 }

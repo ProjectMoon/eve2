@@ -1,18 +1,17 @@
-package eve.statements.expressions;
+package eve.statements.expressions.bool;
 
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
-import eve.core.EveObject.EveType;
-import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
+import eve.statements.expressions.ExpressionStatement;
 
-public class MultiplicationExpression extends ExpressionStatement implements EveStatement {
+public class RefNotEqualsExpression extends ExpressionStatement implements EveStatement {
 	private ExpressionStatement exp1, exp2;
 	
-	public MultiplicationExpression(ExpressionStatement exp1, ExpressionStatement exp2) {
+	public RefNotEqualsExpression(ExpressionStatement exp1, ExpressionStatement exp2) {
 		this.exp1 = exp1;
 		this.exp2 = exp2;
 	}
@@ -21,36 +20,10 @@ public class MultiplicationExpression extends ExpressionStatement implements Eve
 	public EveObject execute() {
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
-		EveObject result = new EveObject();
 		
-		Object v1 = op1.getObjectValue();
-		Object v2 = op2.getObjectValue();
-		
-		if (v1 instanceof Integer && v2 instanceof Integer) {
-			result = new EveObject((Integer)v1 * (Integer)v2);
-		}
-		else if (v1 instanceof Double && v2 instanceof Double) {
-			result = new EveObject((Double)v1 * (Double)v2);
-		}
-		else if (v1 instanceof Integer && v2 instanceof Double) {
-			result = new EveObject((Integer)v1 * (Double)v2);
-		}
-		else if (v1 instanceof Double && v2 instanceof Integer) {
-			result = new EveObject((Double)v1 * (Integer)v2);
-		}
-		else {
-			//anything else = error
-			ErrorHandler.operatorError("*", op1, op2);
-		}
-		
-		return result;
+		return new EveObject(op1 != op2);
 	}
-
-	@Override
-	public String toString() {
-		return exp1.toString() + " * " + exp2.toString();
-	}
-
+	
 	@Override
 	public List<String> getIdentifiers() {
 		ArrayList<String> idents = new ArrayList<String>();
@@ -82,7 +55,7 @@ public class MultiplicationExpression extends ExpressionStatement implements Eve
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		MultiplicationExpression other = (MultiplicationExpression) obj;
+		RefNotEqualsExpression other = (RefNotEqualsExpression) obj;
 		if (exp1 == null) {
 			if (other.exp1 != null)
 				return false;

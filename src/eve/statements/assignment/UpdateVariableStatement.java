@@ -14,6 +14,7 @@ import eve.statements.VariableFindingStatement;
 import eve.statements.expressions.ExpressionStatement;
 import eve.statements.expressions.IdentExpression;
 import eve.statements.expressions.IndexedAccess;
+import eve.statements.expressions.NamespacedExpression;
 import eve.statements.expressions.PointerResolution;
 import eve.statements.expressions.PropertyResolution;
 
@@ -28,7 +29,7 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 	@Override
 	public EveObject execute() {
 		EveObject value = valueExpr.execute();
-		
+				
 		if (!(assignmentExpr instanceof Updateable)) {
 			throw new EveError("invalid left side of assignment statement.");
 		}
