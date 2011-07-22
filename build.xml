@@ -94,6 +94,7 @@ To run the test suite, run `ant test`. Eve uses JUnit for unit testing.
 			<formatter type="brief" usefile="false" />
 			<test name="eve.tests.Objects" />
 			<test name="eve.tests.Namespaces" />
+			<test name="eve.tests.AutoDeepCloning" />
 		</junit>
 	</target>
 	
