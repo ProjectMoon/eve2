@@ -711,6 +711,19 @@ public class EveObject {
 			if (field.isMarkedForClone()) {
 				field = field.eventlessClone();
 				field.setMarkedForClone(false);
+				
+				//handle dynamic fields
+				if (field.hasField("get") && field.getField("get").getType() == EveType.FUNCTION) {
+					EveObject get = field.getField("get");
+					get.setMarkedForClone(false);
+					field.putField("get", get.eventlessClone());
+				}
+				
+				if (field.hasField("set") && field.getField("set").getType() == EveType.FUNCTION) {
+					EveObject set = field.getField("set");
+					set.setMarkedForClone(false);
+					field.putField("set", set.eventlessClone());
+				}
 			}
 			
 			field.objectParent = eo; //necessary?

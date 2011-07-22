@@ -12,13 +12,16 @@ public class AutoDeepCloning {
 	
 	@Test
 	public void gettersAndSetters() {
+		//They will be === to begin with,
+		//but auto deep cloning will take care of changing them.
 		String code = "var x = {};" +
 				"x.y = {};" +
 				"x.y->get = () {" +
-				"return self->y;" +
+				"return self->py;" +
 				"};" +
-				"x.y->set = () { };" +
-				"var z = clone x;";
+				"x.y->set = (value) { self->py = value; };" +
+				"var z = clone x;" +
+				"x.y = 5; z.y = 6;";
 		
 		core.runCode(code);
 		
