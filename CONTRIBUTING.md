@@ -31,7 +31,7 @@ Please follow this development model when making changes:
 * Bug fixes should be done on a branch separate from the develop branch. But
   instead of merging, bug fix branches should be **rebase**d into the develop
   branch. If you happen to fix a bug while working on a new feature, that's
-  fine too.
+  fine too. Make sure to mention the issue # so that GitHub will auto-close it.
 
 Development Environment
 -----------------------
