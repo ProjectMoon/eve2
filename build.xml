@@ -93,6 +93,7 @@ To run the test suite, run `ant test`. Eve uses JUnit for unit testing.
 			</classpath>
 			<formatter type="brief" usefile="false" />
 			<test name="eve.tests.Objects" />
+			<test name="eve.tests.Namespaces" />
 		</junit>
 	</target>
 	
