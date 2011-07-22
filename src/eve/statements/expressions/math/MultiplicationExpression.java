@@ -1,19 +1,19 @@
-package eve.statements.expressions;
+package eve.statements.expressions.math;
 
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
+import eve.statements.expressions.ExpressionStatement;
 
-public class DivisionExpression extends ExpressionStatement implements EveStatement {
+public class MultiplicationExpression extends ExpressionStatement implements EveStatement {
 	private ExpressionStatement exp1, exp2;
 	
-	public DivisionExpression(ExpressionStatement exp1, ExpressionStatement exp2) {
+	public MultiplicationExpression(ExpressionStatement exp1, ExpressionStatement exp2) {
 		this.exp1 = exp1;
 		this.exp2 = exp2;
 	}
@@ -28,34 +28,28 @@ public class DivisionExpression extends ExpressionStatement implements EveStatem
 		Object v2 = op2.getObjectValue();
 		
 		if (v1 instanceof Integer && v2 instanceof Integer) {
-			result = new EveObject((Integer)v1 / (Integer)v2);
+			result = new EveObject((Integer)v1 * (Integer)v2);
 		}
 		else if (v1 instanceof Double && v2 instanceof Double) {
-			result = new EveObject((Double)v1 / (Double)v2);
+			result = new EveObject((Double)v1 * (Double)v2);
 		}
 		else if (v1 instanceof Integer && v2 instanceof Double) {
-			result = new EveObject((Integer)v1 / (Double)v2);
+			result = new EveObject((Integer)v1 * (Double)v2);
 		}
 		else if (v1 instanceof Double && v2 instanceof Integer) {
-			result = new EveObject((Double)v1 / (Integer)v2);
+			result = new EveObject((Double)v1 * (Integer)v2);
 		}
 		else {
 			//anything else = error
-			ErrorHandler.operatorError("/", op1, op2);
+			ErrorHandler.operatorError("*", op1, op2);
 		}
 		
 		return result;
 	}
-	
+
 	@Override
 	public String toString() {
-		return exp1.toString() + " / " + exp2.toString();
-	}
-	
-	@Override
-	public void closureAnalysis(Deque<List<String>> closureList) {
-		exp1.closureAnalysis(closureList);
-		exp2.closureAnalysis(closureList);
+		return exp1.toString() + " * " + exp2.toString();
 	}
 
 	@Override
@@ -64,6 +58,12 @@ public class DivisionExpression extends ExpressionStatement implements EveStatem
 		idents.addAll(exp1.getIdentifiers());
 		idents.addAll(exp2.getIdentifiers());
 		return idents;
+	}
+	
+	@Override
+	public void closureAnalysis(Deque<List<String>> closureList) {
+		exp1.closureAnalysis(closureList);
+		exp2.closureAnalysis(closureList);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class DivisionExpression extends ExpressionStatement implements EveStatem
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DivisionExpression other = (DivisionExpression) obj;
+		MultiplicationExpression other = (MultiplicationExpression) obj;
 		if (exp1 == null) {
 			if (other.exp1 != null)
 				return false;

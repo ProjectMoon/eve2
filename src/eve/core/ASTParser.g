@@ -15,6 +15,7 @@ options {
 	import eve.statements.expressions.*;
 	import eve.statements.expressions.bool.*;
 	import eve.statements.expressions.json.*;
+	import eve.statements.expressions.math.*;
 	import eve.statements.loop.*;
 	import eve.scope.*;
 	import java.util.Queue;
@@ -520,6 +521,12 @@ expression returns [ExpressionStatement result]
 	|	^('%' op1=expression op2=expression) { $result = new ModulusExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^('to' op1=expression op2=expression) { $result = new RangeExpression(op1, op2); $result.setLine(op1.getLine()); }
 	|	^(NEGATION e=expression) { $result = new NegationExpression(e); $result.setLine($NEGATION.getLine()); }
+	|	^('+=' op1=expression op2=expression) { $result = new PlusEqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('-=' op1=expression op2=expression) { $result = new MinusEqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('*=' op1=expression op2=expression) { $result = new MultiplyEqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('/=' op1=expression op2=expression) { $result = new DivideEqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('%=' op1=expression op2=expression) { $result = new ModulusEqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
+	|	^('~=' op1=expression op2=expression) { $result = new ConcatEqualsExpression(op1, op2); $result.setLine(op1.getLine()); }
 	
 	//Boolean comparison.
 	|	^('&&' op1=expression op2=expression) { $result = new AndExpression(op1, op2); $result.setLine(op1.getLine()); }
