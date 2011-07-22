@@ -59,6 +59,15 @@ be fetched and added to the classpath automatically.
 The build process will produce an executable jar `eve.jar` in the `dist`
 directory. Execute `java -jar dist/eve.jar` to start the interpreter.
 
+Installation
+------------
+Starting with 0.3.4, there is now a task in the build.xml file that will install
+eve to `/usr/local/` on Unix machines. Run `sudo ant install` (or equivalent)
+and you will have `/usr/local/bin/eve`. This allows eve to be executed more
+naturally:
+
+    eve file.eve
+
 Tests
 -----
 If you want to run the test suite, run `ant test` instead of `ant jar`.
