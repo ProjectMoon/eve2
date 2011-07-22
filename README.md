@@ -37,7 +37,7 @@ First, check out the code from the Git repository. The master branch always
 reflects the latest stable release, while develop reflects the latest code
 under development.
 
-The primary requirement for buildin and running Eve is Java. Eve is developed
+The primary requirement for building and running Eve is Java. Eve is developed
 and tested on the "official" 1.6 HotSpot VM. It should work under Java 1.5, but
 that environment is unsupported. It will not work under Java 1.4 or lower.
 
