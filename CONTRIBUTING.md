@@ -24,6 +24,7 @@ Development Model
 -----------------
 Please follow this development model when making changes:
 
+* Do **NOT** commit to master!
 * All new code should be in or merged into the **develop** branch.
 * New features should be created in a local branch and then merged with 
   `merge --no-ff` into develop so the branch history is preserved in the
