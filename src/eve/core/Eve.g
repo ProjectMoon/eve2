@@ -234,7 +234,7 @@ add
 	;
 
 relation
-	:	add ((assignment^ | '=='^ | '!='^ | '<'^ | '<='^ | '>='^ | '>'^ | 'in'^) add)*
+	:	add ((assignment^ | '==='^ | '=='^ | '!='^ | '!=='^ | '<'^ | '<='^ | '>='^ | '>'^ | 'in'^) add)*
 	;
 	
 assignment
