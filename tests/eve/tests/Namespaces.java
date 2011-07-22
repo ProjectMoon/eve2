@@ -11,7 +11,7 @@ public class Namespaces {
 	private EveCore core = new EveCore();
 	
 	@Test
-	public void namespaceInFunction() {
+	public void namespaceAssignmentInFunction() {
 		core.runCode("var g = 0; def f() { global::g = 1; } f();");
 		EveObject g = ScopeManager.getVariable("g");
 		
