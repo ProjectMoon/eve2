@@ -160,7 +160,10 @@ public class ScopeManager {
 	 */
 	public static void putVariable(String name, EveObject eo) {
 		EveObject scope = getScopeForVariable(name);
-		if (!inFunction() && globalScopes.containsValue(scope) == false) {
+		
+		//this or condition prevents namespaced references in functions
+		//from going to the temp fields map.
+		if (!inFunction() || globalScopes.containsValue(scope)) {
 			scope.putField(name, eo);
 		}
 		else {
