@@ -656,13 +656,8 @@ public class EveObject {
 			String fieldName = eo.objectParent.getFieldName(eo);
 			
 			if (fieldName == null) {
-				//this is a dict, list, or getter, and not a regular field.
-				fieldName = eo.objectParent.getDynamicFieldName(eo);
-				
-				if (fieldName != null) {
-					fieldName = "dynamic:" + fieldName;
-				}
-				else if (eo.objectParent.getType() == EveType.DICT) {
+				//this is a dict or list.
+				if (eo.objectParent.getType() == EveType.DICT) {
 					fieldName = "dict:" + eo.objectParent.getDictKey(eo);
 				}
 				else if (eo.objectParent.getType() == EveType.LIST) {
@@ -685,17 +680,7 @@ public class EveObject {
 			String key = null;
 			int index = -1;
 			
-			if (fieldName.startsWith("dynamic:")) {
-				fieldName = fieldName.substring("dynamic:".length());
-				EveObject getter = eo.getField(fieldName);
-				
-				if (getter != null && getter.hasField("get")) {
-					field = getter.getField("get").invokeSelf(eo);
-				}
-				
-				fieldName = "dynamic:" + fieldName; //yeah, ghetto
-			}
-			else if (fieldName.startsWith("dict:")) {
+			if (fieldName.startsWith("dict:")) {
 				key = fieldName.substring("dict:".length());
 				field = eo.getDictValue(key);
 			}
@@ -728,15 +713,7 @@ public class EveObject {
 			
 			field.objectParent = eo; //necessary?
 			
-			if (fieldName.startsWith("dynamic:")) {
-				fieldName = fieldName.substring("dynamic:".length());
-				EveObject setter = eo.getField(fieldName);
-				
-				if (setter != null && setter.hasField("set")) {
-					setter.getField("set").invokeSetter(eo, field);
-				}
-			}
-			else if (fieldName.startsWith("dict:")) {
+			if (fieldName.startsWith("dict:")) {
 				eo.putDictValue(key, field);
 			}
 			else if (fieldName.startsWith("list:")) {
