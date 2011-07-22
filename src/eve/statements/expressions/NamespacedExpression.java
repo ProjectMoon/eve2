@@ -7,8 +7,9 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.scope.ScopeManager;
 import eve.statements.EveStatement;
+import eve.statements.assignment.Updateable;
 
-public class NamespacedExpression extends ExpressionStatement implements EveStatement {
+public class NamespacedExpression extends ExpressionStatement implements EveStatement, Updateable {
 	private String namespace;
 	private ExpressionStatement expression;
 	
@@ -41,7 +42,7 @@ public class NamespacedExpression extends ExpressionStatement implements EveStat
 	}
 	
 	@Override
-	public String toString(){
+	public String toString() {
 		return namespace + "::" + expression.toString();
 	}
 
@@ -76,6 +77,31 @@ public class NamespacedExpression extends ExpressionStatement implements EveStat
 		} else if (!namespace.equals(other.namespace))
 			return false;
 		return true;
+	}
+
+	@Override
+	public void updateVariable(EveObject value) {
+		if (expression instanceof Updateable) {
+			ScopeManager.setNamespace(namespace);
+			((Updateable)expression).updateVariable(value);
+			ScopeManager.revertNamespace();
+		}
+		else {
+			throw new EveError("namespaced expression is not an Updateable for assignment.");
+		}
+	}
+
+	@Override
+	public boolean deleteVariable() {
+		if (expression instanceof Updateable) {
+			ScopeManager.setNamespace(namespace);
+			boolean success = ((Updateable)expression).deleteVariable();
+			ScopeManager.revertNamespace();
+			return success;
+		}
+		else {
+			throw new EveError("namespaced expression is not an Updateable for delete.");
+		}
 	}
 
 }

@@ -160,7 +160,7 @@ public class ScopeManager {
 	 */
 	public static void putVariable(String name, EveObject eo) {
 		EveObject scope = getScopeForVariable(name);
-		if (!inFunction()) {
+		if (!inFunction() && globalScopes.containsValue(scope) == false) {
 			scope.putField(name, eo);
 		}
 		else {

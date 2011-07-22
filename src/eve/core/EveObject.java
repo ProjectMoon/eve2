@@ -656,8 +656,13 @@ public class EveObject {
 			String fieldName = eo.objectParent.getFieldName(eo);
 			
 			if (fieldName == null) {
-				//this is a dict or list index, and not a field.
-				if (eo.objectParent.getType() == EveType.DICT) {
+				//this is a dict, list, or getter, and not a regular field.
+				fieldName = eo.objectParent.getDynamicFieldName(eo);
+				
+				if (fieldName != null) {
+					fieldName = "dynamic:" + fieldName;
+				}
+				else if (eo.objectParent.getType() == EveType.DICT) {
 					fieldName = "dict:" + eo.objectParent.getDictKey(eo);
 				}
 				else if (eo.objectParent.getType() == EveType.LIST) {
@@ -680,7 +685,17 @@ public class EveObject {
 			String key = null;
 			int index = -1;
 			
-			if (fieldName.startsWith("dict:")) {
+			if (fieldName.startsWith("dynamic:")) {
+				fieldName = fieldName.substring("dynamic:".length());
+				EveObject getter = eo.getField(fieldName);
+				
+				if (getter != null && getter.hasField("get")) {
+					field = getter.getField("get").invokeSelf(eo);
+				}
+				
+				fieldName = "dynamic:" + fieldName; //yeah, ghetto
+			}
+			else if (fieldName.startsWith("dict:")) {
 				key = fieldName.substring("dict:".length());
 				field = eo.getDictValue(key);
 			}
@@ -692,6 +707,7 @@ public class EveObject {
 				field = eo.getField(fieldName);
 			}
 			
+			//handle the cloning.
 			if (field.isMarkedForClone()) {
 				field = field.eventlessClone();
 				field.setMarkedForClone(false);
@@ -699,11 +715,19 @@ public class EveObject {
 			
 			field.objectParent = eo; //necessary?
 			
-			if (fieldName.startsWith("dict:")) {
+			if (fieldName.startsWith("dynamic:")) {
+				fieldName = fieldName.substring("dynamic:".length());
+				EveObject setter = eo.getField(fieldName);
+				
+				if (setter != null && setter.hasField("set")) {
+					setter.getField("set").invokeSetter(eo, field);
+				}
+			}
+			else if (fieldName.startsWith("dict:")) {
 				eo.putDictValue(key, field);
 			}
 			else if (fieldName.startsWith("list:")) {
-				eo.setIndexedProperty(index, field);eo.putField(fieldName, field);
+				eo.setIndexedProperty(index, field);
 			}
 			else {
 				eo.putField(fieldName, field);
@@ -742,6 +766,21 @@ public class EveObject {
 		}
 		
 		return fieldNames;
+	}
+	
+	public String getDynamicFieldName(EveObject value) {
+		for (String fieldName : getFieldNames()) {
+			EveObject eo = getField(fieldName);
+			
+			if (eo != null && eo.hasField("get")) {
+				eo = eo.getField("get").invokeSelf(this);
+				if (eo == value) {
+					return fieldName;
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -983,6 +1022,12 @@ public class EveObject {
 	public EveObject invokeSelf(EveObject self, List<EveObject> actualParameters) {
 		this.putTempField("self", self);
 		return invoke0(actualParameters);
+	}
+	
+	public EveObject invokeSetter(EveObject self, EveObject value) {
+		this.putTempField("self", self);
+		value.objectParent = this;
+		return invoke0(Arrays.asList(value));
 	}
 	
 	private EveObject invoke0(List<EveObject> actualParameters) {
