@@ -84,6 +84,7 @@ Release Notes
 0.3.4:
 
 * Basic REPL.
+* Reference equality operators === and !==.
 
 0.3.3:
 
