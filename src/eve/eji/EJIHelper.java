@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javassist.Modifier;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
@@ -27,6 +29,7 @@ import com.google.common.collect.TreeMultimap;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.builtins.BuiltinCommons;
 import eve.core.Function;
 import eve.scope.ScopeManager;
 
@@ -509,6 +512,62 @@ public class EJIHelper {
 		}
 		
 		return eo;
+	}
+	
+	/**
+	 * Creates a "native namespace" from the given Java class. The class must have the {@link EJINamespace}
+	 * annotation present. This method will find all static methods in the class and convert
+	 * them either to functions or read-only properties. If a method has the {@link EJIProperty} annotation,
+	 * it will convert the method to a read-only property with the name specified by the annotation.
+	 * If there is no annotation present, it will convert the static method to a function. Static
+	 * variables, non-static variables, and non-static methods are all ignored.
+	 * @param cl
+	 */
+	public static void createEJINamespace(Class<?> cl) {
+		if (!cl.isAnnotationPresent(EJINamespace.class)) {
+			throw new EveError(cl.getName() + " is not a valid EJI namespace.");
+		}
+		
+		String namespace = cl.getAnnotation(EJINamespace.class).value();
+		
+		ScopeManager.setNamespace(namespace);
+		ScopeManager.createGlobalScope();
+		EveObject nsGlobal = ScopeManager.getGlobalScope(namespace);
+		
+		Map<String, Method> methods = new HashMap<String, Method>();
+		Map<String, Method> properties = new HashMap<String, Method>();
+	
+		//methods and properties.
+		for (Method method : cl.getMethods()) {
+			if (Modifier.isStatic(method.getModifiers())) {
+				if (method.isAnnotationPresent(EJIProperty.class)) {
+					properties.put(method.getAnnotation(EJIProperty.class).value(), method);
+				}
+				else {
+					if (method.isAnnotationPresent(EJIFunctionName.class)) {
+						methods.put(method.getAnnotation(EJIFunctionName.class).value(), method);
+					}
+					else {
+						methods.put(method.getName(), method);
+					}
+				}
+			}
+		}
+		
+		for (Map.Entry<String, Method> entry : properties.entrySet()) {
+			EJIField field = new EJIField(entry.getValue());
+			nsGlobal.putField(entry.getKey(), field);
+		}
+		
+		for (Map.Entry<String, Method> entry : methods.entrySet()) {
+			//always force the real method name (entry.getValue().getKey()), but we
+			//could possibly use a custom function name (entry.getKey())
+			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName());
+			nsGlobal.putField(entry.getKey(), new EveObject(methodInvocation));
+		}
+		
+		ScopeManager.revertNamespace();
+		BuiltinCommons.addType(namespace, EveObject.namespaceType(namespace));		
 	}
 
 }
