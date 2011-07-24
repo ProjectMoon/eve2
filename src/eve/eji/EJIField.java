@@ -12,6 +12,7 @@ import eve.core.EveObject;
 
 class EJIField extends DynamicField {
 	private boolean isStatic = false;
+	private boolean readOnly = false;
 	
 	//For non-static.
 	private Object context;
@@ -20,14 +21,24 @@ class EJIField extends DynamicField {
 	//For static.
 	private Method method;
 	
+	/**
+	 * Creates a new EJI field from a bean context and property descriptor.
+	 * @param context
+	 * @param pd
+	 */
 	public EJIField(Object context, PropertyDescriptor pd) {
 		this.context = context;
 		this.pd = pd;
 	}
 	
+	/**
+	 * Creates a read-only property from a static method. Used for native namespaces.
+	 * @param method
+	 */
 	public EJIField(Method method) {	
 		this.method = method;
 		this.isStatic = true;
+		this.readOnly = true;
 	}
 	
 	@Override
@@ -73,8 +84,17 @@ class EJIField extends DynamicField {
 
 	@Override
 	public void set(EveObject value) {
+		if (readOnly) {
+			throw new EveError("This property is read-only.");
+		}
+		
 		try {
-			pd.getWriteMethod().invoke(context, new Object[] { value.getObjectValue() });
+			Method writeMethod = pd.getWriteMethod();
+			if (writeMethod == null) {
+				throw new EveError("This property is read-only.");
+			}
+			
+			writeMethod.invoke(context, new Object[] { value.getObjectValue() });
 		}
 		catch (IllegalArgumentException e) {
 			throw new EveError(e.getMessage());
