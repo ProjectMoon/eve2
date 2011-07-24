@@ -12,28 +12,16 @@ import eve.core.EveObject;
 class StaticMethodInvocation extends EJIFunction {
 	private Class<?> cl;
 	private String methodName;
-	private String realMethodName;
 	
 	public StaticMethodInvocation(Class<?> cl, String methodName) {
 		this.cl = cl;
 		this.methodName = methodName;
-		this.realMethodName = methodName;
 		setName(methodName);
 		setParameters("args");
 		setVarargs(true);
 		setVarargsIndex(0);
 	}
-	
-	public StaticMethodInvocation(Class<?> cl, String methodName, String realMethodName) {
-		this.cl = cl;
-		this.methodName = methodName;
-		this.realMethodName = realMethodName;
-		setName(methodName);
-		setParameters("args");
-		setVarargs(true);
-		setVarargsIndex(0);
-	}
-	
+		
 	@Override
 	public EveObject execute(Map<String, EveObject> parameters) {
 		List<EveObject> args = new ArrayList<EveObject>(0);	
@@ -41,7 +29,7 @@ class StaticMethodInvocation extends EJIFunction {
 		if (argObj != null) args = argObj.getListValue();
 		
 		try {
-			Method meth = EJIHelper.findMethod(cl, realMethodName, args);
+			Method meth = EJIHelper.findMethod(cl, methodName, args);
 			Object[] invokeArgs = EJIHelper.mapArguments(meth.getParameterTypes(), args);
 			Object retVal = meth.invoke(null, invokeArgs);
 			

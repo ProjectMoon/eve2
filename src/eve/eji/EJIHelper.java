@@ -560,7 +560,9 @@ public class EJIHelper {
 		}
 		
 		for (Map.Entry<String, Method> entry : methods.entrySet()) {
-			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getKey(), entry.getValue().getName());
+			//always force the real method name (entry.getValue().getKey()), but we
+			//could possibly use a custom function name (entry.getKey())
+			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName());
 			nsGlobal.putField(entry.getKey(), new EveObject(methodInvocation));
 		}
 		
