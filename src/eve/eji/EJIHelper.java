@@ -514,6 +514,15 @@ public class EJIHelper {
 		return eo;
 	}
 	
+	/**
+	 * Creates a "native namespace" from the given Java class. The class must have the {@link EJINamespace}
+	 * annotation present. This method will find all static methods in the class and convert
+	 * them either to functions or read-only properties. If a method has the {@link EJIProperty} annotation,
+	 * it will convert the method to a read-only property with the name specified by the annotation.
+	 * If there is no annotation present, it will convert the static method to a function. Static
+	 * variables, non-static variables, and non-static methods are all ignored.
+	 * @param cl
+	 */
 	public static void createEJINamespace(Class<?> cl) {
 		if (!cl.isAnnotationPresent(EJINamespace.class)) {
 			throw new EveError(cl.getName() + " is not a valid EJI namespace.");

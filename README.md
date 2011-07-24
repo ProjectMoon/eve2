@@ -81,6 +81,11 @@ dependencies into the `dist/` directory for you.
 
 Release Notes
 =============
+0.3.5:
+
+* Much smoother support for creating "native code" through the use of annotations.
+* Rewrote native namespaces using the new annotations.
+
 0.3.4:
 
 * Basic REPL.
