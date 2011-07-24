@@ -85,6 +85,11 @@ Release Notes
 
 * Much smoother support for creating "native code" through the use of annotations.
 * Rewrote native namespaces using the new annotations.
+* Renamed `java` namespace to `eji` since it conflicted with the `java` built-in prototype.
+* Significant enhancements to the import function:
+    * Import standard namespace by namespace name (e.g. `import("eji")`)
+    * Import by package:namespace (e.g. `import("com.mycompany:mynamespace")`)
+    * Import namespace by class name (e.g. `import("com.mycompany.MyNamespace")`)
 
 0.3.4:
 
