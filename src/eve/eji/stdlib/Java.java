@@ -1,19 +1,23 @@
 package eve.eji.stdlib;
 
-import java.util.Map;
-
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIHelper;
 import eve.eji.EJINamespace;
-import eve.eji.EJIProperty;
-import eve.scope.ScopeManager;
 
 @EJINamespace("java")
 public class Java {
 	public static void init() {
 		EJIHelper.createEJINamespace(Java.class);
+	}
+	
+	public static EveObject expose(String className) {
+		return expose0(className, false);
+	}
+	
+	public static EveObject exposeType(String className) {
+		return expose0(className, true);
 	}
 	
 	private static EveObject resolveJavaPackageContainer(String fqcn) {
@@ -64,14 +68,5 @@ public class Java {
 		}
 		
 		return null;
-	}
-
-	
-	public static EveObject expose(String className) {
-		return expose0(className, false);
-	}
-	
-	public static EveObject exposeType(String className) {
-		return expose0(className, true);
 	}
 }
