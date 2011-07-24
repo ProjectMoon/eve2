@@ -3,8 +3,10 @@ package eve.eji;
 import java.beans.IntrospectionException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.reflections.Reflections;
@@ -18,6 +20,8 @@ import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
 
 public class EJIScanner {
+	private static final Map<String, Class<?>> memoizedNamespaces = new HashMap<String, Class<?>>();
+	
 	private List<String> packages = new ArrayList<String>();
 	
 	public EJIScanner() {
@@ -61,6 +65,11 @@ public class EJIScanner {
 	}
 	
 	public Class<?> findNamespace(String pkg, String namespace) {
+		//don't need to scan all the time...
+		if (memoizedNamespaces.containsKey(pkg + ":" + namespace)) {
+			return memoizedNamespaces.get(pkg + ":" + namespace);
+		}
+		
 		FilterBuilder fb = new FilterBuilder();
 		Set<URL> pkgUrls = new HashSet<URL>();
 		
@@ -84,6 +93,7 @@ public class EJIScanner {
 			for (Class<?> cl : annotated) {
 				EJINamespace ns = cl.getAnnotation(EJINamespace.class);
 				if (ns.value().equals(namespace)) {
+					memoizedNamespaces.put(pkg + ":" + namespace, cl);
 					return cl;
 				}
 			}
