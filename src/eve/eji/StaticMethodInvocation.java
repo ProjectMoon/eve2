@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 
 class StaticMethodInvocation extends EJIFunction {
@@ -42,21 +43,27 @@ class StaticMethodInvocation extends EJIFunction {
 			}
 		}
 		catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new EveError(e);
 		}
 		catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new EveError(e);
 		}
 		catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IntrospectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//an error happened in the java code.
+			if (e.getCause() != null) {
+				if (e.getCause() instanceof EveError) {
+					throw new EveError(e.getCause().getMessage());
+				}
+				else {
+					throw new EveError(e.getCause());
+				}
+			}
+			else {
+				throw new EveError(e);
+			}
 		}
-		
-		return null;
+		catch (IntrospectionException e) {
+			throw new EveError(e);
+		}
 	}				
 }

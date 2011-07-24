@@ -13,9 +13,9 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
-import eve.core.builtins.EveGlobal;
 
 public class EJIScanner {
 	private List<String> packages = new ArrayList<String>();
@@ -58,6 +58,42 @@ public class EJIScanner {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public Class<?> findNamespace(String pkg, String namespace) {
+		FilterBuilder fb = new FilterBuilder();
+		Set<URL> pkgUrls = new HashSet<URL>();
+		
+		fb.include(FilterBuilder.prefix(pkg));
+		pkgUrls.addAll(ClasspathHelper.getUrlsForPackagePrefix(pkg));
+		
+		ConfigurationBuilder cb =
+			new ConfigurationBuilder()
+			.filterInputsBy(fb)
+			.setUrls(pkgUrls)
+			.setScanners(new TypeAnnotationsScanner());
+		
+		Reflections reflections = new Reflections(cb);
+		
+		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(EJINamespace.class);
+		
+		if (annotated.size() <= 0) {
+			throw new EveError("could not find any standard namespaces! fatal!");
+		}
+		else {
+			for (Class<?> cl : annotated) {
+				EJINamespace ns = cl.getAnnotation(EJINamespace.class);
+				if (ns.value().equals(namespace)) {
+					return cl;
+				}
+			}
+			
+			throw new EveError("could not find standard namespace " + namespace);
+		}		
+	}
+	
+	public Class<?> findStandardNamespace(String namespace) {
+		return findNamespace("eve.eji.stdlib", namespace);
 	}
 	
 	private void createEJITypes(Set<Class<?>> types) throws InstantiationException, IllegalAccessException, IntrospectionException {

@@ -6,7 +6,7 @@ import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIHelper;
 import eve.eji.EJINamespace;
 
-@EJINamespace("java")
+@EJINamespace("eji")
 public class Java {
 	public static void init() {
 		EJIHelper.createEJINamespace(Java.class);

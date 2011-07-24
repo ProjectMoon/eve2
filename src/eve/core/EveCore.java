@@ -1,5 +1,4 @@
 package eve.core;
-import java.beans.IntrospectionException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -134,11 +133,9 @@ public class EveCore {
 			ScopeManager.createGlobalScope();
 		}
 		
-		eve.eji.stdlib.Java.init();
+		//eve.eji.stdlib.Java.init();
 		eve.eji.stdlib.Core.init();
-		
-		eve.eji.EJIHelper.createEJINamespace(eve.eji.Test.class);		
-			
+				
 		script.execute();
 		ScopeManager.revertNamespace();
 	}

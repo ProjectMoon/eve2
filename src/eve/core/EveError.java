@@ -11,7 +11,7 @@ public class EveError extends RuntimeException {
 		super(message);
 	}
 	
-	public EveError(Exception e) {
+	public EveError(Throwable e) {
 		super(e);
 	}
 }
