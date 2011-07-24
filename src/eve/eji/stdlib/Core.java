@@ -66,14 +66,20 @@ public class Core {
 			importEJINamespace(className);
 		}
 		catch (ClassNotFoundException e) {
-			//now try short-form class.
-			importStandardNamespace(className);
+			//now try short-form class, based on @EJINamespace value (and possibly package)
+			if (className.contains(":")) {
+				String[] pkgAndNS = className.split(":");
+				importNamespace(pkgAndNS[0], pkgAndNS[1]);
+			}
+			else {
+				importNamespace("eve.eji.stdlib", className);
+			}
 		}
 	}
 	
-	private static void importStandardNamespace(String namespace) {
+	private static void importNamespace(String pkg, String namespace) {
 		EJIScanner scanner = new EJIScanner();
-		Class<?> cl = scanner.findStandardNamespace(namespace);
+		Class<?> cl = scanner.findNamespace(pkg, namespace);
 		
 		if (cl != null) {
 			importEJINamespace(cl);
