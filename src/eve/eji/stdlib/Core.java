@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -12,11 +11,9 @@ import eve.core.EveCore;
 import eve.core.EveObject;
 import eve.core.Script;
 import eve.core.builtins.BuiltinCommons;
-import eve.eji.EJIFunction;
 import eve.eji.EJIFunctionName;
 import eve.eji.EJIHelper;
 import eve.eji.EJINamespace;
-import eve.eji.EJIProperty;
 import eve.scope.ScopeManager;
 
 @EJINamespace("_global")
