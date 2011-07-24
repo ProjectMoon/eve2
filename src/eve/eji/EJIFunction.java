@@ -1,6 +1,5 @@
 package eve.eji;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +10,10 @@ import eve.scope.ScopeManager;
 public abstract class EJIFunction extends Function {
 	public static EJIFunction fromJava(Object obj, String methodName) {
 		return new JavaMethodInvocation(obj, methodName);
+	}
+	
+	public static EJIFunction fromStatic(Class<?> cl, String methodName) {
+		return new StaticMethodInvocation(cl, methodName);
 	}
 	
 	@Override

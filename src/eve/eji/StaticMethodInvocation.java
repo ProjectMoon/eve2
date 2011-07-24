@@ -9,12 +9,12 @@ import java.util.Map;
 
 import eve.core.EveObject;
 
-class JavaMethodInvocation extends EJIFunction {
-	private Object o;
+class StaticMethodInvocation extends EJIFunction {
+	private Class<?> cl;
 	private String methodName;
 	
-	public JavaMethodInvocation(Object o, String methodName) {
-		this.o = o;
+	public StaticMethodInvocation(Class<?> cl, String methodName) {
+		this.cl = cl;
 		this.methodName = methodName;
 		setName(methodName);
 		setParameters("args");
@@ -29,9 +29,9 @@ class JavaMethodInvocation extends EJIFunction {
 		if (argObj != null) args = argObj.getListValue();
 		
 		try {
-			Method meth = EJIHelper.findMethod(o.getClass(), methodName, args);
+			Method meth = EJIHelper.findMethod(cl, methodName, args);
 			Object[] invokeArgs = EJIHelper.mapArguments(meth.getParameterTypes(), args);
-			Object retVal = meth.invoke(o, invokeArgs);
+			Object retVal = meth.invoke(null, invokeArgs);
 			
 			if (retVal != null) {
 				EveObject eo = EJIHelper.createEJIType(retVal);

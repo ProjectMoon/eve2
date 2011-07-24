@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javassist.Modifier;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
@@ -27,6 +29,7 @@ import com.google.common.collect.TreeMultimap;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.builtins.BuiltinCommons;
 import eve.core.Function;
 import eve.scope.ScopeManager;
 
@@ -509,6 +512,35 @@ public class EJIHelper {
 		}
 		
 		return eo;
+	}
+	
+	public static void createEJINamespace(Class<?> cl) {
+		if (!cl.isAnnotationPresent(EJINamespace.class)) {
+			throw new EveError(cl.getName() + " is not a valid EJI namespace.");
+		}
+		
+		String namespace = cl.getAnnotation(EJINamespace.class).value();
+		
+		ScopeManager.setNamespace(namespace);
+		ScopeManager.createGlobalScope();
+		EveObject nsGlobal = ScopeManager.getGlobalScope(namespace);
+		
+		//turn all static methods into functions for now...
+		Set<String> methodNames = new HashSet<String>();
+		
+		for (Method method : cl.getMethods()) {
+			if (Modifier.isStatic(method.getModifiers())) {
+				methodNames.add(method.getName());
+			}
+		}
+		
+		for (String methodName : methodNames) {
+			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, methodName);
+			nsGlobal.putField(methodName, new EveObject(methodInvocation));
+		}
+		
+		ScopeManager.revertNamespace();
+		BuiltinCommons.addType(namespace, EveObject.namespaceType(namespace));		
 	}
 
 }
