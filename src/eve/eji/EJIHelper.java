@@ -534,7 +534,7 @@ public class EJIHelper {
 		ScopeManager.createGlobalScope();
 		EveObject nsGlobal = ScopeManager.getGlobalScope(namespace);
 		
-		Set<String> methodNames = new HashSet<String>();
+		Map<String, Method> methods = new HashMap<String, Method>();
 		Map<String, Method> properties = new HashMap<String, Method>();
 	
 		//methods and properties.
@@ -544,7 +544,12 @@ public class EJIHelper {
 					properties.put(method.getAnnotation(EJIProperty.class).value(), method);
 				}
 				else {
-					methodNames.add(method.getName());
+					if (method.isAnnotationPresent(EJIFunctionName.class)) {
+						methods.put(method.getAnnotation(EJIFunctionName.class).value(), method);
+					}
+					else {
+						methods.put(method.getName(), method);
+					}
 				}
 			}
 		}
@@ -554,9 +559,9 @@ public class EJIHelper {
 			nsGlobal.putField(entry.getKey(), field);
 		}
 		
-		for (String methodName : methodNames) {
-			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, methodName);
-			nsGlobal.putField(methodName, new EveObject(methodInvocation));
+		for (Map.Entry<String, Method> entry : methods.entrySet()) {
+			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getKey(), entry.getValue().getName());
+			nsGlobal.putField(entry.getKey(), new EveObject(methodInvocation));
 		}
 		
 		ScopeManager.revertNamespace();

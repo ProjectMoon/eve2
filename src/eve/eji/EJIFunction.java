@@ -16,6 +16,10 @@ public abstract class EJIFunction extends Function {
 		return new StaticMethodInvocation(cl, methodName);
 	}
 	
+	public static EJIFunction fromStatic(Class<?> cl, String methodName, String realMethodName) {
+		return new StaticMethodInvocation(cl, methodName, realMethodName);
+	}
+	
 	@Override
 	public EveObject execute() {
 		Map<String, EveObject> params = new HashMap<String, EveObject>();
