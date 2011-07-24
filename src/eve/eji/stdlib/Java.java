@@ -13,11 +13,6 @@ import eve.scope.ScopeManager;
 @EJINamespace("java")
 public class Java {
 	public static void init() {
-		/*ScopeManager.setNamespace("java");
-		ScopeManager.createGlobalScope();
-		ScopeManager.putVariable("expose", new EveObject(new JavaFunction(false)));
-		ScopeManager.putVariable("exposeType", new EveObject(new JavaFunction(true)));
-		ScopeManager.revertNamespace();*/
 		EJIHelper.createEJINamespace(Java.class);
 	}
 	
