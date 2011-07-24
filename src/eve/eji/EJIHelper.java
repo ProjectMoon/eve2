@@ -525,13 +525,24 @@ public class EJIHelper {
 		ScopeManager.createGlobalScope();
 		EveObject nsGlobal = ScopeManager.getGlobalScope(namespace);
 		
-		//turn all static methods into functions for now...
 		Set<String> methodNames = new HashSet<String>();
-		
+		Map<String, Method> properties = new HashMap<String, Method>();
+	
+		//methods and properties.
 		for (Method method : cl.getMethods()) {
 			if (Modifier.isStatic(method.getModifiers())) {
-				methodNames.add(method.getName());
+				if (method.isAnnotationPresent(EJIProperty.class)) {
+					properties.put(method.getAnnotation(EJIProperty.class).value(), method);
+				}
+				else {
+					methodNames.add(method.getName());
+				}
 			}
+		}
+		
+		for (Map.Entry<String, Method> entry : properties.entrySet()) {
+			EJIField field = new EJIField(entry.getValue());
+			nsGlobal.putField(entry.getKey(), field);
 		}
 		
 		for (String methodName : methodNames) {

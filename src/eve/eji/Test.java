@@ -8,6 +8,7 @@ public class Test {
 		System.out.println("hello natively");
 	}
 	
+	@EJIProperty("obj")
 	public static int getObj() {
 		return 5;
 	}
