@@ -119,7 +119,8 @@ public class EveObject {
 	}
 	
 	public EveObject(Integer i) {
-		this(EveInteger.getPrototype());
+		//this(EveInteger.getPrototype());
+		this(BuiltinCommons.getType("int"));
 		setIntValue(i);
 	}
 	
@@ -956,32 +957,21 @@ public class EveObject {
 		}
 		
 		//Otherwise, default.
-		switch (getType()) {
-			case INTEGER:
-				return this.getIntValue().toString();
-			case DOUBLE:
-				return this.getDoubleValue().toString();
-			case BOOLEAN:
-				return this.getBooleanValue().toString();
-			case STRING:
-				return this.getStringValue();
-			case FUNCTION:
-				return this.getFunctionValue().toString();
-			case LIST:
-				return this.getListValue().toString();
-			case CUSTOM:
-				return "<" + this.getTypeName() + ">";
-			case PROTOTYPE:
-				return "<prototype " + this.getTypeName() + ">";
-			case JAVA:
-				return this.getJavaValue().toString();
-			case DICT:
-				return this.getDictionaryValue().toString();
-			case NULL:
-				return "null";
+		try {
+			switch (getType()) {
+				case PROTOTYPE:
+					return "<type " + this.getTypeName() + ">";
+				case CUSTOM:
+					return "<" + this.getTypeName() + ">";
+				case NULL:
+					return "null";
+				default:
+					return this.getObjectValue().toString();
+			}
 		}
-		
-		return "<unknown>";
+		catch (NullPointerException e) {
+			return "null";
+		}
 	}
 	
 	public EveObject getObjectParent() {

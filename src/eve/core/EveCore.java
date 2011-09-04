@@ -135,6 +135,14 @@ public class EveCore {
 		
 		eve.eji.stdlib.EJI.init();
 		eve.eji.stdlib.Core.init();
+		
+		//Scan for built-in EJI types. Due to a bug with the annotation scanning
+		//library, we must search starting *above* eve.core.builtins. All of the
+		//annotated classes are in eve.core.builtins however. If we were to search
+		//eve.core.builtins, no classes would be found.
+		EJIScanner scanner = new EJIScanner(); 
+		scanner.addPackage("eve");
+		scanner.scan();
 				
 		script.execute();
 		ScopeManager.revertNamespace();

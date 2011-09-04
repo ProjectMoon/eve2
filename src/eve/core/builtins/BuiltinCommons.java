@@ -21,7 +21,7 @@ public class BuiltinCommons {
 		//initialize the type pool with the default (built-in) types.
 		//each type is initialized with common properties by the initialize() method.
 		typePool.put(EveBuiltinObject.getPrototype().getTypeName(), initialize(EveBuiltinObject.getPrototype()));
-		typePool.put(EveInteger.getPrototype().getTypeName(), initialize(EveInteger.getPrototype()));
+		//typePool.put(EveInteger.getPrototype().getTypeName(), initialize(EveInteger.getPrototype()));
 		typePool.put(EveString.getPrototype().getTypeName(), initialize(EveString.getPrototype()));
 		typePool.put(EveDouble.getPrototype().getTypeName(), initialize(EveDouble.getPrototype()));
 		typePool.put(EveBoolean.getPrototype().getTypeName(), initialize(EveBoolean.getPrototype()));
