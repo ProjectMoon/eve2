@@ -109,7 +109,9 @@ public class EJIScanner {
 	private void createEJITypes(Set<Class<?>> types) throws InstantiationException, IllegalAccessException, IntrospectionException {
 		for (Class<?> type : types) {
 			EJIType typeInfo = type.getAnnotation(EJIType.class);
-			EveObject eo = EJIHelper.createEJIConstructor(type);
+			EveObject ctor = EJIHelper.createEJIConstructor(type);
+			EveObject eo = EveObject.prototypeType(typeInfo.value());
+			eo.putField("__create", ctor);
 			ExternalTypes.addType(typeInfo.value(), eo);
 		}
 	}

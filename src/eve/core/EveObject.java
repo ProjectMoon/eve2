@@ -268,9 +268,7 @@ public class EveObject {
 	}
 	
 	public static EveObject namespaceType(String nsName) {
-		EveObject eo = new EveObject();
-		eo.setTypeName("namespace");
-		eo.setType(EveType.CUSTOM);
+		EveObject eo = EveObject.prototypeType("namespace_" + nsName);
 		eo.cloneable = false;
 		eo.putField("ns", new EveObject(nsName));
 		eo.putField("type", new EveObject("namespace"));
@@ -380,8 +378,9 @@ public class EveObject {
 
 	public Function getFunctionValue() {
 		if (this.getType() != EveType.FUNCTION) {
-			throw new EveError(this + " is not a function!");
+			throw new EveError(this + " is not a function.");
 		}
+		
 		return functionValue;
 	}
 
@@ -1023,6 +1022,17 @@ public class EveObject {
 	}
 	
 	private EveObject invoke0(List<EveObject> actualParameters) {
+		//types must define a __create field in order to have a "constructor".
+		if (this.getType() == EveType.PROTOTYPE) {
+			EveObject __create = this.getField("__create");
+			if (__create != null) {
+				return __create.invoke(actualParameters);
+			}
+			else {
+				throw new EveError("type " + this.getTypeName() + " cannot be created through invocation.");
+			}
+		}
+		
 		if (this.getType() != EveType.FUNCTION) {
 			throw new EveError(this + " is not a function.");
 		}

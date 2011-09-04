@@ -33,7 +33,7 @@ public class FunctionInvokeExpression extends ExpressionStatement implements Eve
 	public EveObject execute() {
 		EveObject funcVariable = funcExpr.execute();
 		
-		if (funcVariable == null || funcVariable.getType() != EveType.FUNCTION) {
+		if (funcVariable == null || (funcVariable.getType() != EveType.FUNCTION && funcVariable.getType() != EveType.PROTOTYPE)) {
 			throw new EveError(funcVariable + " is not a function.");
 		}
 		
