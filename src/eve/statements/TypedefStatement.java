@@ -36,25 +36,22 @@ public class TypedefStatement extends AbstractStatement implements EveStatement 
 
 	@Override
 	public EveObject execute() {
+		EveObject type = null;
 		if (!extern) {
-			EveObject type = expr.execute();
-			type = type.eventlessClone();
-			type.setType(EveType.PROTOTYPE);
-			type.setTypeName(ident);
-			
-			BuiltinCommons.addType(ident, type);
+			type = expr.execute();
 		}
 		else {
-			//pull from external types.
-			EveObject type = ExternalTypes.getType(ident);
-			
-			if (type != null) {
-				BuiltinCommons.addType(ident, type);
-			}
-			else {
+			type = ExternalTypes.getType(ident);
+			if (type == null) {
 				throw new EveError("could not find external type " + ident);
 			}
 		}
+ 
+		type = type.eventlessClone();
+		type.setType(EveType.PROTOTYPE);
+		type.setTypeName(ident);
+		
+		BuiltinCommons.addType(ident, type);
 		
 		return null;
 	}
