@@ -273,6 +273,7 @@ public class EveObject {
 		eo.setType(EveType.CUSTOM);
 		eo.cloneable = false;
 		eo.putField("ns", new EveObject(nsName));
+		eo.putField("type", new EveObject("namespace"));
 		eo.setStringRepresentation("<namespace " + nsName + ">");
 		return eo;
 	}
