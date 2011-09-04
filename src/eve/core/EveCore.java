@@ -133,7 +133,7 @@ public class EveCore {
 			ScopeManager.createGlobalScope();
 		}
 		
-		eve.eji.stdlib.Java.init();
+		eve.eji.stdlib.EJI.init();
 		eve.eji.stdlib.Core.init();
 				
 		script.execute();
@@ -145,7 +145,7 @@ public class EveCore {
 			ScopeManager.setNamespace("_global");
 			ScopeManager.createGlobalScope();
 					
-			eve.eji.stdlib.Java.init();
+			eve.eji.stdlib.EJI.init();
 			eve.eji.stdlib.Core.init();
 			repl = true;
 		}

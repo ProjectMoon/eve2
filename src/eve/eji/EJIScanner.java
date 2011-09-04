@@ -110,7 +110,7 @@ public class EJIScanner {
 		for (Class<?> type : types) {
 			EJIType typeInfo = type.getAnnotation(EJIType.class);
 			EveObject eo = EJIHelper.createEJIConstructor(type);
-			BuiltinCommons.addType(typeInfo.value(), eo);
+			ExternalTypes.addType(typeInfo.value(), eo);
 		}
 	}
 }

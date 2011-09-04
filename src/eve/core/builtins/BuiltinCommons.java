@@ -36,7 +36,7 @@ public class BuiltinCommons {
 			return;
 		}
 		
-		typePool.put(name, type);
+		typePool.put(name, initialize(type));
 	}
 	
 	public static EveObject getType(String name) {

@@ -5,11 +5,12 @@ import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIHelper;
 import eve.eji.EJINamespace;
+import eve.eji.EJIScanner;
 
 @EJINamespace("eji")
-public class Java {
+public class EJI {
 	public static void init() {
-		EJIHelper.createEJINamespace(Java.class);
+		EJIHelper.createEJINamespace(EJI.class);
 	}
 	
 	public static EveObject expose(String className) {
@@ -18,6 +19,12 @@ public class Java {
 	
 	public static EveObject exposeType(String className) {
 		return expose0(className, true);
+	}
+	
+	public static void scan(String pkg) {
+		EJIScanner scanner = new EJIScanner();
+		scanner.addPackage(pkg);
+		scanner.scan();
 	}
 	
 	private static EveObject resolveJavaPackageContainer(String fqcn) {
