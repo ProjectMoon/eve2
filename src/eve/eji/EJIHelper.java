@@ -516,7 +516,7 @@ public class EJIHelper {
 	
 	/**
 	 * Creates a "native namespace" from the given Java class. The class must have the {@link EJINamespace}
-	 * annotation present. This method will find all static methods in the class and convert
+	 * annotation present. This method will find all public static methods in the class and convert
 	 * them either to functions or read-only properties. If a method has the {@link EJIProperty} annotation,
 	 * it will convert the method to a read-only property with the name specified by the annotation.
 	 * If there is no annotation present, it will convert the static method to a function. Static
