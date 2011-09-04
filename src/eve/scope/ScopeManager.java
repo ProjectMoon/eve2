@@ -37,7 +37,6 @@ public class ScopeManager {
 		Deque<EveObject> globalScope = new ArrayDeque<EveObject>();
 		namespaces.put("global", globalScope);
 		namespaces.put("_global", globalScope);
-		//setNamespace("_global");
 	}
 	
 	public static EveObject getCurrentScope() {
@@ -192,7 +191,7 @@ public class ScopeManager {
 			return;
 		}
 		
-		EveObject global = EveObject.globalType();
+		EveObject global = EveObject.globalType(getNamespace());
 		setGlobalScope(global);
 		pushScope(global);
 	}
@@ -275,6 +274,20 @@ public class ScopeManager {
 
 	public static Map<String, Deque<EveObject>> getNamespaces() {
 		return namespaces;
+	}
+	
+	public static void defineNamespace(String namespace, Script script) {
+		if (namespaces.containsKey(namespace)) {
+			throw new EveError("namespace " + namespace + " is already defined.");
+		}
+		
+		//Set the namespace and global scope, but do not pop it.
+		//If we pop scope, the namespace will lose its global scope!
+		setNamespace(namespace);
+		createGlobalScope();
+		BuiltinCommons.addType(script.getNamespace(), EveObject.namespaceType(script.getNamespace()));
+		script.execute();
+		revertNamespace();
 	}
 	
 	public static void setNamespace(String namespace) {

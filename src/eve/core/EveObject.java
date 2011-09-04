@@ -238,8 +238,9 @@ public class EveObject {
 		setDictionaryValue(d);
 	}
 
-	public static EveObject globalType() {
+	public static EveObject globalType(String namespace) {
 		EveObject global = EveGlobal.getPrototype().eventlessClone();
+		global.setTypeName(namespace + " scope");
 		return global;
 	}
 	

@@ -33,7 +33,7 @@ public class Core {
 		EveCore core = new EveCore();
 		try {
 			Script script = core.getScript(file.getAbsolutePath());
-			ScopeManager.setNamespace("_global");
+			/*ScopeManager.setNamespace("_global");
 			ScopeManager.pushScope(ScopeManager.getGlobalScope());
 
 			if (!script.getNamespace().equals("_global")) {
@@ -49,6 +49,18 @@ public class Core {
 			if (!script.getNamespace().equals("_global")) {
 				ScopeManager.popScope();
 				ScopeManager.revertNamespace();
+			}
+			*/
+			
+			if (script.getNamespace().equals("_global")) {
+				ScopeManager.setNamespace("_global");
+				ScopeManager.pushScope(ScopeManager.getGlobalScope());
+				script.execute();
+				ScopeManager.popScope();
+				ScopeManager.revertNamespace();
+			}
+			else {
+				ScopeManager.defineNamespace(script.getNamespace(), script);
 			}
 		}
 		catch (RecognitionException e) {
