@@ -932,7 +932,7 @@ public class EveObject {
 	}
 
 	public String toString() {
-		//utilize the java-defined toString if present, over all others.
+		//utilize the java-defined stringRepresentation if present, over all others.
 		if (getStringRepresentation() != null) {
 			return getStringRepresentation();
 		}
