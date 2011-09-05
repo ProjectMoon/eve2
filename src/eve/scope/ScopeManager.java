@@ -217,9 +217,10 @@ public class ScopeManager {
 		
 		Iterator<EveObject> desc = getScopeStack().descendingIterator();
 		
+		//now add any functions or other scopes.
 		while (desc.hasNext()) {
 			EveObject eo = desc.next();
-			if (eo.getType() == EveType.FUNCTION && closureStack.contains(eo) == false) {
+			if ((eo.getType() == EveType.FUNCTION  || eo.getType() == EveType.SCOPE) && closureStack.contains(eo) == false) {
 				EveObject clone = eo.eveClone();
 				clone.transferTempFields();
 				closureStack.push(clone);

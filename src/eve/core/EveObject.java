@@ -11,21 +11,12 @@ import java.util.PriorityQueue;
 import java.util.TreeMap;
 
 import eve.core.builtins.BuiltinCommons;
-import eve.core.builtins.EveBoolean;
-import eve.core.builtins.EveDictionary;
-import eve.core.builtins.EveDouble;
-import eve.core.builtins.EveFunction;
-import eve.core.builtins.EveGlobal;
-import eve.core.builtins.EveInteger;
-import eve.core.builtins.EveJava;
-import eve.core.builtins.EveList;
-import eve.core.builtins.EveString;
 import eve.eji.DynamicField;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
 public class EveObject {
-	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA, NULL };
+	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA, NULL, SCOPE };
 	public static final String WITH_STATEMENT_TYPENAME = "with-statement";
 	
 	//the type and type name of this object.
@@ -276,6 +267,13 @@ public class EveObject {
 		return eo;
 	}
 	
+	public static EveObject scopeType(String scopeName) {
+		EveObject eo = new EveObject();
+		eo.setType(EveType.SCOPE);
+		eo.setTypeName("scope(" + scopeName + ")");
+		return eo;
+	}
+	
 	public static EveObject withStatementType() {
 		EveObject eo = new EveObject();
 		eo.setType(EveType.CUSTOM);
@@ -472,9 +470,9 @@ public class EveObject {
 			return this.getDictionaryValue();
 		case NULL:
 			return null;
-		}
-	
-		throw new EveError("unrecognized type " + getType() + " for getObjectValue()");		
+		default:
+			return null;
+		}		
 	}
 
 	/**
@@ -882,19 +880,13 @@ public class EveObject {
 				return "function";
 			case LIST:
 				return "list";
-			case CUSTOM:
-				return this.typeName;
-			case PROTOTYPE:
-				return this.typeName;
-			case JAVA:
-				return this.typeName;
 			case DICT:
 				return "dict";
 			case NULL:
 				return "null";
+			default:
+				return this.typeName;
 		}
-		
-		throw new EveError("unrecognized type " + getType() + " for getTypeName()");
 	}
 		
 	public void setStringRepresentation(String stringRepresentation) {
@@ -964,6 +956,8 @@ public class EveObject {
 					return "<" + this.getTypeName() + ">";
 				case NULL:
 					return "null";
+				case SCOPE:
+					return "<" + this.getTypeName() + ">";
 				default:
 					return this.getObjectValue().toString();
 			}
@@ -1111,7 +1105,7 @@ public class EveObject {
 		return retval;
 	}
 	
-	private Deque<EveObject> recursePossibleClosures(Deque<EveObject> closureStack) {
+	public Deque<EveObject> recursePossibleClosures(Deque<EveObject> closureStack) {
 		//first, this one.
 		if (this.getType() == EveType.FUNCTION) {
 			Function func = this.getFunctionValue();

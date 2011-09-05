@@ -38,12 +38,13 @@ public class ScopeStatement extends AbstractStatement implements EveStatement, C
 		//lest it be exported.
 		if (type.equals("private")) {
 			closureAnalysis(null);
-			EveObject scope = EveObject.customType("scope(private)");
+			EveObject scope = EveObject.scopeType("private");
 			ScopeManager.pushScope(scope);
 			new Interpreter().executeStatements(statements);
-			ScopeManager.popScope();
 			
-			//eve.core.builtins.BuiltinCommons.getType("math").recursePossibleClosures(null);
+			
+			scope.recursePossibleClosures(null);
+			ScopeManager.popScope();
 			//we need to force anything that lives outside of the scope (aka typedefs)
 			//to recurse for closures.
 			
