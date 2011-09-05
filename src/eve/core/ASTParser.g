@@ -92,6 +92,7 @@ parameters returns [List<String> result]
 
 topdown
 	:	withStatementDown
+	|	scopeStatementDown
 	|	assignFunctionDown
 	|	assignDelegateDown
 	|	functionNameDown
@@ -110,6 +111,7 @@ topdown
 
 bottomup
 	:	withStatementUp
+	|	scopeStatementUp
 	|	assignFunctionUp
 	|	assignDelegateUp
 	|	functionParametersUp
@@ -182,6 +184,30 @@ withStatementUp
 			WithStatement with = (WithStatement)ScopeManager.popConstructionScope();
 			ScopeManager.getCurrentConstructionScope().addStatement(with);
 			EveLogger.debug("popping with statement " + with);
+		}
+	;
+	
+//scope statement
+scopeStatementDown
+	:	^(SCOPE 'private' .*) {
+			ScopeStatement stmt = new ScopeStatement("private");
+			stmt.setLine($SCOPE.getLine());
+			ScopeManager.pushConstructionScope(stmt);
+			EveLogger.debug("pushing scope statement " + stmt);
+		}
+	|	^(SCOPE 'global' .*) {
+			ScopeStatement stmt = new ScopeStatement("global");
+			stmt.setLine($SCOPE.getLine());
+			ScopeManager.pushConstructionScope(stmt);
+			EveLogger.debug("pushing scope statement " + stmt);
+		}
+	;
+	
+scopeStatementUp
+	: ^(SCOPE .*) {
+			ScopeStatement stmt = (ScopeStatement)ScopeManager.popConstructionScope();
+			ScopeManager.getCurrentConstructionScope().addStatement(stmt);
+			EveLogger.debug("popping scope statement " + stmt);
 		}
 	;
 

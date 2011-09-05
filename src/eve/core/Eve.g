@@ -7,6 +7,7 @@ options {
 }
 
 tokens {
+	SCOPE;
 	PROTO_PROPERTY;
 	TYPEDEF;
 	TYPEDEF_EXTERN;
@@ -114,6 +115,7 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	expressionStatement
 	|	withStatement
 	|	typedefStatement
+	|	scopeStatement
 	;
 	
 typedefStatement
@@ -124,6 +126,11 @@ typedefStatement
 withStatement
 	:	'with' '(' idents+=IDENT (',' idents+=IDENT)* ')' '{' codeStatement* '}'
 		-> ^(WITH $idents+ ^(WITH_BODY codeStatement*))
+	;
+	
+scopeStatement
+	:	'scope' '(' 'private' ')' '{' codeStatement * '}' -> ^(SCOPE 'private' codeStatement*)
+	|	'scope' '(' 'global' ')' '{' codeStatement * '}' -> ^(SCOPE 'global' codeStatement*)
 	;
 		
 expressionStatement
