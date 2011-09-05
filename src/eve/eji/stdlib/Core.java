@@ -60,12 +60,7 @@ public class Core {
 		EveCore core = new EveCore();
 		try {
 			Script script = core.getScript(file.getAbsolutePath());
-			
-			ScopeManager.setNamespace("_global");
-			ScopeManager.pushScope(ScopeManager.getGlobalScope());
 			script.execute();
-			ScopeManager.popScope();
-			ScopeManager.revertNamespace();
 		}
 		catch (RecognitionException e) {
 			// TODO Auto-generated catch block

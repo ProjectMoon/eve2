@@ -35,8 +35,9 @@ public class ScopeManager {
 		//_global is the default namespace. This allows getObject to enforce
 		//use of global:: for finding global variables.
 		Deque<EveObject> globalScope = new ArrayDeque<EveObject>();
-		namespaces.put("global", globalScope);
+		//namespaces.put("global", globalScope);
 		namespaces.put("_global", globalScope);
+		setNamespace("_global");
 	}
 	
 	public static EveObject getCurrentScope() {
@@ -269,14 +270,17 @@ public class ScopeManager {
 		return script;
 	}
 
+	@Deprecated
 	public static void setNamespaces(Map<String, Deque<EveObject>> namespaces) {
 		ScopeManager.namespaces = namespaces;
 	}
 
+	@Deprecated
 	public static Map<String, Deque<EveObject>> getNamespaces() {
 		return namespaces;
 	}
 	
+	@Deprecated
 	public static void defineNamespace(String namespace, Script script) {
 		if (namespaces.containsKey(namespace)) {
 			throw new EveError("namespace " + namespace + " is already defined.");
@@ -291,6 +295,7 @@ public class ScopeManager {
 		revertNamespace();
 	}
 	
+	@Deprecated
 	public static void setNamespace(String namespace) {
 		previousNamespace = namespaceStack.peek();
 		namespaceStack.push(namespace);
@@ -300,10 +305,12 @@ public class ScopeManager {
 		}
 	}
 	
+	@Deprecated
 	public static String getNamespace() {
 		return namespaceStack.peek();
 	}
 	
+	@Deprecated
 	public static String revertNamespace() {
 		String ns = namespaceStack.pop();
 		//String currNS = namespaceStack.peek();

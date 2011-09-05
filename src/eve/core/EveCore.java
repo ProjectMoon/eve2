@@ -134,13 +134,11 @@ public class EveCore {
 		scanner.addPackage("eve");
 		scanner.scanForTypes();
 		
-		ScopeManager.setNamespace("_global");
 		ScopeManager.createGlobalScope();
 				
 		scanner.loadNamespaces();
 					
 		script.execute();
-		ScopeManager.revertNamespace();
 	}
 	
 	public void initForREPL() {
@@ -154,7 +152,6 @@ public class EveCore {
 			scanner.addPackage("eve");
 			scanner.scanForTypes();
 			
-			ScopeManager.setNamespace("_global");
 			ScopeManager.createGlobalScope();
 					
 			scanner.loadNamespaces();
@@ -290,12 +287,7 @@ public class EveCore {
 		
 		Script script = getScriptFromCode(code);
 		
-		try {
-			if (!script.getNamespace().equals("_global")) {
-				ScopeManager.setNamespace(script.getNamespace());
-				ScopeManager.createGlobalScope();
-			}
-			
+		try {			
 			script.execute();
 			return true;
 		}

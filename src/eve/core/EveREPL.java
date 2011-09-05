@@ -20,12 +20,7 @@ public class EveREPL {
 			try {
 				Script script = core.getScriptFromCode(buffer.trim());
 				script.setREPL(true);
-				
-				if (!script.getNamespace().equals("_global")) {
-					ScopeManager.setNamespace(script.getNamespace());
-					ScopeManager.createGlobalScope();
-				}
-				
+								
 				script.execute();
 				prompt = "> ";
 				buffer = "";
