@@ -26,10 +26,10 @@ public class WithStatement extends AbstractStatement implements EveStatement, Co
 
 	@Override
 	public EveObject execute() {
-		//create new eve object for scope.
-		//eventless clone all idents
-		//push scope
-		EveObject with = EveObject.withStatementType();
+		//this is a bit ghetto; FunctionDefExpression will check for the with
+		//statement type name in order to determine that a with statement is
+		//being used...
+		EveObject with = EveObject.scopeType(EveObject.WITH_STATEMENT_TYPENAME);
 		
 		for (String ident : withVariables) {
 			EveObject eo = ScopeManager.getVariable(ident);

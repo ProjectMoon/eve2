@@ -15,10 +15,16 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 	private ExpressionStatement expression;
 	private String identifier;
 	private boolean usingMutatorAccessor = true;
+	private boolean typeResolution = false;
 	
 	public PropertyResolution(ExpressionStatement expr, String identifier) {
 		this.setExpression(expr);
 		this.setIdentifier(identifier);
+	}
+	
+	public PropertyResolution(ExpressionStatement expr, String identifier, boolean typeResolution) {
+		this(expr, identifier);
+		this.typeResolution = typeResolution;
 	}
 	
 	@Override
@@ -29,6 +35,11 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 	@Override
 	public EveObject execute() {
 		EveObject obj = getExpression().execute();
+		
+		if (obj.getType() == EveType.PROTOTYPE && !typeResolution) {
+			throw new EveError("must use :: to resolve type properties");
+		}
+		
 		EveObject eo = obj.getField(getIdentifier());
 		
 		if (eo == null) {

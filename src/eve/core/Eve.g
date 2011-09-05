@@ -7,12 +7,11 @@ options {
 }
 
 tokens {
+	SCOPE;
+	PROTO_PROPERTY;
 	TYPEDEF;
 	TYPEDEF_EXTERN;
 	TYPEDEF_EXPR;
-	NAMESPACE;
-	NS_SWITCH_BLOCK;
-	NS_SWITCH_EXPR;
 	NEGATION;
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
@@ -98,13 +97,9 @@ tokens {
 
 //Top level
 program
-	:	namespace? statement*
+	:	statement*
 	;
 	
-namespace
-	:	'namespace' IDENT ';' -> ^(NAMESPACE IDENT)
-	;
-
 // Statements
 statement
 	:	codeStatement
@@ -120,16 +115,35 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	expressionStatement
 	|	withStatement
 	|	typedefStatement
+	|	scopeStatement
 	;
 	
 typedefStatement
 	:	'typedef' 'extern' IDENT ';' -> ^(TYPEDEF_EXTERN IDENT)
 	|	'typedef' IDENT '=' expression ';' -> ^(TYPEDEF_EXPR IDENT expression)
+	|	'typedef' IDENT ';' -> ^(TYPEDEF IDENT)
 	;
 	
 withStatement
 	:	'with' '(' idents+=IDENT (',' idents+=IDENT)* ')' '{' codeStatement* '}'
 		-> ^(WITH $idents+ ^(WITH_BODY codeStatement*))
+	;
+	
+scopeStatement
+	:	('scope' '(' .* ')' '{' codeStatement * '}') => scopeBlock
+	|	('scope' '(' .* ')' codeStatement) => scopeLine
+	//|	('scope' '(' 'global' ')' '{' codeStatement * '}') => scopeBlock
+	//|	('scope' '(' 'global' ')' codeStatement) => scopeLine
+	;
+	
+scopeBlock
+	:	'scope' '(' 'private' ')' '{' codeStatement * '}' -> ^(SCOPE 'private' codeStatement*)
+	|	'scope' '(' 'global' ')' '{' codeStatement * '}' -> ^(SCOPE 'global' codeStatement*)
+	;
+	
+scopeLine
+	:	'scope' '(' 'private' ')' codeStatement -> ^(SCOPE 'private' codeStatement)
+	|	'scope' '(' 'global' ')' codeStatement -> ^(SCOPE 'global' codeStatement)
 	;
 		
 expressionStatement
@@ -201,7 +215,6 @@ atom
 	|	DICT_LITERAL
 	|	NULL
 	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
-	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	;
 
 term
@@ -217,6 +230,7 @@ suffix [CommonTree t]
 	|	( x='[' modifiers  ']' -> ^(ARRAY_IDENT {$t} modifiers) )
 	|	( x='.' (p=IDENT) -> ^(PROPERTY {$t} $p) )
 	|	( '-' '>' (p=IDENT) -> ^(POINTER {t} $p) )
+	|	( '::' (p=IDENT) -> ^(PROTO_PROPERTY {$t} $p) )
 	;
 	
 boolNegation
@@ -290,7 +304,7 @@ INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
 NULL : 'null' ;
-IDENT : LETTER ( LETTER | UNDERSCORE | DIGIT)*;
+IDENT : (UNDERSCORE | LETTER) ( LETTER | UNDERSCORE | DIGIT)*;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN; };
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN; };

@@ -11,21 +11,12 @@ import java.util.PriorityQueue;
 import java.util.TreeMap;
 
 import eve.core.builtins.BuiltinCommons;
-import eve.core.builtins.EveBoolean;
-import eve.core.builtins.EveDictionary;
-import eve.core.builtins.EveDouble;
-import eve.core.builtins.EveFunction;
-import eve.core.builtins.EveGlobal;
-import eve.core.builtins.EveInteger;
-import eve.core.builtins.EveJava;
-import eve.core.builtins.EveList;
-import eve.core.builtins.EveString;
 import eve.eji.DynamicField;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
 public class EveObject {
-	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA, NULL };
+	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, DICT, JAVA, NULL, SCOPE };
 	public static final String WITH_STATEMENT_TYPENAME = "with-statement";
 	
 	//the type and type name of this object.
@@ -238,9 +229,10 @@ public class EveObject {
 		setDictionaryValue(d);
 	}
 
-	public static EveObject globalType(String namespace) {
+	public static EveObject globalType() {
 		EveObject global = new EveObject(BuiltinCommons.getType("global"));
-		global.setTypeName(namespace + " scope");
+		global.setType(EveType.SCOPE);
+		global.setTypeName("scope(global)");
 		return global;
 	}
 	
@@ -276,6 +268,13 @@ public class EveObject {
 		return eo;
 	}
 	
+	public static EveObject scopeType(String scopeName) {
+		EveObject eo = new EveObject();
+		eo.setType(EveType.SCOPE);
+		eo.setTypeName("scope(" + scopeName + ")");
+		return eo;
+	}
+	
 	public static EveObject withStatementType() {
 		EveObject eo = new EveObject();
 		eo.setType(EveType.CUSTOM);
@@ -292,7 +291,7 @@ public class EveObject {
 	
 	public void markFieldsForClone() {
 		for (EveObject eo : getFields().values()) {
-			if (eo != null) {
+			if (eo != null && this != eo) {
 				eo.markedForClone = true;
 				eo.markFieldsForClone();
 			}
@@ -472,9 +471,9 @@ public class EveObject {
 			return this.getDictionaryValue();
 		case NULL:
 			return null;
-		}
-	
-		throw new EveError("unrecognized type " + getType() + " for getObjectValue()");		
+		default:
+			return null;
+		}		
 	}
 
 	/**
@@ -882,19 +881,13 @@ public class EveObject {
 				return "function";
 			case LIST:
 				return "list";
-			case CUSTOM:
-				return this.typeName;
-			case PROTOTYPE:
-				return this.typeName;
-			case JAVA:
-				return this.typeName;
 			case DICT:
 				return "dict";
 			case NULL:
 				return "null";
+			default:
+				return this.typeName;
 		}
-		
-		throw new EveError("unrecognized type " + getType() + " for getTypeName()");
 	}
 		
 	public void setStringRepresentation(String stringRepresentation) {
@@ -964,6 +957,8 @@ public class EveObject {
 					return "<" + this.getTypeName() + ">";
 				case NULL:
 					return "null";
+				case SCOPE:
+					return "<" + this.getTypeName() + ">";
 				default:
 					return this.getObjectValue().toString();
 			}
@@ -1102,6 +1097,7 @@ public class EveObject {
 			retval.recursePossibleClosures(null);
 		}
 		
+		//remove closure stack if it exists.
 		if (func.isClosure()) {
 			ScopeManager.setClosureStack(null);
 		}
@@ -1111,11 +1107,19 @@ public class EveObject {
 		return retval;
 	}
 	
-	private Deque<EveObject> recursePossibleClosures(Deque<EveObject> closureStack) {
+	/**
+	 * Recursively discover and create closures on this EveObject. Looks for values
+	 * across all properties (regular and indexed) and then attempts to turn functions into
+	 * closures if it was established during function definition that they could become
+	 * a closure. The method should be called with a null parameter.
+	 * @param closureStack The current closure stack. This should be passed in as null.
+	 * @return The closure stack, but it can be ignored. It's for recursion.
+	 */
+	public Deque<EveObject> recursePossibleClosures(Deque<EveObject> closureStack) {
 		//first, this one.
 		if (this.getType() == EveType.FUNCTION) {
 			Function func = this.getFunctionValue();
-			if (func.isPossibleClosure()) {
+			if (!func.isClosure() && func.isPossibleClosure()) {
 				func.setClosure(true);
 				if (closureStack == null) {
 					closureStack = ScopeManager.createClosureStack();
@@ -1136,9 +1140,10 @@ public class EveObject {
 		
 		//and now all its fields (and their fields)
 		for (EveObject field : getFields().values()) {
-			closureStack = field.recursePossibleClosures(closureStack);
+			if (this != field) {
+				closureStack = field.recursePossibleClosures(closureStack);
+			}
 		}
-		
 		
 		return closureStack;
 	}

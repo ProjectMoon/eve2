@@ -38,7 +38,7 @@ public class EJIScanner {
 	
 	/**
 	 * Find a namespace in a package. Does not load the namespace; only returns
-	 * the class. Use {@link EJIHelper#createEJINamespace(Class)} for that.
+	 * the class. Use {@link EJIHelper#createEJIModuleType(Class)} for that.
 	 * @param pkg
 	 * @param namespace
 	 * @return The class, if found. Null otherwise.
@@ -63,14 +63,14 @@ public class EJIScanner {
 		
 		Reflections reflections = new Reflections(cb);
 		
-		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(EJINamespace.class);
+		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(EJIModule.class);
 		
 		if (annotated.size() <= 0) {
 			throw new EveError("could not find any standard namespaces! fatal!");
 		}
 		else {
 			for (Class<?> cl : annotated) {
-				EJINamespace ns = cl.getAnnotation(EJINamespace.class);
+				EJIModule ns = cl.getAnnotation(EJIModule.class);
 				if (ns.value().equals(namespace)) {
 					memoizedNamespaces.put(pkg + ":" + namespace, cl);
 					return cl;
@@ -83,7 +83,7 @@ public class EJIScanner {
 	
 	/**
 	 * Find a standard namespace (from eve.eji.stdlib).Does not load the namespace; only returns
-	 * the class. Use {@link EJIHelper#createEJINamespace(Class)} for that.
+	 * the class. Use {@link EJIHelper#createEJIModuleType(Class)} for that.
 	 * @param namespace
 	 * @return The class, if found. Null otherwise.
 	 */
@@ -155,18 +155,17 @@ public class EJIScanner {
 		for (Class<?> type : types) {
 			EJIType typeInfo = type.getAnnotation(EJIType.class);
 			EveObject ctor = EJIHelper.createEJIConstructor(type);
-			EveObject eo = EveObject.prototypeType(typeInfo.value());
-			eo.putField("__create", ctor);
+			EveObject eveType = EJIHelper.createEJIType(typeInfo.value(), ctor);
 			
 			//whether or not we should consider this a built-in type.
 			//all eve types are built-in. all user-define types should
 			//not be built-in.
 			EJIBuiltinType builtin = type.getAnnotation(EJIBuiltinType.class);
 			if (builtin != null) {
-				BuiltinCommons.addType(typeInfo.value(), eo);
+				BuiltinCommons.addType(typeInfo.value(), eveType);
 			}
 			else {
-				ExternalTypes.addType(typeInfo.value(), eo);
+				ExternalTypes.addType(typeInfo.value(), eveType);
 			}
 		}
 	}
@@ -182,10 +181,18 @@ public class EJIScanner {
 		//classes.
 		Reflections r = createScanner();
 		
-		Set<Class<?>> annotated = r.getTypesAnnotatedWith(EJINamespace.class);
+		Set<Class<?>> annotated = r.getTypesAnnotatedWith(EJIModule.class);
 		
 		for (Class<?> cl : annotated) {
-			EJIHelper.createEJINamespace(cl);
+			EveObject module = EJIHelper.createEJIModuleType(cl);
+			BuiltinCommons.addType(cl.getAnnotation(EJIModule.class).value(), module);
+		}
+		
+		Set<Class<?>> merged = r.getTypesAnnotatedWith(EJIMergeModule.class);
+		
+		for (Class<?> cl : merged) {
+			EveObject module = EJIHelper.createEJIModuleType(cl);
+			BuiltinCommons.mergeType(cl.getAnnotation(EJIMergeModule.class).value(), module);
 		}
 	}
 }

@@ -133,19 +133,11 @@ public class EveCore {
 		EJIScanner scanner = new EJIScanner(); 
 		scanner.addPackage("eve");
 		scanner.scanForTypes();
-		
-		ScopeManager.setNamespace("_global");
-		ScopeManager.createGlobalScope();
-		
-		if (!script.getNamespace().equals("_global")) {
-			ScopeManager.setNamespace(script.getNamespace());
-			ScopeManager.createGlobalScope();
-		}
-		
 		scanner.loadNamespaces();
+		
+		ScopeManager.createGlobalScope();			
 					
 		script.execute();
-		ScopeManager.revertNamespace();
 	}
 	
 	public void initForREPL() {
@@ -158,11 +150,10 @@ public class EveCore {
 			EJIScanner scanner = new EJIScanner(); 
 			scanner.addPackage("eve");
 			scanner.scanForTypes();
+			scanner.loadNamespaces();
 			
-			ScopeManager.setNamespace("_global");
 			ScopeManager.createGlobalScope();
 					
-			scanner.loadNamespaces();
 			repl = true;
 		}
 	}
@@ -295,12 +286,7 @@ public class EveCore {
 		
 		Script script = getScriptFromCode(code);
 		
-		try {
-			if (!script.getNamespace().equals("_global")) {
-				ScopeManager.setNamespace(script.getNamespace());
-				ScopeManager.createGlobalScope();
-			}
-			
+		try {			
 			script.execute();
 			return true;
 		}

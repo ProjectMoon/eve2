@@ -50,7 +50,6 @@ public class Script implements ConstructionScope {
 			catch (EveError e) {
 				System.err.println("(line " + statement.getLine() + ") " + e.getMessage());
 				
-				ScopeManager.setNamespace("global");
 				Deque<EveObject> stack = ScopeManager.getScopeStack();
 				
 				while (!stack.isEmpty()) {

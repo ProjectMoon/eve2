@@ -18,7 +18,12 @@ public class TypedefStatement extends AbstractStatement implements EveStatement 
 	
 	public TypedefStatement(String ident) {
 		this.ident = ident;
-		this.extern = true;
+		this.extern = false;
+	}
+	
+	public TypedefStatement(String ident, boolean extern) {
+		this.ident = ident;
+		this.extern = extern;
 	}
 	
 	public TypedefStatement(String ident, ExpressionStatement expr) {
@@ -38,7 +43,12 @@ public class TypedefStatement extends AbstractStatement implements EveStatement 
 	public EveObject execute() {
 		EveObject type = null;
 		if (!extern) {
-			type = expr.execute();
+			if (expr != null) {
+				type = expr.execute();
+			}
+			else {
+				type = EveObject.customType(ident);
+			}
 		}
 		else {
 			type = ExternalTypes.getType(ident);
