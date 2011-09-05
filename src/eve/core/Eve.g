@@ -130,8 +130,20 @@ withStatement
 	;
 	
 scopeStatement
+	:	('scope' '(' .* ')' '{' codeStatement * '}') => scopeBlock
+	|	('scope' '(' .* ')' codeStatement) => scopeLine
+	//|	('scope' '(' 'global' ')' '{' codeStatement * '}') => scopeBlock
+	//|	('scope' '(' 'global' ')' codeStatement) => scopeLine
+	;
+	
+scopeBlock
 	:	'scope' '(' 'private' ')' '{' codeStatement * '}' -> ^(SCOPE 'private' codeStatement*)
 	|	'scope' '(' 'global' ')' '{' codeStatement * '}' -> ^(SCOPE 'global' codeStatement*)
+	;
+	
+scopeLine
+	:	'scope' '(' 'private' ')' codeStatement -> ^(SCOPE 'private' codeStatement)
+	|	'scope' '(' 'global' ')' codeStatement -> ^(SCOPE 'global' codeStatement)
 	;
 		
 expressionStatement

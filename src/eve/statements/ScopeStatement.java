@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
@@ -24,8 +25,7 @@ public class ScopeStatement extends AbstractStatement implements EveStatement, C
 		if (closureList == null) {
 			closureList = new ArrayDeque<List<String>>();
 		}
-		//may not want to do it this way for private ones?
-		//or maybe not at all...
+
 		closureList.push(getIdentifiers());
 		for (EveStatement statement : statements) {
 			statement.closureAnalysis(closureList);
@@ -37,7 +37,7 @@ public class ScopeStatement extends AbstractStatement implements EveStatement, C
 		//for private scope statement, nothing escapes this scope object,
 		//lest it be "exported" via typedef.
 		if (type.equals("private")) {
-			closureAnalysis(null);
+			closureAnalysis(null); //have to call this here for closures to work, apparently.
 			EveObject scope = EveObject.scopeType("private");
 			ScopeManager.pushScope(scope);
 			new Interpreter().executeStatements(statements);
@@ -45,8 +45,16 @@ public class ScopeStatement extends AbstractStatement implements EveStatement, C
 			
 			return scope;
 		}
+		else if (type.equals("global")) {
+			EveObject global = ScopeManager.getGlobalScope();
+			ScopeManager.pushScope(global);
+			new Interpreter().executeStatements(statements);
+			ScopeManager.popScope();
+			
+			return global;
+		}
 		else {
-			return null;
+			throw new EveError("unrecognized scope type " + type);
 		}
 	}
 
