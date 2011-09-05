@@ -17,18 +17,10 @@ import eve.eji.EJIHelper;
 public class BuiltinCommons {
 	private static final Map<String, EveObject> typePool = new HashMap<String, EveObject>();
 	
+	//Have to initialize these 2 first because other things depend on them.
 	static {
-		//initialize the type pool with the default (built-in) types.
-		//each type is initialized with common properties by the initialize() method.
-		typePool.put(EveBuiltinObject.getPrototype().getTypeName(), initialize(EveBuiltinObject.getPrototype()));
-		//typePool.put(EveInteger.getPrototype().getTypeName(), initialize(EveInteger.getPrototype()));
-		typePool.put(EveString.getPrototype().getTypeName(), initialize(EveString.getPrototype()));
-		typePool.put(EveDouble.getPrototype().getTypeName(), initialize(EveDouble.getPrototype()));
-		typePool.put(EveBoolean.getPrototype().getTypeName(), initialize(EveBoolean.getPrototype()));
-		typePool.put(EveFunction.getPrototype().getTypeName(), initialize(EveFunction.getPrototype()));
-		typePool.put(EveList.getPrototype().getTypeName(), initialize(EveList.getPrototype()));
-		typePool.put(EveJava.getPrototype().getTypeName(), initialize(EveJava.getPrototype()));
-		typePool.put(EveDictionary.getPrototype().getTypeName(), initialize(EveDictionary.getPrototype()));
+		typePool.put("function", new EveFunction());
+		typePool.put("global", new EveGlobal());
 	}
 	
 	public static void addType(String name, EveObject type) {

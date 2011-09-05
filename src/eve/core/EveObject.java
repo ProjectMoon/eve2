@@ -119,7 +119,6 @@ public class EveObject {
 	}
 	
 	public EveObject(Integer i) {
-		//this(EveInteger.getPrototype());
 		this(BuiltinCommons.getType("int"));
 		setIntValue(i);
 	}
@@ -135,7 +134,7 @@ public class EveObject {
 	}
 	
 	public EveObject(String s) {
-		this(EveString.getPrototype());
+		this(BuiltinCommons.getType("string"));
 		setStringValue(s);
 	}
 	
@@ -150,7 +149,7 @@ public class EveObject {
 	}
 	
 	public EveObject(Double d) {
-		this(EveDouble.getPrototype());
+		this(BuiltinCommons.getType("double"));
 		setDoubleValue(d);
 	}
 	
@@ -165,7 +164,7 @@ public class EveObject {
 	}
 	
 	public EveObject(Function func) {
-		this(EveFunction.getPrototype());
+		this(BuiltinCommons.getType("function"));
 		setFunctionValue(func);
 	}
 	
@@ -180,7 +179,7 @@ public class EveObject {
 	}
 	
 	public EveObject(Boolean b) {
-		this(EveBoolean.getPrototype());
+		this(BuiltinCommons.getType("bool"));
 		setBooleanValue(b);
 	}
 	
@@ -195,7 +194,7 @@ public class EveObject {
 	}
 	
 	public EveObject(List<EveObject> l) {
-		this(EveList.getPrototype());
+		this(BuiltinCommons.getType("list"));
 		setListValue(l);
 	}
 	
@@ -210,7 +209,7 @@ public class EveObject {
 	}
 	
 	public EveObject(char c) {
-		this(EveString.getPrototype());
+		this(BuiltinCommons.getType("string"));
 		setStringValue(c);
 	}
 	
@@ -225,7 +224,7 @@ public class EveObject {
 	}
 	
 	public EveObject(Map<String, EveObject> d) {
-		this(EveDictionary.getPrototype());
+		this(BuiltinCommons.getType("dict"));
 		setDictionaryValue(d);
 	}
 	
@@ -240,13 +239,13 @@ public class EveObject {
 	}
 
 	public static EveObject globalType(String namespace) {
-		EveObject global = EveGlobal.getPrototype().eventlessClone();
+		EveObject global = new EveObject(BuiltinCommons.getType("global"));
 		global.setTypeName(namespace + " scope");
 		return global;
 	}
 	
 	public static EveObject javaType(Object o) {
-		EveObject eo = new EveObject(EveJava.getPrototype());
+		EveObject eo = new EveObject(BuiltinCommons.getType("java"));
 		eo.setType(EveType.JAVA);
 		eo.setTypeName(o.getClass().getName());
 		eo.setJavaValue(o);

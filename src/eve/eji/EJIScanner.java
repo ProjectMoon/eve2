@@ -112,7 +112,17 @@ public class EJIScanner {
 			EveObject ctor = EJIHelper.createEJIConstructor(type);
 			EveObject eo = EveObject.prototypeType(typeInfo.value());
 			eo.putField("__create", ctor);
-			ExternalTypes.addType(typeInfo.value(), eo);
+			
+			//whether or not we should consider this a built-in type.
+			//all eve types are built-in. all user-define types should
+			//not be built-in.
+			EJIBuiltinType builtin = type.getAnnotation(EJIBuiltinType.class);
+			if (builtin != null) {
+				BuiltinCommons.addType(typeInfo.value(), eo);
+			}
+			else {
+				ExternalTypes.addType(typeInfo.value(), eo);
+			}
 		}
 	}
 }

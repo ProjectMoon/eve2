@@ -1,22 +1,21 @@
 package eve.core.builtins;
 
 import eve.core.EveObject;
+import eve.eji.EJIBuiltinType;
+import eve.eji.EJIType;
 
 /**
  * 	The java prototype.
  * @author jeff
  *
  */
+@EJIType("java")
+@EJIBuiltinType
 public class EveJava extends EveObject {
-	private static final EveJava proto = new EveJava();
-	
-	public static EveJava getPrototype() {
-		return proto;
-	}
-	
-	private EveJava() {
-		//super(EveObjectPrototype.getPrototype());
-		this.setTypeName("java");
-		this.setType(EveType.PROTOTYPE);
-	}
+	/**
+	 * For prototypes, the empty constructor is used when cloning from it.
+	 * Usually used by literals (sometimes other stuff). Cannot be created
+	 * by invoking the type name.
+	 */
+	public EveJava() {}
 }
