@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-Eve 0.3.4
-=======
 Eve 0.3.5
->>>>>>> develop
 =========
 
 An experiment to learn how to make an interpreter.<br>
