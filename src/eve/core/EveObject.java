@@ -1109,7 +1109,7 @@ public class EveObject {
 		//first, this one.
 		if (this.getType() == EveType.FUNCTION) {
 			Function func = this.getFunctionValue();
-			if (func.isPossibleClosure()) {
+			if (!func.isClosure() && func.isPossibleClosure()) {
 				func.setClosure(true);
 				if (closureStack == null) {
 					closureStack = ScopeManager.createClosureStack();

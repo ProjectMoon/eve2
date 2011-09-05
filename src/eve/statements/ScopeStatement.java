@@ -35,18 +35,13 @@ public class ScopeStatement extends AbstractStatement implements EveStatement, C
 	@Override
 	public EveObject execute() {
 		//for private scope statement, nothing escapes this scope object,
-		//lest it be exported.
+		//lest it be "exported" via typedef.
 		if (type.equals("private")) {
 			closureAnalysis(null);
 			EveObject scope = EveObject.scopeType("private");
 			ScopeManager.pushScope(scope);
 			new Interpreter().executeStatements(statements);
-			
-			
-			scope.recursePossibleClosures(null);
 			ScopeManager.popScope();
-			//we need to force anything that lives outside of the scope (aka typedefs)
-			//to recurse for closures.
 			
 			return scope;
 		}

@@ -99,6 +99,7 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		}
 		
 		EveObject eo = new EveObject(func);
+		eo.recursePossibleClosures(null);
 		return eo;
 	}
 
