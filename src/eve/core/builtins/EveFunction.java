@@ -1,49 +1,23 @@
 package eve.core.builtins;
 
-import java.util.Map;
-
-import eve.core.EveError;
 import eve.core.EveObject;
-import eve.eji.EJIFunction;
-import eve.eji.EJIHelper;
+import eve.eji.EJIType;
 
 /**
- * The Function prototype.
+ * The function prototype. This type is not annotated with EJIType because
+ * it must exist before the EJIScanner runs. It is added to the type pool
+ * immediately, along with EveGlobal.
  * @author jeff
  *
  */
 public class EveFunction extends EveObject {
-	private static final EveFunction proto = new EveFunction();
-	
-	public static EveFunction getPrototype() {
-		return proto;
-	}
-	
-	private EveFunction() {
-		this.setType(EveType.PROTOTYPE);
-		this.setTypeName("function");
-		
-		//we cannot use the normal method of cloning from EveFunction when
-		//adding a function to the EveFunction prototype... so CreateFunctionFunction
-		//must not be cloned from anything (or at least not function).
-		//TODO: fix this in case dynamic properties need to be added to all function objects.
-		this.putField("create", new EveObject(new CreateFunctionFunction(), false));
-	}
-	
-	private class CreateFunctionFunction extends EJIFunction {
-		public CreateFunctionFunction() {
-			this.addParameter("value");
-		}
-		
-		@Override
-		public EveObject execute(Map<String, EveObject> parameters) {
-			EveObject value = parameters.get("value");
-			
-			if (value.getType() != EveType.FUNCTION) {
-				throw new EveError("function.create requires a function parameter");
-			}
-			
-			return new EveObject(value.getFunctionValue(), EJIHelper.self());
-		}
+	/**
+	 * For prototypes, the empty constructor is used when cloning from it.
+	 * Usually used by literals (sometimes other stuff). Eve functions
+	 * cannot be created by invoking the type name.
+	 */
+	public EveFunction() {
+		setType(EveType.PROTOTYPE);
+		setTypeName("function");
 	}
 }

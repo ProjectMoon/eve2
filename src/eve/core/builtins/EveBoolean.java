@@ -1,44 +1,32 @@
 package eve.core.builtins;
 
-import java.util.Map;
-
-import eve.core.EveError;
 import eve.core.EveObject;
-import eve.eji.EJIFunction;
-import eve.eji.EJIHelper;
+import eve.eji.EJIBuiltinType;
+import eve.eji.EJIType;
 
 /**
  * The Boolean prototype.
  * @author jeff
  *
  */
+@EJIType("bool")
+@EJIBuiltinType
 public class EveBoolean extends EveObject {
-	private static final EveBoolean proto = new EveBoolean();
+	/**
+	 * For prototypes, the empty constructor is used when cloning from it.
+	 * Usually used by literals (sometimes other stuff).
+	 */
+	public EveBoolean() {}
 	
-	public static EveBoolean getPrototype() {
-		return proto;
-	}
-
-	private EveBoolean() {
-		this.setType(EveType.PROTOTYPE);
-		this.setTypeName("bool");
-		this.putField("create", new EveObject(new CreateBoolFunction()));
-	}
-	
-	private class CreateBoolFunction extends EJIFunction {
-		public CreateBoolFunction() {
-			this.addParameter("value");
-		}
-		
-		@Override
-		public EveObject execute(Map<String, EveObject> parameters) {
-			EveObject value = parameters.get("value");
-			
-			if (value.getType() != EveType.BOOLEAN) {
-				throw new EveError("bool.create requires a bool parameter");
-			}
-			
-			return new EveObject(value.getBooleanValue(), EJIHelper.self());
-		}
+	/**
+	 * For prototypes, a value-based constructor serves as a way to create
+	 * variables without literals. This constructor should be viewed more
+	 * like a method, as it gets transformed into the __create field on the
+	 * type. Since we are an EveObject, we can just make use of the same
+	 * constructors literals use. 
+	 * @param b
+	 */
+	public EveBoolean(boolean b) {
+		super(b);
 	}
 }

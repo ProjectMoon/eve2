@@ -7,21 +7,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 
-class JavaMethodInvocation extends EJIFunction {
-	private Object o;
+class StaticMethodInvocation extends EJIFunction {
+	private Class<?> cl;
 	private String methodName;
 	
-	public JavaMethodInvocation(Object o, String methodName) {
-		this.o = o;
+	public StaticMethodInvocation(Class<?> cl, String methodName) {
+		this.cl = cl;
 		this.methodName = methodName;
 		setName(methodName);
 		setParameters("args");
 		setVarargs(true);
 		setVarargsIndex(0);
 	}
-	
+		
 	@Override
 	public EveObject execute(Map<String, EveObject> parameters) {
 		List<EveObject> args = new ArrayList<EveObject>(0);	
@@ -29,9 +30,9 @@ class JavaMethodInvocation extends EJIFunction {
 		if (argObj != null) args = argObj.getListValue();
 		
 		try {
-			Method meth = EJIHelper.findMethod(o.getClass(), methodName, args);
+			Method meth = EJIHelper.findMethod(cl, methodName, args);
 			Object[] invokeArgs = EJIHelper.mapArguments(meth.getParameterTypes(), args);
-			Object retVal = meth.invoke(o, invokeArgs);
+			Object retVal = meth.invoke(null, invokeArgs);
 			
 			if (retVal != null) {
 				if (retVal instanceof EveObject) {
@@ -47,21 +48,27 @@ class JavaMethodInvocation extends EJIFunction {
 			}
 		}
 		catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new EveError(e);
 		}
 		catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new EveError(e);
 		}
 		catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IntrospectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//an error happened in the java code.
+			if (e.getCause() != null) {
+				if (e.getCause() instanceof EveError) {
+					throw new EveError(e.getCause().getMessage());
+				}
+				else {
+					throw new EveError(e.getCause());
+				}
+			}
+			else {
+				throw new EveError(e);
+			}
 		}
-		
-		return null;
+		catch (IntrospectionException e) {
+			throw new EveError(e);
+		}
 	}				
 }

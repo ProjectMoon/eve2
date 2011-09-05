@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javassist.Modifier;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
@@ -27,6 +29,7 @@ import com.google.common.collect.TreeMultimap;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.builtins.BuiltinCommons;
 import eve.core.Function;
 import eve.scope.ScopeManager;
 
@@ -478,6 +481,19 @@ public class EJIHelper {
 	}
 	
 	/**
+	 * Given a type name and an EJI constructor (obtained from {@link #createEJIConstructor(Class)}),
+	 * creates an Eve type object for use with the type pool.
+	 * @param ctor
+	 * @param typeName
+	 * @return An Eve type.
+	 */
+	public static EveObject createEJIType(String typeName, EveObject ctor) {
+		EveObject eo = EveObject.prototypeType(typeName);
+		eo.putField("__create", ctor);
+		return eo;
+	}
+	
+	/**
 	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
 	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
 	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
@@ -487,7 +503,7 @@ public class EJIHelper {
 	 * @throws IntrospectionException
 	 * @throws IllegalAccessException
 	 */
-	public static EveObject createEJIType(Object obj) throws IntrospectionException, IllegalAccessException {
+	public static EveObject createEJIObject(Object obj) throws IntrospectionException, IllegalAccessException {
 		EveObject eo = EveObject.javaType(obj);
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 		
@@ -509,6 +525,71 @@ public class EJIHelper {
 		}
 		
 		return eo;
+	}
+	
+	/**
+	 * Creates a "native namespace" from the given Java class. The class must have the {@link EJIModule}
+	 * annotation present. This method will find all public static methods in the class and convert
+	 * them either to functions or read-only properties. If a method has the {@link EJIProperty} annotation,
+	 * it will convert the method to a read-only property with the name specified by the annotation.
+	 * If there is no annotation present, it will convert the static method to a function. Static
+	 * variables, non-static variables, and non-static methods are all ignored.
+	 * @param cl
+	 * @return the created module type.
+	 */
+	public static EveObject createEJIModuleType(Class<?> cl) {
+		if (!cl.isAnnotationPresent(EJIModule.class) && !cl.isAnnotationPresent(EJIMergeModule.class)) {
+			throw new EveError(cl.getName() + " is not a valid EJI namespace.");
+		}
+		
+		if (cl.isAnnotationPresent(EJIModule.class) && cl.isAnnotationPresent(EJIMergeModule.class)) {
+			throw new EveError(cl.getName() + " must have either @EJIModule or @EJIMergeModule ONLY.");
+		}
+		
+		String namespace = "";
+		if (cl.isAnnotationPresent(EJIModule.class)) {
+			namespace = cl.getAnnotation(EJIModule.class).value();
+		}
+		else {
+			namespace = cl.getAnnotation(EJIMergeModule.class).value();
+		}
+		
+		EveObject type = EveObject.prototypeType(namespace);
+		
+		Map<String, Method> methods = new HashMap<String, Method>();
+		Map<String, Method> properties = new HashMap<String, Method>();
+	
+		//methods and properties.
+		for (Method method : cl.getMethods()) {
+			if (Modifier.isStatic(method.getModifiers())) {
+				if (method.isAnnotationPresent(EJIProperty.class)) {
+					properties.put(method.getAnnotation(EJIProperty.class).value(), method);
+				}
+				else {
+					if (method.isAnnotationPresent(EJIFunctionName.class)) {
+						methods.put(method.getAnnotation(EJIFunctionName.class).value(), method);
+					}
+					else {
+						methods.put(method.getName(), method);
+					}
+				}
+			}
+		}
+		
+		for (Map.Entry<String, Method> entry : properties.entrySet()) {
+			EJIField field = new EJIField(entry.getValue());
+			type.putField(entry.getKey(), field);
+		}
+		
+		for (Map.Entry<String, Method> entry : methods.entrySet()) {
+			//always force the real method name (entry.getValue().getName()), but we
+			//could possibly use a custom function name (entry.getKey())
+			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName());
+			type.putField(entry.getKey(), new EveObject(methodInvocation));
+		}		
+
+		//BuiltinCommons.addType(namespace, type);
+		return type;
 	}
 
 }
