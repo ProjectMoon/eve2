@@ -1096,6 +1096,7 @@ public class EveObject {
 			retval.recursePossibleClosures(null);
 		}
 		
+		//remove closure stack if it exists.
 		if (func.isClosure()) {
 			ScopeManager.setClosureStack(null);
 		}
@@ -1105,6 +1106,14 @@ public class EveObject {
 		return retval;
 	}
 	
+	/**
+	 * Recursively discover and create closures on this EveObject. Looks for values
+	 * across all properties (regular and indexed) and then attempts to turn functions into
+	 * closures if it was established during function definition that they could become
+	 * a closure. The method should be called with a null parameter.
+	 * @param closureStack The current closure stack. This should be passed in as null.
+	 * @return The closure stack, but it can be ignored. It's for recursion.
+	 */
 	public Deque<EveObject> recursePossibleClosures(Deque<EveObject> closureStack) {
 		//first, this one.
 		if (this.getType() == EveType.FUNCTION) {

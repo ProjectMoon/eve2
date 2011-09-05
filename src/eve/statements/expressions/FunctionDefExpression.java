@@ -6,6 +6,7 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
 import eve.core.Function;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
@@ -92,7 +93,8 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		}
 
 		//with statement scope?
-		if (ScopeManager.getCurrentScope().getTypeName().equals(EveObject.WITH_STATEMENT_TYPENAME)) {
+		if (ScopeManager.getCurrentScope().getType() == EveType.SCOPE &&
+				ScopeManager.getCurrentScope().getTypeName().equals(EveObject.WITH_STATEMENT_TYPENAME)) {
 			EveObject with = ScopeManager.getCurrentScope();
 			func.setWithScope(with);
 			func.setClosure(true);
