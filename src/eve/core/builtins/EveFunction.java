@@ -4,8 +4,11 @@ import eve.core.EveObject;
 import eve.eji.EJIType;
 
 /**
- * The Function prototype.
+ * The function prototype. This type is not annotated with EJIType because
+ * it must exist before the EJIScanner runs. It is added to the type pool
+ * immediately, along with EveGlobal.
  * @author jeff
+ *
  */
 public class EveFunction extends EveObject {
 	/**
