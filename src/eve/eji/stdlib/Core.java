@@ -9,22 +9,49 @@ import org.antlr.runtime.RecognitionException;
 
 import eve.core.EveCore;
 import eve.core.EveError;
-import eve.core.EveObject;
 import eve.core.Script;
-import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIFunctionName;
 import eve.eji.EJIHelper;
 import eve.eji.EJINamespace;
 import eve.eji.EJIScanner;
 import eve.scope.ScopeManager;
 
+/**
+ * The core library contains all the functions that should be accessible
+ * everywhere from within eve.
+ * @author jeff
+ *
+ */
 @EJINamespace("_global")
 public class Core {
 	private static final List<File> IMPORTED_FILES = new ArrayList<File>();
 	private static final List<Class<?>> IMPORTED_CLASSES = new ArrayList<Class<?>>();
 	
-	public static void init() {
-		EJIHelper.createEJINamespace(Core.class);
+	/**
+	 * The import function imports eve modules and EJI namespaces. Eve modules
+	 * are simply a string path to an Eve file. EJI namespaces can be imported
+	 * via fully qualified classname or "package:namespace" short form (e.g.
+	 * "com.mycompany.eve:mynamespace").
+	 * @param filename
+	 */
+	@EJIFunctionName("import")
+	public static void importFunction(String filename) {
+		File file = new File(filename);
+		
+		//silently ignore already-imported files.
+		if (IMPORTED_FILES.contains(file)) {
+			return;
+		}
+		
+		if (!file.exists()) {
+			attemptEJIImport(filename); //actually considered classname here.
+		}
+		else if (file.exists() && !IMPORTED_FILES.contains(file)) {
+			attemptFileImport(file);
+		}
+		else {
+			throw new EveError("could not load module " + filename);
+		}
 	}
 	
 	private static void attemptFileImport(File file) {
@@ -72,8 +99,7 @@ public class Core {
 	}
 	
 	private static void importNamespace(String pkg, String namespace) {
-		EJIScanner scanner = new EJIScanner();
-		Class<?> cl = scanner.findNamespace(pkg, namespace);
+		Class<?> cl = EJIScanner.findNamespace(pkg, namespace);
 		
 		if (cl != null) {
 			importEJINamespace(cl);
@@ -92,26 +118,6 @@ public class Core {
 		if (!IMPORTED_CLASSES.contains(cl)) {
 			EJIHelper.createEJINamespace(cl);
 			IMPORTED_CLASSES.add(cl);
-		}
-	}
-	
-	@EJIFunctionName("import")
-	public static void importFunction(String filename) {
-		File file = new File(filename);
-		
-		//silently ignore already-imported files.
-		if (IMPORTED_FILES.contains(file)) {
-			return;
-		}
-		
-		if (!file.exists()) {
-			attemptEJIImport(filename); //actually considered classname here.
-		}
-		else if (file.exists() && !IMPORTED_FILES.contains(file)) {
-			attemptFileImport(file);
-		}
-		else {
-			throw new EveError("could not load module " + filename);
 		}
 	}
 }

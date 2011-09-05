@@ -2,38 +2,28 @@ package eve.core.builtins;
 
 import java.util.Map;
 
-import eve.core.EveError;
 import eve.core.EveObject;
-import eve.eji.EJIFunction;
-import eve.eji.EJIHelper;
+import eve.eji.EJIBuiltinType;
+import eve.eji.EJIType;
 
+@EJIType("dict")
+@EJIBuiltinType
 public class EveDictionary extends EveObject {
-	private static final EveDictionary proto = new EveDictionary();
+	/**
+	 * For prototypes, the empty constructor is used when cloning from it.
+	 * Usually used by literals (sometimes other stuff).
+	 */
+	public EveDictionary() {}
 	
-	public static EveDictionary getPrototype() {
-		return proto;
-	}
-	
-	private EveDictionary() {
-		this.setType(EveType.PROTOTYPE);
-		this.setTypeName("dict");
-		this.putField("create", new EveObject(new CreateDictFunction()));
-	}
-	
-	private class CreateDictFunction extends EJIFunction {
-		public CreateDictFunction() {
-			this.addParameter("value");
-		}
-		
-		@Override
-		public EveObject execute(Map<String, EveObject> parameters) {
-			EveObject value = parameters.get("value");
-			
-			if (value.getType() != EveType.DICT) {
-				throw new EveError("dict.create requires a dict parameter");
-			}
-			
-			return new EveObject(value.getDictionaryValue(), EJIHelper.self());
-		}
+	/**
+	 * For prototypes, a value-based constructor serves as a way to create
+	 * variables without literals. This constructor should be viewed more
+	 * like a method, as it gets transformed into the __create field on the
+	 * type. Since we are an EveObject, we can just make use of the same
+	 * constructors literals use.
+	 * @param i
+	 */
+	public EveDictionary(Map<String, EveObject> dict) {
+		super(dict);
 	}
 }

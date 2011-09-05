@@ -1,10 +1,8 @@
 package eve.core.builtins;
 
-import java.util.Map;
-
 import eve.core.EveObject;
-import eve.eji.EJIFunction;
-import eve.eji.EJIHelper;
+import eve.eji.EJIBuiltinType;
+import eve.eji.EJIType;
 
 /**
  * Not to be confused with EveObject in the core package. This represents
@@ -14,25 +12,13 @@ import eve.eji.EJIHelper;
  * @author jeff
  *
  */
+@EJIType("object")
+@EJIBuiltinType
 public class EveBuiltinObject extends EveObject {
-	 private static EveBuiltinObject proto = new EveBuiltinObject();
-	 
-	 public static EveBuiltinObject getPrototype() {
-		 return proto;
-	 }
-	 
-	 private EveBuiltinObject() {
-		 this.setType(EveType.CUSTOM);
-		 this.setTypeName("object");
-		 this.putField("create", new EveObject(new CreateBuiltinObjectFunction()));
-	 }
-	 
-	 private class CreateBuiltinObjectFunction extends EJIFunction {
-
-		@Override
-		public EveObject execute(Map<String, EveObject> parameters) {
-			EveObject eo = new EveObject(EJIHelper.self());
-			return eo;
-		}
-	 }
+	/**
+	 * For prototypes, the empty constructor is used when cloning from it.
+	 * Usually used by literals (sometimes other stuff). EveBuiltinObject
+	 * cannot be created by invoking the type name (unlike other built-ins).
+	 */
+	public EveBuiltinObject() {}
 }

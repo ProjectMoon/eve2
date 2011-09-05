@@ -5,19 +5,53 @@ import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIHelper;
 import eve.eji.EJINamespace;
+import eve.eji.EJIScanner;
 
+/**
+ * The eji namespace exposes functions that allows Java classes to be used directly
+ * from within Eve.
+ * @author jeff
+ *
+ */
 @EJINamespace("eji")
-public class Java {
+public class EJI {
 	public static void init() {
-		EJIHelper.createEJINamespace(Java.class);
+		EJIHelper.createEJINamespace(EJI.class);
 	}
 	
+	/**
+	 * "Import" a Java type into the interpreter via fully-qualified class
+	 * name. The class's constructor will become a function available in Eve
+	 * as the fully qualified name (e.g. eji::expose("java.util.List") creates
+	 * function java.util.List).
+	 * @param className
+	 * @return
+	 */
 	public static EveObject expose(String className) {
 		return expose0(className, false);
 	}
 	
+	/**
+	 * "Import" a Java type into the interpreter and then turn it into an Eve type.
+	 * This is different from {@link #expose(String)} in that it exposes the constructor
+	 * as an invokeable type (as if it were created via typedef).
+	 * @param className
+	 * @return
+	 */
 	public static EveObject exposeType(String className) {
 		return expose0(className, true);
+	}
+	
+	/**
+	 * Exposes the EJIScanner package scanner to Eve code to allow developers
+	 * to programmatically import  their external types. typedef extern is
+	 * required to use the found types.
+	 * @param pkg The package name to scan.
+	 */
+	public static void scan(String pkg) {
+		EJIScanner scanner = new EJIScanner();
+		scanner.addPackage(pkg);
+		scanner.scanForTypes();
 	}
 	
 	private static EveObject resolveJavaPackageContainer(String fqcn) {

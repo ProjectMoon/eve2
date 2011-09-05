@@ -6,7 +6,7 @@
         
         <modules>
         	<!-- use the reflections mvn repo for reflections lib -->
-        	<module organisation="org.reflections" resolver="reflections-repo" />
+        	<!--<module organisation="org.reflections" resolver="reflections-repo" />-->
         	
         	<!-- use the public MVN repo for everything else -->
         	<module resolver="mvn-public" />

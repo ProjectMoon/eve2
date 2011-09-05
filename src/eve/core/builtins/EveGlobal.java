@@ -1,39 +1,24 @@
 package eve.core.builtins;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import eve.core.EveError;
 import eve.core.EveObject;
 
+/**
+ * The global prototype. Every namespace (including the global namespace)
+ * has a global type attached to it. It is best to think of the global type
+ * as a scope container. This type is not annotated with EJIType because
+ * it must exist before the EJIScanner runs. It is added to the type pool
+ * immediately, along with EveFunction.
+ * @author jeff
+ *
+ */
 public class EveGlobal extends EveObject {
-	private static final EveGlobal proto = new EveGlobal();
-	
-	public static EveGlobal getPrototype() {
-		return proto;
-	}
-	
-	private EveGlobal() {
-		this.setType(EveType.PROTOTYPE);
-		this.setTypeName("global");
-	}
-	
 	/**
-	 * Internal copy constructor
-	 * @param source
-	 * @param clone
+	 * For prototypes, the empty constructor is used when cloning from it.
+	 * Usually used by literals (sometimes other stuff). Cannot be created
+	 * by invoking the type name.
 	 */
-	private EveGlobal(EveGlobal source, boolean clone) {
-		super(source, clone);
-	}
-	
-	@Override
-	public EveObject eveClone() {
-		return new EveGlobal(this, true);
-	}
-	
-	@Override
-	public EveObject eventlessClone() {
-		return new EveGlobal(this, false);
+	public EveGlobal() {
+		setType(EveType.PROTOTYPE);
+		setTypeName("global");
 	}
 }

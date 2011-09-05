@@ -1,44 +1,32 @@
 package eve.core.builtins;
 
-import java.util.Map;
-
-import eve.core.EveError;
 import eve.core.EveObject;
-import eve.eji.EJIFunction;
-import eve.eji.EJIHelper;
+import eve.eji.EJIBuiltinType;
+import eve.eji.EJIType;
 
 /**
  * The double prototype.
  * @author jeff
  *
  */
+@EJIType("double")
+@EJIBuiltinType
 public class EveDouble extends EveObject {
-	private static final EveDouble proto = new EveDouble();
+	/**
+	 * For prototypes, the empty constructor is used when cloning from it.
+	 * Usually used by literals (sometimes other stuff).
+	 */
+	public EveDouble() {}
 	
-	public static EveDouble getPrototype() {
-		return proto;
-	}
-	
-	private EveDouble() {
-		this.setType(EveType.PROTOTYPE);
-		this.setTypeName("double");
-		this.putField("create", new EveObject(new CreateDoubleFunction()));
-	}
-	
-	private class CreateDoubleFunction extends EJIFunction {
-		public CreateDoubleFunction() {
-			this.addParameter("value");
-		}
-		
-		@Override
-		public EveObject execute(Map<String, EveObject> parameters) {
-			EveObject value = parameters.get("value");
-			
-			if (value.getType() != EveType.DOUBLE) {
-				throw new EveError("double.create requires a double parameter");
-			}
-			
-			return new EveObject(value.getDoubleValue(), EJIHelper.self());
-		}
+	/**
+	 * For prototypes, a value-based constructor serves as a way to create
+	 * variables without literals. This constructor should be viewed more
+	 * like a method, as it gets transformed into the __create field on the
+	 * type. Since we are an EveObject, we can just make use of the same
+	 * constructors literals use.
+	 * @param i
+	 */
+	public EveDouble(double d) {
+		super(d);
 	}
 }

@@ -7,6 +7,9 @@ options {
 }
 
 tokens {
+	TYPEDEF;
+	TYPEDEF_EXTERN;
+	TYPEDEF_EXPR;
 	NAMESPACE;
 	NS_SWITCH_BLOCK;
 	NS_SWITCH_EXPR;
@@ -116,6 +119,12 @@ codeStatement //Statements that can appear pretty much anywhere.
 	|	whileLoop
 	|	expressionStatement
 	|	withStatement
+	|	typedefStatement
+	;
+	
+typedefStatement
+	:	'typedef' 'extern' IDENT ';' -> ^(TYPEDEF_EXTERN IDENT)
+	|	'typedef' IDENT '=' expression ';' -> ^(TYPEDEF_EXPR IDENT expression)
 	;
 	
 withStatement

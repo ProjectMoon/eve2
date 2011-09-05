@@ -104,7 +104,7 @@ public class EveCore {
 		}
 		
 		try {
-			scanner.scan();
+			scanner.scanForTypes();
 		}
 		catch (EveError e) {
 			System.err.println("EJI error: " + e.getMessage());
@@ -125,6 +125,15 @@ public class EveCore {
 	}
 	
 	public void run(Script script) {
+		//Scan for built-in EJI types. Due to a bug with the annotation scanning
+		//library, we must search starting *above* eve.core.builtins. All of the
+		//annotated classes are in eve.core.builtins however. If we were to search
+		//eve.core.builtins, no classes would be found.
+		//Apparently, we can't search eve.core either... so we must do eve.
+		EJIScanner scanner = new EJIScanner(); 
+		scanner.addPackage("eve");
+		scanner.scanForTypes();
+		
 		ScopeManager.setNamespace("_global");
 		ScopeManager.createGlobalScope();
 		
@@ -133,20 +142,27 @@ public class EveCore {
 			ScopeManager.createGlobalScope();
 		}
 		
-		eve.eji.stdlib.Java.init();
-		eve.eji.stdlib.Core.init();
-				
+		scanner.loadNamespaces();
+					
 		script.execute();
 		ScopeManager.revertNamespace();
 	}
 	
 	public void initForREPL() {
 		if (!repl) {
+			//Scan for built-in EJI types. Due to a bug with the annotation scanning
+			//library, we must search starting *above* eve.core.builtins. All of the
+			//annotated classes are in eve.core.builtins however. If we were to search
+			//eve.core.builtins, no classes would be found.
+			//Apparently, we can't search eve.core either... so we must do eve.
+			EJIScanner scanner = new EJIScanner(); 
+			scanner.addPackage("eve");
+			scanner.scanForTypes();
+			
 			ScopeManager.setNamespace("_global");
 			ScopeManager.createGlobalScope();
 					
-			eve.eji.stdlib.Java.init();
-			eve.eji.stdlib.Core.init();
+			scanner.loadNamespaces();
 			repl = true;
 		}
 	}

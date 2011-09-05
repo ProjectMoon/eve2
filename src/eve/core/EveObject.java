@@ -119,7 +119,7 @@ public class EveObject {
 	}
 	
 	public EveObject(Integer i) {
-		this(EveInteger.getPrototype());
+		this(BuiltinCommons.getType("int"));
 		setIntValue(i);
 	}
 	
@@ -134,7 +134,7 @@ public class EveObject {
 	}
 	
 	public EveObject(String s) {
-		this(EveString.getPrototype());
+		this(BuiltinCommons.getType("string"));
 		setStringValue(s);
 	}
 	
@@ -149,7 +149,7 @@ public class EveObject {
 	}
 	
 	public EveObject(Double d) {
-		this(EveDouble.getPrototype());
+		this(BuiltinCommons.getType("double"));
 		setDoubleValue(d);
 	}
 	
@@ -164,7 +164,7 @@ public class EveObject {
 	}
 	
 	public EveObject(Function func) {
-		this(EveFunction.getPrototype());
+		this(BuiltinCommons.getType("function"));
 		setFunctionValue(func);
 	}
 	
@@ -179,7 +179,7 @@ public class EveObject {
 	}
 	
 	public EveObject(Boolean b) {
-		this(EveBoolean.getPrototype());
+		this(BuiltinCommons.getType("bool"));
 		setBooleanValue(b);
 	}
 	
@@ -194,7 +194,7 @@ public class EveObject {
 	}
 	
 	public EveObject(List<EveObject> l) {
-		this(EveList.getPrototype());
+		this(BuiltinCommons.getType("list"));
 		setListValue(l);
 	}
 	
@@ -209,7 +209,7 @@ public class EveObject {
 	}
 	
 	public EveObject(char c) {
-		this(EveString.getPrototype());
+		this(BuiltinCommons.getType("string"));
 		setStringValue(c);
 	}
 	
@@ -224,7 +224,7 @@ public class EveObject {
 	}
 	
 	public EveObject(Map<String, EveObject> d) {
-		this(EveDictionary.getPrototype());
+		this(BuiltinCommons.getType("dict"));
 		setDictionaryValue(d);
 	}
 	
@@ -239,13 +239,13 @@ public class EveObject {
 	}
 
 	public static EveObject globalType(String namespace) {
-		EveObject global = EveGlobal.getPrototype().eventlessClone();
+		EveObject global = new EveObject(BuiltinCommons.getType("global"));
 		global.setTypeName(namespace + " scope");
 		return global;
 	}
 	
 	public static EveObject javaType(Object o) {
-		EveObject eo = new EveObject(EveJava.getPrototype());
+		EveObject eo = new EveObject(BuiltinCommons.getType("java"));
 		eo.setType(EveType.JAVA);
 		eo.setTypeName(o.getClass().getName());
 		eo.setJavaValue(o);
@@ -268,9 +268,7 @@ public class EveObject {
 	}
 	
 	public static EveObject namespaceType(String nsName) {
-		EveObject eo = new EveObject();
-		eo.setTypeName("namespace");
-		eo.setType(EveType.CUSTOM);
+		EveObject eo = EveObject.prototypeType("namespace_" + nsName);
 		eo.cloneable = false;
 		eo.putField("ns", new EveObject(nsName));
 		eo.putField("type", new EveObject("namespace"));
@@ -380,8 +378,9 @@ public class EveObject {
 
 	public Function getFunctionValue() {
 		if (this.getType() != EveType.FUNCTION) {
-			throw new EveError(this + " is not a function!");
+			throw new EveError(this + " is not a function.");
 		}
+		
 		return functionValue;
 	}
 
@@ -932,7 +931,7 @@ public class EveObject {
 	}
 
 	public String toString() {
-		//utilize the java-defined toString if present, over all others.
+		//utilize the java-defined stringRepresentation if present, over all others.
 		if (getStringRepresentation() != null) {
 			return getStringRepresentation();
 		}
@@ -957,32 +956,21 @@ public class EveObject {
 		}
 		
 		//Otherwise, default.
-		switch (getType()) {
-			case INTEGER:
-				return this.getIntValue().toString();
-			case DOUBLE:
-				return this.getDoubleValue().toString();
-			case BOOLEAN:
-				return this.getBooleanValue().toString();
-			case STRING:
-				return this.getStringValue();
-			case FUNCTION:
-				return this.getFunctionValue().toString();
-			case LIST:
-				return this.getListValue().toString();
-			case CUSTOM:
-				return "<" + this.getTypeName() + ">";
-			case PROTOTYPE:
-				return "<prototype " + this.getTypeName() + ">";
-			case JAVA:
-				return this.getJavaValue().toString();
-			case DICT:
-				return this.getDictionaryValue().toString();
-			case NULL:
-				return "null";
+		try {
+			switch (getType()) {
+				case PROTOTYPE:
+					return "<type " + this.getTypeName() + ">";
+				case CUSTOM:
+					return "<" + this.getTypeName() + ">";
+				case NULL:
+					return "null";
+				default:
+					return this.getObjectValue().toString();
+			}
 		}
-		
-		return "<unknown>";
+		catch (NullPointerException e) {
+			return "null";
+		}
 	}
 	
 	public EveObject getObjectParent() {
@@ -1023,6 +1011,17 @@ public class EveObject {
 	}
 	
 	private EveObject invoke0(List<EveObject> actualParameters) {
+		//types must define a __create field in order to have a "constructor".
+		if (this.getType() == EveType.PROTOTYPE) {
+			EveObject __create = this.getField("__create");
+			if (__create != null) {
+				return __create.invoke(actualParameters);
+			}
+			else {
+				throw new EveError("type " + this.getTypeName() + " cannot be created through invocation.");
+			}
+		}
+		
 		if (this.getType() != EveType.FUNCTION) {
 			throw new EveError(this + " is not a function.");
 		}

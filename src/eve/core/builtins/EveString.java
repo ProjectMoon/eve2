@@ -1,44 +1,32 @@
 package eve.core.builtins;
 
-import java.util.Map;
-
-import eve.core.EveError;
 import eve.core.EveObject;
-import eve.eji.EJIFunction;
-import eve.eji.EJIHelper;
+import eve.eji.EJIBuiltinType;
+import eve.eji.EJIType;
 
 /**
  * The string prototype.
  * @author jeff
  *
  */
+@EJIType("string")
+@EJIBuiltinType
 public class EveString extends EveObject {
-	private static final EveString proto = new EveString();
+	/**
+	 * For prototypes, the empty constructor is used when cloning from it.
+	 * Usually used by literals (sometimes other stuff).
+	 */
+	public EveString() {}
 	
-	public static EveString getPrototype() {
-		return proto;
-	}
-	
-	private EveString() {
-		this.setType(EveType.PROTOTYPE);
-		this.setTypeName("string");
-		this.putField("create", new EveObject(new CreateStringFunction()));
-	}
-	
-	private class CreateStringFunction extends EJIFunction {
-		public CreateStringFunction() {
-			this.addParameter("value");
-		}
-		
-		@Override
-		public EveObject execute(Map<String, EveObject> parameters) {
-			EveObject value = parameters.get("value");
-			
-			if (value.getType() != EveType.STRING) {
-				throw new EveError("string.create requires a string parameter");
-			}
-			
-			return new EveObject(value.getStringValue(), EJIHelper.self());
-		}
+	/**
+	 * For prototypes, a value-based constructor serves as a way to create
+	 * variables without literals. This constructor should be viewed more
+	 * like a method, as it gets transformed into the __create field on the
+	 * type. Since we are an EveObject, we can just make use of the same
+	 * constructors literals use.
+	 * @param s
+	 */
+	public EveString(String s) {
+		super(s);
 	}
 }

@@ -107,6 +107,7 @@ topdown
 	|	jsonDown
 	|	jsonNameDown
 	|	jsonEntryDown
+	|	typedefDown
 	;
 
 bottomup
@@ -147,6 +148,19 @@ jsonEntryDown
 	:	^(JSON_ENTRY IDENT e=expression) {
 			JSONEntry entry = new JSONEntry($IDENT.text, e);
 			((JSONExpression)ScopeManager.getCurrentConstructionScope()).addEntry(entry);		
+		}
+	;
+
+//typedef
+typedefDown
+	:	^(TYPEDEF_EXPR IDENT e=expression) {
+			TypedefStatement typedef = new TypedefStatement($IDENT.text, e);
+			ScopeManager.getCurrentConstructionScope().addStatement(typedef);
+		}
+	|	^(TYPEDEF_EXTERN IDENT) {
+			TypedefStatement typedef = new TypedefStatement($IDENT.text);
+			ScopeManager.getCurrentConstructionScope().addStatement(typedef);
+			
 		}
 	;
 

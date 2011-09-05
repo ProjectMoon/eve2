@@ -34,7 +34,13 @@ class JavaConstructorInvocation extends EJIFunction {
 			
 			Object[] initArgs = EJIHelper.mapArguments(ctor.getParameterTypes(), args);
 			Object obj = ctor.newInstance(initArgs);
-			return EJIHelper.createEJIType(obj);
+			
+			if (obj instanceof EveObject) {
+				return (EveObject)obj;
+			}
+			else {
+				return EJIHelper.createEJIType(obj);
+			}
 		}
 		catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
