@@ -121,6 +121,7 @@ codeStatement //Statements that can appear pretty much anywhere.
 typedefStatement
 	:	'typedef' 'extern' IDENT ';' -> ^(TYPEDEF_EXTERN IDENT)
 	|	'typedef' IDENT '=' expression ';' -> ^(TYPEDEF_EXPR IDENT expression)
+	|	'typedef' IDENT ';' -> ^(TYPEDEF IDENT)
 	;
 	
 withStatement

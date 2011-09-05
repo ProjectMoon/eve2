@@ -157,9 +157,13 @@ typedefDown
 			ScopeManager.getCurrentConstructionScope().addStatement(typedef);
 		}
 	|	^(TYPEDEF_EXTERN IDENT) {
-			TypedefStatement typedef = new TypedefStatement($IDENT.text);
+			TypedefStatement typedef = new TypedefStatement($IDENT.text, true);
 			ScopeManager.getCurrentConstructionScope().addStatement(typedef);
 			
+		}
+	|	^(TYPEDEF IDENT) {
+			TypedefStatement typedef = new TypedefStatement($IDENT.text);
+			ScopeManager.getCurrentConstructionScope().addStatement(typedef);
 		}
 	;
 
