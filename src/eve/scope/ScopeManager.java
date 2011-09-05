@@ -59,6 +59,8 @@ public class ScopeManager {
 			}
 		}
 		
+		//look in the global scope if we are in the global scope OR if global scope
+		//has been pushed on to the stack via scope(global).
 		if (getCurrentScope() != null && getCurrentScope() == getGlobalScope()) {
 			eo = getCurrentScope().getField(name);
 		}

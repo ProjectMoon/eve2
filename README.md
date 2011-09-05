@@ -81,21 +81,26 @@ dependencies into the `dist/` directory for you.
 
 Release Notes
 =============
-0.3.6:
-
+0.3.5:
 * `typedef` statement.
 * Significant rework of how built-in types and standard library is loaded.
-* Change in behavior for how EJITypes work (must be used with typedef extern).
-
-0.3.5:
-
 * Much smoother support for creating "native code" through the use of annotations.
-* Rewrote native namespaces using the new annotations.
-* Renamed `java` namespace to `eji` since it conflicted with the `java` built-in prototype.
+* Rewrote native namespaces (now known as modules) using new annotations.
+* Renamed `java` namespace to `eji` since it conflicted with the `java` built-in type.
 * Significant enhancements to the import function:
-    * Import standard namespace by namespace name (e.g. `import("eji")`)
-    * Import by package:namespace (e.g. `import("com.mycompany:mynamespace")`)
-    * Import namespace by class name (e.g. `import("com.mycompany.MyNamespace")`)
+    * EJI import standard namespace by namespace name (e.g. `import("eji")`)
+    * EJI import type by package:type (e.g. `import("com.mycompany:mynamespace")`)
+    * EJI import type namespace by class name (e.g. `import("com.mycompany.MyNamespace")`)
+* Completely removed namespaces in favor of `typedef`:
+    * All "namespaces" are now actually types (that cannot be created).
+    * `::` operator repurposed to do property resolution on types.
+    * Invocation of namespace functions basically remain unchanged (e.g. "eji::import" still works).
+    * Namespaces are now more properly known as module types.
+    * Every script is executed in the global scope.
+* Scope blocks:
+    * Added `scope(private)` and `scope(global)` to force scope changes.
+    * `scope(private)` isolates code inside it from the outside world.
+    * `scope(global)` allows block to resolve variables in the global scope.
 
 0.3.4:
 
