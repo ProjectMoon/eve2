@@ -91,6 +91,7 @@ dependencies into the `dist/` directory for you.
 Release Notes
 =============
 0.3.5:
+
 * `typedef` statement.
 * Significant rework of how built-in types and standard library is loaded.
 * Much smoother support for creating "native code" through the use of annotations.
