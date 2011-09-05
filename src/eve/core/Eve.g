@@ -304,7 +304,7 @@ INTEGER : DIGIT+ ;
 DOUBLE : DIGIT+ '.' DIGIT+ ;
 BOOLEAN : 'true' | 'false' ;
 NULL : 'null' ;
-IDENT : LETTER ( LETTER | UNDERSCORE | DIGIT)*;
+IDENT : (UNDERSCORE | LETTER) ( LETTER | UNDERSCORE | DIGIT)*;
 
 WS : (' ' | '\t' | '\n' | '\r' | '\f')+ {$channel = HIDDEN; };
 COMMENT : '//' .* ('\n'|'\r') {$channel = HIDDEN; };
