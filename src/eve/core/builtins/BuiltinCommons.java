@@ -43,6 +43,20 @@ public class BuiltinCommons {
 		typePool.put(name, initialize(type));
 	}
 	
+	public static void mergeType(String name, EveObject newProperties) {
+		EveObject type = getType(name);
+		newProperties = newProperties.eventlessClone();
+		
+		if (type == null) {
+			type = EveObject.prototypeType(name);
+			addType(name, type);
+		}
+		
+		for (Map.Entry<String, EveObject> entry : newProperties.getFields().entrySet()) {
+			type.putField(entry.getKey(), entry.getValue());
+		}
+	}
+	
 	public static EveObject getType(String name) {
 		return typePool.get(name);
 	}

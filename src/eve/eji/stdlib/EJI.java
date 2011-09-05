@@ -4,7 +4,7 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIHelper;
-import eve.eji.EJIModuleType;
+import eve.eji.EJIModule;
 import eve.eji.EJIScanner;
 
 /**
@@ -13,12 +13,8 @@ import eve.eji.EJIScanner;
  * @author jeff
  *
  */
-@EJIModuleType("eji")
-public class EJI {
-	public static void init() {
-		EJIHelper.createEJIModuleType(EJI.class);
-	}
-	
+@EJIModule("eji")
+public class EJI {	
 	/**
 	 * "Import" a Java type into the interpreter via fully-qualified class
 	 * name. The class's constructor will become a function available in Eve

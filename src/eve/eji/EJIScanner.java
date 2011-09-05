@@ -63,14 +63,14 @@ public class EJIScanner {
 		
 		Reflections reflections = new Reflections(cb);
 		
-		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(EJIModuleType.class);
+		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(EJIModule.class);
 		
 		if (annotated.size() <= 0) {
 			throw new EveError("could not find any standard namespaces! fatal!");
 		}
 		else {
 			for (Class<?> cl : annotated) {
-				EJIModuleType ns = cl.getAnnotation(EJIModuleType.class);
+				EJIModule ns = cl.getAnnotation(EJIModule.class);
 				if (ns.value().equals(namespace)) {
 					memoizedNamespaces.put(pkg + ":" + namespace, cl);
 					return cl;
@@ -181,10 +181,18 @@ public class EJIScanner {
 		//classes.
 		Reflections r = createScanner();
 		
-		Set<Class<?>> annotated = r.getTypesAnnotatedWith(EJIModuleType.class);
+		Set<Class<?>> annotated = r.getTypesAnnotatedWith(EJIModule.class);
 		
 		for (Class<?> cl : annotated) {
-			EJIHelper.createEJIModuleType(cl);
+			EveObject module = EJIHelper.createEJIModuleType(cl);
+			BuiltinCommons.addType(cl.getAnnotation(EJIModule.class).value(), module);
+		}
+		
+		Set<Class<?>> merged = r.getTypesAnnotatedWith(EJIMergeModule.class);
+		
+		for (Class<?> cl : merged) {
+			EveObject module = EJIHelper.createEJIModuleType(cl);
+			BuiltinCommons.mergeType(cl.getAnnotation(EJIMergeModule.class).value(), module);
 		}
 	}
 }

@@ -528,20 +528,31 @@ public class EJIHelper {
 	}
 	
 	/**
-	 * Creates a "native namespace" from the given Java class. The class must have the {@link EJIModuleType}
+	 * Creates a "native namespace" from the given Java class. The class must have the {@link EJIModule}
 	 * annotation present. This method will find all public static methods in the class and convert
 	 * them either to functions or read-only properties. If a method has the {@link EJIProperty} annotation,
 	 * it will convert the method to a read-only property with the name specified by the annotation.
 	 * If there is no annotation present, it will convert the static method to a function. Static
 	 * variables, non-static variables, and non-static methods are all ignored.
 	 * @param cl
+	 * @return the created module type.
 	 */
-	public static void createEJIModuleType(Class<?> cl) {
-		if (!cl.isAnnotationPresent(EJIModuleType.class)) {
+	public static EveObject createEJIModuleType(Class<?> cl) {
+		if (!cl.isAnnotationPresent(EJIModule.class) && !cl.isAnnotationPresent(EJIMergeModule.class)) {
 			throw new EveError(cl.getName() + " is not a valid EJI namespace.");
 		}
 		
-		String namespace = cl.getAnnotation(EJIModuleType.class).value();
+		if (cl.isAnnotationPresent(EJIModule.class) && cl.isAnnotationPresent(EJIMergeModule.class)) {
+			throw new EveError(cl.getName() + " must have either @EJIModule or @EJIMergeModule ONLY.");
+		}
+		
+		String namespace = "";
+		if (cl.isAnnotationPresent(EJIModule.class)) {
+			namespace = cl.getAnnotation(EJIModule.class).value();
+		}
+		else {
+			namespace = cl.getAnnotation(EJIMergeModule.class).value();
+		}
 		
 		EveObject type = EveObject.prototypeType(namespace);
 		
@@ -577,7 +588,8 @@ public class EJIHelper {
 			type.putField(entry.getKey(), new EveObject(methodInvocation));
 		}		
 
-		BuiltinCommons.addType(namespace, type);		
+		//BuiltinCommons.addType(namespace, type);
+		return type;
 	}
 
 }

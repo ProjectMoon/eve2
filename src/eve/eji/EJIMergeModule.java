@@ -6,15 +6,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * The EJIModuleType creates a native "module" type. Module types can be thought
- * of as namespaces. They are a way to organize functionality into discrete
- * units. Module types cannot be created through invocation, as they have no
- * __create method.
+ * Indicates that this EJI Module type should be merged into an existing Eve type,
+ * rather than created as a unique type. This is useful for adding functions
+ * to the global type, or spreading implementation of a module across many
+ * classes.
  * @author jeff
  *
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface EJIModuleType {
+public @interface EJIMergeModule {
 	public String value();
 }

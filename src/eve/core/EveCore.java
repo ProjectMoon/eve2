@@ -133,10 +133,11 @@ public class EveCore {
 		EJIScanner scanner = new EJIScanner(); 
 		scanner.addPackage("eve");
 		scanner.scanForTypes();
+		scanner.loadNamespaces();
 		
 		ScopeManager.createGlobalScope();
+		ScopeManager.putVariable("__global", ScopeManager.getGlobalScope());
 				
-		scanner.loadNamespaces();
 					
 		script.execute();
 	}
@@ -151,10 +152,11 @@ public class EveCore {
 			EJIScanner scanner = new EJIScanner(); 
 			scanner.addPackage("eve");
 			scanner.scanForTypes();
+			scanner.loadNamespaces();
 			
 			ScopeManager.createGlobalScope();
+			ScopeManager.putVariable("__global", ScopeManager.getGlobalScope());
 					
-			scanner.loadNamespaces();
 			repl = true;
 		}
 	}

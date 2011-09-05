@@ -9,10 +9,13 @@ import org.antlr.runtime.RecognitionException;
 
 import eve.core.EveCore;
 import eve.core.EveError;
+import eve.core.EveObject;
 import eve.core.Script;
+import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIFunctionName;
 import eve.eji.EJIHelper;
-import eve.eji.EJIModuleType;
+import eve.eji.EJIMergeModule;
+import eve.eji.EJIModule;
 import eve.eji.EJIScanner;
 import eve.scope.ScopeManager;
 
@@ -22,7 +25,8 @@ import eve.scope.ScopeManager;
  * @author jeff
  *
  */
-@EJIModuleType("core")
+//@EJIModule("core")
+@EJIMergeModule("global")
 public class Core {
 	private static final List<File> IMPORTED_FILES = new ArrayList<File>();
 	private static final List<Class<?>> IMPORTED_CLASSES = new ArrayList<Class<?>>();
@@ -106,7 +110,8 @@ public class Core {
 	
 	private static void importEJINamespace(Class<?> cl) {	
 		if (!IMPORTED_CLASSES.contains(cl)) {
-			EJIHelper.createEJIModuleType(cl);
+			EveObject module = EJIHelper.createEJIModuleType(cl);
+			BuiltinCommons.addType(cl.getAnnotation(EJIModule.class).value(), module);
 			IMPORTED_CLASSES.add(cl);
 		}
 	}
