@@ -136,12 +136,7 @@ public class EveCore {
 		
 		ScopeManager.setNamespace("_global");
 		ScopeManager.createGlobalScope();
-		
-		if (!script.getNamespace().equals("_global")) {
-			ScopeManager.setNamespace(script.getNamespace());
-			ScopeManager.createGlobalScope();
-		}
-		
+				
 		scanner.loadNamespaces();
 					
 		script.execute();

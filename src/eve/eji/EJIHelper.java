@@ -536,7 +536,7 @@ public class EJIHelper {
 	 * variables, non-static variables, and non-static methods are all ignored.
 	 * @param cl
 	 */
-	public static void createEJINamespace(Class<?> cl) {
+	public static void createEJIModuleType(Class<?> cl) {
 		if (!cl.isAnnotationPresent(EJIModuleType.class)) {
 			throw new EveError(cl.getName() + " is not a valid EJI namespace.");
 		}

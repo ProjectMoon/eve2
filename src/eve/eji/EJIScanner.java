@@ -38,7 +38,7 @@ public class EJIScanner {
 	
 	/**
 	 * Find a namespace in a package. Does not load the namespace; only returns
-	 * the class. Use {@link EJIHelper#createEJINamespace(Class)} for that.
+	 * the class. Use {@link EJIHelper#createEJIModuleType(Class)} for that.
 	 * @param pkg
 	 * @param namespace
 	 * @return The class, if found. Null otherwise.
@@ -83,7 +83,7 @@ public class EJIScanner {
 	
 	/**
 	 * Find a standard namespace (from eve.eji.stdlib).Does not load the namespace; only returns
-	 * the class. Use {@link EJIHelper#createEJINamespace(Class)} for that.
+	 * the class. Use {@link EJIHelper#createEJIModuleType(Class)} for that.
 	 * @param namespace
 	 * @return The class, if found. Null otherwise.
 	 */
@@ -184,7 +184,7 @@ public class EJIScanner {
 		Set<Class<?>> annotated = r.getTypesAnnotatedWith(EJIModuleType.class);
 		
 		for (Class<?> cl : annotated) {
-			EJIHelper.createEJINamespace(cl);
+			EJIHelper.createEJIModuleType(cl);
 		}
 	}
 }

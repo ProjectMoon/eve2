@@ -16,7 +16,7 @@ import eve.eji.EJIScanner;
 @EJIModuleType("eji")
 public class EJI {
 	public static void init() {
-		EJIHelper.createEJINamespace(EJI.class);
+		EJIHelper.createEJIModuleType(EJI.class);
 	}
 	
 	/**

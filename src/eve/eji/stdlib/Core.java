@@ -61,16 +61,11 @@ public class Core {
 		try {
 			Script script = core.getScript(file.getAbsolutePath());
 			
-			if (script.getNamespace().equals("_global")) {
-				ScopeManager.setNamespace("_global");
-				ScopeManager.pushScope(ScopeManager.getGlobalScope());
-				script.execute();
-				ScopeManager.popScope();
-				ScopeManager.revertNamespace();
-			}
-			else {
-				ScopeManager.defineNamespace(script.getNamespace(), script);
-			}
+			ScopeManager.setNamespace("_global");
+			ScopeManager.pushScope(ScopeManager.getGlobalScope());
+			script.execute();
+			ScopeManager.popScope();
+			ScopeManager.revertNamespace();
 		}
 		catch (RecognitionException e) {
 			// TODO Auto-generated catch block
@@ -116,7 +111,7 @@ public class Core {
 	
 	private static void importEJINamespace(Class<?> cl) {	
 		if (!IMPORTED_CLASSES.contains(cl)) {
-			EJIHelper.createEJINamespace(cl);
+			EJIHelper.createEJIModuleType(cl);
 			IMPORTED_CLASSES.add(cl);
 		}
 	}
