@@ -1139,7 +1139,6 @@ public class EveObject {
 			closureStack = field.recursePossibleClosures(closureStack);
 		}
 		
-		
 		return closureStack;
 	}
 	

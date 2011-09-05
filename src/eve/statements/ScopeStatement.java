@@ -1,5 +1,6 @@
 package eve.statements;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
@@ -19,8 +20,13 @@ public class ScopeStatement extends AbstractStatement implements EveStatement, C
 	
 	@Override
 	public void closureAnalysis(Deque<List<String>> closureList) {
+		//this is if we are calling it from a top-level function.
+		if (closureList == null) {
+			closureList = new ArrayDeque<List<String>>();
+		}
 		//may not want to do it this way for private ones?
 		//or maybe not at all...
+		closureList.push(getIdentifiers());
 		for (EveStatement statement : statements) {
 			statement.closureAnalysis(closureList);
 		}
@@ -31,10 +37,15 @@ public class ScopeStatement extends AbstractStatement implements EveStatement, C
 		//for private scope statement, nothing escapes this scope object,
 		//lest it be exported.
 		if (type.equals("private")) {
+			closureAnalysis(null);
 			EveObject scope = EveObject.customType("scope(private)");
 			ScopeManager.pushScope(scope);
 			new Interpreter().executeStatements(statements);
 			ScopeManager.popScope();
+			
+			//eve.core.builtins.BuiltinCommons.getType("math").recursePossibleClosures(null);
+			//we need to force anything that lives outside of the scope (aka typedefs)
+			//to recurse for closures.
 			
 			return scope;
 		}
@@ -45,8 +56,13 @@ public class ScopeStatement extends AbstractStatement implements EveStatement, C
 
 	@Override
 	public List<String> getIdentifiers() {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> idents = new ArrayList<String>();
+		
+		for (EveStatement statement : statements) {
+			idents.addAll(statement.getIdentifiers());
+		}
+		
+		return idents;
 	}
 
 	@Override
