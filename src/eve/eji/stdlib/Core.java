@@ -12,7 +12,7 @@ import eve.core.EveError;
 import eve.core.Script;
 import eve.eji.EJIFunctionName;
 import eve.eji.EJIHelper;
-import eve.eji.EJINamespace;
+import eve.eji.EJIModuleType;
 import eve.eji.EJIScanner;
 import eve.scope.ScopeManager;
 
@@ -22,7 +22,7 @@ import eve.scope.ScopeManager;
  * @author jeff
  *
  */
-@EJINamespace("_global")
+@EJIModuleType("core")
 public class Core {
 	private static final List<File> IMPORTED_FILES = new ArrayList<File>();
 	private static final List<Class<?>> IMPORTED_CLASSES = new ArrayList<Class<?>>();

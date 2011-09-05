@@ -63,14 +63,14 @@ public class EJIScanner {
 		
 		Reflections reflections = new Reflections(cb);
 		
-		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(EJINamespace.class);
+		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(EJIModuleType.class);
 		
 		if (annotated.size() <= 0) {
 			throw new EveError("could not find any standard namespaces! fatal!");
 		}
 		else {
 			for (Class<?> cl : annotated) {
-				EJINamespace ns = cl.getAnnotation(EJINamespace.class);
+				EJIModuleType ns = cl.getAnnotation(EJIModuleType.class);
 				if (ns.value().equals(namespace)) {
 					memoizedNamespaces.put(pkg + ":" + namespace, cl);
 					return cl;
@@ -155,18 +155,17 @@ public class EJIScanner {
 		for (Class<?> type : types) {
 			EJIType typeInfo = type.getAnnotation(EJIType.class);
 			EveObject ctor = EJIHelper.createEJIConstructor(type);
-			EveObject eo = EveObject.prototypeType(typeInfo.value());
-			eo.putField("__create", ctor);
+			EveObject eveType = EJIHelper.createEJIType(typeInfo.value(), ctor);
 			
 			//whether or not we should consider this a built-in type.
 			//all eve types are built-in. all user-define types should
 			//not be built-in.
 			EJIBuiltinType builtin = type.getAnnotation(EJIBuiltinType.class);
 			if (builtin != null) {
-				BuiltinCommons.addType(typeInfo.value(), eo);
+				BuiltinCommons.addType(typeInfo.value(), eveType);
 			}
 			else {
-				ExternalTypes.addType(typeInfo.value(), eo);
+				ExternalTypes.addType(typeInfo.value(), eveType);
 			}
 		}
 	}
@@ -182,7 +181,7 @@ public class EJIScanner {
 		//classes.
 		Reflections r = createScanner();
 		
-		Set<Class<?>> annotated = r.getTypesAnnotatedWith(EJINamespace.class);
+		Set<Class<?>> annotated = r.getTypesAnnotatedWith(EJIModuleType.class);
 		
 		for (Class<?> cl : annotated) {
 			EJIHelper.createEJINamespace(cl);

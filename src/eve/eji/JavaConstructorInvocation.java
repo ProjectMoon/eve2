@@ -39,7 +39,7 @@ class JavaConstructorInvocation extends EJIFunction {
 				return (EveObject)obj;
 			}
 			else {
-				return EJIHelper.createEJIType(obj);
+				return EJIHelper.createEJIObject(obj);
 			}
 		}
 		catch (IllegalArgumentException e) {

@@ -4,7 +4,7 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIHelper;
-import eve.eji.EJINamespace;
+import eve.eji.EJIModuleType;
 import eve.eji.EJIScanner;
 
 /**
@@ -13,7 +13,7 @@ import eve.eji.EJIScanner;
  * @author jeff
  *
  */
-@EJINamespace("eji")
+@EJIModuleType("eji")
 public class EJI {
 	public static void init() {
 		EJIHelper.createEJINamespace(EJI.class);
@@ -94,7 +94,7 @@ public class EJI {
 			
 			pkgContainer.putField(simpleName, ctorFunc);
 			if (exposeType) {
-				BuiltinCommons.addType(simpleName, ctorFunc);
+				BuiltinCommons.addType(simpleName, EJIHelper.createEJIType(simpleName, ctorFunc));
 			}
 		}
 		catch (ClassNotFoundException e) {

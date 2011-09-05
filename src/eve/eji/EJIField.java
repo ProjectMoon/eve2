@@ -62,7 +62,7 @@ class EJIField extends DynamicField {
 					return (EveObject)o;
 				}
 				else {
-					return EJIHelper.createEJIType(o);
+					return EJIHelper.createEJIObject(o);
 				}
 			}
 		}
