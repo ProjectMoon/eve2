@@ -16,30 +16,14 @@ import eve.core.builtins.BuiltinCommons;
 public class ScopeManager {
 	private static Deque<EveObject> closureScope;
 	
-	//namespaces
-	private static Map<String, EveObject> globalScopes = new HashMap<String, EveObject>();
-	private static Deque<String> namespaceStack = new ArrayDeque<String>();
-	private static Map<String, Deque<EveObject>> namespaces = new HashMap<String, Deque<EveObject>>();
-	private static String previousNamespace; //right below current namespace on namespaceStack
+	private static EveObject globalScope;
+	private static Deque<EveObject> stack = new ArrayDeque<EveObject>(); //the call stack!
 	
 	//construction only
 	private static Stack<ConstructionScope> constructionScopeStack = new Stack<ConstructionScope>();
 	private static ConstructionScope lastConstructionScope;
 	private static Script script;
 		
-	/**
-	 * Initialize the ScopeManager.
-	 */
-	static {
-		//global is the referenceable pointer to the global namespace.
-		//_global is the default namespace. This allows getObject to enforce
-		//use of global:: for finding global variables.
-		Deque<EveObject> globalScope = new ArrayDeque<EveObject>();
-		//namespaces.put("global", globalScope);
-		namespaces.put("_global", globalScope);
-		setNamespace("_global");
-	}
-	
 	public static EveObject getCurrentScope() {
 		return getScopeStack().peek();
 	}
@@ -56,12 +40,6 @@ public class ScopeManager {
 	
 	private static EveObject getObject(String name) {
 		EveObject eo = null;
- 		if (getNamespace().equals("module")) {
-			setNamespace(previousNamespace);
-			eo = getGlobalScope().getField(name);
-			revertNamespace();
-			return eo;
-		}
 		
 		if (closureScope != null) {
 			for (EveObject closure : closureScope) {
@@ -77,14 +55,6 @@ public class ScopeManager {
 				eo = scope.getField(name);
 				if (eo != null) {
 					return eo;
-				}
-			}
-			else {
-				if (getNamespace().equals("global")) {
-					eo = scope.getField(name);
-					if (eo != null) {
-						return eo;
-					}					
 				}
 			}
 		}
@@ -103,12 +73,6 @@ public class ScopeManager {
 	
 	public static EveObject getScopeForVariable(String name) {
 		EveObject eo = null;
- 		if (getNamespace().equals("module")) {
-			setNamespace(previousNamespace);
-			eo = getGlobalScope();
-			revertNamespace();
-			return eo;
-		}
 		
 		if (closureScope != null) {
 			for (EveObject closure : closureScope) {
@@ -124,14 +88,6 @@ public class ScopeManager {
 				eo = scope.getField(name);
 				if (eo != null) {
 					return scope;
-				}
-			}
-			else {
-				if (getNamespace().equals("global")) {
-					eo = scope.getField(name);
-					if (eo != null) {
-						return scope;
-					}					
 				}
 			}
 		}
@@ -163,7 +119,7 @@ public class ScopeManager {
 		
 		//this or condition prevents namespaced references in functions
 		//from going to the temp fields map.
-		if (!inFunction() || globalScopes.containsValue(scope)) {
+		if (!inFunction() || globalScope == scope) {
 			scope.putField(name, eo);
 		}
 		else {
@@ -176,15 +132,11 @@ public class ScopeManager {
 	}
 	
 	public static EveObject getGlobalScope() {
-		return globalScopes.get(getNamespace());
+		return globalScope;
 	}
-	
-	public static EveObject getGlobalScope(String namespace) {
-		return globalScopes.get(namespace);
-	}
-	
+		
 	private static void setGlobalScope(EveObject scope) {
-		globalScopes.put(getNamespace(), scope);
+		globalScope = scope;
 	}
 	
 	public static void createGlobalScope() {
@@ -192,9 +144,10 @@ public class ScopeManager {
 			return;
 		}
 		
-		EveObject global = EveObject.globalType(getNamespace());
+		EveObject global = EveObject.globalType();
 		setGlobalScope(global);
 		pushScope(global);
+		putVariable("__global", global);
 	}
 	
 	public static void setClosureStack(Deque<EveObject> closureScope) {
@@ -253,13 +206,7 @@ public class ScopeManager {
 	}
 
 	public static Deque<EveObject> getScopeStack() {
-		Deque<EveObject> scope = namespaces.get(namespaceStack.peek());
-		
-		if (scope == null) {
-			throw new EveError("namespace " + namespaceStack.peek() + " is undefined.");
-		}
-		
-		return scope;
+		return stack;
 	}
 
 	public static void setScript(Script script) {
@@ -268,54 +215,5 @@ public class ScopeManager {
 
 	public static Script getScript() {
 		return script;
-	}
-
-	@Deprecated
-	public static void setNamespaces(Map<String, Deque<EveObject>> namespaces) {
-		ScopeManager.namespaces = namespaces;
-	}
-
-	@Deprecated
-	public static Map<String, Deque<EveObject>> getNamespaces() {
-		return namespaces;
-	}
-	
-	@Deprecated
-	public static void defineNamespace(String namespace, Script script) {
-		if (namespaces.containsKey(namespace)) {
-			throw new EveError("namespace " + namespace + " is already defined.");
-		}
-		
-		//Set the namespace and global scope, but do not pop it.
-		//If we pop scope, the namespace will lose its global scope!
-		setNamespace(namespace);
-		createGlobalScope();
-		BuiltinCommons.addType(script.getNamespace(), EveObject.namespaceType(script.getNamespace()));
-		script.execute();
-		revertNamespace();
-	}
-	
-	@Deprecated
-	public static void setNamespace(String namespace) {
-		previousNamespace = namespaceStack.peek();
-		namespaceStack.push(namespace);
-		
-		if (namespaces.get(namespace) == null) {
-			namespaces.put(namespace, new ArrayDeque<EveObject>());
-		}
-	}
-	
-	@Deprecated
-	public static String getNamespace() {
-		return namespaceStack.peek();
-	}
-	
-	@Deprecated
-	public static String revertNamespace() {
-		String ns = namespaceStack.pop();
-		//String currNS = namespaceStack.peek();
-		//previousNamespace = namespaceStack.peek();
-		//namespaceStack.push(currNS);
-		return ns;
 	}
 }

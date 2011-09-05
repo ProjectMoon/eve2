@@ -135,9 +135,7 @@ public class EveCore {
 		scanner.scanForTypes();
 		scanner.loadNamespaces();
 		
-		ScopeManager.createGlobalScope();
-		ScopeManager.putVariable("__global", ScopeManager.getGlobalScope());
-				
+		ScopeManager.createGlobalScope();			
 					
 		script.execute();
 	}
@@ -155,7 +153,6 @@ public class EveCore {
 			scanner.loadNamespaces();
 			
 			ScopeManager.createGlobalScope();
-			ScopeManager.putVariable("__global", ScopeManager.getGlobalScope());
 					
 			repl = true;
 		}

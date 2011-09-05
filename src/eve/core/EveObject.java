@@ -229,9 +229,10 @@ public class EveObject {
 		setDictionaryValue(d);
 	}
 
-	public static EveObject globalType(String namespace) {
+	public static EveObject globalType() {
 		EveObject global = new EveObject(BuiltinCommons.getType("global"));
-		global.setTypeName(namespace + " scope");
+		global.setType(EveType.SCOPE);
+		global.setTypeName("scope(global)");
 		return global;
 	}
 	
@@ -290,7 +291,7 @@ public class EveObject {
 	
 	public void markFieldsForClone() {
 		for (EveObject eo : getFields().values()) {
-			if (eo != null) {
+			if (eo != null && this != eo) {
 				eo.markedForClone = true;
 				eo.markFieldsForClone();
 			}
@@ -1139,7 +1140,9 @@ public class EveObject {
 		
 		//and now all its fields (and their fields)
 		for (EveObject field : getFields().values()) {
-			closureStack = field.recursePossibleClosures(closureStack);
+			if (this != field) {
+				closureStack = field.recursePossibleClosures(closureStack);
+			}
 		}
 		
 		return closureStack;
