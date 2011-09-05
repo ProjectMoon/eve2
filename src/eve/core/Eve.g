@@ -7,6 +7,7 @@ options {
 }
 
 tokens {
+	PROTO_PROPERTY;
 	TYPEDEF;
 	TYPEDEF_EXTERN;
 	TYPEDEF_EXPR;
@@ -98,7 +99,7 @@ tokens {
 
 //Top level
 program
-	:	namespace? statement*
+	:	statement*
 	;
 	
 namespace
@@ -201,7 +202,7 @@ atom
 	|	DICT_LITERAL
 	|	NULL
 	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
-	|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
+	//|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	;
 
 term
@@ -217,6 +218,7 @@ suffix [CommonTree t]
 	|	( x='[' modifiers  ']' -> ^(ARRAY_IDENT {$t} modifiers) )
 	|	( x='.' (p=IDENT) -> ^(PROPERTY {$t} $p) )
 	|	( '-' '>' (p=IDENT) -> ^(POINTER {t} $p) )
+	|	( '::' (p=IDENT) -> ^(PROTO_PROPERTY {$t} $p) )
 	;
 	
 boolNegation

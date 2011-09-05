@@ -91,8 +91,7 @@ parameters returns [List<String> result]
 	;
 
 topdown
-	:	namespaceStatement
-	|	withStatementDown
+	:	withStatementDown
 	|	assignFunctionDown
 	|	assignDelegateDown
 	|	functionNameDown
@@ -100,7 +99,7 @@ topdown
 	|	elseIfStatementDown
 	|	elseStatementDown
 	|	codeStatement
-	|	nsSwitchDown
+	//|	nsSwitchDown
 	|	foreachLoopDown
 	|	whileLoopDown
 	|	functionBodyDown
@@ -118,7 +117,7 @@ bottomup
 	|	ifStatementUp
 	|	elseIfStatementUp
 	|	elseStatementUp
-	|	nsSwitchUp
+	//|	nsSwitchUp
 	|	foreachLoopUp
 	|	whileLoopUp
 	|	functionBodyUp
@@ -189,6 +188,7 @@ withStatementUp
 	;
 
 //namespace declaration and switching
+/*
 namespaceStatement
 	:	^(NAMESPACE IDENT) {
 			ScopeManager.getScript().setNamespace($IDENT.text);
@@ -211,6 +211,8 @@ nsSwitchUp
 			ScopeManager.getCurrentConstructionScope().addStatement(expr);
 		}
 	;
+*/
+
 //Function declarations (not invocations)
 assignFunctionDown
 	:	^(INIT_FUNCTION IDENT .*) {
@@ -524,6 +526,11 @@ expression returns [ExpressionStatement result]
 			$result = new IndexedAccess(e, access);
 			$result.setLine($ARRAY_IDENT.getLine());
 			previousStatement = $result;
+		}
+	|	^(PROTO_PROPERTY e=expression prop=IDENT) {
+			$result = new PropertyResolution(e, prop.getText(), true);
+			$result.setLine($PROTO_PROPERTY.getLine());
+			previousStatement = $result;	
 		}
 	
 	//Operators
