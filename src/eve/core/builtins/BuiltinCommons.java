@@ -19,8 +19,16 @@ public class BuiltinCommons {
 	
 	//Have to initialize these 2 first because other things depend on them.
 	static {
-		typePool.put("function", new EveFunction());
-		typePool.put("global", new EveGlobal());
+		EveFunction function = new EveFunction();
+		EveGlobal global = new EveGlobal();
+		
+		typePool.put("function", function);
+		typePool.put("global", global);
+		
+		//must do init after they're added to the type pool
+		//because initialization depends on function existing.
+		initialize(function);
+		initialize(global);		
 	}
 	
 	public static void addType(String name, EveObject type) {

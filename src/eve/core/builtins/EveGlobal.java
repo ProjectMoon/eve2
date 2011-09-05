@@ -1,7 +1,6 @@
 package eve.core.builtins;
 
 import eve.core.EveObject;
-import eve.eji.EJIType;
 
 /**
  * The global prototype. Every namespace (including the global namespace)
