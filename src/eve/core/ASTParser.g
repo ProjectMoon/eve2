@@ -99,7 +99,6 @@ topdown
 	|	elseIfStatementDown
 	|	elseStatementDown
 	|	codeStatement
-	//|	nsSwitchDown
 	|	foreachLoopDown
 	|	whileLoopDown
 	|	functionBodyDown
@@ -117,7 +116,6 @@ bottomup
 	|	ifStatementUp
 	|	elseIfStatementUp
 	|	elseStatementUp
-	//|	nsSwitchUp
 	|	foreachLoopUp
 	|	whileLoopUp
 	|	functionBodyUp
@@ -186,32 +184,6 @@ withStatementUp
 			EveLogger.debug("popping with statement " + with);
 		}
 	;
-
-//namespace declaration and switching
-/*
-namespaceStatement
-	:	^(NAMESPACE IDENT) {
-			ScopeManager.getScript().setNamespace($IDENT.text);
-			EveLogger.debug("set namespace for script to " + $IDENT.text);
-		}
-	;
-	
-nsSwitchDown
-	:	^(NS_SWITCH_BLOCK IDENT .*) {
-			NamespaceSwitchBlock expr = new NamespaceSwitchBlock($IDENT.text);
-			expr.setLine($IDENT.getLine());
-			ScopeManager.pushConstructionScope(expr);
-			EveLogger.debug("Switch to namespace " + $IDENT.text);
-		}
-	;
-	
-nsSwitchUp
-	:	^(NS_SWITCH_BLOCK IDENT .*) {
-			NamespaceSwitchBlock expr = (NamespaceSwitchBlock)ScopeManager.popConstructionScope();
-			ScopeManager.getCurrentConstructionScope().addStatement(expr);
-		}
-	;
-*/
 
 //Function declarations (not invocations)
 assignFunctionDown
@@ -579,10 +551,6 @@ expression returns [ExpressionStatement result]
 			$result = new PropertyCollectionExpression(e);
 			$result.setLine($PROP_COLLECTION_ALL.getLine());
 			EveLogger.debug("obj collection " + e + " with all props");
-		}
-	|	^(NS_SWITCH_EXPR IDENT e=expression) {
-			$result = new NamespacedExpression($IDENT.text, e);
-			$result.setLine($IDENT.getLine());
 		}
 	|	^(INIT_FUNCTION .*) {
 			FunctionDefExpression funcExpr = new FunctionDefExpression();

@@ -11,9 +11,6 @@ tokens {
 	TYPEDEF;
 	TYPEDEF_EXTERN;
 	TYPEDEF_EXPR;
-	NAMESPACE;
-	NS_SWITCH_BLOCK;
-	NS_SWITCH_EXPR;
 	NEGATION;
 	INIT_VARIABLE;
 	UPDATE_VARIABLE;
@@ -102,10 +99,6 @@ program
 	:	statement*
 	;
 	
-namespace
-	:	'namespace' IDENT ';' -> ^(NAMESPACE IDENT)
-	;
-
 // Statements
 statement
 	:	codeStatement
@@ -202,7 +195,6 @@ atom
 	|	DICT_LITERAL
 	|	NULL
 	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
-	//|	ns=IDENT '::' i=IDENT -> ^(NS_SWITCH_EXPR $ns ^($i))
 	;
 
 term
