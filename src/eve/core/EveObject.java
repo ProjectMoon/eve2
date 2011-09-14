@@ -71,7 +71,7 @@ public class EveObject {
 	 * Copy constructor. Used for cloning.
 	 * @param source The object to clone.
 	 */
-	public EveObject(EveObject source, boolean onClone) {
+	private EveObject(EveObject source, boolean onClone) {
 		if (source == null) {
 			throw new EveError("cannot clone from null.");
 		}
