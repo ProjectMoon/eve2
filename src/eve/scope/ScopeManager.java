@@ -56,6 +56,12 @@ public class ScopeManager {
 				if (eo != null) {
 					return eo;
 				}
+				
+				//scope statements prevent searching from higher up
+				//on the chain.
+				if (scope.getType() == EveType.SCOPE) {
+					break;
+				}
 			}
 		}
 		
@@ -90,6 +96,12 @@ public class ScopeManager {
 				eo = scope.getField(name);
 				if (eo != null) {
 					return scope;
+				}
+				
+				//scope statements prevent searching from higher up
+				//on the chain.
+				if (scope.getType() == EveType.SCOPE) {
+					break;
 				}
 			}
 		}
