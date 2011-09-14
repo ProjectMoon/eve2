@@ -486,8 +486,9 @@ public class EJIHelper {
 	 * @param ctor
 	 * @param typeName
 	 * @return An Eve type.
+	 * @throws IntrospectionException 
 	 */
-	public static EveObject createEJIType(String typeName, EveObject ctor) {
+	public static EveObject createEJIType(String typeName, EveObject ctor) throws IntrospectionException {
 		EveObject eo = EveObject.prototypeType(typeName);
 		eo.putField("__create", ctor);
 		return eo;
@@ -504,6 +505,10 @@ public class EJIHelper {
 	 * @throws IllegalAccessException
 	 */
 	public static EveObject createEJIObject(Object obj) throws IntrospectionException, IllegalAccessException {
+		if (obj instanceof EveObject) {
+			return createEJIEveObject((EveObject)obj);
+		}
+		
 		EveObject eo = EveObject.javaType(obj);
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 		
@@ -515,14 +520,23 @@ public class EJIHelper {
 		//handle methods
 		Set<String> methodNames = new HashSet<String>();
 		Method indexedAccessor = null;
+		Method indexedMutator = null;
 		
 		for (MethodDescriptor md : info.getMethodDescriptors()) {
-			if (md.getMethod().isAnnotationPresent(EJIIndexedProperty.class)) {
+			if (md.getMethod().isAnnotationPresent(EJIIndexedAccessor.class)) {
 				if (indexedAccessor == null) {
 					indexedAccessor = md.getMethod(); 
 				}
 				else {
 					throw new EveError("EJI objects can only have one indexed accessor method.");
+				}
+			}
+			else if (md.getMethod().isAnnotationPresent(EJIIndexedMutator.class)) {
+				if (indexedMutator == null) {
+					indexedMutator = md.getMethod(); 
+				}
+				else {
+					throw new EveError("EJI objects can only have one indexed mutator method.");
 				}
 			}
 			else {
@@ -538,6 +552,78 @@ public class EJIHelper {
 		if (indexedAccessor != null) {
 			EJIFunction accessor = EJIFunction.fromJava(obj, indexedAccessor);
 			eo.setIndexedAccessor(new EveObject(accessor));
+		}
+		
+		if (indexedMutator != null) {
+			EJIFunction mutator = EJIFunction.fromJava(obj, indexedMutator);
+			eo.setIndexedMutator(new EveObject(mutator));
+		}
+		
+		return eo;
+	}
+	
+	/**
+	 * Special case for creating EJI objects when the object we are trying to wrap happens to be an EveObject
+	 * already. In this case, any annotated properties and methods that are NOT inherited (since a lot of
+	 * stuff comes from EveObject itself) are added as properties/methods. 
+	 * @param eo
+	 * @return
+	 * @throws IntrospectionException 
+	 */
+	private static EveObject createEJIEveObject(EveObject eo) throws IntrospectionException {
+		BeanInfo info = Introspector.getBeanInfo(eo.getClass());
+		
+		List<Method> methods = Arrays.asList(eo.getClass().getDeclaredMethods());
+		
+		//properties
+		for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
+			if (methods.contains(pd.getReadMethod()) && methods.contains(pd.getWriteMethod())) {
+				eo.putField(pd.getName(), new EJIField(eo, pd));
+			}
+		}
+		
+		//methods
+		Set<String> methodNames = new HashSet<String>();
+		Method indexedAccessor = null;
+		Method indexedMutator = null;
+		
+		for (Method method : methods) {
+			if (method.isAccessible()) {
+				if (method.isAnnotationPresent(EJIIndexedAccessor.class)) {
+					if (indexedAccessor == null) {
+						indexedAccessor = method; 
+					}
+					else {
+						throw new EveError("EJI objects can only have one indexed accessor method.");
+					}
+				}
+				else if (method.isAnnotationPresent(EJIIndexedMutator.class)) {
+					if (indexedMutator == null) {
+						indexedMutator = method; 
+					}
+					else {
+						throw new EveError("EJI objects can only have one indexed mutator method.");
+					}
+				}
+				else {
+					methodNames.add(method.getName());
+				}
+			}
+		}
+		
+		for (String methodName : methodNames) {
+			EJIFunction methodInvocation = EJIFunction.fromJava(eo, methodName);
+			eo.putField(methodName, new EveObject(methodInvocation));
+		}
+		
+		if (indexedAccessor != null) {
+			EJIFunction accessor = EJIFunction.fromJava(eo, indexedAccessor);
+			eo.setIndexedAccessor(new EveObject(accessor));
+		}
+		
+		if (indexedMutator != null) {
+			EJIFunction mutator = EJIFunction.fromJava(eo, indexedMutator);
+			eo.setIndexedMutator(new EveObject(mutator));
 		}
 		
 		return eo;

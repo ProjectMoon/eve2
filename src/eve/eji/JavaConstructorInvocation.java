@@ -20,6 +20,7 @@ class JavaConstructorInvocation extends EJIFunction {
 		setVarargsIndex(0);
 		setName(type.getSimpleName() + "_Ctor");
 	}
+	
 	@Override
 	public EveObject execute(Map<String, EveObject> parameters) {
 		List<EveObject> args = new ArrayList<EveObject>(0);
@@ -34,13 +35,7 @@ class JavaConstructorInvocation extends EJIFunction {
 			
 			Object[] initArgs = EJIHelper.mapArguments(ctor.getParameterTypes(), args);
 			Object obj = ctor.newInstance(initArgs);
-			
-			if (obj instanceof EveObject) {
-				return (EveObject)obj;
-			}
-			else {
-				return EJIHelper.createEJIObject(obj);
-			}
+			return EJIHelper.createEJIObject(obj);
 		}
 		catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block

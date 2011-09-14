@@ -39,14 +39,17 @@ public class EveObject {
 	private TreeMap<Integer, EveObject> listValues;
 	
 	//Properties of this object. Temp fields are deleted on scope exit.
-	private Map<String, EveObject> fields = new HashMap<String, EveObject>();
-	private Map<String, EveObject> tempFields = new HashMap<String, EveObject>();
+	private Map<String, EveObject> fields = new TreeMap<String, EveObject>();
+	private Map<String, EveObject> tempFields = new TreeMap<String, EveObject>();
 	
 	//internal object settings and state.
 	private boolean cloneable = true;
 	private boolean markedForClone = false;
 	private EveObject objectParent = null;
-	private EveObject indexedAccessor = null; //for int-based property access, e.g. myobj[0]
+	
+	 //for int-based property access, e.g. myobj[0] or myobj["0"]
+	private EveObject indexedAccessor;
+	private EveObject indexedMutator;
 	
 	//freeze and seal support
 	private boolean isFrozen = false;
@@ -368,21 +371,25 @@ public class EveObject {
 		}
 		
 		List<EveObject> results = new ArrayList<EveObject>(this.listValues.size());
-		for (Map.Entry<Integer, EveObject> entry : this.listValues.entrySet()) {
-			results.add(entry.getValue());
+		for (Map.Entry<String, EveObject> entry : this.getFields().entrySet()) {
+			if (isNumericalField(entry.getKey())) {
+				results.add(entry.getValue());
+			}
 		}
 		
 		return results;
 	}
 	
-	public TreeMap<Integer, EveObject> getListMap() {
-		if (this.getType() != EveType.LIST){
-			throw new EveError(this + " is not a list!");
+	private boolean isNumericalField(String fieldName) {
+		try {
+			Integer.parseInt(fieldName);
+			return true;
 		}
-		
-		return this.listValues;
+		catch (NumberFormatException e) {
+			return false;
+		}
 	}
-			
+				
 	public void setJavaValue(Object objectValue) {
 		this.javaValue = objectValue;
 	}
@@ -447,6 +454,24 @@ public class EveObject {
 	}
 	
 	public void putField(String name, EveObject eo) {
+		if (isNumericalField(name)) {
+			putField(Integer.parseInt(name), eo);
+		}
+		else {
+			putField0(name, eo);
+		}
+	}
+	
+	public void putField(int index, EveObject eo) {
+		if (getIndexedMutator() != null) {
+			getIndexedMutator().invokeSelf(this, new EveObject(index), eo);
+		}
+		else {
+			putField0(Integer.toString(index), eo);
+		}
+	}
+	
+	private void putField0(String name, EveObject eo) {
 		if (isNull()) {
 			throw new EveError("null objects cannot have fields.");
 		}
@@ -460,10 +485,6 @@ public class EveObject {
 		}
 		
 		this.fields.put(name, eo);
-	}
-	
-	public void putField(int index, EveObject eo) {
-		putField(Integer.toString(index), eo);
 	}
 	
 	public void putField(String name, DynamicField ejiField) {
@@ -514,6 +535,14 @@ public class EveObject {
 	
 	public EveObject getIndexedAccessor() {
 		return indexedAccessor;
+	}
+	
+	public void setIndexedMutator(EveObject indexedMutator) {
+		this.indexedMutator = indexedMutator;
+	}
+
+	public EveObject getIndexedMutator() {
+		return indexedMutator;
 	}
 	
 	/**
@@ -616,14 +645,12 @@ public class EveObject {
 	}
 			
 	public EveObject getField(String name) {
-		EveObject eo = this.fields.get(name);
-		
-		//non-existent? try temp fields.
-		if (eo == null) {
-			eo = this.tempFields.get(name);
+		if (isNumericalField(name)) {
+			return getField(Integer.parseInt(name));
 		}
-		
-		return eo;
+		else {
+			return getField0(name);
+		}
 	}
 	
 	public EveObject getField(int index) {
@@ -635,12 +662,25 @@ public class EveObject {
 				return indexedValue;
 			}
 			else {
-				return getField(Integer.toString(index));	
+				//not sure if this behavior is good or not,
+				//because it could be misleading.
+				return getField0(Integer.toString(index));
 			}
 		}
 		else {
-			return getField(Integer.toString(index));
+			return getField0(Integer.toString(index));
 		}
+	}
+	
+	private EveObject getField0(String name) {
+		EveObject eo = this.fields.get(name);
+		
+		//non-existent? try temp fields.
+		if (eo == null) {
+			eo = this.tempFields.get(name);
+		}
+		
+		return eo;
 	}
 	
 	public boolean deleteField(String name) {
@@ -1025,7 +1065,7 @@ public class EveObject {
 		else if (this.getType() == EveType.INTEGER && other.getType() == EveType.INTEGER) {
 			return this.getIntValue().equals(other.getIntValue());
 		}
-		else if (this.getType() == EveType.DOUBLE && other.getType() == EveType.DOUBLE){
+		else if (this.getType() == EveType.DOUBLE && other.getType() == EveType.DOUBLE) {
 			return this.getDoubleValue().equals(other.getDoubleValue());
 		}
 		else if (this.getType() == EveType.STRING && other.getType() == EveType.STRING){
@@ -1035,7 +1075,7 @@ public class EveObject {
 			return functionEquals(other);
 		}
 		else if (this.getType() == EveType.LIST && other.getType() == EveType.LIST) {
-			return this.getListMap().equals(other.getListMap());
+			return this.getListValue().equals(other.getListValue());
 		}
 		else if (this.getType() == EveType.PROTOTYPE && other.getType() == EveType.PROTOTYPE) {
 			return prototypeEquals(other);

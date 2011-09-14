@@ -6,16 +6,10 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
-import eve.core.EveObject.EveType;
-import eve.scope.ScopeManager;
 import eve.statements.AbstractStatement;
 import eve.statements.EveStatement;
 import eve.statements.VariableFindingStatement;
 import eve.statements.expressions.ExpressionStatement;
-import eve.statements.expressions.IdentExpression;
-import eve.statements.expressions.IndexedAccess;
-import eve.statements.expressions.PointerResolution;
-import eve.statements.expressions.PropertyResolution;
 
 public class UpdateVariableStatement extends AbstractStatement implements EveStatement {
 	private ExpressionStatement assignmentExpr, valueExpr;
