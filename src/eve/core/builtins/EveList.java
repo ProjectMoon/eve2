@@ -27,7 +27,7 @@ public class EveList extends EveObject {
 		}
 		else {
 			//turn non-lists into lists.
-			this.addIndexedValue(list);
+			this.putField(0, list);
 		}
 	}
 	

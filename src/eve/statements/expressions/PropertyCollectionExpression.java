@@ -30,7 +30,7 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 
 	@Override
 	public EveObject execute() {
-		EveObject dict = new EveObject(new HashMap<String, EveObject>());
+		EveObject dict = EveObject.customType("property_collection");
 		EveObject eo = objExpr.execute();
 	
 		if (props != null) {
@@ -44,7 +44,7 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 				String prop = propObj.getStringValue();
 				
 				if (eo.getFieldNames().contains(prop)) {
-					dict.putDictValue(prop, eo.getField(prop));
+					dict.putField(prop, eo.getField(prop));
 				}
 				else {
 					throw new EveError("property " + prop + " not found on object " + eo);
@@ -54,7 +54,7 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 		else {
 			//this supports the "all" version.
 			for (String propName : eo.getFieldNames()) {
-				dict.putDictValue(propName, eo.getField(propName));
+				dict.putField(propName, eo.getField(propName));
 			}			
 		}
 		

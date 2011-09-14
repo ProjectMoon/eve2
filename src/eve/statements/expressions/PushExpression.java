@@ -33,10 +33,7 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 			value = value.eventlessClone();
 		}
 		
-		if (value.getType() == EveType.DICT) {
-			executeForPropertyCollection(value);
-		}
-		else if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
+		if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
 			executeForDelegate(value);
 		}
 		else {
@@ -45,15 +42,7 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		
 		return null;
 	}
-	
-	private void executeForPropertyCollection(EveObject clonedPropCollection) {
-		EveObject eo = to.execute();
 		
-		for (Map.Entry<String, EveObject> entry : clonedPropCollection.getDictionaryValue().entrySet()) {
-			eo.putField(entry.getKey(), entry.getValue().getSelf());
-		}
-	}
-	
 	private void executeForDelegate(EveObject delegate) {
 		EveObject eo = to.execute();
 		EveObject delegatedMethod = createMixin(delegate);

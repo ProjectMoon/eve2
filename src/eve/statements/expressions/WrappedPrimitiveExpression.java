@@ -69,9 +69,6 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 		else if (listOp != null) {
 			return new EveObject(listOp);
 		}
-		else if (dictOp != null) {
-			return new EveObject(dictOp);
-		}
 		else {
 			throw new EveError("unable to assign wrapped primitive");
 		}

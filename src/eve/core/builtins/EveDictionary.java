@@ -24,6 +24,6 @@ public class EveDictionary extends EveObject {
 	 * @param i
 	 */
 	public EveDictionary(Map<String, EveObject> dict) {
-		super(dict);
+		//super(dict);
 	}
 }

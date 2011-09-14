@@ -537,7 +537,7 @@ public class EJIHelper {
 		
 		if (indexedAccessor != null) {
 			EJIFunction accessor = EJIFunction.fromJava(obj, indexedAccessor);
-			eo.setIndexedAccessor(accessor);
+			eo.setIndexedAccessor(new EveObject(accessor));
 		}
 		
 		return eo;

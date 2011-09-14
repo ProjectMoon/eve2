@@ -96,7 +96,6 @@ public class EveObject {
 		this.doubleValue = source.doubleValue;
 		this.booleanValue = source.booleanValue;
 		this.listValues = (source.listValues != null) ? new TreeMap<Integer, EveObject>(source.listValues) : null;
-		this.dictionaryValues = (source.dictionaryValues != null) ? new HashMap<String, EveObject>(source.dictionaryValues) : null;
 		
 		HookManager.callCloneHooks(this);
 		
@@ -976,9 +975,6 @@ public class EveObject {
 		int result = 1;
 		result = prime * result
 				+ ((booleanValue == null) ? 0 : booleanValue.hashCode());
-		result = prime
-				* result
-				+ ((dictionaryValues == null) ? 0 : dictionaryValues.hashCode());
 		result = prime * result
 				+ ((doubleValue == null) ? 0 : doubleValue.hashCode());
 		result = prime * result + ((fields == null) ? 0 : fields.hashCode());
