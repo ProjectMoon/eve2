@@ -588,7 +588,7 @@ public class EJIHelper {
 		Method indexedMutator = null;
 		
 		for (Method method : methods) {
-			if (method.isAccessible()) {
+			if (Modifier.isPublic(method.getModifiers())) {
 				if (method.isAnnotationPresent(EJIIndexedAccessor.class)) {
 					if (indexedAccessor == null) {
 						indexedAccessor = method; 

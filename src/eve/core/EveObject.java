@@ -84,8 +84,8 @@ public class EveObject {
 		//Later, assignment statements and automated deep cloning will change the references
 		//for us.
 		this.cloneParent = source;
-		this.fields = new HashMap<String, EveObject>(source.fields); //a new map with the same references.
-		this.tempFields = new HashMap<String, EveObject>(source.tempFields); //a new map with the same references.
+		this.fields = new TreeMap<String, EveObject>(source.fields); //a new map with the same references.
+		this.tempFields = new TreeMap<String, EveObject>(source.tempFields); //a new map with the same references.
 		
 		this.setType(source.getType());
 		this.setTypeName(source.getTypeName());
@@ -373,7 +373,7 @@ public class EveObject {
 		List<EveObject> results = new ArrayList<EveObject>(this.listValues.size());
 		for (Map.Entry<String, EveObject> entry : this.getFields().entrySet()) {
 			if (isNumericalField(entry.getKey())) {
-				results.add(entry.getValue());
+				results.add(entry.getValue()); 
 			}
 		}
 		
