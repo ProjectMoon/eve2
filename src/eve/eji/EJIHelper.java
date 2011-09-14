@@ -577,7 +577,7 @@ public class EJIHelper {
 		
 		//properties
 		for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
-			if (methods.contains(pd.getReadMethod()) && methods.contains(pd.getWriteMethod())) {
+			if (methods.contains(pd.getReadMethod()) || methods.contains(pd.getWriteMethod())) {
 				eo.putField(pd.getName(), new EJIField(eo, pd));
 			}
 		}
