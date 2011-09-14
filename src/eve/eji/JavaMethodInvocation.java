@@ -51,18 +51,14 @@ class JavaMethodInvocation extends EJIFunction {
 		if (argObj != null) args = argObj.getListValue();
 		
 		try {
+			o = EJIHelper.self();
 			Method meth = (method != null) ? method : EJIHelper.findMethod(o.getClass(), methodName, args);
 			Object[] invokeArgs = EJIHelper.mapArguments(meth.getParameterTypes(), args);
 			Object retVal = meth.invoke(o, invokeArgs);
 			
 			if (retVal != null) {
-				if (retVal instanceof EveObject) {
-					return (EveObject)retVal;
-				}
-				else {
-					EveObject eo = EJIHelper.createEJIObject(retVal);
-					return eo;
-				}
+				EveObject eo = EJIHelper.createEJIObject(retVal);
+				return eo;
 			}
 			else {
 				return null;

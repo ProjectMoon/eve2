@@ -100,6 +100,9 @@ public class EveObject {
 		this.booleanValue = source.booleanValue;
 		this.listValues = (source.listValues != null) ? new TreeMap<Integer, EveObject>(source.listValues) : null;
 		
+		this.indexedAccessor = source.indexedAccessor;
+		this.indexedMutator = source.indexedMutator;
+		
 		HookManager.callCloneHooks(this);
 		
 		//onClone special function.
@@ -128,7 +131,7 @@ public class EveObject {
 	}
 	
 	public EveObject(String s) {
-		this(BuiltinCommons.getType("string"));
+		this(BuiltinCommons.getType("string").__create(new EveObject(s, false))); //need better option than no-cloning...
 		setStringValue(s);
 	}
 	
@@ -823,6 +826,24 @@ public class EveObject {
 	
 	public EveObject getObjectParent() {
 		return this.objectParent;
+	}
+	
+	public EveObject __create(EveObject ... actualParameters) {
+		return __create(Arrays.asList(actualParameters));
+	}
+	
+	public EveObject __create(List<EveObject> actualParameters) {
+		if (this.getType() != EveType.PROTOTYPE) {
+			throw new EveError(this + " is not a type.");
+		}
+		
+		EveObject __create = getField("__create");
+		
+		if (__create == null || __create.getType() != EveType.FUNCTION) {
+			throw new EveError(this.getTypeName() + "::__create is undefined or is not a function.");
+		}
+		
+		return __create.invokeSelf(this, actualParameters);
 	}
 	
 	public EveObject invoke() {

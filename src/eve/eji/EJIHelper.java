@@ -96,8 +96,19 @@ public class EJIHelper {
 	 * Convenience method for getting the current "self" reference.
 	 * @return The current self reference. Null if it doesn't exist.
 	 */
-	public static EveObject self() {
-		return ScopeManager.getVariable("self");
+	public static Object self() {
+		EveObject self = ScopeManager.getVariable("self");
+		
+		//if we are a child of eveobject
+		if (self.getType() == EveType.JAVA) {
+			return self.getJavaValue();
+		}
+		else if (self instanceof EveObject) {
+			return self;
+		}	
+		else {
+			return null; //not sure about this.
+		}
 	}
 	
 	/**

@@ -31,8 +31,8 @@ public class EveString extends EveObject {
 	 * @param s
 	 */
 	public EveString(String s) {
-		super(s);
 		System.out.println("sup string");
+		setStringValue(s);
 	}
 	
 	public int getLength() {
