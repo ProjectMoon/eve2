@@ -514,14 +514,30 @@ public class EJIHelper {
 		
 		//handle methods
 		Set<String> methodNames = new HashSet<String>();
+		Method indexedAccessor = null;
 		
 		for (MethodDescriptor md : info.getMethodDescriptors()) {
-			methodNames.add(md.getMethod().getName());
+			if (md.getMethod().isAnnotationPresent(EJIIndexedProperty.class)) {
+				if (indexedAccessor == null) {
+					indexedAccessor = md.getMethod(); 
+				}
+				else {
+					throw new EveError("EJI objects can only have one indexed accessor method.");
+				}
+			}
+			else {
+				methodNames.add(md.getMethod().getName());
+			}
 		}
 		
 		for (String methodName : methodNames) {
 			EJIFunction methodInvocation = EJIFunction.fromJava(obj, methodName);
 			eo.putField(methodName, new EveObject(methodInvocation));
+		}
+		
+		if (indexedAccessor != null) {
+			EJIFunction accessor = EJIFunction.fromJava(obj, indexedAccessor);
+			eo.setIndexedAccessor(accessor);
 		}
 		
 		return eo;

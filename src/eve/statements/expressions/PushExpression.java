@@ -39,9 +39,6 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		else if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
 			executeForDelegate(value);
 		}
-		else if (value.getType() == EveType.CUSTOM && value.getTypeName().equals("namespace")) {
-			executeForNamespace(value);
-		}
 		else {
 			throw new EveError("left hand of push statement must evaluate to dict, delegate, or namespace");
 		}
@@ -61,31 +58,6 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		EveObject eo = to.execute();
 		EveObject delegatedMethod = createMixin(delegate);
 		eo.putField(delegatedMethod.getFunctionValue().getName(), delegatedMethod);
-	}
-	
-	private void executeForNamespace(EveObject ns) {
-		EveObject eo = to.execute();
-		
-		String nsName = ns.getField("ns").getStringValue();
-		EveObject nsGlobal = ScopeManager.getGlobalScope(nsName);
-		
-		for (String field : nsGlobal.getFieldNames()) {
-			//make sure no one sneaks invalid crap in through getter methods. 
-			EveObject nsField = nsGlobal.getField(field).getSelf();
-			
-			//in the case of functions, only delegates are allowed to mix-in.
-			if (nsField.getType() == EveType.FUNCTION) {
-				if (nsField.getFunctionValue().isDelegateCreator()) {
-					EveObject delegatedMethod = createMixin(nsField);
-					eo.putField(field, delegatedMethod);
-				}
-			}
-			else {
-				//everything else.
-				nsField = nsField.eventlessClone();
-				eo.putField(field, nsField);
-			}
-		}
 	}
 	
 	private EveObject createMixin(EveObject delegate) {
