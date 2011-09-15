@@ -1,5 +1,6 @@
 package eve.core.builtins;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.eji.EJIBuiltinType;
 import eve.eji.EJIIndexedAccessor;
@@ -44,12 +45,30 @@ public class EveString extends EveObject {
 	}
 	
 	@EJIIndexedAccessor
-	public String character(int index) {
-		return Character.toString(this.getStringValue().charAt(index));
+	public String get(int index) {
+		try {
+			return Character.toString(this.getStringValue().charAt(index));
+		}
+		catch (StringIndexOutOfBoundsException e) {
+			throw new EveError(e.getMessage());
+		}
 	}
 	
 	@EJIIndexedMutator
-	public void characterSet(int index, String character) {
-		System.out.println("setting " + index + " to " + character);
+	public void set(int index, String character) {
+		if (character.length() > 1) {
+			throw new EveError("can only update single characters with strings of length 1");
+		}
+		
+		try {
+			StringBuilder sb = new StringBuilder(this.getStringValue());
+			char c = character.toCharArray()[0];
+			sb.setCharAt(index, c);
+			
+			setValue(sb.toString());
+		}
+		catch (StringIndexOutOfBoundsException e) {
+			throw new EveError(e.getMessage());
+		}
 	}
 }

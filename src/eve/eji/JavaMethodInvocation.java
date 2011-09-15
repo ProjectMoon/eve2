@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 
 class JavaMethodInvocation extends EJIFunction {
@@ -73,9 +74,9 @@ class JavaMethodInvocation extends EJIFunction {
 			e.printStackTrace();
 		}
 		catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IntrospectionException e) {
+			throw new EveError(e.getCause().getMessage());
+		}
+		catch (IntrospectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
