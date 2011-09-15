@@ -15,7 +15,7 @@ import eve.eji.DynamicField;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
-public class EveObject {
+public abstract class EveObject {
 	public enum EveType { INTEGER, BOOLEAN, DOUBLE, STRING, CUSTOM, PROTOTYPE, FUNCTION, LIST, JAVA, NULL, SCOPE };
 	
 	//the type and type name of this object.

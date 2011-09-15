@@ -21,7 +21,7 @@ public class OrExpression extends ExpressionStatement implements EveStatement {
 	public EveObject execute() {
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
-		EveObject result = new EveObject();
+		EveObject result = null;
 		
 		Object v1 = op1.getValue();
 		Object v2 = op2.getValue();
@@ -32,7 +32,7 @@ public class OrExpression extends ExpressionStatement implements EveStatement {
 				return EveObjectFactory.create(true);
 			}
 			
-			result.setValue((Boolean)v1 || (Boolean)v2);
+			result = EveObjectFactory.create((Boolean)v1 || (Boolean)v2);
 		}
 		else {
 			ErrorHandler.operatorError("||", op1, op2);

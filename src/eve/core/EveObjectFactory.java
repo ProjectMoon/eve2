@@ -1,21 +1,30 @@
 package eve.core;
 
+import java.beans.IntrospectionException;
 import java.util.List;
 
 import eve.core.EveObject.EveType;
 import eve.core.builtins.BuiltinCommons;
+import eve.core.builtins.EveBoolean;
+import eve.core.builtins.EveBuiltinObject;
+import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
+import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveList;
+import eve.core.builtins.EveString;
+import eve.eji.EJIHelper;
 
 /**
  * Creates EveObjects.
- * 
- * Startup problem: try to invoke various __create methods, but 
  * @author jeff
  *
  */
 public class EveObjectFactory {
 	private static class BareObject extends EveObject {
+		public BareObject() {
+			
+		}
+		
 		@Override
 		public EveObject eveClone() {
 			return this; //will almost certainly cause reference problems... maybe use that cloning lib.
@@ -33,29 +42,49 @@ public class EveObjectFactory {
 		return eo;
 	}
 	
-	private static EveObject createBuiltin(String builtinName, Object value) {
-		EveObject eo = BuiltinCommons.getType(builtinName).__create(bare(value));
+	public static EveObject create(Integer i) {
+		EveObject eo = new EveInteger();
+		eo.cloneFrom(BuiltinCommons.getType("int"));
+		eo.setValue(i);
 		return eo;
 	}
 	
-	public static EveObject create(Integer i) {
-		return createBuiltin("int", i);
-	}
-	
 	public static EveObject create(Boolean b) {
-		return createBuiltin("bool", b);
+		EveObject eo = new EveBoolean();
+		eo.cloneFrom(BuiltinCommons.getType("bool"));
+		eo.setValue(b);
+		return eo;
 	}
 	
 	public static EveObject create(String s) {
-		return createBuiltin("string", s);
+		EveObject eo;
+		try {
+			eo = EJIHelper.createEJIObject(new EveString());
+			//eo.cloneFrom(BuiltinCommons.getType("string"));
+			eo.setValue(s);
+			return eo;
+		} catch (IntrospectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static EveObject create(Character c) {
-		return createBuiltin("string", c);
+		EveObject eo = new EveString();
+		eo.cloneFrom(BuiltinCommons.getType("string"));
+		eo.setValue(c);
+		return eo;
 	}
 	
 	public static EveObject create(Double d) {
-		return createBuiltin("double", d);
+		EveObject eo = new EveDouble();
+		eo.cloneFrom(BuiltinCommons.getType("double"));
+		eo.setValue(d);
+		return eo;
 	}
 	
 	public static EveObject create(Function f) {
@@ -97,7 +126,7 @@ public class EveObjectFactory {
 	}
 		
 	public static EveObject customType(String typeName) {
-		EveObject eo = createBuiltin("object", null);
+		EveObject eo = new EveBuiltinObject();
 		eo.setType(EveType.CUSTOM);
 		eo.setTypeName(typeName);
 		//BuiltinCommons.initialize(eo); //TODO: replace with ....?

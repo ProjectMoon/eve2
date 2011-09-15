@@ -498,7 +498,7 @@ public class EJIHelper {
 	 * @param ctor
 	 * @param typeName
 	 * @return An Eve type.
-	 * @throws IntrospectionException 
+	 * @throws IntrospectionException
 	 */
 	public static EveObject createEJIType(String typeName, EveObject ctor) throws IntrospectionException {
 		EveObject eo = EveObjectFactory.prototypeType(typeName);

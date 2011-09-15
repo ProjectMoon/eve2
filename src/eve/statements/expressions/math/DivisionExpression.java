@@ -24,7 +24,7 @@ public class DivisionExpression extends ExpressionStatement implements EveStatem
 	public EveObject execute() {
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
-		EveObject result = new EveObject();
+		EveObject result = null;
 		
 		Object v1 = op1.getValue();
 		Object v2 = op2.getValue();
