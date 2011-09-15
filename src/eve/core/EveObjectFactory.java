@@ -33,7 +33,9 @@ public class EveObjectFactory {
 		
 		@Override
 		public EveObject eveClone() {
-			return this; //will almost certainly cause reference problems... maybe use that cloning lib.
+			EveObject eo = new BareObject();
+			eo.cloneFrom(this);
+			return eo;
 		}
 	}
 	
