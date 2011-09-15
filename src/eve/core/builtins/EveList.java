@@ -27,12 +27,12 @@ public class EveList extends EveObject {
 	
 	@EJIIndexedAccessor
 	public EveObject get(int index) {
-		return this.getField(index);
+		return this.getFieldIgnoreIndexedAccessor(index);
 	}
 	
 	@EJIIndexedMutator
 	public void set(int index, EveObject eo) {
-		this.putField(index, eo);
+		this.putFieldIgnoreIndexedMutator(index, eo);
 	}
 	
 	public int getLength() {

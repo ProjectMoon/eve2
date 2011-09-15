@@ -468,7 +468,16 @@ public class EJIHelper {
 			EveObject actualParam = actualParameters[c];
 			
 			if (!formalParam.isPrimitive()) {
-				Object arg = formalParam.cast(actualParam.getValue());
+				Object arg = null;
+				
+				//if we are expecting an EveObject as an argument, just pass this variable along.
+				//otherwise, try and convert it.
+				if (formalParam.isAssignableFrom(actualParam.getClass())) {
+					arg = actualParam;
+				}
+				else {
+					arg = formalParam.cast(actualParam.getValue());
+				}
 				args.add(arg);
 			}
 			else {

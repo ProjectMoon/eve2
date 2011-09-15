@@ -34,7 +34,7 @@ public class EveObjectFactory {
 		@Override
 		public EveObject eveClone() {
 			EveObject eo = new BareObject();
-			eo.cloneFrom(this);
+			eo.mergeFrom(this);
 			return eo;
 		}
 	}
@@ -43,34 +43,9 @@ public class EveObjectFactory {
 		return new BareObject(); 
 	}
 	
-	private static EveObject bare(Object value) {
-		//TODO: make something that overrides eveClone.
-		EveObject eo = empty();
-		eo.setValue(value);
-		return eo;
-	}
-	
-	public static EveObject create(Integer i) {
-		EveObject eo = new EveInteger();
-		//eo.cloneFrom(BuiltinCommons.getType("int"));
-		eo.setValue(i);
-		return eo;
-	}
-	
-	public static EveObject create(Boolean b) {
-		EveObject eo = new EveBoolean();
-		eo.cloneFrom(BuiltinCommons.getType("bool"));
-		eo.setValue(b);
-		return eo;
-	}
-	
-	public static EveObject create(String s) {
-		EveObject eo;
+	private static EveObject ejiInit(EveObject eo) {
 		try {
-			eo = EJIHelper.createEJIObject(new EveString());
-			//eo.cloneFrom(BuiltinCommons.getType("string"));
-			eo.setValue(s);
-			return eo;
+			return EJIHelper.createEJIObject(eo);
 		} catch (IntrospectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -81,23 +56,44 @@ public class EveObjectFactory {
 		return null;
 	}
 	
+	public static EveObject create(Integer i) {
+		EveObject eo = ejiInit(new EveInteger());
+		eo.mergeFrom(BuiltinCommons.getType("int"));
+		eo.setValue(i);
+		return eo;
+	}
+	
+	public static EveObject create(Boolean b) {
+		EveObject eo = ejiInit(new EveBoolean());
+		eo.mergeFrom(BuiltinCommons.getType("bool"));
+		eo.setValue(b);
+		return eo;
+	}
+	
+	public static EveObject create(String s) {
+		EveObject eo = ejiInit(new EveString());
+		eo.mergeFrom(BuiltinCommons.getType("string"));
+		eo.setValue(s);
+		return eo;
+	}
+	
 	public static EveObject create(Character c) {
-		EveObject eo = new EveString();
-		eo.cloneFrom(BuiltinCommons.getType("string"));
+		EveObject eo = ejiInit(new EveString());
+		eo.mergeFrom(BuiltinCommons.getType("string"));
 		eo.setValue(c);
 		return eo;
 	}
 	
 	public static EveObject create(Double d) {
-		EveObject eo = new EveDouble();
-		eo.cloneFrom(BuiltinCommons.getType("double"));
+		EveObject eo = ejiInit(new EveDouble());
+		eo.mergeFrom(BuiltinCommons.getType("double"));
 		eo.setValue(d);
 		return eo;
 	}
 	
 	public static EveObject create(Function f) {
 		EveObject eo = new EveFunction();
-		eo.cloneFrom(BuiltinCommons.getType("function"));
+		eo.mergeFrom(BuiltinCommons.getType("function"));
 		eo.setValue(f);
 		
 		return eo;		
@@ -106,8 +102,8 @@ public class EveObjectFactory {
 	public static EveObject create(List<EveObject> l) {
 		//cannot call __create of list or we get an infinite recursive loop since
 		//function invocation creates an eve list.
-		EveObject eo = new EveList();
-		eo.cloneFrom(BuiltinCommons.getType("list"));
+		EveObject eo = ejiInit(new EveList());
+		eo.mergeFrom(BuiltinCommons.getType("list"));
 		eo.setValue(l);
 		
 		return eo;
@@ -116,7 +112,7 @@ public class EveObjectFactory {
 	public static EveObject globalType() {
 		//TODO: figure out how we get cloned from EveGlobal if we're creating an empty Eveobject...
 		EveObject global = empty();
-		global.cloneFrom(BuiltinCommons.getType("global"));
+		global.mergeFrom(BuiltinCommons.getType("global"));
 		
 		global.setType(EveType.SCOPE);
 		global.setTypeName("scope(global)");
@@ -125,7 +121,7 @@ public class EveObjectFactory {
 	
 	public static EveObject javaType(Object o) {
 		EveObject eo = empty();
-		eo.cloneFrom(BuiltinCommons.getType("java"));
+		eo.mergeFrom(BuiltinCommons.getType("java"));
 		
 		//must set type after since setValue will also set the type...
 		eo.setValue(o);
@@ -136,8 +132,25 @@ public class EveObjectFactory {
 	}
 		
 	public static EveObject customType(String typeName) {
-		EveObject eo = new EveBuiltinObject();
+		EveObject eo = ejiInit(new EveBuiltinObject());
 		eo.setType(EveType.CUSTOM);
+		eo.setTypeName(typeName);
+		//BuiltinCommons.initialize(eo); //TODO: replace with ....?
+		return eo;
+	}
+	
+	/**
+	 * Used for creating objects that act like an internal type, but are not
+	 * actually cloned from that builtin type's prototype. Example: function
+	 * invocation with variable arguments creates a "list" to put variables in.
+	 * It is an internal type with EveType.LIST but is otherwise custom.
+	 * @param typeName
+	 * @param internalType
+	 * @return
+	 */
+	public static EveObject internalType(String typeName, EveType internalType) {
+		EveObject eo = ejiInit(new EveBuiltinObject());
+		eo.setType(internalType);
 		eo.setTypeName(typeName);
 		//BuiltinCommons.initialize(eo); //TODO: replace with ....?
 		return eo;

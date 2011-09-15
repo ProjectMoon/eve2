@@ -73,8 +73,8 @@ public abstract class EveObject {
 		//Later, assignment statements and automated deep cloning will change the references
 		//for us.
 		this.cloneParent = source;
-		this.fields = new TreeMap<String, EveObject>(source.fields); //a new map with the same references.
-		this.tempFields = new TreeMap<String, EveObject>(source.tempFields); //a new map with the same references.
+		this.fields = new TreeMap<String, EveObject>(source.fields);
+		this.tempFields = new TreeMap<String, EveObject>(source.tempFields);
 		
 		this.setType(source.getType());
 		this.setTypeName(source.getTypeName());
@@ -84,11 +84,39 @@ public abstract class EveObject {
 		
 		this.value = source.value;
 		
+		//EJIHelper.self() should always return the proper "this" context to execute a method
+		//with, so we SHOULD be able to get away with just re-using these functions
+		//here as long as they are EJI functions. If we expose this capability to code, it will
+		//be a problem.
 		this.indexedAccessor = source.indexedAccessor;
 		this.indexedMutator = source.indexedMutator;
 		
 		HookManager.callCloneHooks(this);
 				
+		//mark fields for clone. this means that we deep clone as necessary for the new fields.
+		markFieldsForClone();
+	}
+	
+	/**
+	 * Merge properties from another object, sort of like a limited clone. Used to pull in properties
+	 * from prototypes.
+	 * @param source
+	 */
+	public void mergeFrom(EveObject source) {
+		if (source == null) {
+			throw new EveError("cannot merge from null.");
+		}
+		
+		if (!source.isCloneable()) {
+			throw new EveError("attempting to merge uncloneable object");
+		}
+				
+		//Object is cloned to initially use references of this object to save memory.
+		//Later, assignment statements and automated deep cloning will change the references
+		//for us.
+		this.fields.putAll(new TreeMap<String, EveObject>(source.fields)); //do we need copy constructor here?
+		this.tempFields.putAll(new TreeMap<String, EveObject>(source.tempFields));
+						
 		//mark fields for clone. this means that we deep clone as necessary for the new fields.
 		markFieldsForClone();
 	}
@@ -257,6 +285,10 @@ public abstract class EveObject {
 		else {
 			putField0(Integer.toString(index), eo);
 		}
+	}
+	
+	protected void putFieldIgnoreIndexedMutator(int index, EveObject eo) {
+		putField0(Integer.toString(index), eo);
 	}
 	
 	private void putField0(String name, EveObject eo) {
@@ -458,6 +490,10 @@ public abstract class EveObject {
 		else {
 			return getField0(Integer.toString(index));
 		}
+	}
+	
+	protected EveObject getFieldIgnoreIndexedAccessor(int index) {
+		return getField0(Integer.toString(index));
 	}
 	
 	private EveObject getField0(String name) {
@@ -706,7 +742,7 @@ public abstract class EveObject {
 			for (int c = 0; c < actualParameters.size(); c++) {
 				if (func.isVarargs() && c == func.getVarargsIndex()) {
 					//everything from here on out is a list of var-args.
-					EveObject varargs = EveObjectFactory.create(new ArrayList<EveObject>(0));
+					EveObject varargs = EveObjectFactory.internalType("arguments", EveType.LIST);
 					for (int v = c; v < actualParameters.size(); v++) {
 						varargs.putField(v - c, actualParameters.get(v));
 					}
