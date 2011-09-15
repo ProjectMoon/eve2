@@ -22,11 +22,10 @@ public class EveBuiltinObject extends EveObject {
 	public EveBuiltinObject() {
 		setType(EveType.PROTOTYPE);
 		setTypeName("object");
-		System.out.println("object empty");
 	}
 	
 	public EveBuiltinObject(Object value) {
-		System.out.println("object with value");
+		setValue(value);
 	}
 	
 	@Override

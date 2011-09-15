@@ -12,9 +12,11 @@ import eve.core.EveObject;
 
 class JavaConstructorInvocation extends EJIFunction {
 	private Class<?> type;
+	private boolean bypassTypeCoercion;
 	
-	public JavaConstructorInvocation(Class<?> type) {
+	public JavaConstructorInvocation(Class<?> type, boolean bypassTypeCoercion) {
 		this.type = type;
+		this.bypassTypeCoercion = bypassTypeCoercion;
 		setParameters("args");
 		setVarargs(true);
 		setVarargsIndex(0);
@@ -35,7 +37,7 @@ class JavaConstructorInvocation extends EJIFunction {
 			
 			Object[] initArgs = EJIHelper.mapArguments(ctor.getParameterTypes(), args);
 			Object obj = ctor.newInstance(initArgs);
-			return EJIHelper.createEJIObject(obj);
+			return EJIHelper.createEJIObject(obj, bypassTypeCoercion);
 		}
 		catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
@@ -46,9 +48,9 @@ class JavaConstructorInvocation extends EJIFunction {
 			e.printStackTrace();
 		}
 		catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
+			throw new EveError(e.getCause().getMessage());
+		}
+		catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IntrospectionException e) {

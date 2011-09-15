@@ -495,12 +495,24 @@ public class EJIHelper {
 	}
 	
 	/**
-	 * Creates a constructor function for the given Java type.
+	 * Creates a constructor function for the given Java type. The produced function will
+	 * perform EJI type coercion, e.g. converting String to EveString.
 	 * @param type
-	 * @return
+	 * @return An executable function that will call the constructor(s).
 	 */
 	public static EveObject createEJIConstructor(Class<?> type) {
-		EJIFunction ctorFunc = new JavaConstructorInvocation(type);
+		return createEJIConstructor(type, false);
+	}
+	/**
+	 * Creates a constructor function for the given Java type. This method allows optional
+	 * bypassing of EJI type coercion. If bypassTypeCoercion is true, constructors executed
+	 * will not attempt to automatically convert certain Java types to Eve types, e.g. String
+	 * to EveStrign.
+	 * @param type
+	 * @return An executable function that will call the constructor(s).
+	 */
+	public static EveObject createEJIConstructor(Class<?> type, boolean bypassTypeCoercion) {
+		EJIFunction ctorFunc = new JavaConstructorInvocation(type, bypassTypeCoercion);
 		EveObject eo = EveObjectFactory.create(ctorFunc);
 		return eo;
 	}
@@ -518,23 +530,41 @@ public class EJIHelper {
 		eo.putField("__create", ctor);
 		return eo;
 	}
-	
+
 	/**
 	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
 	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
 	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
-	 * functions.
+	 * functions. This method will do automatic type coercion for the Java types that Eve considers
+	 * built-in. Thus, Strings will become wrapped EveStrings, Integers will become wrapped EveIntegers,
+	 * etc.
 	 * @param obj
 	 * @return The wrapped type.
 	 * @throws IntrospectionException
 	 * @throws IllegalAccessException
 	 */
 	public static EveObject createEJIObject(Object obj) throws IntrospectionException, IllegalAccessException {
+		return createEJIObject(obj, false);
+	}
+	
+	/**
+	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
+	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
+	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
+	 * functions. This method allows optional bypassing of type coercion. If bypassTypeCoercion is
+	 * true, the method will not attempt to change Strings to EveStrings, Integers to EveIntegers, etc.
+	 * @param obj
+	 * @param bypassTypeCoercion If true, will not attempt to coerce certain Java types to their Eve counterparts (ex: String -> EveString)
+	 * @return The wrapped type.
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 */
+	public static EveObject createEJIObject(Object obj, boolean bypassTypeCoercion) throws IntrospectionException, IllegalAccessException {
 		if (obj instanceof EveObject) {
 			return createEJIEveObject((EveObject)obj);
 		}
 		
-		if (isEveBuiltin(obj)) {
+		if (!bypassTypeCoercion && isEveBuiltin(obj)) {
 			EveObject builtin = createEJIBuiltin(obj);
 			if (builtin != null) return builtin;
 		}

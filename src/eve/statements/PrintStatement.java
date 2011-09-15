@@ -19,6 +19,7 @@ public class PrintStatement extends AbstractStatement implements EveStatement {
 		if (printNewline) {
 			if (expression != null) {
 				EveObject eo = expression.execute();
+				System.out.println("eo is " + eo.getType());
 				System.out.println(eo);
 			}
 			else {

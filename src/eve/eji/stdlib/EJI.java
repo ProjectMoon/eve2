@@ -78,7 +78,7 @@ public class EJI {
 	private static EveObject expose0(String className, boolean exposeType) {
 		try {
 			Class<?> cl = Class.forName(className);
-			EveObject ctorFunc = EJIHelper.createEJIConstructor(cl);
+			EveObject ctorFunc = EJIHelper.createEJIConstructor(cl, true); //bypass type coercion to get actual java types.
 			EveObject pkgContainer = resolveJavaPackageContainer(className);
 			
 			if (cl.isAnonymousClass()) {

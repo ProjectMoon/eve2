@@ -46,12 +46,7 @@ public class EveString extends EveObject {
 	
 	@EJIIndexedAccessor
 	public String get(int index) {
-		try {
-			return Character.toString(this.getStringValue().charAt(index));
-		}
-		catch (StringIndexOutOfBoundsException e) {
-			throw new EveError(e.getMessage());
-		}
+		return Character.toString(this.getStringValue().charAt(index));
 	}
 	
 	@EJIIndexedMutator
@@ -60,15 +55,10 @@ public class EveString extends EveObject {
 			throw new EveError("can only update single characters with strings of length 1");
 		}
 		
-		try {
-			StringBuilder sb = new StringBuilder(this.getStringValue());
-			char c = character.toCharArray()[0];
-			sb.setCharAt(index, c);
+		StringBuilder sb = new StringBuilder(this.getStringValue());
+		char c = character.toCharArray()[0];
+		sb.setCharAt(index, c);
 			
-			setValue(sb.toString());
-		}
-		catch (StringIndexOutOfBoundsException e) {
-			throw new EveError(e.getMessage());
-		}
+		setValue(sb.toString());
 	}
 }

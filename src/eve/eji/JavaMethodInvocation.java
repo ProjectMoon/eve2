@@ -76,7 +76,7 @@ class JavaMethodInvocation extends EJIFunction {
 		catch (InvocationTargetException e) {
 			throw new EveError(e.getCause().getMessage());
 		}
-		catch (IntrospectionException e) {
+			catch (IntrospectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
