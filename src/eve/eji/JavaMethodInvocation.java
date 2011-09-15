@@ -51,7 +51,7 @@ class JavaMethodInvocation extends EJIFunction {
 		if (argObj != null) args = argObj.getListValue();
 		
 		try {
-			o = EJIHelper.self();
+			//o = EJIHelper.self();
 			Method meth = (method != null) ? method : EJIHelper.findMethod(o.getClass(), methodName, args);
 			Object[] invokeArgs = EJIHelper.mapArguments(meth.getParameterTypes(), args);
 			Object retVal = meth.invoke(o, invokeArgs);

@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hamcrest.core.IsEqual;
+
 import javassist.Modifier;
 
 import com.google.common.base.Predicate;
@@ -93,6 +95,14 @@ public class EJIHelper {
 		return map;
 	}
 	
+	public static boolean isEveBuiltin(Object o) {
+		Class<?> cl = o.getClass();
+		
+		return cl.isPrimitive() ||
+			o instanceof Integer || o instanceof Double || o instanceof Boolean ||
+			o instanceof String || o instanceof Character || o instanceof List;  
+	}
+	
 	/**
 	 * Convenience method for getting the current "self" reference.
 	 * @return The current self reference. Null if it doesn't exist.
@@ -110,6 +120,9 @@ public class EJIHelper {
 		else {
 			return null; //not sure about this.
 		}
+		
+		
+		//return self.getValue(); //dangerous. what if we want an EO specifically?
 	}
 	
 	/**
@@ -521,6 +534,11 @@ public class EJIHelper {
 			return createEJIEveObject((EveObject)obj);
 		}
 		
+		if (isEveBuiltin(obj)) {
+			EveObject builtin = createEJIBuiltin(obj);
+			if (builtin != null) return builtin;
+		}
+		
 		EveObject eo = EveObjectFactory.javaType(obj);
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 		
@@ -575,6 +593,40 @@ public class EJIHelper {
 	}
 	
 	/**
+	 * Special case for creating EJI objects that facilitates creating builtins (from eve.core.builtins).
+	 * This is only an attempt. If it fails (returns null), the interpreter will proceed with creating a
+	 * regular Java type. This method simply provides much more reliable type conversion between the builtin
+	 * types and their Java counterparts.
+	 * @param obj
+	 * @return
+	 * @throws IntrospectionException 
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static EveObject createEJIBuiltin(Object obj) throws IntrospectionException {
+		if (obj instanceof Integer) {
+			return createEJIEveObject(EveObjectFactory.create((Integer)obj));
+		}
+		else if (obj instanceof Double) {
+			return createEJIEveObject(EveObjectFactory.create((Double)obj));
+		}
+		else if (obj instanceof Character) {
+			return createEJIEveObject(EveObjectFactory.create((Character)obj));
+		}
+		else if (obj instanceof String) {
+			return createEJIEveObject(EveObjectFactory.create((String)obj));
+		}
+		else if (obj instanceof Boolean) {
+			return createEJIEveObject(EveObjectFactory.create((Boolean)obj));
+		}
+		else if (obj instanceof List) {
+			return createEJIEveObject(EveObjectFactory.create((List)obj));
+		}
+		else {
+			return null;
+		}
+	}
+	
+	/**
 	 * Special case for creating EJI objects when the object we are trying to wrap happens to be an EveObject
 	 * already. In this case, any annotated properties and methods that are NOT inherited (since a lot of
 	 * stuff comes from EveObject itself) are added as properties/methods. 
@@ -600,7 +652,7 @@ public class EJIHelper {
 		Method indexedMutator = null;
 		
 		for (Method method : methods) {
-			if (Modifier.isPublic(method.getModifiers())) {
+			if (Modifier.isPublic(method.getModifiers())) {				
 				if (method.isAnnotationPresent(EJIIndexedAccessor.class)) {
 					if (indexedAccessor == null) {
 						indexedAccessor = method; 

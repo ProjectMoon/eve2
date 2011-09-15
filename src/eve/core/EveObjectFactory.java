@@ -16,6 +16,12 @@ import eve.eji.EJIHelper;
 
 /**
  * Creates EveObjects.
+ * 
+ * Current problems: 
+ * BareObject acquires toString from its contained object, but the EJIHelper.self() method returns the BareObj... and since it's by method name, we invoke
+ * EveObject#toString. More tracing on this issue puts it as EJIHelper.createEJIObject somehow getting EveTypes that are not JAVA. So the if statement that
+ * stops the recursion normally doesn't work.
+ * Current way of creating builtins makes them lose their special properties... unless we DONT clone from pr457ototypes (need some kind of merge) 
  * @author jeff
  *
  */
@@ -44,7 +50,7 @@ public class EveObjectFactory {
 	
 	public static EveObject create(Integer i) {
 		EveObject eo = new EveInteger();
-		eo.cloneFrom(BuiltinCommons.getType("int"));
+		//eo.cloneFrom(BuiltinCommons.getType("int"));
 		eo.setValue(i);
 		return eo;
 	}
@@ -119,9 +125,11 @@ public class EveObjectFactory {
 		EveObject eo = empty();
 		eo.cloneFrom(BuiltinCommons.getType("java"));
 		
+		//must set type after since setValue will also set the type...
+		eo.setValue(o);
 		eo.setType(EveType.JAVA);
 		eo.setTypeName(o.getClass().getName()); //TODO: only set type name if exposeTyped
-		eo.setValue(o);
+		
 		return eo;
 	}
 		
