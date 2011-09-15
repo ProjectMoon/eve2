@@ -16,8 +16,8 @@ public abstract class EJIFunction extends Function {
 	 * @param methodName
 	 * @return An invokable EJI function.
 	 */
-	public static EJIFunction fromJava(Object obj, String methodName) {
-		return new JavaMethodInvocation(obj, methodName);
+	public static EJIFunction fromJava(Object obj, String methodName, boolean bypassTypeCoercion) {
+		return new JavaMethodInvocation(obj, methodName, bypassTypeCoercion);
 	}
 	
 	/**
@@ -26,8 +26,8 @@ public abstract class EJIFunction extends Function {
 	 * @param method
 	 * @return An invokable EJI function.
 	 */
-	public static EJIFunction fromJava(Object obj, Method method) {
-		return new JavaMethodInvocation(obj, method);
+	public static EJIFunction fromJava(Object obj, Method method, boolean bypassTypeCoercion) {
+		return new JavaMethodInvocation(obj, method, bypassTypeCoercion);
 	}
 	
 	/**
@@ -37,8 +37,8 @@ public abstract class EJIFunction extends Function {
 	 * @param methodName
 	 * @return An invokable EJI function.
 	 */
-	public static EJIFunction fromStatic(Class<?> cl, String methodName) {
-		return new StaticMethodInvocation(cl, methodName);
+	public static EJIFunction fromStatic(Class<?> cl, String methodName, boolean bypassTypeCoercion) {
+		return new StaticMethodInvocation(cl, methodName, bypassTypeCoercion);
 	}
 	
 	@Override

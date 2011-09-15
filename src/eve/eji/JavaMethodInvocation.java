@@ -14,6 +14,7 @@ class JavaMethodInvocation extends EJIFunction {
 	private Object o;
 	private String methodName;
 	private Method method;
+	private boolean bypassTypeCoercion;
 	
 	/**
 	 * Create a new method invocation function with a function name equal to the Java
@@ -21,10 +22,11 @@ class JavaMethodInvocation extends EJIFunction {
 	 * @param o
 	 * @param methodName
 	 */
-	public JavaMethodInvocation(Object o, String methodName) {
+	public JavaMethodInvocation(Object o, String methodName, boolean bypassTypeCoercion) {
 		this.o = o;
 		this.methodName = methodName;
 		this.method = null;
+		this.bypassTypeCoercion = bypassTypeCoercion;
 		setName(methodName);
 		setParameters("args");
 		setVarargs(true);
@@ -36,10 +38,11 @@ class JavaMethodInvocation extends EJIFunction {
 	 * @param o
 	 * @param method
 	 */
-	public JavaMethodInvocation(Object o, Method method) {
+	public JavaMethodInvocation(Object o, Method method, boolean bypassTypeCoercion) {
 		this.o = o;
 		this.method = method;
 		this.methodName = null;
+		this.bypassTypeCoercion = bypassTypeCoercion;
 		setParameters("args");
 		setVarargs(true);
 		setVarargsIndex(0);
@@ -58,7 +61,7 @@ class JavaMethodInvocation extends EJIFunction {
 			Object retVal = meth.invoke(o, invokeArgs);
 			
 			if (retVal != null) {
-				EveObject eo = EJIHelper.createEJIObject(retVal);
+				EveObject eo = EJIHelper.createEJIObject(retVal, bypassTypeCoercion);
 				return eo;
 			}
 			else {

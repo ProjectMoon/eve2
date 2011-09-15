@@ -111,7 +111,7 @@ public abstract class EveObject {
 		if (value instanceof Integer) {
 			setType(EveType.INTEGER);
 		}
-		else if (value instanceof String) {
+		else if (value instanceof String || value instanceof Character) {
 			setType(EveType.STRING);
 		}
 		else if (value instanceof Double) {

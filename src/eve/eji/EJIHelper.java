@@ -605,17 +605,17 @@ public class EJIHelper {
 		}
 		
 		for (String methodName : methodNames) {
-			EJIFunction methodInvocation = EJIFunction.fromJava(obj, methodName);
+			EJIFunction methodInvocation = EJIFunction.fromJava(obj, methodName, bypassTypeCoercion);
 			eo.putField(methodName, EveObjectFactory.create(methodInvocation));
 		}
 		
 		if (indexedAccessor != null) {
-			EJIFunction accessor = EJIFunction.fromJava(obj, indexedAccessor);
+			EJIFunction accessor = EJIFunction.fromJava(obj, indexedAccessor, bypassTypeCoercion);
 			eo.setIndexedAccessor(EveObjectFactory.create(accessor));
 		}
 		
 		if (indexedMutator != null) {
-			EJIFunction mutator = EJIFunction.fromJava(obj, indexedMutator);
+			EJIFunction mutator = EJIFunction.fromJava(obj, indexedMutator, bypassTypeCoercion);
 			eo.setIndexedMutator(EveObjectFactory.create(mutator));
 		}
 		
@@ -706,17 +706,17 @@ public class EJIHelper {
 		}
 		
 		for (String methodName : methodNames) {
-			EJIFunction methodInvocation = EJIFunction.fromJava(eo, methodName);
+			EJIFunction methodInvocation = EJIFunction.fromJava(eo, methodName, false);
 			eo.putField(methodName, EveObjectFactory.create(methodInvocation));
 		}
 		
 		if (indexedAccessor != null) {
-			EJIFunction accessor = EJIFunction.fromJava(eo, indexedAccessor);
+			EJIFunction accessor = EJIFunction.fromJava(eo, indexedAccessor, false);
 			eo.setIndexedAccessor(EveObjectFactory.create(accessor));
 		}
 		
 		if (indexedMutator != null) {
-			EJIFunction mutator = EJIFunction.fromJava(eo, indexedMutator);
+			EJIFunction mutator = EJIFunction.fromJava(eo, indexedMutator, false);
 			eo.setIndexedMutator(EveObjectFactory.create(mutator));
 		}
 		
@@ -778,9 +778,9 @@ public class EJIHelper {
 		}
 		
 		for (Map.Entry<String, Method> entry : methods.entrySet()) {
-			//always force the real method name (entry.getValue().getName()), but we
-			//could possibly use a custom function name (entry.getKey())
-			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName());
+			//TODO: currently always forcing type coercion, so EJI modules will return Eve stuff.
+			//Need a new class-level annotation to stop this.
+			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName(), false);
 			type.putField(entry.getKey(), EveObjectFactory.create(methodInvocation));
 		}		
 
