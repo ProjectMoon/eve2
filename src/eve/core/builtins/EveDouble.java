@@ -27,6 +27,13 @@ public class EveDouble extends EveObject {
 	 * @param i
 	 */
 	public EveDouble(double d) {
-		super(d);
+		setValue(d);
+	}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveDouble();
+		clone.cloneFrom(this);
+		return clone;
 	}
 }

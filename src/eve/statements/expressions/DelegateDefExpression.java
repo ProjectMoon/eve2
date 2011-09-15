@@ -6,6 +6,7 @@ import java.util.Map;
 import com.rits.cloning.Cloner;
 
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.core.Function;
 import eve.eji.EJIFunction;
 import eve.statements.EveStatement;
@@ -22,7 +23,7 @@ public class DelegateDefExpression extends FunctionDefExpression implements EveS
 	@Override
 	public EveObject execute() {
 		EveObject delegateFunc = super.execute();
-		delegateFunc.putField("create", new EveObject(new CreateDelegateFunction(delegateFunc)));
+		delegateFunc.putField("create", EveObjectFactory.create(new CreateDelegateFunction(delegateFunc)));
 		delegateFunc.getFunctionValue().setDelegateCreator(true);
 		return delegateFunc;
 	}
@@ -49,7 +50,7 @@ public class DelegateDefExpression extends FunctionDefExpression implements EveS
 			delegate.setDelegateContext(context);
 			delegate.setName(null);
 			
-			return new EveObject(delegate);
+			return EveObjectFactory.create(delegate);
 		}
 	}
 }

@@ -18,4 +18,11 @@ public class EveJava extends EveObject {
 	 * by invoking the type name.
 	 */
 	public EveJava() {}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveJava();
+		clone.cloneFrom(this);
+		return clone;
+	}
 }

@@ -36,7 +36,7 @@ public class InitVariableStatement extends AssignmentStatement implements EveSta
 		//this will make sure the new variable is deep cloned when necessary.
 		//otherwise, we get reference problems.
 		if (getExpression() instanceof VariableFindingStatement) {
-			result = result.eventlessClone();
+			result = result.eveClone();
 		}
 		
 		ScopeManager.putVariable(getIdentifier(), result);

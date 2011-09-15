@@ -6,6 +6,7 @@ import java.util.List;
 
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
@@ -23,25 +24,25 @@ public class LessThanExpression extends ExpressionStatement implements EveStatem
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
 		
-		Object v1 = op1.getObjectValue();
-		Object v2 = op2.getObjectValue();
+		Object v1 = op1.getValue();
+		Object v2 = op2.getValue();
 		
 		if (v1 instanceof Integer && v2 instanceof Integer) {
-			return new EveObject((Integer)v1 < (Integer)v2);
+			return EveObjectFactory.create((Integer)v1 < (Integer)v2);
 		}
 		else if (v1 instanceof Double && v2 instanceof Double) {
-			return new EveObject((Double)v1 < (Double)v2);
+			return EveObjectFactory.create((Double)v1 < (Double)v2);
 		}
 		else if (v1 instanceof Double && v2 instanceof Integer) {
-			return new EveObject((Double)v1 < (Integer)v2);
+			return EveObjectFactory.create((Double)v1 < (Integer)v2);
 		}
 		else if (v1 instanceof Integer && v2 instanceof Double) {
-			return new EveObject((Integer)v1 < (Double)v2);
+			return EveObjectFactory.create((Integer)v1 < (Double)v2);
 		}
 		else if (v1 instanceof String && v2 instanceof String) {
 			String s1 = (String)v1;
 			String s2 = (String)v2;
-			return new EveObject(s1.compareTo(s2) < 0);
+			return EveObjectFactory.create(s1.compareTo(s2) < 0);
 		}
 		else {
 			ErrorHandler.operatorError(">", op1, op2);

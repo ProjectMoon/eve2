@@ -21,7 +21,7 @@ public class ConcatExpression extends ExpressionStatement implements EveStatemen
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
 		EveObject eo = new EveObject();
-		eo.setStringValue(op1.toString() + op2.toString());
+		eo.setValue(op1.toString() + op2.toString());
 		return eo;
 	}
 	

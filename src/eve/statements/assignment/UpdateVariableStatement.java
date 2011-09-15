@@ -29,7 +29,7 @@ public class UpdateVariableStatement extends AbstractStatement implements EveSta
 		
 		//for auto deep cloning.
 		if (assignmentExpr instanceof VariableFindingStatement) {
-			value = value.eventlessClone();
+			value = value.eveClone();
 		}
 		
 		((Updateable)assignmentExpr).updateVariable(value);

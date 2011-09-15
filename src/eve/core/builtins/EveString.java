@@ -32,7 +32,14 @@ public class EveString extends EveObject {
 	 */
 	public EveString(String s) {
 		System.out.println("sup string");
-		setStringValue(s);
+		setValue(s);
+	}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveString();
+		clone.cloneFrom(this);
+		return clone;
 	}
 	
 	public int getLength() {
@@ -48,5 +55,4 @@ public class EveString extends EveObject {
 	public void characterSet(int index, String character) {
 		System.out.println("setting " + index + " to " + character);
 	}
-	
 }

@@ -20,4 +20,11 @@ public class EveFunction extends EveObject {
 		setType(EveType.PROTOTYPE);
 		setTypeName("function");
 	}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveFunction();
+		clone.cloneFrom(this);
+		return clone;
+	}
 }

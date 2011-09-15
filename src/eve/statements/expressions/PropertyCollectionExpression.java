@@ -7,6 +7,7 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.core.EveObject.EveType;
 import eve.statements.EveStatement;
 
@@ -30,7 +31,7 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 
 	@Override
 	public EveObject execute() {
-		EveObject dict = EveObject.customType("property_collection");
+		EveObject dict = EveObjectFactory.customType("property_collection");
 		EveObject eo = objExpr.execute();
 	
 		if (props != null) {

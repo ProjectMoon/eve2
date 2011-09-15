@@ -30,7 +30,7 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		EveObject value = from.execute();
 		
 		if (value.isCloneable()) {
-			value = value.eventlessClone();
+			value = value.eveClone();
 		}
 		
 		if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
@@ -50,7 +50,7 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 	}
 	
 	private EveObject createMixin(EveObject delegate) {
-		EveObject delegatedMethod = delegate.eventlessClone();
+		EveObject delegatedMethod = delegate.eveClone();
 		delegatedMethod.getFunctionValue().setDelegateCreator(false);
 		delegatedMethod.getFunctionValue().setDelegate(false);
 		delegatedMethod.getFunctionValue().setDelegateContext(null);

@@ -6,6 +6,7 @@ import java.util.Map;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 import eve.eji.DynamicField;
 import eve.eji.EJIHelper;
 
@@ -45,10 +46,10 @@ public class BuiltinCommons {
 	
 	public static void mergeType(String name, EveObject newProperties) {
 		EveObject type = getType(name);
-		newProperties = newProperties.eventlessClone();
+		newProperties = newProperties.eveClone();
 		
 		if (type == null) {
-			type = EveObject.prototypeType(name);
+			type = EveObjectFactory.prototypeType(name);
 			addType(name, type);
 		}
 		
@@ -75,8 +76,8 @@ public class BuiltinCommons {
 		return new DynamicField() {
 			@Override
 			public EveObject get() {
-				EveObject self = EJIHelper.self();
-				return new EveObject(self.getTypeName());
+				EveObject self = (EveObject)EJIHelper.self(); //TODO: hope this is right! better yet, just fix the type property to use annotations
+				return EveObjectFactory.create(self.getTypeName());
 			}
 
 			@Override

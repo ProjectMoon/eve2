@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
@@ -22,16 +23,16 @@ public class OrExpression extends ExpressionStatement implements EveStatement {
 		EveObject op2 = exp2.execute();
 		EveObject result = new EveObject();
 		
-		Object v1 = op1.getObjectValue();
-		Object v2 = op2.getObjectValue();
+		Object v1 = op1.getValue();
+		Object v2 = op2.getValue();
 		
 		if (v1 instanceof Boolean && v2 instanceof Boolean) {
 			//short circuit.
 			if ((Boolean)v1 == true) {
-				return new EveObject(true);
+				return EveObjectFactory.create(true);
 			}
 			
-			result.setBooleanValue((Boolean)v1 || (Boolean)v2);
+			result.setValue((Boolean)v1 || (Boolean)v2);
 		}
 		else {
 			ErrorHandler.operatorError("||", op1, op2);

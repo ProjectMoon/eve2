@@ -5,6 +5,7 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.statements.EveStatement;
 import eve.statements.assignment.Updateable;
 
@@ -26,7 +27,7 @@ public class DeleteExpression extends ExpressionStatement implements EveStatemen
 			throw new EveError("invalid delete expression");
 		}
 		
-		return new EveObject(((Updateable)expr).deleteVariable());
+		return EveObjectFactory.create(((Updateable)expr).deleteVariable());
 		/*
 		EveObject toDelete = expr.execute();
 		EveObject parent = toDelete.getObjectParent();

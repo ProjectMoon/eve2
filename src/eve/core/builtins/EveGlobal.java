@@ -21,4 +21,11 @@ public class EveGlobal extends EveObject {
 		setType(EveType.PROTOTYPE);
 		setTypeName("global");
 	}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveGlobal();
+		clone.cloneFrom(this);
+		return clone;
+	}
 }

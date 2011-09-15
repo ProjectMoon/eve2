@@ -28,6 +28,7 @@ import com.google.common.collect.TreeMultimap;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.core.EveObject.EveType;
 import eve.core.builtins.BuiltinCommons;
 import eve.core.Function;
@@ -454,12 +455,12 @@ public class EJIHelper {
 			EveObject actualParam = actualParameters[c];
 			
 			if (!formalParam.isPrimitive()) {
-				Object arg = formalParam.cast(actualParam.getObjectValue());
+				Object arg = formalParam.cast(actualParam.getValue());
 				args.add(arg);
 			}
 			else {
 				//primitives automatically get unwrapped by Method#invoke.
-				args.add(actualParam.getObjectValue());
+				args.add(actualParam.getValue());
 			}
 			
 		}
@@ -487,7 +488,7 @@ public class EJIHelper {
 	 */
 	public static EveObject createEJIConstructor(Class<?> type) {
 		EJIFunction ctorFunc = new JavaConstructorInvocation(type);
-		EveObject eo = new EveObject(ctorFunc);
+		EveObject eo = EveObjectFactory.create(ctorFunc);
 		return eo;
 	}
 	
@@ -500,7 +501,7 @@ public class EJIHelper {
 	 * @throws IntrospectionException 
 	 */
 	public static EveObject createEJIType(String typeName, EveObject ctor) throws IntrospectionException {
-		EveObject eo = EveObject.prototypeType(typeName);
+		EveObject eo = EveObjectFactory.prototypeType(typeName);
 		eo.putField("__create", ctor);
 		return eo;
 	}
@@ -520,7 +521,7 @@ public class EJIHelper {
 			return createEJIEveObject((EveObject)obj);
 		}
 		
-		EveObject eo = EveObject.javaType(obj);
+		EveObject eo = EveObjectFactory.javaType(obj);
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 		
 		//handle properties
@@ -557,17 +558,17 @@ public class EJIHelper {
 		
 		for (String methodName : methodNames) {
 			EJIFunction methodInvocation = EJIFunction.fromJava(obj, methodName);
-			eo.putField(methodName, new EveObject(methodInvocation));
+			eo.putField(methodName, EveObjectFactory.create(methodInvocation));
 		}
 		
 		if (indexedAccessor != null) {
 			EJIFunction accessor = EJIFunction.fromJava(obj, indexedAccessor);
-			eo.setIndexedAccessor(new EveObject(accessor));
+			eo.setIndexedAccessor(EveObjectFactory.create(accessor));
 		}
 		
 		if (indexedMutator != null) {
 			EJIFunction mutator = EJIFunction.fromJava(obj, indexedMutator);
-			eo.setIndexedMutator(new EveObject(mutator));
+			eo.setIndexedMutator(EveObjectFactory.create(mutator));
 		}
 		
 		return eo;
@@ -624,17 +625,17 @@ public class EJIHelper {
 		
 		for (String methodName : methodNames) {
 			EJIFunction methodInvocation = EJIFunction.fromJava(eo, methodName);
-			eo.putField(methodName, new EveObject(methodInvocation));
+			eo.putField(methodName, EveObjectFactory.create(methodInvocation));
 		}
 		
 		if (indexedAccessor != null) {
 			EJIFunction accessor = EJIFunction.fromJava(eo, indexedAccessor);
-			eo.setIndexedAccessor(new EveObject(accessor));
+			eo.setIndexedAccessor(EveObjectFactory.create(accessor));
 		}
 		
 		if (indexedMutator != null) {
 			EJIFunction mutator = EJIFunction.fromJava(eo, indexedMutator);
-			eo.setIndexedMutator(new EveObject(mutator));
+			eo.setIndexedMutator(EveObjectFactory.create(mutator));
 		}
 		
 		return eo;
@@ -667,7 +668,7 @@ public class EJIHelper {
 			namespace = cl.getAnnotation(EJIMergeModule.class).value();
 		}
 		
-		EveObject type = EveObject.prototypeType(namespace);
+		EveObject type = EveObjectFactory.prototypeType(namespace);
 		
 		Map<String, Method> methods = new HashMap<String, Method>();
 		Map<String, Method> properties = new HashMap<String, Method>();
@@ -698,7 +699,7 @@ public class EJIHelper {
 			//always force the real method name (entry.getValue().getName()), but we
 			//could possibly use a custom function name (entry.getKey())
 			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName());
-			type.putField(entry.getKey(), new EveObject(methodInvocation));
+			type.putField(entry.getKey(), EveObjectFactory.create(methodInvocation));
 		}		
 
 		//BuiltinCommons.addType(namespace, type);

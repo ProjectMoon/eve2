@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.statements.EveStatement;
 
 public class FreezeExpression extends ExpressionStatement implements EveStatement {
@@ -23,11 +24,11 @@ public class FreezeExpression extends ExpressionStatement implements EveStatemen
 		EveObject eo = expr.execute();
 		
 		if (eo.isFrozen() || eo.isSealed()) {
-			return new EveObject(false);
+			return EveObjectFactory.create(false);
 		}
 		
 		eo.setFrozen(true);
-		return new EveObject(true);
+		return EveObjectFactory.create(true);
 	}
 
 	@Override

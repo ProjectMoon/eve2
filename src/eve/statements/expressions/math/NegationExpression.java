@@ -25,11 +25,11 @@ public class NegationExpression extends ExpressionStatement implements EveStatem
 		if (op.getType() == EveType.INTEGER) {
 			//negate int
 			Integer res = -op.getIntValue();
-			result.setIntValue(res);
+			result.setValue(res);
 		}
 		else if (op.getType() == EveType.DOUBLE) {
 			Double res = -op.getDoubleValue();
-			result.setDoubleValue(res);
+			result.setValue(res);
 		}
 		else {
 			//anything else = error

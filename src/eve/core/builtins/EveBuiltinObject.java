@@ -21,4 +21,11 @@ public class EveBuiltinObject extends EveObject {
 	 * cannot be created by invoking the type name (unlike other built-ins).
 	 */
 	public EveBuiltinObject() {}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveBuiltinObject();
+		clone.cloneFrom(this);
+		return clone;
+	}
 }

@@ -94,7 +94,7 @@ class EJIField extends DynamicField {
 				throw new EveError("This property is read-only.");
 			}
 			
-			writeMethod.invoke(context, new Object[] { value.getObjectValue() });
+			writeMethod.invoke(context, new Object[] { value.getValue() });
 		}
 		catch (IllegalArgumentException e) {
 			throw new EveError(e.getMessage());

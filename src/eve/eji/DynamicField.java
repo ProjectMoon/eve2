@@ -4,6 +4,7 @@ import java.util.Map;
 
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 
 public abstract class DynamicField {
 	public abstract EveObject get();
@@ -30,11 +31,12 @@ public abstract class DynamicField {
 			}
 		}
 		
-		EveObject eo = new EveObject();
+		EveObject eo = EveObjectFactory.empty();
 		eo.setTypeName("eji");
 		eo.setType(EveType.PROTOTYPE);
-		eo.putField("get", new EveObject(new DynamicGetter()));
-		eo.putField("set", new EveObject(new DynamicSetter()));
+		//TODO: examine these; they may not work right
+		eo.putField("get", EveObjectFactory.create(new DynamicGetter()));
+		eo.putField("set", EveObjectFactory.create(new DynamicSetter()));
 		return eo;
 	}
 }
