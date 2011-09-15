@@ -578,7 +578,7 @@ public class EveObject {
 				EveObject res = toString.invoke();
 				if (res != null) {
 					//prevents an infinite recursion of toString() calls
-					//because of the way NativeHelper.mapJavaMethods works.
+					//because of the way EJIHelper.mapJavaMethods works.
 					if (res.getType() != EveType.JAVA) {
 						return res.toString();
 					}

@@ -18,18 +18,25 @@ import eve.eji.EJIHelper;
 public class BuiltinCommons {
 	private static final Map<String, EveObject> typePool = new HashMap<String, EveObject>();
 	
-	//Have to initialize these 2 first because other things depend on them.
+	//These types are initialized manually and immediately because other builtin types
+	//depend on their existence to be created.
 	static {
 		EveFunction function = new EveFunction();
 		EveGlobal global = new EveGlobal();
+		EveBuiltinObject object = new EveBuiltinObject();
 		
 		typePool.put("function", function);
 		typePool.put("global", global);
+		typePool.put("object", object);
 		
 		//must do init after they're added to the type pool
 		//because initialization depends on function existing.
 		initialize(function);
-		initialize(global);		
+		initialize(global);
+		
+		//object constructor must also be created now, since function is created.
+		EveObject objectCtor = EJIHelper.createEJIConstructor(EveBuiltinObject.class);
+		object.putField("__create", objectCtor);
 	}
 	
 	public static void addType(String name, EveObject type) {

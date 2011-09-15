@@ -18,8 +18,10 @@ public class EveList extends EveObject {
 	public EveList() {}
 	
 	public EveList(List<EveObject> l) {
-		for (int c = 0; c < l.size(); c++) {
-			this.putField(c, l.get(c));
+		if (l != null) {
+			for (int c = 0; c < l.size(); c++) {
+				this.putField(c, l.get(c));
+			}
 		}
 	}
 	

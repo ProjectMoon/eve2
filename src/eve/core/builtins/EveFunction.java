@@ -6,7 +6,7 @@ import eve.eji.EJIType;
 /**
  * The function prototype. This type is not annotated with EJIType because
  * it must exist before the EJIScanner runs. It is added to the type pool
- * immediately, along with EveGlobal.
+ * immediately.
  * @author jeff
  *
  */
