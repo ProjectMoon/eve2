@@ -742,6 +742,11 @@ public class EJIHelper {
 			throw new EveError(cl.getName() + " must have either @EJIModule or @EJIMergeModule ONLY.");
 		}
 		
+		boolean bypassTypeCoercion = false;
+		if (cl.isAnnotationPresent(EJINoCoerce.class)) {
+			bypassTypeCoercion = true;
+		}
+		
 		String namespace = "";
 		if (cl.isAnnotationPresent(EJIModule.class)) {
 			namespace = cl.getAnnotation(EJIModule.class).value();
@@ -778,9 +783,7 @@ public class EJIHelper {
 		}
 		
 		for (Map.Entry<String, Method> entry : methods.entrySet()) {
-			//TODO: currently always forcing type coercion, so EJI modules will return Eve stuff.
-			//Need a new class-level annotation to stop this.
-			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName(), false);
+			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName(), bypassTypeCoercion);
 			type.putField(entry.getKey(), EveObjectFactory.create(methodInvocation));
 		}		
 

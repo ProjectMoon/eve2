@@ -154,7 +154,16 @@ public class EJIScanner {
 	private void createEJITypes(Set<Class<?>> types) throws InstantiationException, IllegalAccessException, IntrospectionException {
 		for (Class<?> type : types) {
 			EJIType typeInfo = type.getAnnotation(EJIType.class);
-			EveObject ctor = EJIHelper.createEJIConstructor(type);
+			EveObject ctor = null;
+			
+			//bypass type coercion if the type specifies it.
+			if (type.isAnnotationPresent(EJINoCoerce.class)) {
+				ctor = EJIHelper.createEJIConstructor(type, true);
+			}
+			else {
+				ctor = EJIHelper.createEJIConstructor(type, false);
+			}
+			
 			EveObject eveType = EJIHelper.createEJIType(typeInfo.value(), ctor);
 			
 			//whether or not we should consider this a built-in type.
