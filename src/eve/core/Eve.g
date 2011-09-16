@@ -195,7 +195,7 @@ ifStatement
 
 //Expressions
 json
-	:	name=IDENT? '{' jsonEntry (',' jsonEntry)* '}' -> ^(JSON ^(JSON_NAME $name?) jsonEntry*)	
+	:	name=IDENT? '{' (jsonEntry (',' jsonEntry)*)* '}' -> ^(JSON ^(JSON_NAME $name?) jsonEntry*)	
 	;
 	
 jsonEntry
@@ -212,7 +212,6 @@ atom
 	|	BOOLEAN
 	|	STRING_LITERAL
 	|	LIST_LITERAL
-	|	DICT_LITERAL
 	|	NULL
 	|	name=IDENT? function -> ^(INIT_FUNCTION ^(FUNCTION_NAME $name?) function)
 	;
@@ -293,9 +292,6 @@ STRING_LITERAL
 	
 LIST_LITERAL
 	:	'[' ']' ;
-	
-DICT_LITERAL
-	:	'{' '}' ;
 
 fragment LETTER : ('a'..'z' | 'A'..'Z') ;
 fragment DIGIT : '0'..'9';
