@@ -2,7 +2,6 @@ package eve.statements.expressions;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.List;
 
 import eve.core.EveError;
