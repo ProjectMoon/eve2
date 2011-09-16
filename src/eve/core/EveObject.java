@@ -300,7 +300,8 @@ public abstract class EveObject {
 			throw new EveError("frozen/sealed objects cannot have properties added.");
 		}
 		
-		if (eo != null) {
+		//variables in the global scope don't have a parent.
+		if (eo != null && this != ScopeManager.getGlobalScope()) {
 			eo.objectParent = this;
 		}
 		

@@ -75,6 +75,13 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 		}
 		
 		EveObject parent = toDelete.getObjectParent();
+		
+		//objects in the global scope have no parent,
+		//so for this we must give them one.
+		if (parent == null) {
+			parent = ScopeManager.getGlobalScope();
+		}
+		
 		String field = parent.getFieldName(toDelete);
 		return parent.deleteField(field);
 	}
