@@ -614,17 +614,17 @@ public class EJIHelper {
 		}
 		
 		for (String methodName : methodNames) {
-			EJIFunction methodInvocation = EJIFunction.fromJava(obj, methodName, bypassTypeCoercion);
+			EJIFunction methodInvocation = EJIFunction.fromJava(methodName, bypassTypeCoercion);
 			eo.putField(methodName, EveObjectFactory.create(methodInvocation));
 		}
 		
 		if (indexedAccessor != null) {
-			EJIFunction accessor = EJIFunction.fromJava(obj, indexedAccessor, bypassTypeCoercion);
+			EJIFunction accessor = EJIFunction.fromJava(indexedAccessor, bypassTypeCoercion);
 			eo.setIndexedAccessor(EveObjectFactory.create(accessor));
 		}
 		
 		if (indexedMutator != null) {
-			EJIFunction mutator = EJIFunction.fromJava(obj, indexedMutator, bypassTypeCoercion);
+			EJIFunction mutator = EJIFunction.fromJava(indexedMutator, bypassTypeCoercion);
 			eo.setIndexedMutator(EveObjectFactory.create(mutator));
 		}
 		
@@ -716,17 +716,17 @@ public class EJIHelper {
 		}
 		
 		for (String methodName : methodNames) {
-			EJIFunction methodInvocation = EJIFunction.fromJava(eo, methodName, false);
+			EJIFunction methodInvocation = EJIFunction.fromJava(methodName, false);
 			eo.putField(methodName, EveObjectFactory.create(methodInvocation));
 		}
 		
 		if (indexedAccessor != null) {
-			EJIFunction accessor = EJIFunction.fromJava(eo, indexedAccessor, false);
+			EJIFunction accessor = EJIFunction.fromJava(indexedAccessor, false);
 			eo.setIndexedAccessor(EveObjectFactory.create(accessor));
 		}
 		
 		if (indexedMutator != null) {
-			EJIFunction mutator = EJIFunction.fromJava(eo, indexedMutator, false);
+			EJIFunction mutator = EJIFunction.fromJava(indexedMutator, false);
 			eo.setIndexedMutator(EveObjectFactory.create(mutator));
 		}
 		

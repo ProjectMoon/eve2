@@ -13,8 +13,4 @@ public class EveFunction extends EveObject {
 		clone.cloneFrom(this);
 		return clone;
 	}
-	
-	public void test() {
-		System.out.println("executing test with " + this.hashCode());
-	}
 }

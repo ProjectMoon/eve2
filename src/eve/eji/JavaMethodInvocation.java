@@ -22,8 +22,7 @@ class JavaMethodInvocation extends EJIFunction {
 	 * @param o
 	 * @param methodName
 	 */
-	public JavaMethodInvocation(Object o, String methodName, boolean bypassTypeCoercion) {
-		this.o = o;
+	public JavaMethodInvocation(String methodName, boolean bypassTypeCoercion) {
 		this.methodName = methodName;
 		this.method = null;
 		this.bypassTypeCoercion = bypassTypeCoercion;
@@ -38,8 +37,7 @@ class JavaMethodInvocation extends EJIFunction {
 	 * @param o
 	 * @param method
 	 */
-	public JavaMethodInvocation(Object o, Method method, boolean bypassTypeCoercion) {
-		this.o = o;
+	public JavaMethodInvocation(Method method, boolean bypassTypeCoercion) {
 		this.method = method;
 		this.methodName = null;
 		this.bypassTypeCoercion = bypassTypeCoercion;

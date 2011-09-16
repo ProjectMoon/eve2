@@ -10,24 +10,22 @@ import eve.scope.ScopeManager;
 
 public abstract class EJIFunction extends Function {
 	/**
-	 * Creates a named Eve function from an object and the given method
+	 * Creates a named Eve function from the specified non-static method.
 	 * name.
-	 * @param obj
 	 * @param methodName
 	 * @return An invokable EJI function.
 	 */
-	public static EJIFunction fromJava(Object obj, String methodName, boolean bypassTypeCoercion) {
-		return new JavaMethodInvocation(obj, methodName, bypassTypeCoercion);
+	public static EJIFunction fromJava(String methodName, boolean bypassTypeCoercion) {
+		return new JavaMethodInvocation(methodName, bypassTypeCoercion);
 	}
 	
 	/**
-	 * Create a nameless Eve function from an object and a method object.
-	 * @param obj
+	 * Create a nameless Eve function from the specified non-static method.
 	 * @param method
 	 * @return An invokable EJI function.
 	 */
-	public static EJIFunction fromJava(Object obj, Method method, boolean bypassTypeCoercion) {
-		return new JavaMethodInvocation(obj, method, bypassTypeCoercion);
+	public static EJIFunction fromJava(Method method, boolean bypassTypeCoercion) {
+		return new JavaMethodInvocation(method, bypassTypeCoercion);
 	}
 	
 	/**
