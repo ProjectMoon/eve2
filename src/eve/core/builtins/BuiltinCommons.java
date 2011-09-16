@@ -21,7 +21,7 @@ public class BuiltinCommons {
 	//These types are initialized manually and immediately because other builtin types
 	//depend on their existence to be created.
 	static {
-		EveFunction function = new EveFunction();
+		EveFunctionPrototype function = new EveFunctionPrototype(); //see class definition for more.
 		EveGlobal global = new EveGlobal();
 		EveBuiltinObject object = new EveBuiltinObject();
 		

@@ -9,19 +9,14 @@ import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveBuiltinObject;
 import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
+import eve.core.builtins.EveFunctionPrototype;
 import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveList;
 import eve.core.builtins.EveString;
 import eve.eji.EJIHelper;
 
 /**
- * Creates EveObjects.
- * 
- * Current problems: 
- * BareObject acquires toString from its contained object, but the EJIHelper.self() method returns the BareObj... and since it's by method name, we invoke
- * EveObject#toString. More tracing on this issue puts it as EJIHelper.createEJIObject somehow getting EveTypes that are not JAVA. So the if statement that
- * stops the recursion normally doesn't work.
- * Current way of creating builtins makes them lose their special properties... unless we DONT clone from pr457ototypes (need some kind of merge) 
+ * Creates EveObjects. 
  * @author jeff
  *
  */
@@ -92,7 +87,7 @@ public class EveObjectFactory {
 	}
 	
 	public static EveObject create(Function f) {
-		EveObject eo = new EveFunction();
+		EveObject eo = EveFunctionPrototype.createInstance();
 		eo.mergeFrom(BuiltinCommons.getType("function"));
 		eo.setValue(f);
 		
@@ -100,8 +95,6 @@ public class EveObjectFactory {
 	}
 	
 	public static EveObject create(List<EveObject> l) {
-		//cannot call __create of list or we get an infinite recursive loop since
-		//function invocation creates an eve list.
 		EveObject eo = ejiInit(new EveList());
 		eo.mergeFrom(BuiltinCommons.getType("list"));
 		eo.setValue(l);

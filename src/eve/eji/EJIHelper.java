@@ -668,7 +668,8 @@ public class EJIHelper {
 	/**
 	 * Special case for creating EJI objects when the object we are trying to wrap happens to be an EveObject
 	 * already. In this case, any annotated properties and methods that are NOT inherited (since a lot of
-	 * stuff comes from EveObject itself) are added as properties/methods. 
+	 * stuff comes from EveObject itself) are added as properties/methods. It will not add the eveClone method
+	 * to the object either.
 	 * @param eo
 	 * @return
 	 * @throws IntrospectionException 
@@ -691,7 +692,7 @@ public class EJIHelper {
 		Method indexedMutator = null;
 		
 		for (Method method : methods) {
-			if (Modifier.isPublic(method.getModifiers())) {				
+			if (Modifier.isPublic(method.getModifiers()) && method.getName().equals("eveClone") == false) {				
 				if (method.isAnnotationPresent(EJIIndexedAccessor.class)) {
 					if (indexedAccessor == null) {
 						indexedAccessor = method; 
