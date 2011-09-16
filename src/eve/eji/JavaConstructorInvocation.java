@@ -32,7 +32,7 @@ class JavaConstructorInvocation extends EJIFunction {
 		try {
 			Constructor<?> ctor = EJIHelper.findConstructor(type, args);
 			if (ctor == null) {
-				throw new EveError("could not find constructor for java type " + type.getName());
+				throw new EveError("could not find constructor for " + type.getName() + " with arguments " + args);
 			}
 			
 			Object[] initArgs = EJIHelper.mapArguments(ctor.getParameterTypes(), args);
