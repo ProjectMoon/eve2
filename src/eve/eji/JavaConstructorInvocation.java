@@ -53,7 +53,8 @@ class JavaConstructorInvocation extends EJIFunction {
 		catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IntrospectionException e) {
+		}
+		catch (IntrospectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
