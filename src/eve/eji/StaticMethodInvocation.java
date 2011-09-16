@@ -33,6 +33,11 @@ class StaticMethodInvocation extends EJIFunction {
 		
 		try {
 			Method meth = EJIHelper.findMethod(cl, methodName, args);
+			
+			if (meth == null) {
+				throw new EveError("static method \"" + methodName + "\" not found (Java type: " + cl.getName() + ")");
+			}
+			
 			Object[] invokeArgs = EJIHelper.mapArguments(meth.getParameterTypes(), args);
 			Object retVal = meth.invoke(null, invokeArgs);
 			
