@@ -33,16 +33,52 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 			value = value.eveClone();
 		}
 		
-		if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
+		if (value.getType() == EveType.CUSTOM) {
+			executeForObject(value);
+		}
+		else if (value.getType() == EveType.PROTOTYPE) {
+			executeForType(value);
+		}
+		else if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
 			executeForDelegate(value);
 		}
 		else {
-			throw new EveError("left hand of push statement must evaluate to dict, delegate, or namespace");
+			throw new EveError("invalid left hand of push statement (type must be object, delegate, or type)");
 		}
 		
 		return null;
 	}
-		
+	
+	private void executeForObject(EveObject obj) {
+		EveObject eo = to.execute();
+
+		for (Map.Entry<String, EveObject> entry : obj.getFields().entrySet()) {
+			eo.putField(entry.getKey(), entry.getValue().getSelf());
+		}
+	}
+
+	private void executeForType(EveObject type) {
+		EveObject eo = to.execute();
+
+		for (String field : type.getFieldNames()) {
+			//make sure no one sneaks invalid crap in through getter methods. 
+			EveObject value = type.getField(field).getSelf();
+
+			//in the case of functions, only delegates are allowed to mix-in.
+			if (value.getType() == EveType.FUNCTION) {
+				if (value.getFunctionValue().isDelegateCreator()) {
+					EveObject delegatedMethod = createMixin(value);
+					eo.putField(field, delegatedMethod);
+				}
+			}
+			else {
+				//everything else.
+				value = value.eveClone();
+				eo.putField(field, value);
+			}
+		}
+	}
+	
 	private void executeForDelegate(EveObject delegate) {
 		EveObject eo = to.execute();
 		EveObject delegatedMethod = createMixin(delegate);
