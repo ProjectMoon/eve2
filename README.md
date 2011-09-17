@@ -90,6 +90,44 @@ dependencies into the `dist/` directory for you.
 
 Release Notes
 =============
+0.3.6:
+
+* Switch to "slots" methodology of storing properties. This brings a significant
+  change to the way Eve handles properties, and puts it more in line with other
+  prototypal languages:
+    * An object has any number of "slots," identified by a string or number.
+    * Any value can go into a slot, and a slot can change type at any time.
+    * Numbers and numbers in string form are the same for slot identifiers
+      (e.g. obj[0] and obj["0"] point to the same thing).
+    * Because of this change, the `dict` type was removed, as every object is
+      basically a dictionary now.
+    * Properties can be referenced via dot notation (if they are not numbers),
+      or through "array" notation: `obj.myProperty` and `obj["myProperty"]`.
+    * Significant internal restructuring was done to accomodate these changes.
+* EJI enhancements, most of which were done to support the slots change:
+    * Added reverse type changing between Java and Eve types in certain cases
+      (e.g. java.lang.Integer will become EveInteger).
+    * Numerous fixes properly allow for EJI types that extend EveObject.
+    * Because of the above, the builtin types now get standard functions and
+      properties from their Java class definitions.
+    * More efficient code inside `JavaMethodInvocation`; storing a reference to
+      an object is no longer necessary.
+    * `EJIHelper.self()` will now return the proper "this" context for Java
+      methods, so `this` can be used to reference the current object in EJI
+      code.
+    * Define specific indexed accessors and mutator methods for EJI types.
+* Property collections are now a custom type since `dict` is gone, and are
+  sealed (cannot have values added, removed, or modified).
+* `scope` blocks now isolate scope. They will not search for values defined
+  outside the scope. This only affects `scope(private)` currently.
+* `onClone` event removed in anticipation of a better event-handling mechanism.
+* Variable argument list are now a "list-like" object, rather than an object of
+  type `list`.
+* NOT YET DONE: Ability to define a type name with object literals was removed
+  because of the new `typedef` statement.'
+* NOT YET DONE: Object literals will now report their type as "object", rather
+  than "object_literal".
+
 0.3.5:
 
 * `typedef` statement.
