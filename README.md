@@ -116,6 +116,7 @@ Release Notes
       methods, so `this` can be used to reference the current object in EJI
       code.
     * Define specific indexed accessors and mutator methods for EJI types.
+    * More Java errors are captured and turned into Eve errors.
 * Property collections are now a custom type since `dict` is gone, and are
   sealed (cannot have values added, removed, or modified).
 * `scope` blocks now isolate scope. They will not search for values defined
