@@ -1,4 +1,4 @@
-Eve 0.3.5
+Eve 0.3.6
 =========
 
 An experiment to learn how to make an interpreter.<br>
@@ -124,7 +124,7 @@ Release Notes
 * Variable argument list are now a "list-like" object, rather than an object of
   type `list`.
 * NOT YET DONE: Ability to define a type name with object literals was removed
-  because of the new `typedef` statement.'
+  because of the new `typedef` statement.
 * NOT YET DONE: Object literals will now report their type as "object", rather
   than "object_literal".
 
