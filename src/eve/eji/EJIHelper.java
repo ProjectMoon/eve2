@@ -539,6 +539,45 @@ public class EJIHelper {
 		eo.putField("__create", ctor);
 		return eo;
 	}
+	
+	public static EveObject createEJIType(Class<?> type, boolean bypassTypeCoercion) throws IntrospectionException {
+		//step 0: get type name.
+		if (!type.isAnnotationPresent(EJIType.class)) {
+			throw new EveError("class must have EJI type annotation present.");
+		}
+		
+		String typename = type.getAnnotation(EJIType.class).value();
+		
+		EveObject eo = EveObjectFactory.prototypeType(typename);
+		
+		//step 1: get constructor for __create
+		EveObject ctor = createEJIConstructor(type, bypassTypeCoercion);
+		eo.putField("__create", ctor);
+		
+		//step 2: add all static fields.
+		//...?
+		
+		try {
+			//step 3: instantiate (default constructor)
+			Object o = type.newInstance();
+			
+			//step 4: add all instance properties.
+			EveObject ejiObj = createEJIObject(o, bypassTypeCoercion);
+			eo.mergeFrom(ejiObj);
+			
+			//step 5: set java value to the instance.
+			eo.setValue(o);
+			eo.setInternalType(EveType.PROTOTYPE); //avoid auto internal type changing.
+			
+			return eo;
+		}
+		catch (IllegalAccessException e) {
+			throw new EveError(e.getMessage());
+		}
+		catch (InstantiationException e) {
+			throw new EveError(e.getMessage());
+		}
+	}
 
 	/**
 	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
@@ -583,7 +622,7 @@ public class EJIHelper {
 		
 		//handle properties
 		for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
-			eo.putField(pd.getName(), new EJIField(obj, pd));	
+			eo.putField(pd.getName(), new EJIField(pd));	
 		}
 		
 		//handle methods
@@ -682,7 +721,7 @@ public class EJIHelper {
 		//properties
 		for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
 			if (methods.contains(pd.getReadMethod()) || methods.contains(pd.getWriteMethod())) {
-				eo.putField(pd.getName(), new EJIField(eo, pd));
+				eo.putField(pd.getName(), new EJIField(pd));
 			}
 		}
 		

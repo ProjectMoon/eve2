@@ -19,7 +19,9 @@ public class EveString extends EveObject {
 	 * For prototypes, the empty constructor is used when cloning from it.
 	 * Usually used by literals (sometimes other stuff).
 	 */
-	public EveString() {}
+	public EveString() {
+		setValue("");
+	}
 	
 	/**
 	 * For prototypes, a value-based constructor serves as a way to create

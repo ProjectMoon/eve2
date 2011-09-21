@@ -157,14 +157,17 @@ public class EJIScanner {
 			EveObject ctor = null;
 			
 			//bypass type coercion if the type specifies it.
+			boolean bypassTypeCoercion = false;
 			if (type.isAnnotationPresent(EJINoCoerce.class)) {
-				ctor = EJIHelper.createEJIConstructor(type, true);
+				//ctor = EJIHelper.createEJIConstructor(type, true);
+				bypassTypeCoercion = true;
 			}
 			else {
-				ctor = EJIHelper.createEJIConstructor(type, false);
+				//ctor = EJIHelper.createEJIConstructor(type, false);
 			}
 			
-			EveObject eveType = EJIHelper.createEJIType(typeInfo.value(), ctor);
+			//EveObject eveType = EJIHelper.createEJIType(typeInfo.value(), ctor);
+			EveObject eveType = EJIHelper.createEJIType(type, bypassTypeCoercion);
 			
 			//whether or not we should consider this a built-in type.
 			//all eve types are built-in. all user-define types should

@@ -58,15 +58,10 @@ class StaticMethodInvocation extends EJIFunction {
 		catch (InvocationTargetException e) {
 			//an error happened in the java code.
 			if (e.getCause() != null) {
-				if (e.getCause() instanceof EveError) {
-					throw new EveError(e.getCause().getMessage());
-				}
-				else {
-					throw new EveError(e.getCause());
-				}
+				throw new EveError(e.getCause().getMessage());
 			}
 			else {
-				throw new EveError(e);
+				throw new EveError(e.getMessage());
 			}
 		}
 		catch (IntrospectionException e) {

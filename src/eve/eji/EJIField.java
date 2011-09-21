@@ -15,7 +15,6 @@ class EJIField extends DynamicField {
 	private boolean readOnly = false;
 	
 	//For non-static.
-	private Object context;
 	private PropertyDescriptor pd;
 	
 	//For static.
@@ -26,8 +25,7 @@ class EJIField extends DynamicField {
 	 * @param context
 	 * @param pd
 	 */
-	public EJIField(Object context, PropertyDescriptor pd) {
-		this.context = context;
+	public EJIField(PropertyDescriptor pd) {
 		this.pd = pd;
 	}
 	
@@ -54,6 +52,7 @@ class EJIField extends DynamicField {
 				o = method.invoke(null, (Object[])null);
 			}
 			else {
+				Object context = EJIHelper.self();
 				o = pd.getReadMethod().invoke(context, (Object[])null);
 			}
 
@@ -73,8 +72,9 @@ class EJIField extends DynamicField {
 			throw new EveError(e.getMessage());
 		}
 		catch (InvocationTargetException e) {
-			throw new EveError(e.getMessage());
-		} catch (IntrospectionException e) {
+			throw new EveError(e.getCause().getMessage());
+		}
+		catch (IntrospectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -94,6 +94,7 @@ class EJIField extends DynamicField {
 				throw new EveError("This property is read-only.");
 			}
 			
+			Object context = EJIHelper.self();
 			writeMethod.invoke(context, new Object[] { value.getValue() });
 		}
 		catch (IllegalArgumentException e) {
@@ -103,7 +104,13 @@ class EJIField extends DynamicField {
 			throw new EveError(e.getMessage());
 		}
 		catch (InvocationTargetException e) {
-			throw new EveError(e.getMessage());
+			//an error happened in the java code.
+			if (e.getCause() != null) {
+				throw new EveError(e.getCause().getMessage());
+			}
+			else {
+				throw new EveError(e.getMessage());
+			}
 		}			
 	}
 }
