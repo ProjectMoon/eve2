@@ -14,7 +14,8 @@ import eve.core.builtins.BuiltinCommons;
 
 /**
  * The EJIScanner scans the classpath for EJI types. Its main purpose is to load the
- * standard library and built-in types. It also loads EJI code created by users.
+ * standard library and built-in types. It also loads EJI code created by users. It
+ * is run once at the startup of the interpreter, since it scans the entire classpath.
  * @author jeff
  *
  */
