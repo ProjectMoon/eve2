@@ -40,7 +40,7 @@ public class BuiltinCommons {
 	}
 	
 	public static void addType(String name, EveObject type) {
-		if (type == null || type.getType() != EveType.PROTOTYPE) {
+		if (type == null || type.getInternalType() != EveType.PROTOTYPE) {
 			throw new EveError("can only add types to the type pool.");
 		}
 		

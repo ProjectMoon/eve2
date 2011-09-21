@@ -37,7 +37,7 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 			for (ExpressionStatement propExpr : props) {
 				EveObject propObj = propExpr.execute();
 				
-				if (propObj.getType() != EveType.STRING) {
+				if (propObj.getInternalType() != EveType.STRING) {
 					throw new EveError(propExpr + " does not evaluate to string in object collection statement");
 				}
 				

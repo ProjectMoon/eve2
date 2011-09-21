@@ -36,4 +36,8 @@ public class EveDouble extends EveObject {
 		clone.cloneFrom(this);
 		return clone;
 	}
+	
+	public String getType() {
+		return "double";
+	}
 }

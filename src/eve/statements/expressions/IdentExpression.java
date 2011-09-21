@@ -29,7 +29,7 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 		EveObject eo = ScopeManager.getVariable(identifier);
 			
 		if (eo != null) {
-			if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
+			if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getInternalType() == EveType.FUNCTION) {
 				return eo.getField("get").invokeSelf(eo);
 			}
 			else {
@@ -53,7 +53,7 @@ public class IdentExpression extends ExpressionStatement implements EveStatement
 			}
 			
 			//setter functionality
-			if (isUsingMutatorAccessor() && existingField.hasField("set") && existingField.getField("set").getType() == EveType.FUNCTION) {
+			if (isUsingMutatorAccessor() && existingField.hasField("set") && existingField.getField("set").getInternalType() == EveType.FUNCTION) {
 				existingField.getField("set").invokeSelf(existingField, value);
 			}
 			else {

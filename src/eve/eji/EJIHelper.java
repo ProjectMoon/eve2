@@ -111,7 +111,7 @@ public class EJIHelper {
 		EveObject self = ScopeManager.getVariable("self");
 		
 		//if we are a child of eveobject
-		if (self.getType() == EveType.JAVA) {
+		if (self.getInternalType() == EveType.JAVA) {
 			return self.getJavaValue();
 		}
 		else if (self instanceof EveObject) {
@@ -146,7 +146,7 @@ public class EJIHelper {
 	 * @return A Collection of EveTypes that the formal parameter maps to. Empty if no valid mapping found. 
 	 */
 	private static Collection<EveType> map(Class<?> formalParam, EveObject actualParam) {	
-		if (actualParam.getType() != EveType.JAVA) {
+		if (actualParam.getInternalType() != EveType.JAVA) {
 			return typeMap.get(formalParam);
 		}
 		else {
@@ -181,7 +181,7 @@ public class EJIHelper {
 	private static int weigh(Class<?> formalParam, EveObject actualParam) {
 		//Note: we don't consider List here, because non-Lists are discarded
 		//during type filtering.
-		if (actualParam.getType() == EveType.STRING) {
+		if (actualParam.getInternalType() == EveType.STRING) {
 			//For strings, we weigh differently based on the length of the string.
 			//Length 1 prefers: java.lang.Character, char, java.lang.String
 			//Length > 1: requires java.lang.String. Anything else is invalid.
@@ -208,7 +208,7 @@ public class EJIHelper {
 				}
 			}
 		}
-		else if (actualParam.getType() == EveType.JAVA) {
+		else if (actualParam.getInternalType() == EveType.JAVA) {
 			//For Java types, direct equality is weight 2.
 			//isAssignableFrom is weight 1.
 			//and while the last else clause should never be hit, we might
@@ -224,8 +224,8 @@ public class EJIHelper {
 				return -999;
 			}
 		}
-		else if (actualParam.getType() == EveType.FUNCTION || actualParam.getType() == EveType.CUSTOM || 
-				actualParam.getType() == EveType.PROTOTYPE) {
+		else if (actualParam.getInternalType() == EveType.FUNCTION || actualParam.getInternalType() == EveType.CUSTOM || 
+				actualParam.getInternalType() == EveType.PROTOTYPE) {
 			//These are all EveObject mappings. Just return 0 to acknowledge they're valid and move on.
 			return 0;
 		}
@@ -287,7 +287,7 @@ public class EJIHelper {
 					Class<?> formalParam = signature[c];
 					EveObject actualParam = params[c];
 					Collection<EveType> mappedTypes = map(formalParam, actualParam);
-					if (!mappedTypes.contains(actualParam.getType())) {
+					if (!mappedTypes.contains(actualParam.getInternalType())) {
 						sigsToDiscard.add(signature);
 					}
 				}

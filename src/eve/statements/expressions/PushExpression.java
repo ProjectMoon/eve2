@@ -33,13 +33,13 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 			value = value.eveClone();
 		}
 		
-		if (value.getType() == EveType.CUSTOM) {
+		if (value.getInternalType() == EveType.CUSTOM) {
 			executeForObject(value);
 		}
-		else if (value.getType() == EveType.PROTOTYPE) {
+		else if (value.getInternalType() == EveType.PROTOTYPE) {
 			executeForType(value);
 		}
-		else if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
+		else if (value.getInternalType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
 			executeForDelegate(value);
 		}
 		else {
@@ -65,7 +65,7 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 			EveObject value = type.getField(field).getSelf();
 
 			//in the case of functions, only delegates are allowed to mix-in.
-			if (value.getType() == EveType.FUNCTION) {
+			if (value.getInternalType() == EveType.FUNCTION) {
 				if (value.getFunctionValue().isDelegateCreator()) {
 					EveObject delegatedMethod = createMixin(value);
 					eo.putField(field, delegatedMethod);

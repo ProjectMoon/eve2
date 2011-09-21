@@ -20,7 +20,7 @@ public class EveBuiltinObject extends EveObject {
 	 * cannot be created by invoking the type name (unlike other built-ins).
 	 */
 	public EveBuiltinObject() {
-		setType(EveType.PROTOTYPE);
+		setInternalType(EveType.PROTOTYPE);
 		setTypeName("object");
 	}
 	
@@ -33,5 +33,9 @@ public class EveBuiltinObject extends EveObject {
 		EveObject clone = new EveBuiltinObject();
 		clone.cloneFrom(this);
 		return clone;
+	}
+	
+	public String getType() {
+		return "object";
 	}
 }

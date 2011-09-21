@@ -94,7 +94,7 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 		}
 
 		//with statement scope? TODO: make sure this ghetto check actually still works. maybe create a WITH_SCOPE internal type...
-		if (ScopeManager.getCurrentScope().getType() == EveType.SCOPE &&
+		if (ScopeManager.getCurrentScope().getInternalType() == EveType.SCOPE &&
 				ScopeManager.getCurrentScope().getTypeName().equals("with")) {
 			EveObject with = ScopeManager.getCurrentScope();
 			func.setWithScope(with);

@@ -25,7 +25,7 @@ public class IfStatement extends AbstractStatement implements EveStatement, Cons
 	public EveObject execute() {
 		EveObject exprResult = ifExpression.execute();
 		
-		if (exprResult.getType() == EveType.BOOLEAN) {
+		if (exprResult.getInternalType() == EveType.BOOLEAN) {
 			EveObject result = null;
 						
 			if (exprResult.getBooleanValue() == true) {

@@ -107,7 +107,7 @@ public class EveObjectFactory {
 		EveObject global = empty();
 		global.mergeFrom(BuiltinCommons.getType("global"));
 		
-		global.setType(EveType.SCOPE);
+		global.setInternalType(EveType.SCOPE);
 		global.setTypeName("scope(global)");
 		return global;
 	}
@@ -118,7 +118,7 @@ public class EveObjectFactory {
 		
 		//must set type after since setValue will also set the type...
 		eo.setValue(o);
-		eo.setType(EveType.JAVA);
+		eo.setInternalType(EveType.JAVA);
 		eo.setTypeName(o.getClass().getName()); //TODO: only set type name if exposeTyped
 		
 		return eo;
@@ -126,9 +126,14 @@ public class EveObjectFactory {
 		
 	public static EveObject customType(String typeName) {
 		EveObject eo = ejiInit(new EveBuiltinObject());
-		eo.setType(EveType.CUSTOM);
+		eo.setInternalType(EveType.CUSTOM);
 		eo.setTypeName(typeName);
-		//BuiltinCommons.initialize(eo); //TODO: replace with ....?
+		return eo;
+	}
+	
+	public static EveObject objectType() {
+		EveObject eo = customType("object");
+		eo.setInternalType(EveType.CUSTOM);
 		return eo;
 	}
 	
@@ -143,7 +148,7 @@ public class EveObjectFactory {
 	 */
 	public static EveObject internalType(String typeName, EveType internalType) {
 		EveObject eo = ejiInit(new EveBuiltinObject());
-		eo.setType(internalType);
+		eo.setInternalType(internalType);
 		eo.setTypeName(typeName);
 		//BuiltinCommons.initialize(eo); //TODO: replace with ....?
 		return eo;
@@ -151,21 +156,21 @@ public class EveObjectFactory {
 	
 	public static EveObject prototypeType(String typeName) {
 		EveObject eo = empty();
-		eo.setType(EveType.PROTOTYPE);
+		eo.setInternalType(EveType.PROTOTYPE);
 		eo.setTypeName(typeName);
 		return eo;
 	}
 		
 	public static EveObject scopeType(String scopeName) {
 		EveObject eo = customType(scopeName);
-		eo.setType(EveType.SCOPE);
+		eo.setInternalType(EveType.SCOPE);
 		eo.setTypeName("scope(" + scopeName + ")");
 		return eo;
 	}
 		
 	public static EveObject nullType() {
 		EveObject eo = empty();
-		eo.setType(EveType.NULL);
+		eo.setInternalType(EveType.NULL);
 		eo.setTypeName("null");
 		return eo;
 	}

@@ -29,7 +29,7 @@ public class RangeExpression extends ExpressionStatement implements EveStatement
 		EveObject val1 = op1.execute();
 		EveObject val2 = op2.execute();
 		
-		if (val1.getType() != EveType.INTEGER || val2.getType() != EveType.INTEGER) {
+		if (val1.getInternalType() != EveType.INTEGER || val2.getInternalType() != EveType.INTEGER) {
 			throw new EveError("both parts of a range expression must be ints");
 		}
 		

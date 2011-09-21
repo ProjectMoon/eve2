@@ -45,4 +45,8 @@ public class EveList extends EveObject {
 		clone.cloneFrom(this);
 		return clone;
 	}
+	
+	public String getType() {
+		return "list";
+	}
 }

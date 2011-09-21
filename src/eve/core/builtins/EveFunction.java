@@ -4,7 +4,7 @@ import eve.core.EveObject;
 
 public class EveFunction extends EveObject {
 	protected EveFunction() {
-		setType(EveType.FUNCTION);
+		setInternalType(EveType.FUNCTION);
 	}
 	
 	@Override
@@ -12,5 +12,9 @@ public class EveFunction extends EveObject {
 		EveObject clone = new EveFunctionPrototype();
 		clone.cloneFrom(this);
 		return clone;
+	}
+	
+	public String getType() {
+		return "function";
 	}
 }

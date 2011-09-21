@@ -36,7 +36,7 @@ public class WhileLoop extends LoopStatement implements EveStatement, Constructi
 	public EveObject execute() {
 		EveObject result = loopCondition.execute();
 		
-		if (result.getType() == EveType.BOOLEAN) {
+		if (result.getInternalType() == EveType.BOOLEAN) {
 			while (result.getBooleanValue() == true) {
 				EveObject retval = loop();
 				

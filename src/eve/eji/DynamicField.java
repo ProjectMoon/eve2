@@ -33,7 +33,7 @@ public abstract class DynamicField {
 		
 		EveObject eo = EveObjectFactory.empty();
 		eo.setTypeName("eji");
-		eo.setType(EveType.PROTOTYPE);
+		eo.setInternalType(EveType.PROTOTYPE);
 		//TODO: examine these; they may not work right
 		eo.putField("get", EveObjectFactory.create(new DynamicGetter()));
 		eo.putField("set", EveObjectFactory.create(new DynamicSetter()));

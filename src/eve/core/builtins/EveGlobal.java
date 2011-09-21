@@ -18,7 +18,7 @@ public class EveGlobal extends EveObject {
 	 * by invoking the type name.
 	 */
 	public EveGlobal() {
-		setType(EveType.PROTOTYPE);
+		setInternalType(EveType.PROTOTYPE);
 		setTypeName("global");
 	}
 	

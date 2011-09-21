@@ -28,7 +28,7 @@ public class InExpression extends ExpressionStatement implements EveStatement {
 	@Override
 	public EveObject execute() {
 		EveObject propName = op1.execute();
-		if (propName.getType() != EveType.STRING) {
+		if (propName.getInternalType() != EveType.STRING) {
 			throw new EveError("left hand of in expression must be a string");
 		}
 		

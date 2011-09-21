@@ -59,7 +59,7 @@ public class TypedefStatement extends AbstractStatement implements EveStatement 
 		}
  
 		type = type.eveClone();
-		type.setType(EveType.PROTOTYPE);
+		type.setInternalType(EveType.PROTOTYPE);
 		type.setTypeName(ident);
 		
 		BuiltinCommons.addType(ident, type);

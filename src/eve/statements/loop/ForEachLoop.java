@@ -42,7 +42,7 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 		EveObject eo = getOf().execute();
 		
 		//TODO: reintroduce list looping to make it only loop on numerical fields.
-		if (eo.getType() == EveType.STRING) {
+		if (eo.getInternalType() == EveType.STRING) {
 			return executeForString(eo);
 		}
 		else {

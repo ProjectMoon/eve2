@@ -36,4 +36,8 @@ public class EveBoolean extends EveObject {
 		clone.cloneFrom(this);
 		return clone;
 	}
+	
+	public String getType() {
+		return "bool";
+	}
 }

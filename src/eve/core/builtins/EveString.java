@@ -61,4 +61,8 @@ public class EveString extends EveObject {
 			
 		setValue(sb.toString());
 	}
+	
+	public String getType() {
+		return "string";
+	}
 }

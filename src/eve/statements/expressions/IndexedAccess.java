@@ -46,10 +46,10 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 			return null;
 		}*/
 		
-		if (index.getType() == EveType.INTEGER) {
+		if (index.getInternalType() == EveType.INTEGER) {
 			return eo.getField(index.getIntValue());
 		}
-		else if (index.getType() == EveType.STRING) {
+		else if (index.getInternalType() == EveType.STRING) {
 			return eo.getField(index.getStringValue());
 		}
 		else {
@@ -92,10 +92,10 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 		
 		String fieldName = null;
 		
-		if (index.getType() == EveType.INTEGER) {
+		if (index.getInternalType() == EveType.INTEGER) {
 			fieldName = Integer.toString(index.getIntValue());
 		}
-		else if (index.getType() == EveType.STRING) {
+		else if (index.getInternalType() == EveType.STRING) {
 			fieldName = index.getStringValue();
 		}
 		else {
@@ -120,10 +120,10 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 			throw new EveError("object is sealed.");
 		}
 				
-		if (index.getType() == EveType.INTEGER) {
+		if (index.getInternalType() == EveType.INTEGER) {
 			return eo.deleteField(Integer.toString(index.getIntValue()));
 		}
-		else if (index.getType() == EveType.STRING) {
+		else if (index.getInternalType() == EveType.STRING) {
 			return eo.deleteField(index.getStringValue());
 		}
 		else {

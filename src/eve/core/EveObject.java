@@ -76,7 +76,7 @@ public abstract class EveObject {
 		this.fields = new TreeMap<String, EveObject>(source.fields);
 		this.tempFields = new TreeMap<String, EveObject>(source.tempFields);
 		
-		this.setType(source.getType());
+		this.setInternalType(source.getInternalType());
 		this.setTypeName(source.getTypeName());
 		
 		this.cloneable = source.cloneable;
@@ -137,26 +137,26 @@ public abstract class EveObject {
 	private void setTypeFor(Object value) {
 		//prototype, scope, and java are handled differently.
 		if (value instanceof Integer) {
-			setType(EveType.INTEGER);
+			setInternalType(EveType.INTEGER);
 		}
 		else if (value instanceof String || value instanceof Character) {
-			setType(EveType.STRING);
+			setInternalType(EveType.STRING);
 		}
 		else if (value instanceof Double) {
-			setType(EveType.DOUBLE);
+			setInternalType(EveType.DOUBLE);
 		}
 		else if (value instanceof Boolean) {
-			setType(EveType.BOOLEAN);
+			setInternalType(EveType.BOOLEAN);
 		}
 		else if (value instanceof List) {
 			//...? maybe.
-			setType(EveType.LIST);
+			setInternalType(EveType.LIST);
 		}
 		else if (value instanceof Function) {
-			setType(EveType.FUNCTION);
+			setInternalType(EveType.FUNCTION);
 		}
 		else {
-			setType(EveType.CUSTOM);
+			setInternalType(EveType.CUSTOM);
 		}
 	}
 	
@@ -170,7 +170,7 @@ public abstract class EveObject {
 	}
 		
 	public Integer getIntValue() {
-		if (this.getType() != EveType.INTEGER) {
+		if (this.getInternalType() != EveType.INTEGER) {
 			throw new EveError(this + " is not an int!");
 		}
 		
@@ -178,7 +178,7 @@ public abstract class EveObject {
 	}
 	
 	public String getStringValue() {
-		if (this.getType() != EveType.STRING) {
+		if (this.getInternalType() != EveType.STRING) {
 			throw new EveError(this + " is not a string!");
 		}
 		
@@ -191,7 +191,7 @@ public abstract class EveObject {
 	}
 	
 	public Double getDoubleValue() {
-		if (this.getType() != EveType.DOUBLE){ 
+		if (this.getInternalType() != EveType.DOUBLE){ 
 			throw new EveError(this + " is not a double!");
 		}
 		
@@ -199,7 +199,7 @@ public abstract class EveObject {
 	}
 	
 	public Boolean getBooleanValue() {
-		if (this.getType() != EveType.BOOLEAN){
+		if (this.getInternalType() != EveType.BOOLEAN){
 			throw new EveError(this + " is not a boolean!");
 		}
 		
@@ -207,7 +207,7 @@ public abstract class EveObject {
 	}
 	
 	public Function getFunctionValue() {
-		if (this.getType() != EveType.FUNCTION) {
+		if (this.getInternalType() != EveType.FUNCTION) {
 			throw new EveError(this + " is not a function.");
 		}
 		
@@ -215,7 +215,7 @@ public abstract class EveObject {
 	}
 
 	public List<EveObject> getListValue() {
-		if (this.getType() != EveType.LIST) {
+		if (this.getInternalType() != EveType.LIST) {
 			throw new EveError(this + " is not a list!");
 		}
 		
@@ -245,7 +245,7 @@ public abstract class EveObject {
 	}
 				
 
-	public void setType(EveType type) {
+	public void setInternalType(EveType type) {
 		this.type = type;
 	}
 
@@ -347,7 +347,7 @@ public abstract class EveObject {
 	}
 	
 	public void setIndexedAccessor(EveObject accessor) {
-		if (accessor.getType() != EveType.FUNCTION) {
+		if (accessor.getInternalType() != EveType.FUNCTION) {
 			throw new EveError("indexed accessor must be a function.");
 		}
 		
@@ -400,13 +400,13 @@ public abstract class EveObject {
 				field.setMarkedForClone(false);
 				
 				//handle dynamic fields
-				if (field.hasField("get") && field.getField("get").getType() == EveType.FUNCTION) {
+				if (field.hasField("get") && field.getField("get").getInternalType() == EveType.FUNCTION) {
 					EveObject get = field.getField("get");
 					get.setMarkedForClone(false);
 					field.putField("get", get.eveClone());
 				}
 				
-				if (field.hasField("set") && field.getField("set").getType() == EveType.FUNCTION) {
+				if (field.hasField("set") && field.getField("set").getInternalType() == EveType.FUNCTION) {
 					EveObject set = field.getField("set");
 					set.setMarkedForClone(false);
 					field.putField("set", set.eveClone());
@@ -524,7 +524,7 @@ public abstract class EveObject {
 	 * @return An EveObject
 	 */
 	public EveObject getSelf() {
-		if (hasField("get") && getField("get").getType() == EveType.FUNCTION) {
+		if (hasField("get") && getField("get").getInternalType() == EveType.FUNCTION) {
 			return getField("get").invokeSelf(this).getSelf();
 		}
 		else {
@@ -543,12 +543,12 @@ public abstract class EveObject {
 		return this.fields.containsKey(field);
 	}
 	
-	public EveType getType() {
+	public EveType getInternalType() {
 		return this.type;
 	}
 	
 	public String getTypeName() {
-		switch (getType()) {
+		switch (getInternalType()) {
 			case INTEGER:
 				return "int";
 			case DOUBLE:
@@ -598,7 +598,7 @@ public abstract class EveObject {
 	}
 	
 	public boolean isNull() {
-		return getType() == EveType.NULL;
+		return getInternalType() == EveType.NULL;
 	}
 
 	public String toString() {
@@ -610,13 +610,13 @@ public abstract class EveObject {
 		//Utilize custom toString() if present.
 		if (hasField("toString")) {
 			EveObject toString = this.getField("toString");
-			if (toString.getType() == EveType.FUNCTION) {
+			if (toString.getInternalType() == EveType.FUNCTION) {
 				toString.putTempField("self", this);
 				EveObject res = toString.invoke();
 				if (res != null) {
 					//prevents an infinite recursion of toString() calls
 					//because of the way EJIHelper.mapJavaMethods works.
-					if (res.getType() != EveType.JAVA) {
+					if (res.getInternalType() != EveType.JAVA) {
 						return res.toString();
 					}
 					else {
@@ -628,7 +628,7 @@ public abstract class EveObject {
 		
 		//Otherwise, default.
 		try {
-			switch (getType()) {
+			switch (getInternalType()) {
 				case PROTOTYPE:
 					return "<type " + this.getTypeName() + ">";
 				case CUSTOM:
@@ -655,13 +655,13 @@ public abstract class EveObject {
 	}
 	
 	public EveObject __create(List<EveObject> actualParameters) {
-		if (this.getType() != EveType.PROTOTYPE) {
+		if (this.getInternalType() != EveType.PROTOTYPE) {
 			throw new EveError(this + " is not a type.");
 		}
 		
 		EveObject __create = getField("__create");
 		
-		if (__create == null || __create.getType() != EveType.FUNCTION) {
+		if (__create == null || __create.getInternalType() != EveType.FUNCTION) {
 			throw new EveError(this.getTypeName() + "::__create is undefined or is not a function.");
 		}
 		
@@ -703,7 +703,7 @@ public abstract class EveObject {
 	
 	private EveObject invoke0(List<EveObject> actualParameters) {
 		//types must define a __create field in order to have a "constructor".
-		if (this.getType() == EveType.PROTOTYPE) {
+		if (this.getInternalType() == EveType.PROTOTYPE) {
 			EveObject __create = this.getField("__create");
 			if (__create != null) {
 				return __create.invoke(actualParameters);
@@ -713,7 +713,7 @@ public abstract class EveObject {
 			}
 		}
 		
-		if (this.getType() != EveType.FUNCTION) {
+		if (this.getInternalType() != EveType.FUNCTION) {
 			throw new EveError(this + " is not a function.");
 		}
 		
@@ -813,7 +813,7 @@ public abstract class EveObject {
 	 */
 	public Deque<EveObject> recursePossibleClosures(Deque<EveObject> closureStack) {
 		//first, this one.
-		if (this.getType() == EveType.FUNCTION) {
+		if (this.getInternalType() == EveType.FUNCTION) {
 			Function func = this.getFunctionValue();
 			if (!func.isClosure() && func.isPossibleClosure()) {
 				func.setClosure(true);
@@ -823,7 +823,7 @@ public abstract class EveObject {
 				func.pushClosures(closureStack);
 			}
 		}
-		else if (this.getType() == EveType.LIST) {
+		else if (this.getInternalType() == EveType.LIST) {
 			for (EveObject value : getListValue()) {
 				closureStack = value.recursePossibleClosures(closureStack);
 			}
@@ -880,7 +880,7 @@ public abstract class EveObject {
 		else {
 			EveObject equal = equalsFunc.invokeSelf(this, other);
 			
-			if (equal.getType() != EveType.BOOLEAN) {
+			if (equal.getInternalType() != EveType.BOOLEAN) {
 				throw new EveError("equals function must return a boolean value.");
 			}
 			
@@ -931,13 +931,13 @@ public abstract class EveObject {
 			return true;
 		}
 
-		if (this.getType() == EveType.FUNCTION && other.getType() == EveType.FUNCTION) {
+		if (this.getInternalType() == EveType.FUNCTION && other.getInternalType() == EveType.FUNCTION) {
 			return functionEquals(other);
 		}
-		else if (this.getType() == EveType.PROTOTYPE && other.getType() == EveType.PROTOTYPE) {
+		else if (this.getInternalType() == EveType.PROTOTYPE && other.getInternalType() == EveType.PROTOTYPE) {
 			return prototypeEquals(other);
 		}
-		else if (this.getType() == EveType.CUSTOM && other.getType() == EveType.CUSTOM) {
+		else if (this.getInternalType() == EveType.CUSTOM && other.getInternalType() == EveType.CUSTOM) {
 			return customTypeEquals(other);
 		}
 		else {

@@ -36,4 +36,8 @@ public class EveInteger extends EveObject {
 		clone.cloneFrom(this);
 		return clone;
 	}
+	
+	public String getType() {
+		return "int";
+	}
 }

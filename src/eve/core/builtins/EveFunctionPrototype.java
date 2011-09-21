@@ -54,7 +54,7 @@ public class EveFunctionPrototype extends EveObject {
 	 * cannot be created by invoking the type name.
 	 */
 	public EveFunctionPrototype() {
-		setType(EveType.PROTOTYPE);
+		setInternalType(EveType.PROTOTYPE);
 		setTypeName("function");
 	}
 	

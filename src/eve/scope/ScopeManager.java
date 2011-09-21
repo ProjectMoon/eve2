@@ -60,7 +60,7 @@ public class ScopeManager {
 				
 				//scope statements prevent searching from higher up
 				//on the chain.
-				if (scope.getType() == EveType.SCOPE) {
+				if (scope.getInternalType() == EveType.SCOPE) {
 					break;
 				}
 			}
@@ -101,7 +101,7 @@ public class ScopeManager {
 				
 				//scope statements prevent searching from higher up
 				//on the chain.
-				if (scope.getType() == EveType.SCOPE) {
+				if (scope.getInternalType() == EveType.SCOPE) {
 					break;
 				}
 			}
@@ -143,7 +143,7 @@ public class ScopeManager {
 	}
 		
 	public static boolean inFunction() {
-		return getCurrentScope().getType() == EveType.FUNCTION;
+		return getCurrentScope().getInternalType() == EveType.FUNCTION;
 	}
 	
 	public static EveObject getGlobalScope() {
@@ -189,7 +189,7 @@ public class ScopeManager {
 		//now add any functions or other scopes.
 		while (desc.hasNext()) {
 			EveObject eo = desc.next();
-			if ((eo.getType() == EveType.FUNCTION  || eo.getType() == EveType.SCOPE) && closureStack.contains(eo) == false) {
+			if ((eo.getInternalType() == EveType.FUNCTION  || eo.getInternalType() == EveType.SCOPE) && closureStack.contains(eo) == false) {
 				EveObject clone = eo.eveClone();
 				clone.transferTempFields();
 				closureStack.push(clone);

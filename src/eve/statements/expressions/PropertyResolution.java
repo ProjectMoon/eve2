@@ -36,7 +36,7 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 	public EveObject execute() {
 		EveObject obj = getExpression().execute();
 		
-		if (obj.getType() == EveType.PROTOTYPE && !typeResolution) {
+		if (obj.getInternalType() == EveType.PROTOTYPE && !typeResolution) {
 			throw new EveError("must use :: to resolve type properties");
 		}
 		
@@ -47,7 +47,7 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		}
 		
 		//getter functionality.
-		if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getType() == EveType.FUNCTION) {
+		if (isUsingMutatorAccessor() && eo.hasField("get") && eo.getField("get").getInternalType() == EveType.FUNCTION) {
 			return eo.getField("get").invokeSelf(obj);
 			//return eo.getSelf();
 		}
@@ -73,7 +73,7 @@ public class PropertyResolution extends ExpressionStatement implements EveStatem
 		}
 		
 		if (isUsingMutatorAccessor() && existingField != null && existingField.hasField("set") &&
-				existingField.getField("set").getType() == EveType.FUNCTION) {
+				existingField.getField("set").getInternalType() == EveType.FUNCTION) {
 			existingField.getField("set").invokeSetter(eo, value);
 		}
 		else {
