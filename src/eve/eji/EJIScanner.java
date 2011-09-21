@@ -13,10 +13,8 @@ import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
 
 /**
- * The EJIScanner scans Java packages for types and namespaces. Its main purpose
- * is to load the standard library and built-in types. It also loads EJI code
- * created by users. Finally, it provides two static methods for finding namespace
- * classes.
+ * The EJIScanner scans the classpath for EJI types. Its main purpose is to load the
+ * standard library and built-in types. It also loads EJI code created by users.
  * @author jeff
  *
  */
