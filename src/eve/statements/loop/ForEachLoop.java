@@ -7,6 +7,7 @@ import java.util.Map;
 
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
@@ -40,14 +41,9 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 	public EveObject execute() {
 		EveObject eo = getOf().execute();
 		
-		if (eo.getType() == EveType.LIST) {
-			return executeForList(eo);
-		}
-		else if (eo.getType() == EveType.STRING) {
+		//TODO: reintroduce list looping to make it only loop on numerical fields.
+		if (eo.getType() == EveType.STRING) {
 			return executeForString(eo);
-		}
-		else if (eo.getType() == EveType.DICT) {
-			return executeForDict(eo);
 		}
 		else {
 			return executeLoop(eo);
@@ -72,7 +68,7 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 		char[] values = eo.getStringValue().toCharArray();
 		
 		for (char val : values) {
-			ScopeManager.putVariable(variable, new EveObject(val));
+			ScopeManager.putVariable(variable, EveObjectFactory.create(val));
 			EveObject retval = loop();
 			if (retval != null) {
 				return retval;
@@ -81,35 +77,7 @@ public class ForEachLoop extends LoopStatement implements EveStatement, Construc
 		
 		return null;
 	}
-
-	private EveObject executeForList(EveObject eo) {
-		Map<Integer, EveObject> list = eo.getListMap();
 		
-		for (Map.Entry<Integer, EveObject> entry : list.entrySet()) {
-			ScopeManager.putVariable(variable, new EveObject(entry.getValue()));
-			EveObject retval = loop();
-			if (retval != null) {
-				return retval;
-			}
-		}
-		
-		return null;
-	}
-	
-	private EveObject executeForDict(EveObject eo) {
-		Map<String, EveObject> dict = eo.getDictionaryValue();
-		
-		for (Map.Entry<String, EveObject> entry : dict.entrySet()) {
-			ScopeManager.putVariable(variable, new EveObject(entry.getKey()));
-			EveObject retval = loop();
-			if (retval != null) {
-				return retval;
-			}
-		}
-		
-		return null;
-	}
-	
 	private EveObject loop() {
 		return new Interpreter().executeStatements(getStatements());
 	}

@@ -1,7 +1,10 @@
 package eve.eji.stdlib;
 
+import java.beans.IntrospectionException;
+
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.core.builtins.BuiltinCommons;
 import eve.eji.EJIHelper;
 import eve.eji.EJIModule;
@@ -55,7 +58,7 @@ public class EJI {
 		
 		EveObject pkgContainer = BuiltinCommons.getType(split[0]);
 		if (pkgContainer == null) {
-			pkgContainer = EveObject.prototypeType(split[0]);
+			pkgContainer = EveObjectFactory.prototypeType(split[0]);
 			BuiltinCommons.addType(split[0], pkgContainer);
 		}
 		
@@ -63,7 +66,7 @@ public class EJI {
 		for (int c = 1; c < split.length - 1; c++) {
 			pkgContainer = pkgContainer.getField(split[c]);
 			if (pkgContainer == null) {
-				pkgContainer = EveObject.prototypeType(split[c]);
+				pkgContainer = EveObjectFactory.prototypeType(split[c]);
 				prevContainer.putField(split[c], pkgContainer);
 			}
 			prevContainer = pkgContainer;
@@ -75,7 +78,7 @@ public class EJI {
 	private static EveObject expose0(String className, boolean exposeType) {
 		try {
 			Class<?> cl = Class.forName(className);
-			EveObject ctorFunc = EJIHelper.createEJIConstructor(cl);
+			EveObject ctorFunc = EJIHelper.createEJIConstructor(cl, true); //bypass type coercion to get actual java types.
 			EveObject pkgContainer = resolveJavaPackageContainer(className);
 			
 			if (cl.isAnonymousClass()) {
@@ -94,6 +97,9 @@ public class EJI {
 			}
 		}
 		catch (ClassNotFoundException e) {
+			throw new EveError("EJI error: " + e.getMessage());
+		}
+		catch (IntrospectionException e) {
 			throw new EveError("EJI error: " + e.getMessage());
 		}
 		

@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
@@ -29,11 +30,11 @@ public class WithStatement extends AbstractStatement implements EveStatement, Co
 		//this is a bit ghetto; FunctionDefExpression will check for the with
 		//statement type name in order to determine that a with statement is
 		//being used...
-		EveObject with = EveObject.scopeType(EveObject.WITH_STATEMENT_TYPENAME);
+		EveObject with = EveObjectFactory.scopeType("with");
 		
 		for (String ident : withVariables) {
 			EveObject eo = ScopeManager.getVariable(ident);
-			eo = eo.eventlessClone();
+			eo = eo.eveClone();
 			with.putField(ident, eo);
 		}
 		

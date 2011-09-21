@@ -27,6 +27,13 @@ public class EveBoolean extends EveObject {
 	 * @param b
 	 */
 	public EveBoolean(boolean b) {
-		super(b);
+		setValue(b);
+	}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveBoolean();
+		clone.cloneFrom(this);
+		return clone;
 	}
 }

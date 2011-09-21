@@ -27,6 +27,13 @@ public class EveInteger extends EveObject {
 	 * @param i
 	 */
 	public EveInteger(int i) {
-		super(i);
+		setValue(i);
+	}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveInteger();
+		clone.cloneFrom(this);
+		return clone;
 	}
 }

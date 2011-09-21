@@ -7,6 +7,7 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.interpreter.Interpreter;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
@@ -38,7 +39,7 @@ public class ScopeStatement extends AbstractStatement implements EveStatement, C
 		//lest it be "exported" via typedef.
 		if (type.equals("private")) {
 			closureAnalysis(null); //have to call this here for closures to work, apparently.
-			EveObject scope = EveObject.scopeType("private");
+			EveObject scope = EveObjectFactory.scopeType("private");
 			ScopeManager.pushScope(scope);
 			new Interpreter().executeStatements(statements);
 			ScopeManager.popScope();

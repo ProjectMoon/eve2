@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.scope.ConstructionScope;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
@@ -41,10 +42,10 @@ public class JSONExpression extends ExpressionStatement implements EveStatement,
 	public EveObject execute() {
 		EveObject eo = null;
 		if (getName() != null) {
-			eo = EveObject.customType(getName());
+			eo = EveObjectFactory.customType(getName());
 		}
 		else {
-			eo = EveObject.customType("object_literal");
+			eo = EveObjectFactory.customType("object_literal");
 		}
 		
 		for (JSONEntry entry : entries) {

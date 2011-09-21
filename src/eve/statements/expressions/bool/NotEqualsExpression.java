@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
 
@@ -21,7 +22,7 @@ public class NotEqualsExpression extends ExpressionStatement implements EveState
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
 		
-		return new EveObject(op1.equals(op2) == false);
+		return EveObjectFactory.create(op1.equals(op2) == false);
 	}
 	
 	@Override

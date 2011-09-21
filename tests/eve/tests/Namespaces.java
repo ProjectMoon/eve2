@@ -12,9 +12,9 @@ public class Namespaces {
 	
 	@Test
 	public void namespaceAssignmentInFunction() {
-		core.runCode("var g = 0; def f() { global::g = 1; } f();");
+		core.runCode("typedef g = {}; def f() { g::value = 1; } f();");
 		EveObject g = ScopeManager.getVariable("g");
 		
-		assertTrue("g was 0, but should be 1", g.getIntValue() == 1);
+		assertTrue("g::value was not 1", g.getField("value").getIntValue() == 1);
 	}
 }

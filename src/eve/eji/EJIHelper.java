@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hamcrest.core.IsEqual;
+
 import javassist.Modifier;
 
 import com.google.common.base.Predicate;
@@ -28,6 +30,7 @@ import com.google.common.collect.TreeMultimap;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.core.EveObject.EveType;
 import eve.core.builtins.BuiltinCommons;
 import eve.core.Function;
@@ -92,12 +95,34 @@ public class EJIHelper {
 		return map;
 	}
 	
+	public static boolean isEveBuiltin(Object o) {
+		Class<?> cl = o.getClass();
+		
+		return cl.isPrimitive() ||
+			o instanceof Integer || o instanceof Double || o instanceof Boolean ||
+			o instanceof String || o instanceof Character || o instanceof List;  
+	}
+	
 	/**
 	 * Convenience method for getting the current "self" reference.
 	 * @return The current self reference. Null if it doesn't exist.
 	 */
-	public static EveObject self() {
-		return ScopeManager.getVariable("self");
+	public static Object self() {
+		EveObject self = ScopeManager.getVariable("self");
+		
+		//if we are a child of eveobject
+		if (self.getType() == EveType.JAVA) {
+			return self.getJavaValue();
+		}
+		else if (self instanceof EveObject) {
+			return self;
+		}	
+		else {
+			return null; //not sure about this.
+		}
+		
+		
+		//return self.getValue(); //dangerous. what if we want an EO specifically?
 	}
 	
 	/**
@@ -443,12 +468,21 @@ public class EJIHelper {
 			EveObject actualParam = actualParameters[c];
 			
 			if (!formalParam.isPrimitive()) {
-				Object arg = formalParam.cast(actualParam.getObjectValue());
+				Object arg = null;
+				
+				//if we are expecting an EveObject as an argument, just pass this variable along.
+				//otherwise, try and convert it.
+				if (formalParam.isAssignableFrom(actualParam.getClass())) {
+					arg = actualParam;
+				}
+				else {
+					arg = formalParam.cast(actualParam.getValue());
+				}
 				args.add(arg);
 			}
 			else {
 				//primitives automatically get unwrapped by Method#invoke.
-				args.add(actualParam.getObjectValue());
+				args.add(actualParam.getValue());
 			}
 			
 		}
@@ -470,13 +504,25 @@ public class EJIHelper {
 	}
 	
 	/**
-	 * Creates a constructor function for the given Java type.
+	 * Creates a constructor function for the given Java type. The produced function will
+	 * perform EJI type coercion, e.g. converting String to EveString.
 	 * @param type
-	 * @return
+	 * @return An executable function that will call the constructor(s).
 	 */
 	public static EveObject createEJIConstructor(Class<?> type) {
-		EJIFunction ctorFunc = new JavaConstructorInvocation(type);
-		EveObject eo = new EveObject(ctorFunc);
+		return createEJIConstructor(type, false);
+	}
+	/**
+	 * Creates a constructor function for the given Java type. This method allows optional
+	 * bypassing of EJI type coercion. If bypassTypeCoercion is true, constructors executed
+	 * will not attempt to automatically convert certain Java types to Eve types, e.g. String
+	 * to EveStrign.
+	 * @param type
+	 * @return An executable function that will call the constructor(s).
+	 */
+	public static EveObject createEJIConstructor(Class<?> type, boolean bypassTypeCoercion) {
+		EJIFunction ctorFunc = new JavaConstructorInvocation(type, bypassTypeCoercion);
+		EveObject eo = EveObjectFactory.create(ctorFunc);
 		return eo;
 	}
 	
@@ -486,25 +532,53 @@ public class EJIHelper {
 	 * @param ctor
 	 * @param typeName
 	 * @return An Eve type.
+	 * @throws IntrospectionException
 	 */
-	public static EveObject createEJIType(String typeName, EveObject ctor) {
-		EveObject eo = EveObject.prototypeType(typeName);
+	public static EveObject createEJIType(String typeName, EveObject ctor) throws IntrospectionException {
+		EveObject eo = EveObjectFactory.prototypeType(typeName);
 		eo.putField("__create", ctor);
 		return eo;
 	}
-	
+
 	/**
 	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
 	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
 	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
-	 * functions.
+	 * functions. This method will do automatic type coercion for the Java types that Eve considers
+	 * built-in. Thus, Strings will become wrapped EveStrings, Integers will become wrapped EveIntegers,
+	 * etc.
 	 * @param obj
 	 * @return The wrapped type.
 	 * @throws IntrospectionException
 	 * @throws IllegalAccessException
 	 */
 	public static EveObject createEJIObject(Object obj) throws IntrospectionException, IllegalAccessException {
-		EveObject eo = EveObject.javaType(obj);
+		return createEJIObject(obj, false);
+	}
+	
+	/**
+	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
+	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
+	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
+	 * functions. This method allows optional bypassing of type coercion. If bypassTypeCoercion is
+	 * true, the method will not attempt to change Strings to EveStrings, Integers to EveIntegers, etc.
+	 * @param obj
+	 * @param bypassTypeCoercion If true, will not attempt to coerce certain Java types to their Eve counterparts (ex: String -> EveString)
+	 * @return The wrapped type.
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 */
+	public static EveObject createEJIObject(Object obj, boolean bypassTypeCoercion) throws IntrospectionException, IllegalAccessException {
+		if (obj instanceof EveObject) {
+			return createEJIEveObject((EveObject)obj);
+		}
+		
+		if (!bypassTypeCoercion && isEveBuiltin(obj)) {
+			EveObject builtin = createEJIBuiltin(obj);
+			if (builtin != null) return builtin;
+		}
+		
+		EveObject eo = EveObjectFactory.javaType(obj);
 		BeanInfo info = Introspector.getBeanInfo(obj.getClass());
 		
 		//handle properties
@@ -514,14 +588,146 @@ public class EJIHelper {
 		
 		//handle methods
 		Set<String> methodNames = new HashSet<String>();
+		Method indexedAccessor = null;
+		Method indexedMutator = null;
 		
 		for (MethodDescriptor md : info.getMethodDescriptors()) {
-			methodNames.add(md.getMethod().getName());
+			if (md.getMethod().isAnnotationPresent(EJIIndexedAccessor.class)) {
+				if (indexedAccessor == null) {
+					indexedAccessor = md.getMethod(); 
+				}
+				else {
+					throw new EveError("EJI objects can only have one indexed accessor method.");
+				}
+			}
+			else if (md.getMethod().isAnnotationPresent(EJIIndexedMutator.class)) {
+				if (indexedMutator == null) {
+					indexedMutator = md.getMethod(); 
+				}
+				else {
+					throw new EveError("EJI objects can only have one indexed mutator method.");
+				}
+			}
+			else {
+				methodNames.add(md.getMethod().getName());
+			}
 		}
 		
 		for (String methodName : methodNames) {
-			EJIFunction methodInvocation = EJIFunction.fromJava(obj, methodName);
-			eo.putField(methodName, new EveObject(methodInvocation));
+			EJIFunction methodInvocation = EJIFunction.fromJava(methodName, bypassTypeCoercion);
+			eo.putField(methodName, EveObjectFactory.create(methodInvocation));
+		}
+		
+		if (indexedAccessor != null) {
+			EJIFunction accessor = EJIFunction.fromJava(indexedAccessor, bypassTypeCoercion);
+			eo.setIndexedAccessor(EveObjectFactory.create(accessor));
+		}
+		
+		if (indexedMutator != null) {
+			EJIFunction mutator = EJIFunction.fromJava(indexedMutator, bypassTypeCoercion);
+			eo.setIndexedMutator(EveObjectFactory.create(mutator));
+		}
+		
+		return eo;
+	}
+	
+	/**
+	 * Special case for creating EJI objects that facilitates creating builtins (from eve.core.builtins).
+	 * This is only an attempt. If it fails (returns null), the interpreter will proceed with creating a
+	 * regular Java type. This method simply provides much more reliable type conversion between the builtin
+	 * types and their Java counterparts.
+	 * @param obj
+	 * @return
+	 * @throws IntrospectionException 
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static EveObject createEJIBuiltin(Object obj) throws IntrospectionException {
+		if (obj instanceof Integer) {
+			return createEJIEveObject(EveObjectFactory.create((Integer)obj));
+		}
+		else if (obj instanceof Double) {
+			return createEJIEveObject(EveObjectFactory.create((Double)obj));
+		}
+		else if (obj instanceof Character) {
+			return createEJIEveObject(EveObjectFactory.create((Character)obj));
+		}
+		else if (obj instanceof String) {
+			return createEJIEveObject(EveObjectFactory.create((String)obj));
+		}
+		else if (obj instanceof Boolean) {
+			return createEJIEveObject(EveObjectFactory.create((Boolean)obj));
+		}
+		else if (obj instanceof List) {
+			return createEJIEveObject(EveObjectFactory.create((List)obj));
+		}
+		else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Special case for creating EJI objects when the object we are trying to wrap happens to be an EveObject
+	 * already. In this case, any annotated properties and methods that are NOT inherited (since a lot of
+	 * stuff comes from EveObject itself) are added as properties/methods. It will not add the eveClone method
+	 * to the object either.
+	 * @param eo
+	 * @return
+	 * @throws IntrospectionException 
+	 */
+	private static EveObject createEJIEveObject(EveObject eo) throws IntrospectionException {
+		BeanInfo info = Introspector.getBeanInfo(eo.getClass());
+		
+		List<Method> methods = Arrays.asList(eo.getClass().getDeclaredMethods());
+		
+		//properties
+		for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
+			if (methods.contains(pd.getReadMethod()) || methods.contains(pd.getWriteMethod())) {
+				eo.putField(pd.getName(), new EJIField(eo, pd));
+			}
+		}
+		
+		//methods
+		Set<String> methodNames = new HashSet<String>();
+		Method indexedAccessor = null;
+		Method indexedMutator = null;
+		
+		for (Method method : methods) {
+			if (Modifier.isPublic(method.getModifiers()) && method.getName().equals("eveClone") == false) {				
+				if (method.isAnnotationPresent(EJIIndexedAccessor.class)) {
+					if (indexedAccessor == null) {
+						indexedAccessor = method; 
+					}
+					else {
+						throw new EveError("EJI objects can only have one indexed accessor method.");
+					}
+				}
+				else if (method.isAnnotationPresent(EJIIndexedMutator.class)) {
+					if (indexedMutator == null) {
+						indexedMutator = method; 
+					}
+					else {
+						throw new EveError("EJI objects can only have one indexed mutator method.");
+					}
+				}
+				else {
+					methodNames.add(method.getName());
+				}
+			}
+		}
+		
+		for (String methodName : methodNames) {
+			EJIFunction methodInvocation = EJIFunction.fromJava(methodName, false);
+			eo.putField(methodName, EveObjectFactory.create(methodInvocation));
+		}
+		
+		if (indexedAccessor != null) {
+			EJIFunction accessor = EJIFunction.fromJava(indexedAccessor, false);
+			eo.setIndexedAccessor(EveObjectFactory.create(accessor));
+		}
+		
+		if (indexedMutator != null) {
+			EJIFunction mutator = EJIFunction.fromJava(indexedMutator, false);
+			eo.setIndexedMutator(EveObjectFactory.create(mutator));
 		}
 		
 		return eo;
@@ -546,6 +752,11 @@ public class EJIHelper {
 			throw new EveError(cl.getName() + " must have either @EJIModule or @EJIMergeModule ONLY.");
 		}
 		
+		boolean bypassTypeCoercion = false;
+		if (cl.isAnnotationPresent(EJINoCoerce.class)) {
+			bypassTypeCoercion = true;
+		}
+		
 		String namespace = "";
 		if (cl.isAnnotationPresent(EJIModule.class)) {
 			namespace = cl.getAnnotation(EJIModule.class).value();
@@ -554,7 +765,7 @@ public class EJIHelper {
 			namespace = cl.getAnnotation(EJIMergeModule.class).value();
 		}
 		
-		EveObject type = EveObject.prototypeType(namespace);
+		EveObject type = EveObjectFactory.prototypeType(namespace);
 		
 		Map<String, Method> methods = new HashMap<String, Method>();
 		Map<String, Method> properties = new HashMap<String, Method>();
@@ -582,10 +793,8 @@ public class EJIHelper {
 		}
 		
 		for (Map.Entry<String, Method> entry : methods.entrySet()) {
-			//always force the real method name (entry.getValue().getName()), but we
-			//could possibly use a custom function name (entry.getKey())
-			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName());
-			type.putField(entry.getKey(), new EveObject(methodInvocation));
+			EJIFunction methodInvocation = EJIFunction.fromStatic(cl, entry.getValue().getName(), bypassTypeCoercion);
+			type.putField(entry.getKey(), EveObjectFactory.create(methodInvocation));
 		}		
 
 		//BuiltinCommons.addType(namespace, type);

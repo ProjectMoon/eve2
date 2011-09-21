@@ -30,30 +30,52 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		EveObject value = from.execute();
 		
 		if (value.isCloneable()) {
-			value = value.eventlessClone();
+			value = value.eveClone();
 		}
 		
-		if (value.getType() == EveType.DICT) {
-			executeForPropertyCollection(value);
+		if (value.getType() == EveType.CUSTOM) {
+			executeForObject(value);
+		}
+		else if (value.getType() == EveType.PROTOTYPE) {
+			executeForType(value);
 		}
 		else if (value.getType() == EveType.FUNCTION && value.getFunctionValue().isDelegateCreator()) {
 			executeForDelegate(value);
 		}
-		else if (value.getType() == EveType.CUSTOM && value.getTypeName().equals("namespace")) {
-			executeForNamespace(value);
-		}
 		else {
-			throw new EveError("left hand of push statement must evaluate to dict, delegate, or namespace");
+			throw new EveError("invalid left hand of push statement (type must be object, delegate, or type)");
 		}
 		
 		return null;
 	}
 	
-	private void executeForPropertyCollection(EveObject clonedPropCollection) {
+	private void executeForObject(EveObject obj) {
 		EveObject eo = to.execute();
-		
-		for (Map.Entry<String, EveObject> entry : clonedPropCollection.getDictionaryValue().entrySet()) {
+
+		for (Map.Entry<String, EveObject> entry : obj.getFields().entrySet()) {
 			eo.putField(entry.getKey(), entry.getValue().getSelf());
+		}
+	}
+
+	private void executeForType(EveObject type) {
+		EveObject eo = to.execute();
+
+		for (String field : type.getFieldNames()) {
+			//make sure no one sneaks invalid crap in through getter methods. 
+			EveObject value = type.getField(field).getSelf();
+
+			//in the case of functions, only delegates are allowed to mix-in.
+			if (value.getType() == EveType.FUNCTION) {
+				if (value.getFunctionValue().isDelegateCreator()) {
+					EveObject delegatedMethod = createMixin(value);
+					eo.putField(field, delegatedMethod);
+				}
+			}
+			else {
+				//everything else.
+				value = value.eveClone();
+				eo.putField(field, value);
+			}
 		}
 	}
 	
@@ -63,33 +85,8 @@ public class PushExpression extends ExpressionStatement implements EveStatement 
 		eo.putField(delegatedMethod.getFunctionValue().getName(), delegatedMethod);
 	}
 	
-	private void executeForNamespace(EveObject ns) {
-		EveObject eo = to.execute();
-		
-		String nsName = ns.getField("ns").getStringValue();
-		EveObject nsGlobal = ScopeManager.getGlobalScope(nsName);
-		
-		for (String field : nsGlobal.getFieldNames()) {
-			//make sure no one sneaks invalid crap in through getter methods. 
-			EveObject nsField = nsGlobal.getField(field).getSelf();
-			
-			//in the case of functions, only delegates are allowed to mix-in.
-			if (nsField.getType() == EveType.FUNCTION) {
-				if (nsField.getFunctionValue().isDelegateCreator()) {
-					EveObject delegatedMethod = createMixin(nsField);
-					eo.putField(field, delegatedMethod);
-				}
-			}
-			else {
-				//everything else.
-				nsField = nsField.eventlessClone();
-				eo.putField(field, nsField);
-			}
-		}
-	}
-	
 	private EveObject createMixin(EveObject delegate) {
-		EveObject delegatedMethod = delegate.eventlessClone();
+		EveObject delegatedMethod = delegate.eveClone();
 		delegatedMethod.getFunctionValue().setDelegateCreator(false);
 		delegatedMethod.getFunctionValue().setDelegate(false);
 		delegatedMethod.getFunctionValue().setDelegateContext(null);

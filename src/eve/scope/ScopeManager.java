@@ -9,6 +9,7 @@ import java.util.Stack;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.core.EveObject.EveType;
 import eve.core.Script;
 import eve.core.builtins.BuiltinCommons;
@@ -158,7 +159,7 @@ public class ScopeManager {
 			return;
 		}
 		
-		EveObject global = EveObject.globalType();
+		EveObject global = EveObjectFactory.globalType();
 		setGlobalScope(global);
 		pushScope(global);
 		putVariable("__global", global);

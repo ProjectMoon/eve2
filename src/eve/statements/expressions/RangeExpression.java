@@ -7,6 +7,7 @@ import java.util.List;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 import eve.statements.EveStatement;
 
 public class RangeExpression extends ExpressionStatement implements EveStatement {
@@ -39,21 +40,21 @@ public class RangeExpression extends ExpressionStatement implements EveStatement
 		if (start < end) {
 			rangeList.ensureCapacity(end - start);
 			for (int c = start; c <= end; c++) {
-				rangeList.add(new EveObject(c));
+				rangeList.add(EveObjectFactory.create(c));
 			}
 		}
 		else if (start > end) {
 			rangeList.ensureCapacity(start - end);
 			for (int c = start; c >= end; c--) {
-				rangeList.add(new EveObject(c));
+				rangeList.add(EveObjectFactory.create(c));
 			}
 		}
 		else {
 			rangeList.ensureCapacity(1);
-			rangeList.add(new EveObject(0));
+			rangeList.add(EveObjectFactory.create(0));
 		}
 		
-		return new EveObject(rangeList);
+		return EveObjectFactory.create(rangeList);
 	}
 
 	@Override

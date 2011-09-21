@@ -6,6 +6,7 @@ import java.util.List;
 
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
@@ -20,16 +21,16 @@ public class NegationExpression extends ExpressionStatement implements EveStatem
 	@Override
 	public EveObject execute() {
 		EveObject op = exp.execute();
-		EveObject result = new EveObject();
+		EveObject result = null;
 		
 		if (op.getType() == EveType.INTEGER) {
 			//negate int
 			Integer res = -op.getIntValue();
-			result.setIntValue(res);
+			result = EveObjectFactory.create(res);
 		}
 		else if (op.getType() == EveType.DOUBLE) {
 			Double res = -op.getDoubleValue();
-			result.setDoubleValue(res);
+			result = EveObjectFactory.create(res);
 		}
 		else {
 			//anything else = error

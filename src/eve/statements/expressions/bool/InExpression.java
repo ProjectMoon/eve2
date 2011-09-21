@@ -7,6 +7,7 @@ import java.util.List;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
 
@@ -33,7 +34,7 @@ public class InExpression extends ExpressionStatement implements EveStatement {
 		
 		EveObject eo = op2.execute();
 		
-		return new EveObject(eo.hasField(propName.getStringValue()));
+		return EveObjectFactory.create(eo.hasField(propName.getStringValue()));
 	}
 
 	@Override

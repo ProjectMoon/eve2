@@ -1,7 +1,10 @@
 package eve.core.builtins;
 
+import eve.core.EveError;
 import eve.core.EveObject;
 import eve.eji.EJIBuiltinType;
+import eve.eji.EJIIndexedAccessor;
+import eve.eji.EJIIndexedMutator;
 import eve.eji.EJIType;
 
 /**
@@ -27,6 +30,35 @@ public class EveString extends EveObject {
 	 * @param s
 	 */
 	public EveString(String s) {
-		super(s);
+		setValue(s);
+	}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveString();
+		clone.cloneFrom(this);
+		return clone;
+	}
+	
+	public int getLength() {
+		return this.getStringValue().length();
+	}
+	
+	@EJIIndexedAccessor
+	public String get(int index) {
+		return Character.toString(this.getStringValue().charAt(index));
+	}
+	
+	@EJIIndexedMutator
+	public void set(int index, String character) {
+		if (character.length() > 1) {
+			throw new EveError("can only update single characters with strings of length 1");
+		}
+		
+		StringBuilder sb = new StringBuilder(this.getStringValue());
+		char c = character.toCharArray()[0];
+		sb.setCharAt(index, c);
+			
+		setValue(sb.toString());
 	}
 }

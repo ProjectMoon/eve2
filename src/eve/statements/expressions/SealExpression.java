@@ -4,6 +4,7 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.statements.EveStatement;
 
 public class SealExpression extends ExpressionStatement implements EveStatement {
@@ -23,11 +24,11 @@ public class SealExpression extends ExpressionStatement implements EveStatement 
 		EveObject eo = expr.execute();
 		
 		if (eo.isSealed()) {
-			return new EveObject(false);
+			return EveObjectFactory.create(false);
 		}
 				
 		eo.setSealed(true);
-		return new EveObject(true);
+		return EveObjectFactory.create(true);
 	}
 
 	@Override

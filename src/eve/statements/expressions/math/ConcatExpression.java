@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
 
@@ -20,8 +21,7 @@ public class ConcatExpression extends ExpressionStatement implements EveStatemen
 	public EveObject execute() {
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
-		EveObject eo = new EveObject();
-		eo.setStringValue(op1.toString() + op2.toString());
+		EveObject eo = EveObjectFactory.create(op1.toString() + op2.toString());
 		return eo;
 	}
 	

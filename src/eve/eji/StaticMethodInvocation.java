@@ -13,10 +13,12 @@ import eve.core.EveObject;
 class StaticMethodInvocation extends EJIFunction {
 	private Class<?> cl;
 	private String methodName;
-	
-	public StaticMethodInvocation(Class<?> cl, String methodName) {
+	private boolean bypassTypeCoercion;
+
+	public StaticMethodInvocation(Class<?> cl, String methodName, boolean bypassTypeCoercion) {
 		this.cl = cl;
 		this.methodName = methodName;
+		this.bypassTypeCoercion = bypassTypeCoercion;
 		setName(methodName);
 		setParameters("args");
 		setVarargs(true);
@@ -31,17 +33,17 @@ class StaticMethodInvocation extends EJIFunction {
 		
 		try {
 			Method meth = EJIHelper.findMethod(cl, methodName, args);
+			
+			if (meth == null) {
+				throw new EveError("static method \"" + methodName + "\" not found (Java type: " + cl.getName() + ")");
+			}
+			
 			Object[] invokeArgs = EJIHelper.mapArguments(meth.getParameterTypes(), args);
 			Object retVal = meth.invoke(null, invokeArgs);
 			
 			if (retVal != null) {
-				if (retVal instanceof EveObject) {
-					return (EveObject)retVal;
-				}
-				else {
-					EveObject eo = EJIHelper.createEJIObject(retVal);
-					return eo;
-				}
+				EveObject eo = EJIHelper.createEJIObject(retVal, bypassTypeCoercion);
+				return eo;
 			}
 			else {
 				return null;

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.statements.EveStatement;
 
 public class WrappedPrimitiveExpression extends ExpressionStatement implements EveStatement {
@@ -52,25 +53,22 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 	@Override
 	public EveObject execute() {
 		if (nullValue) {
-			return EveObject.nullType();
+			return EveObjectFactory.nullType();
 		}
 		else if (intOp != null) {
-			return new EveObject(intOp);
+			return EveObjectFactory.create(intOp);
 		}
 		else if (stringOp != null) {
-			return new EveObject(stringOp);
+			return EveObjectFactory.create(stringOp);
 		}
 		else if (doubleOp != null) {
-			return new EveObject(doubleOp);
+			return EveObjectFactory.create(doubleOp);
 		}
 		else if (booleanOp != null) {
-			return new EveObject(booleanOp);
+			return EveObjectFactory.create(booleanOp);
 		}
 		else if (listOp != null) {
-			return new EveObject(listOp);
-		}
-		else if (dictOp != null) {
-			return new EveObject(dictOp);
+			return EveObjectFactory.create(listOp);
 		}
 		else {
 			throw new EveError("unable to assign wrapped primitive");
@@ -79,7 +77,7 @@ public class WrappedPrimitiveExpression extends ExpressionStatement implements E
 			
 	private Object getOp() {
 		if (nullValue) {
-			return EveObject.nullType();
+			return EveObjectFactory.nullType();
 		}
 		else if (intOp != null) {
 			return intOp;

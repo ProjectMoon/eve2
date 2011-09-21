@@ -7,7 +7,7 @@ import eve.core.EveObject;
  * has a global type attached to it. It is best to think of the global type
  * as a scope container. This type is not annotated with EJIType because
  * it must exist before the EJIScanner runs. It is added to the type pool
- * immediately, along with EveFunction.
+ * immediately.
  * @author jeff
  *
  */
@@ -20,5 +20,12 @@ public class EveGlobal extends EveObject {
 	public EveGlobal() {
 		setType(EveType.PROTOTYPE);
 		setTypeName("global");
+	}
+	
+	@Override
+	public EveObject eveClone() {
+		EveObject clone = new EveGlobal();
+		clone.cloneFrom(this);
+		return clone;
 	}
 }

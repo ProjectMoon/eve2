@@ -7,6 +7,7 @@ import java.util.List;
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 import eve.interpreter.ErrorHandler;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
@@ -23,22 +24,22 @@ public class DivisionExpression extends ExpressionStatement implements EveStatem
 	public EveObject execute() {
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
-		EveObject result = new EveObject();
+		EveObject result = null;
 		
-		Object v1 = op1.getObjectValue();
-		Object v2 = op2.getObjectValue();
+		Object v1 = op1.getValue();
+		Object v2 = op2.getValue();
 		
 		if (v1 instanceof Integer && v2 instanceof Integer) {
-			result = new EveObject((Integer)v1 / (Integer)v2);
+			result = EveObjectFactory.create((Integer)v1 / (Integer)v2);
 		}
 		else if (v1 instanceof Double && v2 instanceof Double) {
-			result = new EveObject((Double)v1 / (Double)v2);
+			result = EveObjectFactory.create((Double)v1 / (Double)v2);
 		}
 		else if (v1 instanceof Integer && v2 instanceof Double) {
-			result = new EveObject((Integer)v1 / (Double)v2);
+			result = EveObjectFactory.create((Integer)v1 / (Double)v2);
 		}
 		else if (v1 instanceof Double && v2 instanceof Integer) {
-			result = new EveObject((Double)v1 / (Integer)v2);
+			result = EveObjectFactory.create((Double)v1 / (Integer)v2);
 		}
 		else {
 			//anything else = error

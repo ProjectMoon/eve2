@@ -6,6 +6,7 @@ import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.core.EveObject.EveType;
 import eve.core.builtins.BuiltinCommons;
 import eve.eji.ExternalTypes;
@@ -47,7 +48,7 @@ public class TypedefStatement extends AbstractStatement implements EveStatement 
 				type = expr.execute();
 			}
 			else {
-				type = EveObject.customType(ident);
+				type = EveObjectFactory.customType(ident);
 			}
 		}
 		else {
@@ -57,7 +58,7 @@ public class TypedefStatement extends AbstractStatement implements EveStatement 
 			}
 		}
  
-		type = type.eventlessClone();
+		type = type.eveClone();
 		type.setType(EveType.PROTOTYPE);
 		type.setTypeName(ident);
 		

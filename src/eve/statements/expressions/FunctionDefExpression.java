@@ -7,6 +7,7 @@ import java.util.List;
 
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 import eve.core.Function;
 import eve.scope.ConstructionScope;
 import eve.scope.ScopeManager;
@@ -92,15 +93,15 @@ public class FunctionDefExpression extends ExpressionStatement implements EveSta
 			func.setPossibleClosure(true);
 		}
 
-		//with statement scope?
+		//with statement scope? TODO: make sure this ghetto check actually still works. maybe create a WITH_SCOPE internal type...
 		if (ScopeManager.getCurrentScope().getType() == EveType.SCOPE &&
-				ScopeManager.getCurrentScope().getTypeName().equals(EveObject.WITH_STATEMENT_TYPENAME)) {
+				ScopeManager.getCurrentScope().getTypeName().equals("with")) {
 			EveObject with = ScopeManager.getCurrentScope();
 			func.setWithScope(with);
 			func.setClosure(true);
 		}
 		
-		EveObject eo = new EveObject(func);
+		EveObject eo = EveObjectFactory.create(func);
 		eo.recursePossibleClosures(null);
 		return eo;
 	}

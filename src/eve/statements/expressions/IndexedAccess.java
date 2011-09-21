@@ -27,31 +27,33 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 	@Override
 	public EveObject execute() {
 		EveObject eo = getObjExpression().execute();
+		EveObject index = getAccessExpression().execute();
 		
-		if (eo.getType() != EveType.LIST && eo.getType() != EveType.STRING && eo.getType() != EveType.DICT) {
-			throw new EveError(eo + " is not an indexed object.");			
-		}
-		
-		if (eo.getType() == EveType.LIST || eo.getType() == EveType.STRING) {
+		/*
+		if (eo.getType() == EveType.LIST) {
 			EveObject index = getAccessExpression().execute();
 			
 			if (index.getType() != EveType.INTEGER) {
 				throw new EveError("cannot use " + index + " to access " + eo);
 			}
 			
-			return eo.getIndexedProperty(index.getIntValue());
+			return eo.getField(index.getIntValue());
 		}
-		else if (eo.getType() == EveType.DICT) {
-			EveObject key = getAccessExpression().execute();
+		else if (eo.getType() == EveType.STRING) {
 			
-			if (key.getType() != EveType.STRING) {
-				throw new EveError("cannot use " + key + " to access " + eo);
-			}
-			
-			return eo.getDictValue(key.getStringValue());
 		}
 		else {
 			return null;
+		}*/
+		
+		if (index.getType() == EveType.INTEGER) {
+			return eo.getField(index.getIntValue());
+		}
+		else if (index.getType() == EveType.STRING) {
+			return eo.getField(index.getStringValue());
+		}
+		else {
+			throw new EveError("Indexed accessor must be integer or string.");
 		}
 	}
 
@@ -88,27 +90,25 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 			throw new EveError("object is sealed.");
 		}
 		
+		String fieldName = null;
+		
 		if (index.getType() == EveType.INTEGER) {
-			EveObject existing = eo.getIndexedProperty(index.getIntValue());
-			
-			if (existing != null && existing.isMarkedForClone()) {
-				existing.deepClone();
-			}
-			
-			eo.setIndexedProperty(index.getIntValue(), value);
+			fieldName = Integer.toString(index.getIntValue());
 		}
 		else if (index.getType() == EveType.STRING) {
-			EveObject existing = eo.getDictValue(index.getStringValue());
-			
-			if (existing != null && existing.isMarkedForClone()) {
-				existing.deepClone();
-			}
-			
-			eo.putDictValue(index.getStringValue(), value);
+			fieldName = index.getStringValue();
 		}
 		else {
-			throw new EveError("invalid indexed accessor type");
-		}		
+			throw new EveError("Indexed accessor must be integer or string.");
+		}
+		
+		EveObject existing = eo.getField(fieldName);
+		
+		if (existing != null && existing.isMarkedForClone()) {
+			existing.deepClone();
+		}
+		
+		eo.putField(fieldName, value);
 	}
 	
 	@Override
@@ -119,8 +119,16 @@ public class IndexedAccess extends ExpressionStatement implements EveStatement, 
 		if (eo.isSealed()) {
 			throw new EveError("object is sealed.");
 		}
-		
-		return eo.deleteIndexedProperty(index);
+				
+		if (index.getType() == EveType.INTEGER) {
+			return eo.deleteField(Integer.toString(index.getIntValue()));
+		}
+		else if (index.getType() == EveType.STRING) {
+			return eo.deleteField(index.getStringValue());
+		}
+		else {
+			throw new EveError("Indexed accessor must be integer or string.");
+		}
 	}
 
 	@Override

@@ -1,0 +1,6 @@
+current issue:
+- happens with the BareObject (possibly others)
+- toString for EveObjects gets wrapped as an EJI Function.
+- calling toString will pull the toString field.
+- when invoked, it calls the java toString method of EveObject
+- thus, infinite loop.

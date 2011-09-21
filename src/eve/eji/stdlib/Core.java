@@ -25,7 +25,6 @@ import eve.scope.ScopeManager;
  * @author jeff
  *
  */
-//@EJIModule("core")
 @EJIMergeModule("global")
 public class Core {
 	private static final List<File> IMPORTED_FILES = new ArrayList<File>();

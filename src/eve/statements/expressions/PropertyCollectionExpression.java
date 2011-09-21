@@ -2,11 +2,11 @@ package eve.statements.expressions;
 
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.List;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.core.EveObject.EveType;
 import eve.statements.EveStatement;
 
@@ -30,7 +30,7 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 
 	@Override
 	public EveObject execute() {
-		EveObject dict = new EveObject(new HashMap<String, EveObject>());
+		EveObject collection = EveObjectFactory.customType("property_collection");
 		EveObject eo = objExpr.execute();
 	
 		if (props != null) {
@@ -44,7 +44,7 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 				String prop = propObj.getStringValue();
 				
 				if (eo.getFieldNames().contains(prop)) {
-					dict.putDictValue(prop, eo.getField(prop));
+					collection.putField(prop, eo.getField(prop));
 				}
 				else {
 					throw new EveError("property " + prop + " not found on object " + eo);
@@ -54,11 +54,29 @@ public class PropertyCollectionExpression extends ExpressionStatement implements
 		else {
 			//this supports the "all" version.
 			for (String propName : eo.getFieldNames()) {
-				dict.putDictValue(propName, eo.getField(propName));
+				collection.putField(propName, eo.getField(propName));
 			}			
 		}
 		
-		return dict;
+		//creates a dictionary-like representation of this collection.
+		String str = "[";
+		
+		for (String propName : collection.getFieldNames()) {
+			str += propName + " = " + collection.getField(propName) + ", ";
+		}
+		
+		if (str.length() > 1) {
+			str = str.substring(0, str.length() - 2);
+		}
+		
+		str += "]";
+		str = "<property_collection "  + str + ">";
+		
+		
+		collection.setStringRepresentation(str);
+		collection.setSealed(true);
+		
+		return collection;
 	}
 
 	@Override

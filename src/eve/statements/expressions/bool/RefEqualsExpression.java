@@ -5,6 +5,7 @@ import java.util.Deque;
 import java.util.List;
 
 import eve.core.EveObject;
+import eve.core.EveObjectFactory;
 import eve.statements.EveStatement;
 import eve.statements.expressions.ExpressionStatement;
 
@@ -21,7 +22,7 @@ public class RefEqualsExpression extends ExpressionStatement implements EveState
 		EveObject op1 = exp1.execute();
 		EveObject op2 = exp2.execute();
 		
-		EveObject res = new EveObject(op1 == op2);
+		EveObject res = EveObjectFactory.create(op1 == op2);
 		return res;
 	}
 	
