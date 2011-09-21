@@ -195,7 +195,7 @@ ifStatement
 
 //Expressions
 json
-	:	name=IDENT? '{' (jsonEntry (',' jsonEntry)*)* '}' -> ^(JSON ^(JSON_NAME $name?) jsonEntry*)	
+	:	'{' (jsonEntry (',' jsonEntry)*)* '}' -> ^(JSON jsonEntry*)	
 	;
 	
 jsonEntry

@@ -104,7 +104,6 @@ topdown
 	|	whileLoopDown
 	|	functionBodyDown
 	|	jsonDown
-	|	jsonNameDown
 	|	jsonEntryDown
 	|	typedefDown
 	;
@@ -137,12 +136,6 @@ jsonUp
 		}
 	;
 
-jsonNameDown
-	:	^(JSON_NAME IDENT) {
-			((JSONExpression)ScopeManager.getCurrentConstructionScope()).setName($IDENT.text);
-		}
-	;
-	
 jsonEntryDown
 	:	^(JSON_ENTRY IDENT e=expression) {
 			JSONEntry entry = new JSONEntry($IDENT.text, e);
