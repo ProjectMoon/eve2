@@ -8,7 +8,6 @@ import eve.core.builtins.BuiltinCommons;
 import eve.core.builtins.EveBoolean;
 import eve.core.builtins.EveBuiltinObject;
 import eve.core.builtins.EveDouble;
-import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveFunctionPrototype;
 import eve.core.builtins.EveInteger;
 import eve.core.builtins.EveJava;
