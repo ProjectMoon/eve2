@@ -16,7 +16,9 @@ public class EveDouble extends EveObject {
 	 * For prototypes, the empty constructor is used when cloning from it.
 	 * Usually used by literals (sometimes other stuff).
 	 */
-	public EveDouble() {}
+	public EveDouble() {
+		setValue(0.0);
+	}
 	
 	/**
 	 * For prototypes, a value-based constructor serves as a way to create

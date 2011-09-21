@@ -5,7 +5,7 @@ import java.util.TreeMap;
 
 import eve.core.EveError;
 import eve.core.EveObject;
-import eve.eji.DynamicField;
+import eve.eji.EJIField;
 import eve.eji.EJIBuiltinType;
 import eve.eji.EJIHelper;
 import eve.eji.EJIIndexedAccessor;
@@ -15,7 +15,9 @@ import eve.eji.EJIType;
 @EJIType("list")
 @EJIBuiltinType
 public class EveList extends EveObject {
-	public EveList() {}
+	public EveList() {
+		
+	}
 	
 	public EveList(List<EveObject> l) {
 		if (l != null) {

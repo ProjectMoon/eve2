@@ -4,18 +4,20 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import javassist.Modifier;
 
 import eve.core.EveError;
 import eve.core.EveObject;
+import eve.core.EveObject.EveType;
+import eve.core.EveObjectFactory;
 
-class EJIField extends DynamicField {
+public class EJIField {
 	private boolean isStatic = false;
 	private boolean readOnly = false;
 	
 	//For non-static.
-	private Object context;
 	private PropertyDescriptor pd;
 	
 	//For static.
@@ -26,8 +28,7 @@ class EJIField extends DynamicField {
 	 * @param context
 	 * @param pd
 	 */
-	public EJIField(Object context, PropertyDescriptor pd) {
-		this.context = context;
+	public EJIField(PropertyDescriptor pd) {
 		this.pd = pd;
 	}
 	
@@ -41,7 +42,6 @@ class EJIField extends DynamicField {
 		this.readOnly = true;
 	}
 	
-	@Override
 	public EveObject get() {
 		try {
 			Object o = null;
@@ -54,6 +54,7 @@ class EJIField extends DynamicField {
 				o = method.invoke(null, (Object[])null);
 			}
 			else {
+				Object context = EJIHelper.self();
 				o = pd.getReadMethod().invoke(context, (Object[])null);
 			}
 
@@ -73,8 +74,9 @@ class EJIField extends DynamicField {
 			throw new EveError(e.getMessage());
 		}
 		catch (InvocationTargetException e) {
-			throw new EveError(e.getMessage());
-		} catch (IntrospectionException e) {
+			throw new EveError(e.getCause().getMessage());
+		}
+		catch (IntrospectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -82,7 +84,6 @@ class EJIField extends DynamicField {
 		return null;
 	}
 
-	@Override
 	public void set(EveObject value) {
 		if (readOnly) {
 			throw new EveError("This property is read-only.");
@@ -94,6 +95,7 @@ class EJIField extends DynamicField {
 				throw new EveError("This property is read-only.");
 			}
 			
+			Object context = EJIHelper.self();
 			writeMethod.invoke(context, new Object[] { value.getValue() });
 		}
 		catch (IllegalArgumentException e) {
@@ -103,7 +105,43 @@ class EJIField extends DynamicField {
 			throw new EveError(e.getMessage());
 		}
 		catch (InvocationTargetException e) {
-			throw new EveError(e.getMessage());
+			//an error happened in the java code.
+			if (e.getCause() != null) {
+				throw new EveError(e.getCause().getMessage());
+			}
+			else {
+				throw new EveError(e.getMessage());
+			}
 		}			
+	}
+	
+	public EveObject createObject() {
+		class DynamicGetter extends EJIFunction {
+			@Override
+			public EveObject execute(Map<String, EveObject> parameters) {
+				return EJIField.this.get();
+			}
+		}
+		
+		class DynamicSetter extends EJIFunction {
+			public DynamicSetter() {
+				setParameters("value");
+			}
+
+			@Override
+			public EveObject execute(Map<String, EveObject> parameters) {
+				EveObject value = parameters.get("value");
+				EJIField.this.set(value);
+				return null;
+			}
+		}
+		
+		//TODO: investigate why using customType (which calls ejiInit) causes an
+		//infinite loop here.
+		EveObject eo = EveObjectFactory.empty();
+		eo.setTypeName("eji_field");
+		eo.putField("get", EveObjectFactory.create(new DynamicGetter()));
+		eo.putField("set", EveObjectFactory.create(new DynamicSetter()));
+		return eo;
 	}
 }

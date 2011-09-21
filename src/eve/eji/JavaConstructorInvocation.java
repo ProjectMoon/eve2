@@ -48,7 +48,13 @@ class JavaConstructorInvocation extends EJIFunction {
 			e.printStackTrace();
 		}
 		catch (InvocationTargetException e) {
-			throw new EveError(e.getCause().getMessage());
+			//an error happened in the java code.
+			if (e.getCause() != null) {
+				throw new EveError(e.getCause().getMessage());
+			}
+			else {
+				throw new EveError(e.getMessage());
+			}
 		}
 		catch (InstantiationException e) {
 			// TODO Auto-generated catch block

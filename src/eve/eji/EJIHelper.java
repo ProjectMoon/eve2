@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hamcrest.core.IsEqual;
-
 import javassist.Modifier;
 
 import com.google.common.base.Predicate;
@@ -32,7 +30,6 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObjectFactory;
 import eve.core.EveObject.EveType;
-import eve.core.builtins.BuiltinCommons;
 import eve.core.Function;
 import eve.scope.ScopeManager;
 
@@ -539,13 +536,91 @@ public class EJIHelper {
 		eo.putField("__create", ctor);
 		return eo;
 	}
+	
+	public static EveObject createEJIType(Class<?> type, boolean bypassTypeCoercion) throws IntrospectionException, InstantiationException, IllegalAccessException {
+		//step 0: get type name.
+		String typename = null;
+		if (type.isAnnotationPresent(EJIType.class)) {
+			typename = type.getAnnotation(EJIType.class).value();
+		}
+		else {
+			typename = type.getSimpleName(); 
+		}
+		
+		EveObject eo = null;
+		if (EveObject.class.isAssignableFrom(type)) {
+			eo = (EveObject)type.newInstance();
+		}
+		else {
+			eo = EveObjectFactory.prototypeType(typename);
+		}
+		
+		//step 1: get constructor for __create (assigned later).
+		EveObject ctor = createEJIConstructor(type, bypassTypeCoercion);
+		
+		//step 2: add all static fields/properties
+		Map<String, Method> staticMethods = new HashMap<String, Method>();
+		Map<String, Method> staticProperties = new HashMap<String, Method>();
+	
+		for (Method method : type.getMethods()) {
+			if (Modifier.isStatic(method.getModifiers())) {
+				if (method.isAnnotationPresent(EJIProperty.class)) {
+					staticProperties.put(method.getAnnotation(EJIProperty.class).value(), method);
+				}
+				else {
+					if (method.isAnnotationPresent(EJIFunctionName.class)) {
+						staticMethods.put(method.getAnnotation(EJIFunctionName.class).value(), method);
+					}
+					else {
+						staticMethods.put(method.getName(), method);
+					}
+				}
+			}
+		}
+		
+		for (Map.Entry<String, Method> entry : staticProperties.entrySet()) {
+			EJIField field = new EJIField(entry.getValue());
+			eo.putField(entry.getKey(), field);
+		}
+		
+		for (Map.Entry<String, Method> entry : staticMethods.entrySet()) {
+ 			EJIFunction methodInvocation = EJIFunction.fromStatic(type, entry.getValue().getName(), bypassTypeCoercion);
+			eo.putField(entry.getKey(), EveObjectFactory.create(methodInvocation));
+		}
+			
+		//step 3: instance properties.
+		try {
+			Object o = type.newInstance();
+			
+			//step 4: add all instance properties.
+			EveObject ejiObj = createEJIObject(o, bypassTypeCoercion);
+			eo.mergeFrom(ejiObj);
+			
+			//step 5: set java value to the instance.
+			eo.setValue(o);
+			eo.setInternalType(EveType.PROTOTYPE); //fix internal type change from setValue.
+			
+			//almost certainly overwritten by the merge. this is a weird case that doesn't happen
+			//unless merging between two EveType.PROTOTYPE objects with __create fields.
+			eo.putField("__create", ctor); 
+			
+			return eo;
+		}
+		catch (IllegalAccessException e) {
+			throw new EveError(e.getMessage());
+		}
+		catch (InstantiationException e) {
+			throw new EveError(e.getMessage());
+		}
+	}
 
 	/**
 	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
 	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
-	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
-	 * functions. This method will do automatic type coercion for the Java types that Eve considers
-	 * built-in. Thus, Strings will become wrapped EveStrings, Integers will become wrapped EveIntegers,
+	 * into {@link EJIField}s, and all methods are attached to the wrapped object as callable
+	 * functions. Static methods are ignored. This method will do automatic type coercion for
+	 * the Java types that Eve considers built-in. Thus, Strings will become wrapped EveStrings,
+	 * Integers will become wrapped EveIntegers,
 	 * etc.
 	 * @param obj
 	 * @return The wrapped type.
@@ -559,9 +634,10 @@ public class EJIHelper {
 	/**
 	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
 	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
-	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
-	 * functions. This method allows optional bypassing of type coercion. If bypassTypeCoercion is
-	 * true, the method will not attempt to change Strings to EveStrings, Integers to EveIntegers, etc.
+	 * into {@link EJIField}s, and all methods are attached to the wrapped object as callable
+	 * functions. Static methods are ignored. This method allows optional bypassing of type
+	 * coercion. If bypassTypeCoercion is true, the method will not attempt to change Strings
+	 * to EveStrings, Integers to EveIntegers, etc.
 	 * @param obj
 	 * @param bypassTypeCoercion If true, will not attempt to coerce certain Java types to their Eve counterparts (ex: String -> EveString)
 	 * @return The wrapped type.
@@ -583,7 +659,7 @@ public class EJIHelper {
 		
 		//handle properties
 		for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
-			eo.putField(pd.getName(), new EJIField(obj, pd));	
+			eo.putField(pd.getName(), new EJIField(pd));	
 		}
 		
 		//handle methods
@@ -592,24 +668,26 @@ public class EJIHelper {
 		Method indexedMutator = null;
 		
 		for (MethodDescriptor md : info.getMethodDescriptors()) {
-			if (md.getMethod().isAnnotationPresent(EJIIndexedAccessor.class)) {
-				if (indexedAccessor == null) {
-					indexedAccessor = md.getMethod(); 
+			if (Modifier.isStatic(md.getMethod().getModifiers()) == false) {
+				if (md.getMethod().isAnnotationPresent(EJIIndexedAccessor.class)) {
+					if (indexedAccessor == null) {
+						indexedAccessor = md.getMethod(); 
+					}
+					else {
+						throw new EveError("EJI objects can only have one indexed accessor method.");
+					}
+				}
+				else if (md.getMethod().isAnnotationPresent(EJIIndexedMutator.class)) {
+					if (indexedMutator == null) {
+						indexedMutator = md.getMethod(); 
+					}
+					else {
+						throw new EveError("EJI objects can only have one indexed mutator method.");
+					}
 				}
 				else {
-					throw new EveError("EJI objects can only have one indexed accessor method.");
+					methodNames.add(md.getMethod().getName());
 				}
-			}
-			else if (md.getMethod().isAnnotationPresent(EJIIndexedMutator.class)) {
-				if (indexedMutator == null) {
-					indexedMutator = md.getMethod(); 
-				}
-				else {
-					throw new EveError("EJI objects can only have one indexed mutator method.");
-				}
-			}
-			else {
-				methodNames.add(md.getMethod().getName());
 			}
 		}
 		
@@ -669,7 +747,7 @@ public class EJIHelper {
 	 * Special case for creating EJI objects when the object we are trying to wrap happens to be an EveObject
 	 * already. In this case, any annotated properties and methods that are NOT inherited (since a lot of
 	 * stuff comes from EveObject itself) are added as properties/methods. It will not add the eveClone method
-	 * to the object either.
+	 * to the object either. Static methods are ignored.
 	 * @param eo
 	 * @return
 	 * @throws IntrospectionException 
@@ -682,7 +760,7 @@ public class EJIHelper {
 		//properties
 		for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
 			if (methods.contains(pd.getReadMethod()) || methods.contains(pd.getWriteMethod())) {
-				eo.putField(pd.getName(), new EJIField(eo, pd));
+				eo.putField(pd.getName(), new EJIField(pd));
 			}
 		}
 		
@@ -692,7 +770,7 @@ public class EJIHelper {
 		Method indexedMutator = null;
 		
 		for (Method method : methods) {
-			if (Modifier.isPublic(method.getModifiers()) && method.getName().equals("eveClone") == false) {				
+			if (Modifier.isStatic(method.getModifiers()) == false && Modifier.isPublic(method.getModifiers()) && method.getName().equals("eveClone") == false) {				
 				if (method.isAnnotationPresent(EJIIndexedAccessor.class)) {
 					if (indexedAccessor == null) {
 						indexedAccessor = method; 
@@ -745,7 +823,7 @@ public class EJIHelper {
 	 */
 	public static EveObject createEJIModuleType(Class<?> cl) {
 		if (!cl.isAnnotationPresent(EJIModule.class) && !cl.isAnnotationPresent(EJIMergeModule.class)) {
-			throw new EveError(cl.getName() + " is not a valid EJI namespace.");
+			throw new EveError(cl.getName() + " is not a valid EJI module.");
 		}
 		
 		if (cl.isAnnotationPresent(EJIModule.class) && cl.isAnnotationPresent(EJIMergeModule.class)) {
