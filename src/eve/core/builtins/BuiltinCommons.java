@@ -7,7 +7,7 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObject.EveType;
 import eve.core.EveObjectFactory;
-import eve.eji.DynamicField;
+import eve.eji.EJIField;
 import eve.eji.EJIHelper;
 
 /**
@@ -76,22 +76,7 @@ public class BuiltinCommons {
 	 * @return The EveObject.
 	 */
 	public static EveObject initialize(EveObject prototype) {
-		prototype.putField("type", typeProperty());
+		//prototype.putField("type", typeProperty());
 		return prototype;
-	}
-	
-	private static DynamicField typeProperty() {
-		return new DynamicField() {
-			@Override
-			public EveObject get() {
-				EveObject self = (EveObject)EJIHelper.self(); //TODO: hope this is right! better yet, just fix the type property to use annotations
-				return EveObjectFactory.create(self.getTypeName());
-			}
-
-			@Override
-			public void set(EveObject value) {
-				throw new EveError("type is a read-only property");
-			}
-		};
 	}
 }

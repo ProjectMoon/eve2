@@ -6,7 +6,7 @@ import java.util.Map;
 
 import eve.core.EveObject;
 import eve.core.EveObjectFactory;
-import eve.eji.DynamicField;
+import eve.eji.EJIField;
 import eve.eji.EJIHelper;
 import eve.eji.EJIType;
 

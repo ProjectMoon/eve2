@@ -11,7 +11,7 @@ import java.util.PriorityQueue;
 import java.util.TreeMap;
 
 import eve.core.builtins.BuiltinCommons;
-import eve.eji.DynamicField;
+import eve.eji.EJIField;
 import eve.hooks.HookManager;
 import eve.scope.ScopeManager;
 
@@ -308,12 +308,12 @@ public abstract class EveObject {
 		this.fields.put(name, eo);
 	}
 	
-	public void putField(String name, DynamicField ejiField) {
+	public void putField(String name, EJIField ejiField) {
 		EveObject eji = ejiField.createObject();
 		putField(name, eji);
 	}
 	
-	public void putField(int index, DynamicField ejiField) {
+	public void putField(int index, EJIField ejiField) {
 		putField(Integer.toString(index), ejiField);
 	}
 	
@@ -337,12 +337,12 @@ public abstract class EveObject {
 		putTempField(Integer.toString(index), eo);
 	}
 	
-	public void putTempField(String name, DynamicField ejiField) {
+	public void putTempField(String name, EJIField ejiField) {
 		EveObject eji = ejiField.createObject();
 		putTempField(name, eji);		
 	}
 	
-	public void putTempField(int index, DynamicField ejiField) {
+	public void putTempField(int index, EJIField ejiField) {
 		putTempField(Integer.toString(index), ejiField);
 	}
 	

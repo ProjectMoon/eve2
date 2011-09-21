@@ -582,7 +582,7 @@ public class EJIHelper {
 	/**
 	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
 	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
-	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
+	 * into {@link EJIField}s, and all methods are attached to the wrapped object as callable
 	 * functions. This method will do automatic type coercion for the Java types that Eve considers
 	 * built-in. Thus, Strings will become wrapped EveStrings, Integers will become wrapped EveIntegers,
 	 * etc.
@@ -598,7 +598,7 @@ public class EJIHelper {
 	/**
 	 * Given any object, creates a Java wrapper EveObject around it. The wrapper object uses
 	 * bean introspection to produce the EveObject. Thus, all get* and set* methods are changed
-	 * into {@link DynamicField}s, and all methods are attached to the wrapped object as callable
+	 * into {@link EJIField}s, and all methods are attached to the wrapped object as callable
 	 * functions. This method allows optional bypassing of type coercion. If bypassTypeCoercion is
 	 * true, the method will not attempt to change Strings to EveStrings, Integers to EveIntegers, etc.
 	 * @param obj
