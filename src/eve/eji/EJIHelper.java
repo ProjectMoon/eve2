@@ -107,15 +107,26 @@ public class EJIHelper {
 	public static Object self() {
 		EveObject self = ScopeManager.getVariable("self");
 		
-		//if we are a child of eveobject
-		if (self.getInternalType() == EveType.JAVA) {
-			return self.getJavaValue();
+		if (self.getInternalType() == EveType.PROTOTYPE) {
+			if (EveObjectFactory.isBare(self)) {
+				//we are POJO prototype, i.e. we do not extend EveObject.
+				return self.getValue();
+			}
+			else {
+				//we must extend EveObject.
+				return self;
+			}
 		}
-		else if (self instanceof EveObject) {
-			return self;
-		}	
 		else {
-			return null; //not sure about this.
+			if (self.getInternalType() == EveType.JAVA) {
+				return self.getJavaValue();
+			}
+			else if (self instanceof EveObject) {
+				return self;
+			}	
+			else {
+				return null; //not sure about this.
+			}
 		}
 		
 		
@@ -520,20 +531,6 @@ public class EJIHelper {
 	public static EveObject createEJIConstructor(Class<?> type, boolean bypassTypeCoercion) {
 		EJIFunction ctorFunc = new JavaConstructorInvocation(type, bypassTypeCoercion);
 		EveObject eo = EveObjectFactory.create(ctorFunc);
-		return eo;
-	}
-	
-	/**
-	 * Given a type name and an EJI constructor (obtained from {@link #createEJIConstructor(Class)}),
-	 * creates an Eve type object for use with the type pool.
-	 * @param ctor
-	 * @param typeName
-	 * @return An Eve type.
-	 * @throws IntrospectionException
-	 */
-	public static EveObject createEJIType(String typeName, EveObject ctor) throws IntrospectionException {
-		EveObject eo = EveObjectFactory.prototypeType(typeName);
-		eo.putField("__create", ctor);
 		return eo;
 	}
 	

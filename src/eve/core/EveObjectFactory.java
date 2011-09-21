@@ -29,9 +29,20 @@ public class EveObjectFactory {
 		@Override
 		public EveObject eveClone() {
 			EveObject eo = new BareObject();
-			eo.mergeFrom(this);
+			eo.cloneFrom(this);
 			return eo;
 		}
+	}
+	
+	/**
+	 * Determine whether or not the specified EveObject is a "bare" object.
+	 * Bare objects are minimal EveObjects. Object literals and POJO EJI
+	 * types are wrapped in bare objects.
+	 * @param eo
+	 * @return true if the object is bare, false otherwise.
+	 */
+	public static boolean isBare(EveObject eo) {
+		return eo.getClass() == BareObject.class;
 	}
 	
 	public static EveObject empty() {
