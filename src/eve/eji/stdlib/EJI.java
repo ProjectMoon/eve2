@@ -93,6 +93,7 @@ public class EJI {
 			
 			pkgContainer.putField(simpleName, ctorFunc);
 			if (exposeType) {
+				//TODO: should we switch to the new createEJIType(Class<?>) here?
 				BuiltinCommons.addType(simpleName, EJIHelper.createEJIType(simpleName, ctorFunc));
 			}
 		}

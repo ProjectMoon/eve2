@@ -42,6 +42,10 @@ public class EveString extends EveObject {
 		return clone;
 	}
 	
+	public static void test() {
+		System.out.println("testing");
+	}
+	
 	public int getLength() {
 		return this.getStringValue().length();
 	}

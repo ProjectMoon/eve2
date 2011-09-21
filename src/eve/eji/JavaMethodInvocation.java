@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javassist.Modifier;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 
@@ -55,10 +57,15 @@ class JavaMethodInvocation extends EJIFunction {
 		try {
 			o = EJIHelper.self();
 			Method meth = (method != null) ? method : EJIHelper.findMethod(o.getClass(), methodName, args);
-			
+						
 			if (meth == null) {
 				String methName = (method != null) ? method.getName() : methodName;
 				throw new EveError("method \"" + methName + "\" not found on " + o + " (Java type: " + o.getClass().getName() + ")");
+			}
+			
+			//in case a static method slips in.
+			if (Modifier.isStatic(meth.getModifiers())) {
+				o = null;
 			}
 			
 			Object[] invokeArgs = EJIHelper.mapArguments(meth.getParameterTypes(), args);
