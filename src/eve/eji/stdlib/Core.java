@@ -75,43 +75,6 @@ public class Core {
 	}
 	
 	private static void attemptEJIImport(String className) {
-		//if this is not a file, try to load a class instead.
-		try {
-			importEJINamespace(className);
-		}
-		catch (ClassNotFoundException e) {
-			//now try short-form class, based on @EJINamespace value (and possibly package)
-			if (className.contains(":")) {
-				String[] pkgAndNS = className.split(":");
-				importNamespace(pkgAndNS[0], pkgAndNS[1]);
-			}
-			else {
-				importNamespace("eve.eji.stdlib", className);
-			}
-		}
-	}
-	
-	private static void importNamespace(String pkg, String namespace) {
-		Class<?> cl = EJIScanner.findNamespace(pkg, namespace);
-		
-		if (cl != null) {
-			importEJINamespace(cl);
-		}
-		else {
-			throw new EveError("Could not find namespace " + namespace);
-		}
-	}
-	
-	private static void importEJINamespace(String className) throws ClassNotFoundException {
-		Class<?> cl = Class.forName(className);
-		importEJINamespace(cl);
-	}
-	
-	private static void importEJINamespace(Class<?> cl) {	
-		if (!IMPORTED_CLASSES.contains(cl)) {
-			EveObject module = EJIHelper.createEJIModuleType(cl);
-			BuiltinCommons.addType(cl.getAnnotation(EJIModule.class).value(), module);
-			IMPORTED_CLASSES.add(cl);
-		}
+		throw new EveError("need to reimplement EJI imports. use typedef extern instead.");
 	}
 }

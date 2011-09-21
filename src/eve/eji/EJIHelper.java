@@ -537,7 +537,7 @@ public class EJIHelper {
 		return eo;
 	}
 	
-	public static EveObject createEJIType(Class<?> type, boolean bypassTypeCoercion) throws IntrospectionException {
+	public static EveObject createEJIType(Class<?> type, boolean bypassTypeCoercion) throws IntrospectionException, InstantiationException, IllegalAccessException {
 		//step 0: get type name.
 		String typename = null;
 		if (type.isAnnotationPresent(EJIType.class)) {
@@ -547,7 +547,13 @@ public class EJIHelper {
 			typename = type.getSimpleName(); 
 		}
 		
-		EveObject eo = EveObjectFactory.prototypeType(typename);
+		EveObject eo = null;
+		if (EveObject.class.isAssignableFrom(type)) {
+			eo = (EveObject)type.newInstance();
+		}
+		else {
+			eo = EveObjectFactory.prototypeType(typename);
+		}
 		
 		//step 1: get constructor for __create (assigned later).
 		EveObject ctor = createEJIConstructor(type, bypassTypeCoercion);
@@ -817,7 +823,7 @@ public class EJIHelper {
 	 */
 	public static EveObject createEJIModuleType(Class<?> cl) {
 		if (!cl.isAnnotationPresent(EJIModule.class) && !cl.isAnnotationPresent(EJIMergeModule.class)) {
-			throw new EveError(cl.getName() + " is not a valid EJI namespace.");
+			throw new EveError(cl.getName() + " is not a valid EJI module.");
 		}
 		
 		if (cl.isAnnotationPresent(EJIModule.class) && cl.isAnnotationPresent(EJIMergeModule.class)) {

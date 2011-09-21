@@ -15,7 +15,9 @@ import eve.eji.EJIType;
 @EJIType("list")
 @EJIBuiltinType
 public class EveList extends EveObject {
-	public EveList() {}
+	public EveList() {
+		
+	}
 	
 	public EveList(List<EveObject> l) {
 		if (l != null) {

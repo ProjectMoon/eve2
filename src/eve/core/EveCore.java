@@ -41,7 +41,6 @@ public class EveCore {
 		opts.addOption("h", false, "print help");
 		opts.addOption("i", true, "register instrumentation hook");
 		opts.addOption("r", false, "enter repl mode");
-		opts.addOption("eji", true, "make EJI types available");
 		
 		CommandLineParser parser = new GnuParser();
 		
@@ -51,7 +50,6 @@ public class EveCore {
 			if (line.hasOption("h")) printHelp(opts);
 			if (line.hasOption("d")) EveLogger.debugLevel();
 			if (line.hasOption("t")) printSyntaxTree = true;
-			if (line.hasOption("eji")) handleEJI(line.getOptionValue("eji"));
 			if (line.hasOption("r")) repl();
 			if (line.hasOption("e")) {
 				eval(line.getOptionValue("e"));
@@ -93,25 +91,7 @@ public class EveCore {
 		help.printHelp("eve", opts);
 		System.exit(0);
 	}
-	
-	private void handleEJI(String ejiLine) {
-		String[] pkgs = ejiLine.split(File.pathSeparator);
-		
-		EJIScanner scanner = new EJIScanner();
-		
-		for (String pkg : pkgs) {
-			scanner.addPackage(pkg);
-		}
-		
-		try {
-			scanner.scanForTypes();
-		}
-		catch (EveError e) {
-			System.err.println("EJI error: " + e.getMessage());
-			System.exit(1);
-		}
-	}
-	
+
 	private void handleErrors(List<String> errors) {
 		for (String error : errors) {
 			System.err.println(error);
@@ -131,9 +111,7 @@ public class EveCore {
 		//eve.core.builtins, no classes would be found.
 		//Apparently, we can't search eve.core either... so we must do eve.
 		EJIScanner scanner = new EJIScanner(); 
-		scanner.addPackage("eve");
 		scanner.scanForTypes();
-		scanner.loadNamespaces();
 		
 		ScopeManager.createGlobalScope();			
 					
@@ -148,9 +126,7 @@ public class EveCore {
 			//eve.core.builtins, no classes would be found.
 			//Apparently, we can't search eve.core either... so we must do eve.
 			EJIScanner scanner = new EJIScanner(); 
-			scanner.addPackage("eve");
 			scanner.scanForTypes();
-			scanner.loadNamespaces();
 			
 			ScopeManager.createGlobalScope();
 					

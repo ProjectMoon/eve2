@@ -1,11 +1,8 @@
 <ivy-module version="2.0">
     <info organisation="thermetics.eve" module="eve-interpreter" />
     <dependencies>
+		<dependency org="tv.cntt" name="annovention" rev="1.2"/>
     	<dependency org="com.google.guava" name="guava" rev="r09"/>
-    	<dependency org="org.reflections" name="reflections" rev="0.9.5-RC2">
-    		<!--  google collections is deprecated. guava replaces it. -->
-    		<exclude name="google-collections" />
-    	</dependency>
         <dependency org="org.antlr" name="antlr" rev="3.3" />
         <dependency org="commons-cli" name="commons-cli" rev="1.2"/>
         <dependency org="uk.com.robust-it" name="cloning" rev="1.7.4"/>

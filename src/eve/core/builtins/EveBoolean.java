@@ -16,7 +16,9 @@ public class EveBoolean extends EveObject {
 	 * For prototypes, the empty constructor is used when cloning from it.
 	 * Usually used by literals (sometimes other stuff).
 	 */
-	public EveBoolean() {}
+	public EveBoolean() {
+		setValue(false);
+	}
 	
 	/**
 	 * For prototypes, a value-based constructor serves as a way to create

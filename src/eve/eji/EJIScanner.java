@@ -15,6 +15,10 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
+import com.impetus.annovention.ClasspathDiscoverer;
+import com.impetus.annovention.Discoverer;
+import com.impetus.annovention.listener.ClassAnnotationDiscoveryListener;
+
 import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.builtins.BuiltinCommons;
@@ -27,121 +31,58 @@ import eve.core.builtins.BuiltinCommons;
  * @author jeff
  *
  */
-public class EJIScanner {
-	private static final Map<String, Class<?>> memoizedNamespaces = new HashMap<String, Class<?>>();
-	
-	private List<String> packages = new ArrayList<String>();
-	
+public class EJIScanner {	
 	public EJIScanner() {
 		
-	}
-	
+	}	
+		
 	/**
-	 * Find a namespace in a package. Does not load the namespace; only returns
-	 * the class. Use {@link EJIHelper#createEJIModuleType(Class)} for that.
-	 * @param pkg
-	 * @param namespace
-	 * @return The class, if found. Null otherwise.
-	 */
-	public static Class<?> findNamespace(String pkg, String namespace) {
-		//don't need to scan all the time...
-		if (memoizedNamespaces.containsKey(pkg + ":" + namespace)) {
-			return memoizedNamespaces.get(pkg + ":" + namespace);
-		}
+	 * Scan the classpath for EJI types, and either add them to the type pool
+	 * (if they are marked with EJIBuiltin), or to the external types map
+	 * (if they are not marked).
+	 */	
+	public void scanForTypes() {
+		final Set<String> foundTypes = new HashSet<String>();
+		Discoverer d = new ClasspathDiscoverer();
 		
-		FilterBuilder fb = new FilterBuilder();
-		Set<URL> pkgUrls = new HashSet<URL>();
-		
-		fb.include(FilterBuilder.prefix(pkg));
-		pkgUrls.addAll(ClasspathHelper.getUrlsForPackagePrefix(pkg));
-		
-		ConfigurationBuilder cb =
-			new ConfigurationBuilder()
-			.filterInputsBy(fb)
-			.setUrls(pkgUrls)
-			.setScanners(new TypeAnnotationsScanner());
-		
-		Reflections reflections = new Reflections(cb);
-		
-		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(EJIModule.class);
-		
-		if (annotated.size() <= 0) {
-			throw new EveError("could not find any standard namespaces! fatal!");
-		}
-		else {
-			for (Class<?> cl : annotated) {
-				EJIModule ns = cl.getAnnotation(EJIModule.class);
-				if (ns.value().equals(namespace)) {
-					memoizedNamespaces.put(pkg + ":" + namespace, cl);
-					return cl;
-				}
+		d.addAnnotationListener(new ClassAnnotationDiscoveryListener() {
+			@Override public String[] supportedAnnotations() {
+				return new String[] { EJIType.class.getName() };
 			}
 			
-			throw new EveError("could not find standard namespace " + namespace);
-		}		
-	}
-	
-	/**
-	 * Find a standard namespace (from eve.eji.stdlib).Does not load the namespace; only returns
-	 * the class. Use {@link EJIHelper#createEJIModuleType(Class)} for that.
-	 * @param namespace
-	 * @return The class, if found. Null otherwise.
-	 */
-	public static Class<?> findStandardNamespace(String namespace) {
-		return findNamespace("eve.eji.stdlib", namespace);
-	}
-	
-	/**
-	 * Add a package to scan to this scanner.
-	 * @param packageName
-	 */
-	public void addPackage(String packageName) {
-		packages.add(packageName);
-	}
-	
-	/**
-	 * Creates a Reflections scanner based on the configured packages.
-	 * @return the scanner.
-	 */
-	private Reflections createScanner() {
-		FilterBuilder fb = new FilterBuilder();
-		Set<URL> pkgUrls = new HashSet<URL>();
+			@Override public void discovered(String className, String annotation) {
+				foundTypes.add(className);
+			}
+		});
 		
-		for (String pkg : packages) {
-			fb.include(FilterBuilder.prefix(pkg));
-			pkgUrls.addAll(ClasspathHelper.getUrlsForPackagePrefix(pkg));
+		d.discover(true, false, false, true, false);
+		
+		Set<Class<?>> types = new HashSet<Class<?>>();
+		
+		for (String className : foundTypes) {
+			try {
+				types.add(Class.forName(className));
+			}
+			catch (ClassNotFoundException e) {
+				throw new EveError("EJI error: EJI class not found: " + e.getMessage());
+			}
 		}
-		
-		ConfigurationBuilder cb =
-			new ConfigurationBuilder()
-			.filterInputsBy(fb)
-			.setUrls(pkgUrls)
-			.setScanners(new TypeAnnotationsScanner().filterResultsBy(fb));
-		
-		return new Reflections(cb);
-	}
-	
-	/**
-	 * Scan the configured packages for EJI Types, and either add them to
-	 * the type pool (if they are marked with EJIBuiltin), or to the external
-	 * types map (if they are not marked).
-	 */
-	public void scanForTypes() {
-		Reflections reflections = createScanner();
-		Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(EJIType.class);
 		
 		try {
-			createEJITypes(annotated);
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IntrospectionException e) {
+			createEJITypes(types);
+		}
+		catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IntrospectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 	}
 	
 	/**
@@ -179,32 +120,6 @@ public class EJIScanner {
 			else {
 				ExternalTypes.addType(typeInfo.value(), eveType);
 			}
-		}
-	}
-	
-	/**
-	 * Scan the configured packages for EJI Namespaces, and add them into
-	 * the interpreter environment.
-	 */
-	public void loadNamespaces() {
-		//Due to a bug with the library, we must search *above*
-		//eve.eji.stdlib. All standard namespaces are in eve.eji.stdlib
-		//however. If we were to search eve.eji.stdlib, we would get no
-		//classes.
-		Reflections r = createScanner();
-		
-		Set<Class<?>> annotated = r.getTypesAnnotatedWith(EJIModule.class);
-		
-		for (Class<?> cl : annotated) {
-			EveObject module = EJIHelper.createEJIModuleType(cl);
-			BuiltinCommons.addType(cl.getAnnotation(EJIModule.class).value(), module);
-		}
-		
-		Set<Class<?>> merged = r.getTypesAnnotatedWith(EJIMergeModule.class);
-		
-		for (Class<?> cl : merged) {
-			EveObject module = EJIHelper.createEJIModuleType(cl);
-			BuiltinCommons.mergeType(cl.getAnnotation(EJIMergeModule.class).value(), module);
 		}
 	}
 }

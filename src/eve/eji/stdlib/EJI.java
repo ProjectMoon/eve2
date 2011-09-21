@@ -40,19 +40,7 @@ public class EJI {
 	public static EveObject exposeType(String className) {
 		return expose0(className, true);
 	}
-	
-	/**
-	 * Exposes the EJIScanner package scanner to Eve code to allow developers
-	 * to programmatically import  their external types. typedef extern is
-	 * required to use the found types.
-	 * @param pkg The package name to scan.
-	 */
-	public static void scan(String pkg) {
-		EJIScanner scanner = new EJIScanner();
-		scanner.addPackage(pkg);
-		scanner.scanForTypes();
-	}
-	
+		
 	private static EveObject resolveJavaPackageContainer(String fqcn) {
 		String[] split = fqcn.split("\\.");
 		
@@ -99,10 +87,18 @@ public class EJI {
 			}
 		}
 		catch (ClassNotFoundException e) {
-			throw new EveError("EJI error: " + e.getMessage());
+			throw new EveError("EJI error: " + e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
 		catch (IntrospectionException e) {
 			throw new EveError("EJI error: " + e.getMessage());
+		}
+		catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		return null;

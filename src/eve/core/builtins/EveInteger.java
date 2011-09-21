@@ -16,7 +16,9 @@ public class EveInteger extends EveObject {
 	 * For prototypes, the empty constructor is used when cloning from it.
 	 * Usually used by literals (sometimes other stuff).
 	 */
-	public EveInteger() {}
+	public EveInteger() {
+		setValue(0);
+	}
 	
 	/**
 	 * For prototypes, a value-based constructor serves as a way to create
