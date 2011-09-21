@@ -11,6 +11,7 @@ import eve.core.builtins.EveDouble;
 import eve.core.builtins.EveFunction;
 import eve.core.builtins.EveFunctionPrototype;
 import eve.core.builtins.EveInteger;
+import eve.core.builtins.EveJava;
 import eve.core.builtins.EveList;
 import eve.core.builtins.EveString;
 import eve.eji.EJIHelper;
@@ -113,7 +114,7 @@ public class EveObjectFactory {
 	}
 	
 	public static EveObject javaType(Object o) {
-		EveObject eo = empty();
+		EveObject eo = ejiInit(new EveJava());
 		eo.mergeFrom(BuiltinCommons.getType("java"));
 		
 		//must set type after since setValue will also set the type...

@@ -48,7 +48,8 @@ public class BuiltinCommons {
 			return;
 		}
 		
-		typePool.put(name, initialize(type));
+		//typePool.put(name, initialize(type));
+		typePool.put(name, type);
 	}
 	
 	public static void mergeType(String name, EveObject newProperties) {
