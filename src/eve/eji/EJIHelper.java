@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hamcrest.core.IsEqual;
-
 import javassist.Modifier;
 
 import com.google.common.base.Predicate;
@@ -32,7 +30,6 @@ import eve.core.EveError;
 import eve.core.EveObject;
 import eve.core.EveObjectFactory;
 import eve.core.EveObject.EveType;
-import eve.core.builtins.BuiltinCommons;
 import eve.core.Function;
 import eve.scope.ScopeManager;
 
@@ -542,17 +539,18 @@ public class EJIHelper {
 	
 	public static EveObject createEJIType(Class<?> type, boolean bypassTypeCoercion) throws IntrospectionException {
 		//step 0: get type name.
-		if (!type.isAnnotationPresent(EJIType.class)) {
-			throw new EveError("class must have EJI type annotation present.");
+		String typename = null;
+		if (type.isAnnotationPresent(EJIType.class)) {
+			typename = type.getAnnotation(EJIType.class).value();
 		}
-		
-		String typename = type.getAnnotation(EJIType.class).value();
+		else {
+			typename = type.getSimpleName(); 
+		}
 		
 		EveObject eo = EveObjectFactory.prototypeType(typename);
 		
-		//step 1: get constructor for __create
+		//step 1: get constructor for __create (assigned later).
 		EveObject ctor = createEJIConstructor(type, bypassTypeCoercion);
-		eo.putField("__create", ctor);
 		
 		//step 2: add all static fields/properties
 		Map<String, Method> staticMethods = new HashMap<String, Method>();
@@ -594,7 +592,11 @@ public class EJIHelper {
 			
 			//step 5: set java value to the instance.
 			eo.setValue(o);
-			eo.setInternalType(EveType.PROTOTYPE); //avoid auto internal type changing.
+			eo.setInternalType(EveType.PROTOTYPE); //fix internal type change from setValue.
+			
+			//almost certainly overwritten by the merge. this is a weird case that doesn't happen
+			//unless merging between two EveType.PROTOTYPE objects with __create fields.
+			eo.putField("__create", ctor); 
 			
 			return eo;
 		}
