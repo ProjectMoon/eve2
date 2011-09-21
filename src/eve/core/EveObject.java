@@ -134,8 +134,11 @@ public abstract class EveObject {
 		return cloneable;
 	}
 	
-	private void setTypeFor(Object value) {
+	private void setInternalTypeFor(Object value) {
 		//prototype, scope, and java are handled differently.
+		if (value == null) {
+			setInternalType(EveType.NULL);
+		}
 		if (value instanceof Integer) {
 			setInternalType(EveType.INTEGER);
 		}
@@ -161,7 +164,7 @@ public abstract class EveObject {
 	}
 	
 	public void setValue(Object value) {
-		setTypeFor(value);
+		setInternalTypeFor(value);
 		this.value = value; 
 	}
 	
