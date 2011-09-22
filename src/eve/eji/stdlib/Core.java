@@ -28,7 +28,6 @@ import eve.scope.ScopeManager;
 @EJIMergeModule("global")
 public class Core {
 	private static final List<File> IMPORTED_FILES = new ArrayList<File>();
-	private static final List<Class<?>> IMPORTED_CLASSES = new ArrayList<Class<?>>();
 	
 	/**
 	 * The import function imports eve modules and EJI namespaces. Eve modules
@@ -46,10 +45,7 @@ public class Core {
 			return;
 		}
 		
-		if (!file.exists()) {
-			attemptEJIImport(filename); //actually considered classname here.
-		}
-		else if (file.exists() && !IMPORTED_FILES.contains(file)) {
+		if (file.exists()) {
 			attemptFileImport(file);
 		}
 		else {
@@ -72,9 +68,5 @@ public class Core {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
-	
-	private static void attemptEJIImport(String className) {
-		throw new EveError("need to reimplement EJI imports. use typedef extern instead.");
 	}
 }
