@@ -117,6 +117,10 @@ Release Notes
       code.
     * Define specific indexed accessors and mutator methods for EJI types.
     * More Java errors are captured and turned into Eve errors.
+    * Static methods will be picked up and added to EJI types.
+    * Significant changes in how EJI objects are created and handled. If an
+      EJIType class extends EveObject, it is handled slightly differently
+      than a POJO class. This is mostly internal.
 * Property collections are now a custom type since `dict` is gone, and are
   sealed (cannot have values added, removed, or modified).
 * `scope` blocks now isolate scope. They will not search for values defined
@@ -124,10 +128,12 @@ Release Notes
 * `onClone` event removed in anticipation of a better event-handling mechanism.
 * Variable argument list are now a "list-like" object, rather than an object of
   type `list`.
-* NOT YET DONE: Ability to define a type name with object literals was removed
-  because of the new `typedef` statement.
-* NOT YET DONE: Object literals will now report their type as "object", rather
-  than "object_literal".
+* Ability to define a type name with object literals was removed because of the
+  new `typedef` statement.
+* Object literals will now report their type as "object", rather than
+  "object_literal".
+* `import` function: removed ability to import Java classes, because it didn't
+  really line up with what importing is supposed to do.
 
 0.3.5:
 
