@@ -134,6 +134,9 @@ Release Notes
   "object_literal".
 * `import` function: removed ability to import Java classes, because it didn't
   really line up with what importing is supposed to do.
+* Switched from reflections to annovention annotation scanning library. This
+  scans the classpath at startup (correctly, even!) and loads any EJI types
+  automatically. Now, only `typedef extern` is required!
 
 0.3.5:
 
