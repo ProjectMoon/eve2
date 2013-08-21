@@ -7,38 +7,26 @@ return the first identifier it finds, so don't shadow! closure:: only works
 in functions. Anywhere else will throw a closure scope not present error.
 */
 
-def Animal = AnimalCtor(noise) {
-	proto Animal2 {
-		def makeNoise = makeNoise() {
-			print(noise);
-		}
+def outer() {
+	var x = 0;
+
+	def inner1() {
+		x = x + 1;
+		return x;
 	}
-	
-	return Animal2;
+
+	def inner2() {
+		x = x + 2;
+		return x;
+	}
+
+	var l = [];
+	l[0] = inner1;
+	l[1] = inner2;
+	return l;
 }
 
-var cat = Animal("meow");
-var dog = Animal("woof");
-cat.makeNoise();
-dog.makeNoise();
+var fns = outer();
 
-/*
-While not strictly a closure, you can use the special "self" variable inside
-inner functions. Note that the self variable will NOT be preserved in a
-closure at this time. If the function z was returned, it would crash when
-called because "self" does not exist at the closure scope.
-*/
-proto obj {
-	var aProp = 10;
-
-	def demonstrate = () {
-		var a = "5";
-		def z = () {
-			print(self.aProp);
-		}
-		
-		z();
-	}
-}
-
-obj.demonstrate();
+println(fns[0]());
+println(fns[1]());

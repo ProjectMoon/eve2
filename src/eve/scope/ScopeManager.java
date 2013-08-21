@@ -134,14 +134,23 @@ public class ScopeManager {
 		
 		//this or condition prevents namespaced references in functions
 		//from going to the temp fields map.
-		if (!inFunction() || globalScope == scope) {
+		if (!inFunction() || isClosureScope(scope) || globalScope == scope) {
 			scope.putField(name, eo);
 		}
 		else {
 			scope.putTempField(name, eo);
 		}
 	}
+	
+	public static boolean isClosureScope(EveObject scope) {
+		if (closureScope != null) {
+			return closureScope.contains(scope);
+		}
+		else {
+			return false;
+		}
 		
+	}
 	public static boolean inFunction() {
 		return getCurrentScope().getInternalType() == EveType.FUNCTION;
 	}
