@@ -137,6 +137,8 @@ Release Notes
 * Switched from reflections to annovention annotation scanning library. This
   scans the classpath at startup (correctly, even!) and loads any EJI types
   automatically. Now, only `typedef extern` is required!
+* Identifiers discovered to be part of a closure scope are now properly assigned
+  to the main fields map instead of the temporary fields map.
 
 0.3.5:
 
